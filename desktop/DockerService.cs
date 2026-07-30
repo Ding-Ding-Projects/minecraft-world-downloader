@@ -28,12 +28,23 @@ public class DockerService
         foreach (var a in args) psi.ArgumentList.Add(a);
 
         var sb = new StringBuilder();
+        var outputGate = new object();
         try
         {
             if (log) Log("$ docker " + FormatArgumentsForLog(args));
             using var p = new Process { StartInfo = psi, EnableRaisingEvents = true };
-            p.OutputDataReceived += (_, e) => { if (e.Data != null) { sb.AppendLine(e.Data); if (log) Log(e.Data); } };
-            p.ErrorDataReceived += (_, e) => { if (e.Data != null) { sb.AppendLine(e.Data); if (log) Log(e.Data); } };
+            p.OutputDataReceived += (_, e) =>
+            {
+                if (e.Data == null) return;
+                lock (outputGate) sb.AppendLine(e.Data);
+                if (log) Log(e.Data);
+            };
+            p.ErrorDataReceived += (_, e) =>
+            {
+                if (e.Data == null) return;
+                lock (outputGate) sb.AppendLine(e.Data);
+                if (log) Log(e.Data);
+            };
             p.Start();
             p.BeginOutputReadLine();
             p.BeginErrorReadLine();
@@ -96,23 +107,41 @@ public class DockerService
     public Task<(int, string)> BuildAsync(string contextPath, string imageTag) =>
         RunAsync(new[] { "build", "-t", imageTag, contextPath });
 
-    public Task<(int, string)> RunContainerAsync(Settings s)
+    internal static IReadOnlyList<string> BuildRunArguments(Settings settings)
     {
+        ArgumentNullException.ThrowIfNull(settings);
         var args = new List<string>
         {
             "run", "-d",
-            "--name", s.ContainerName,
+            "--name", settings.ContainerName,
             "--restart", "unless-stopped",
-            "-p", $"{s.WebPort}:8080",
-            "-p", $"{s.ProxyPort}:25565",
-            "-v", $"{s.DataFolder}:/data",
+            "-p", settings.WebPortBinding,
+            "-p", $"{settings.ProxyPort}:25565",
+            "-v", $"{settings.DataFolder}:/data",
         };
-        if (s.RequireLogin && !string.IsNullOrWhiteSpace(s.Password))
+
+        foreach (var item in settings.GetContainerEnvironment())
         {
-            args.Add("-e"); args.Add($"WEB_USERNAME={s.Username}");
-            args.Add("-e"); args.Add($"WEB_PASSWORD={s.Password}");
+            args.Add("-e");
+            args.Add($"{item.Key}={item.Value}");
         }
-        args.Add(s.EffectiveImage);
-        return RunAsync(args);
+
+        args.Add(settings.EffectiveImage);
+        return args;
+    }
+
+    public Task<(int, string)> RunContainerAsync(Settings settings)
+    {
+        try
+        {
+            return RunAsync(BuildRunArguments(settings));
+        }
+        catch (InvalidOperationException ex)
+        {
+            // Authentication validation errors contain no protected value. Fail without invoking
+            // Docker so requested login protection can never be silently dropped.
+            Log("Error: " + ex.Message);
+            return Task.FromResult((-1, ex.Message));
+        }
     }
 }

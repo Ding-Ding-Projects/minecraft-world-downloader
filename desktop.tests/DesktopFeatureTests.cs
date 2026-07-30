@@ -1,3 +1,5 @@
+using System;
+using System.IO;
 using System.Linq;
 using System.Text.Json;
 using WorldDownloaderManager;
@@ -80,6 +82,13 @@ public class DesktopFeatureTests
         Assert.Contains("按「開始」", text);
         Assert.DoesNotContain("goblin", text);
         Assert.Contains("吉祥扳手", text);
+
+        var englishLevels = Enumerable.Range(1, 5)
+            .Select(level => AppCopy.Get("settingsSaved", "English", level, 1));
+        var cantoneseLevels = Enumerable.Range(1, 5)
+            .Select(level => AppCopy.Get("settingsSaved", "Cantonese", 1, level));
+        Assert.Equal(5, englishLevels.Distinct().Count());
+        Assert.Equal(5, cantoneseLevels.Distinct().Count());
     }
 
     [Fact]
@@ -103,5 +112,78 @@ public class DesktopFeatureTests
 
         Assert.False(result.IsValid);
         Assert.Contains("safety limit", result.Error);
+    }
+
+    [Fact]
+    public void LocalHistoryIsAppendOnlyAndSuppressesUnchangedSnapshots()
+    {
+        using var sandbox = new TemporaryDirectory();
+        var history = new LocalHistoryService(sandbox.Path);
+        var first = JsonSerializer.Serialize(new Settings { WebPort = 8080 });
+        var second = JsonSerializer.Serialize(new Settings { WebPort = 9090 });
+
+        Assert.NotNull(history.RecordSettingsSnapshot(first));
+        Assert.Null(history.RecordSettingsSnapshot(first));
+        Assert.NotNull(history.RecordSettingsSnapshot(second));
+
+        var revisions = history.GetRevisions();
+        Assert.Equal(2, revisions.Count);
+        Assert.Contains("web console port", revisions[0].Message);
+        Assert.Contains("revision: 8080", history.DiffAgainst(revisions[1].Sha, second));
+    }
+
+    [Fact]
+    public void LocalHistoryLabelsRestoresAndPrunesWithoutARemote()
+    {
+        using var sandbox = new TemporaryDirectory();
+        var history = new LocalHistoryService(sandbox.Path);
+        for (var port = 8080; port < 8084; port++)
+            history.RecordSettingsSnapshot(JsonSerializer.Serialize(new Settings { WebPort = port }));
+
+        var oldest = history.GetRevisions().Last();
+        history.LabelRevision(oldest.Sha, "Before port experiments");
+        var labeledRevision = history.GetRevisions().Single(revision => revision.Sha == oldest.Sha);
+        Assert.True(labeledRevision.Label == "Before port experiments",
+            $"Label file: {File.ReadAllText(Path.Combine(history.RepositoryPath, "labels.json"))}; " +
+            $"revision: {JsonSerializer.Serialize(labeledRevision)}");
+        Assert.Contains("8080", history.GetSnapshot(oldest.Sha));
+        Assert.Equal(2, history.PruneToLatest(2));
+        Assert.Equal(2, history.GetRevisions().Count);
+        using var repository = new LibGit2Sharp.Repository(history.RepositoryPath);
+        Assert.Empty(repository.Network.Remotes);
+    }
+
+    [Fact]
+    public void LocalHistoryNeverDisplaysProtectedCiphertext()
+    {
+        const string oldCipher = "cipher-one-must-not-appear";
+        const string newCipher = "cipher-two-must-not-appear";
+        var oldJson = JsonSerializer.Serialize(new Settings { EncryptedPassword = oldCipher });
+        var newJson = JsonSerializer.Serialize(new Settings { EncryptedPassword = newCipher });
+
+        var diff = LocalHistoryService.FormatJsonDiff(oldJson, newJson);
+
+        Assert.Contains("protected value changed", diff);
+        Assert.DoesNotContain(oldCipher, diff);
+        Assert.DoesNotContain(newCipher, diff);
+    }
+}
+
+internal sealed class TemporaryDirectory : IDisposable
+{
+    public TemporaryDirectory()
+    {
+        Path = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "mwd-tests-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(Path);
+    }
+
+    public string Path { get; }
+
+    public void Dispose()
+    {
+        if (!Directory.Exists(Path)) return;
+        foreach (var file in Directory.EnumerateFiles(Path, "*", SearchOption.AllDirectories))
+            File.SetAttributes(file, FileAttributes.Normal);
+        Directory.Delete(Path, true);
     }
 }

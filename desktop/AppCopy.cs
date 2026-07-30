@@ -44,7 +44,7 @@ public static class AppCopy
     private static string StyleEnglish(string text, int level) => Math.Clamp(level, 1, 5) switch
     {
         1 => text,
-        2 => text,
+        2 => text + " All set when you are.",
         3 => text + " No enchanted pickaxe required.",
         4 => text + " The tiny server goblin has filed the paperwork.",
         _ => text + " The tiny server goblin has filed the paperwork and returned the ceremonial wrench. 🔧",
@@ -53,7 +53,7 @@ public static class AppCopy
     private static string StyleCantonese(string text, int level) => Math.Clamp(level, 1, 5) switch
     {
         1 => text,
-        2 => text,
+        2 => text + " 你準備好就得。",
         3 => text + " 唔使攞附魔鎬。",
         4 => text + " 小小伺服器精靈已經交齊表格。",
         _ => text + " 小小伺服器精靈交齊表格，仲捧埋吉祥扳手返嚟。🔧",

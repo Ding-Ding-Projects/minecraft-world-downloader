@@ -49,9 +49,8 @@ public partial class App : Application
         catch { /* ignore logging failures */ }
         try
         {
-            MessageBox.Show(
-                $"World Downloader Manager hit an error ({source}):\n\n{ex.Message}\n\nDetails were saved to:\n{path}",
-                "World Downloader Manager", MessageBoxButton.OK, MessageBoxImage.Error);
+            if (Current?.MainWindow is MainWindow mainWindow)
+                mainWindow.ReportUnhandledError(source, ex.Message, path);
         }
         catch { /* no UI available */ }
     }

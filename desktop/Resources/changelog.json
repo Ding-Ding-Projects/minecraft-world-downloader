@@ -1,0 +1,3011 @@
+{
+  "sourceRepository": "Ding-Ding-Projects/minecraft-world-downloader",
+  "releases": [
+    {
+      "tag": "build-59",
+      "version": "1.0.59",
+      "name": "All-in-one build 1.0.59",
+      "publishedAt": "2026-07-30T01:26:10Z",
+      "url": "https://github.com/Ding-Ding-Projects/minecraft-world-downloader/releases/tag/build-59",
+      "isPrerelease": false,
+      "sourceNotes": "Automated all-in-one build.\n- **WorldDownloaderManager-Setup.exe** — desktop manager installer (bundles the jar,\n  docker-compose.yml and full source under the install dir's `resources/` folder).\n- **world-downloader.jar** — the proxy/downloader jar (run with `java -jar`).\n- **source.zip** — full source snapshot.\n",
+      "categories": [
+        {
+          "id": "summary",
+          "title": {
+            "english": "Release summary",
+            "cantonese": "發佈摘要"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "Automated all-in-one build.",
+                "cantonese": "自動化一站式構建。"
+              }
+            }
+          ]
+        },
+        {
+          "id": "artifacts",
+          "title": {
+            "english": "Included artifacts",
+            "cantonese": "隨附發佈檔案"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "WorldDownloaderManager-Setup.exe — desktop manager installer (bundles the jar, docker-compose.yml and full source under the install directory's resources folder).",
+                "cantonese": "WorldDownloaderManager-Setup.exe — 桌面管理器安裝程式（在安裝目錄的 resources 資料夾內附帶 jar、docker-compose.yml 及完整原始碼）。"
+              }
+            },
+            {
+              "text": {
+                "english": "world-downloader.jar — the proxy/downloader jar (run with java -jar).",
+                "cantonese": "world-downloader.jar — 代理／下載器 jar（以 java -jar 執行）。"
+              }
+            },
+            {
+              "text": {
+                "english": "source.zip — full source snapshot.",
+                "cantonese": "source.zip — 完整原始碼快照。"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "build-58",
+      "version": "1.0.58",
+      "name": "All-in-one build 1.0.58",
+      "publishedAt": "2026-07-29T21:29:27Z",
+      "url": "https://github.com/Ding-Ding-Projects/minecraft-world-downloader/releases/tag/build-58",
+      "isPrerelease": false,
+      "sourceNotes": "Automated all-in-one build.\n- **WorldDownloaderManager-Setup.exe** — desktop manager installer (bundles the jar,\n  docker-compose.yml and full source under the install dir's `resources/` folder).\n- **world-downloader.jar** — the proxy/downloader jar (run with `java -jar`).\n- **source.zip** — full source snapshot.\n",
+      "categories": [
+        {
+          "id": "summary",
+          "title": {
+            "english": "Release summary",
+            "cantonese": "發佈摘要"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "Automated all-in-one build.",
+                "cantonese": "自動化一站式構建。"
+              }
+            }
+          ]
+        },
+        {
+          "id": "artifacts",
+          "title": {
+            "english": "Included artifacts",
+            "cantonese": "隨附發佈檔案"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "WorldDownloaderManager-Setup.exe — desktop manager installer (bundles the jar, docker-compose.yml and full source under the install directory's resources folder).",
+                "cantonese": "WorldDownloaderManager-Setup.exe — 桌面管理器安裝程式（在安裝目錄的 resources 資料夾內附帶 jar、docker-compose.yml 及完整原始碼）。"
+              }
+            },
+            {
+              "text": {
+                "english": "world-downloader.jar — the proxy/downloader jar (run with java -jar).",
+                "cantonese": "world-downloader.jar — 代理／下載器 jar（以 java -jar 執行）。"
+              }
+            },
+            {
+              "text": {
+                "english": "source.zip — full source snapshot.",
+                "cantonese": "source.zip — 完整原始碼快照。"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "build-57",
+      "version": "1.0.57",
+      "name": "All-in-one build 1.0.57",
+      "publishedAt": "2026-07-05T00:09:05Z",
+      "url": "https://github.com/Ding-Ding-Projects/minecraft-world-downloader/releases/tag/build-57",
+      "isPrerelease": false,
+      "sourceNotes": "Automated all-in-one build.\n- **WorldDownloaderManager-Setup.exe** — desktop manager installer (bundles the jar,\n  docker-compose.yml and full source under the install dir's `resources/` folder).\n- **world-downloader.jar** — the proxy/downloader jar (run with `java -jar`).\n- **source.zip** — full source snapshot.\n",
+      "categories": [
+        {
+          "id": "summary",
+          "title": {
+            "english": "Release summary",
+            "cantonese": "發佈摘要"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "Automated all-in-one build.",
+                "cantonese": "自動化一站式構建。"
+              }
+            }
+          ]
+        },
+        {
+          "id": "artifacts",
+          "title": {
+            "english": "Included artifacts",
+            "cantonese": "隨附發佈檔案"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "WorldDownloaderManager-Setup.exe — desktop manager installer (bundles the jar, docker-compose.yml and full source under the install directory's resources folder).",
+                "cantonese": "WorldDownloaderManager-Setup.exe — 桌面管理器安裝程式（在安裝目錄的 resources 資料夾內附帶 jar、docker-compose.yml 及完整原始碼）。"
+              }
+            },
+            {
+              "text": {
+                "english": "world-downloader.jar — the proxy/downloader jar (run with java -jar).",
+                "cantonese": "world-downloader.jar — 代理／下載器 jar（以 java -jar 執行）。"
+              }
+            },
+            {
+              "text": {
+                "english": "source.zip — full source snapshot.",
+                "cantonese": "source.zip — 完整原始碼快照。"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "build-56",
+      "version": "1.0.56",
+      "name": "All-in-one build 1.0.56",
+      "publishedAt": "2026-06-17T18:58:30Z",
+      "url": "https://github.com/Ding-Ding-Projects/minecraft-world-downloader/releases/tag/build-56",
+      "isPrerelease": false,
+      "sourceNotes": "Automated all-in-one build.\n- **WorldDownloaderManager-Setup.exe** — desktop manager installer (bundles the jar,\n  docker-compose.yml and full source under the install dir's `resources/` folder).\n- **world-downloader.jar** — the proxy/downloader jar (run with `java -jar`).\n- **source.zip** — full source snapshot.\n",
+      "categories": [
+        {
+          "id": "summary",
+          "title": {
+            "english": "Release summary",
+            "cantonese": "發佈摘要"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "Automated all-in-one build.",
+                "cantonese": "自動化一站式構建。"
+              }
+            }
+          ]
+        },
+        {
+          "id": "artifacts",
+          "title": {
+            "english": "Included artifacts",
+            "cantonese": "隨附發佈檔案"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "WorldDownloaderManager-Setup.exe — desktop manager installer (bundles the jar, docker-compose.yml and full source under the install directory's resources folder).",
+                "cantonese": "WorldDownloaderManager-Setup.exe — 桌面管理器安裝程式（在安裝目錄的 resources 資料夾內附帶 jar、docker-compose.yml 及完整原始碼）。"
+              }
+            },
+            {
+              "text": {
+                "english": "world-downloader.jar — the proxy/downloader jar (run with java -jar).",
+                "cantonese": "world-downloader.jar — 代理／下載器 jar（以 java -jar 執行）。"
+              }
+            },
+            {
+              "text": {
+                "english": "source.zip — full source snapshot.",
+                "cantonese": "source.zip — 完整原始碼快照。"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "build-55",
+      "version": "1.0.55",
+      "name": "All-in-one build 1.0.55",
+      "publishedAt": "2026-06-12T01:38:14Z",
+      "url": "https://github.com/Ding-Ding-Projects/minecraft-world-downloader/releases/tag/build-55",
+      "isPrerelease": false,
+      "sourceNotes": "Automated all-in-one build.\n- **WorldDownloaderManager-Setup.exe** — desktop manager installer (bundles the jar,\n  docker-compose.yml and full source under the install dir's `resources/` folder).\n- **world-downloader.jar** — the proxy/downloader jar (run with `java -jar`).\n- **source.zip** — full source snapshot.\n",
+      "categories": [
+        {
+          "id": "summary",
+          "title": {
+            "english": "Release summary",
+            "cantonese": "發佈摘要"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "Automated all-in-one build.",
+                "cantonese": "自動化一站式構建。"
+              }
+            }
+          ]
+        },
+        {
+          "id": "artifacts",
+          "title": {
+            "english": "Included artifacts",
+            "cantonese": "隨附發佈檔案"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "WorldDownloaderManager-Setup.exe — desktop manager installer (bundles the jar, docker-compose.yml and full source under the install directory's resources folder).",
+                "cantonese": "WorldDownloaderManager-Setup.exe — 桌面管理器安裝程式（在安裝目錄的 resources 資料夾內附帶 jar、docker-compose.yml 及完整原始碼）。"
+              }
+            },
+            {
+              "text": {
+                "english": "world-downloader.jar — the proxy/downloader jar (run with java -jar).",
+                "cantonese": "world-downloader.jar — 代理／下載器 jar（以 java -jar 執行）。"
+              }
+            },
+            {
+              "text": {
+                "english": "source.zip — full source snapshot.",
+                "cantonese": "source.zip — 完整原始碼快照。"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "build-54",
+      "version": "1.0.54",
+      "name": "All-in-one build 1.0.54",
+      "publishedAt": "2026-06-09T22:34:54Z",
+      "url": "https://github.com/Ding-Ding-Projects/minecraft-world-downloader/releases/tag/build-54",
+      "isPrerelease": false,
+      "sourceNotes": "Automated all-in-one build.\n- **WorldDownloaderManager-Setup.exe** — desktop manager installer (bundles the jar,\n  docker-compose.yml and full source under the install dir's `resources/` folder).\n- **world-downloader.jar** — the proxy/downloader jar (run with `java -jar`).\n- **source.zip** — full source snapshot.\n",
+      "categories": [
+        {
+          "id": "summary",
+          "title": {
+            "english": "Release summary",
+            "cantonese": "發佈摘要"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "Automated all-in-one build.",
+                "cantonese": "自動化一站式構建。"
+              }
+            }
+          ]
+        },
+        {
+          "id": "artifacts",
+          "title": {
+            "english": "Included artifacts",
+            "cantonese": "隨附發佈檔案"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "WorldDownloaderManager-Setup.exe — desktop manager installer (bundles the jar, docker-compose.yml and full source under the install directory's resources folder).",
+                "cantonese": "WorldDownloaderManager-Setup.exe — 桌面管理器安裝程式（在安裝目錄的 resources 資料夾內附帶 jar、docker-compose.yml 及完整原始碼）。"
+              }
+            },
+            {
+              "text": {
+                "english": "world-downloader.jar — the proxy/downloader jar (run with java -jar).",
+                "cantonese": "world-downloader.jar — 代理／下載器 jar（以 java -jar 執行）。"
+              }
+            },
+            {
+              "text": {
+                "english": "source.zip — full source snapshot.",
+                "cantonese": "source.zip — 完整原始碼快照。"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "build-53",
+      "version": "1.0.53",
+      "name": "All-in-one build 1.0.53",
+      "publishedAt": "2026-06-09T07:25:21Z",
+      "url": "https://github.com/Ding-Ding-Projects/minecraft-world-downloader/releases/tag/build-53",
+      "isPrerelease": false,
+      "sourceNotes": "Automated all-in-one build.\n- **WorldDownloaderManager-Setup.exe** — desktop manager installer (bundles the jar,\n  docker-compose.yml and full source under the install dir's `resources/` folder).\n- **world-downloader.jar** — the proxy/downloader jar (run with `java -jar`).\n- **source.zip** — full source snapshot.\n",
+      "categories": [
+        {
+          "id": "summary",
+          "title": {
+            "english": "Release summary",
+            "cantonese": "發佈摘要"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "Automated all-in-one build.",
+                "cantonese": "自動化一站式構建。"
+              }
+            }
+          ]
+        },
+        {
+          "id": "artifacts",
+          "title": {
+            "english": "Included artifacts",
+            "cantonese": "隨附發佈檔案"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "WorldDownloaderManager-Setup.exe — desktop manager installer (bundles the jar, docker-compose.yml and full source under the install directory's resources folder).",
+                "cantonese": "WorldDownloaderManager-Setup.exe — 桌面管理器安裝程式（在安裝目錄的 resources 資料夾內附帶 jar、docker-compose.yml 及完整原始碼）。"
+              }
+            },
+            {
+              "text": {
+                "english": "world-downloader.jar — the proxy/downloader jar (run with java -jar).",
+                "cantonese": "world-downloader.jar — 代理／下載器 jar（以 java -jar 執行）。"
+              }
+            },
+            {
+              "text": {
+                "english": "source.zip — full source snapshot.",
+                "cantonese": "source.zip — 完整原始碼快照。"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "build-52",
+      "version": "1.0.52",
+      "name": "All-in-one build 1.0.52",
+      "publishedAt": "2026-06-09T07:24:55Z",
+      "url": "https://github.com/Ding-Ding-Projects/minecraft-world-downloader/releases/tag/build-52",
+      "isPrerelease": false,
+      "sourceNotes": "Automated all-in-one build.\n- **WorldDownloaderManager-Setup.exe** — desktop manager installer (bundles the jar,\n  docker-compose.yml and full source under the install dir's `resources/` folder).\n- **world-downloader.jar** — the proxy/downloader jar (run with `java -jar`).\n- **source.zip** — full source snapshot.\n",
+      "categories": [
+        {
+          "id": "summary",
+          "title": {
+            "english": "Release summary",
+            "cantonese": "發佈摘要"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "Automated all-in-one build.",
+                "cantonese": "自動化一站式構建。"
+              }
+            }
+          ]
+        },
+        {
+          "id": "artifacts",
+          "title": {
+            "english": "Included artifacts",
+            "cantonese": "隨附發佈檔案"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "WorldDownloaderManager-Setup.exe — desktop manager installer (bundles the jar, docker-compose.yml and full source under the install directory's resources folder).",
+                "cantonese": "WorldDownloaderManager-Setup.exe — 桌面管理器安裝程式（在安裝目錄的 resources 資料夾內附帶 jar、docker-compose.yml 及完整原始碼）。"
+              }
+            },
+            {
+              "text": {
+                "english": "world-downloader.jar — the proxy/downloader jar (run with java -jar).",
+                "cantonese": "world-downloader.jar — 代理／下載器 jar（以 java -jar 執行）。"
+              }
+            },
+            {
+              "text": {
+                "english": "source.zip — full source snapshot.",
+                "cantonese": "source.zip — 完整原始碼快照。"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "build-51",
+      "version": "1.0.51",
+      "name": "All-in-one build 1.0.51",
+      "publishedAt": "2026-06-09T07:24:24Z",
+      "url": "https://github.com/Ding-Ding-Projects/minecraft-world-downloader/releases/tag/build-51",
+      "isPrerelease": false,
+      "sourceNotes": "Automated all-in-one build.\n- **WorldDownloaderManager-Setup.exe** — desktop manager installer (bundles the jar,\n  docker-compose.yml and full source under the install dir's `resources/` folder).\n- **world-downloader.jar** — the proxy/downloader jar (run with `java -jar`).\n- **source.zip** — full source snapshot.\n",
+      "categories": [
+        {
+          "id": "summary",
+          "title": {
+            "english": "Release summary",
+            "cantonese": "發佈摘要"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "Automated all-in-one build.",
+                "cantonese": "自動化一站式構建。"
+              }
+            }
+          ]
+        },
+        {
+          "id": "artifacts",
+          "title": {
+            "english": "Included artifacts",
+            "cantonese": "隨附發佈檔案"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "WorldDownloaderManager-Setup.exe — desktop manager installer (bundles the jar, docker-compose.yml and full source under the install directory's resources folder).",
+                "cantonese": "WorldDownloaderManager-Setup.exe — 桌面管理器安裝程式（在安裝目錄的 resources 資料夾內附帶 jar、docker-compose.yml 及完整原始碼）。"
+              }
+            },
+            {
+              "text": {
+                "english": "world-downloader.jar — the proxy/downloader jar (run with java -jar).",
+                "cantonese": "world-downloader.jar — 代理／下載器 jar（以 java -jar 執行）。"
+              }
+            },
+            {
+              "text": {
+                "english": "source.zip — full source snapshot.",
+                "cantonese": "source.zip — 完整原始碼快照。"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "build-50",
+      "version": "1.0.50",
+      "name": "All-in-one build 1.0.50",
+      "publishedAt": "2026-06-09T07:09:49Z",
+      "url": "https://github.com/Ding-Ding-Projects/minecraft-world-downloader/releases/tag/build-50",
+      "isPrerelease": false,
+      "sourceNotes": "Automated all-in-one build.\n- **WorldDownloaderManager-Setup.exe** — desktop manager installer (bundles the jar,\n  docker-compose.yml and full source under the install dir's `resources/` folder).\n- **world-downloader.jar** — the proxy/downloader jar (run with `java -jar`).\n- **source.zip** — full source snapshot.\n",
+      "categories": [
+        {
+          "id": "summary",
+          "title": {
+            "english": "Release summary",
+            "cantonese": "發佈摘要"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "Automated all-in-one build.",
+                "cantonese": "自動化一站式構建。"
+              }
+            }
+          ]
+        },
+        {
+          "id": "artifacts",
+          "title": {
+            "english": "Included artifacts",
+            "cantonese": "隨附發佈檔案"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "WorldDownloaderManager-Setup.exe — desktop manager installer (bundles the jar, docker-compose.yml and full source under the install directory's resources folder).",
+                "cantonese": "WorldDownloaderManager-Setup.exe — 桌面管理器安裝程式（在安裝目錄的 resources 資料夾內附帶 jar、docker-compose.yml 及完整原始碼）。"
+              }
+            },
+            {
+              "text": {
+                "english": "world-downloader.jar — the proxy/downloader jar (run with java -jar).",
+                "cantonese": "world-downloader.jar — 代理／下載器 jar（以 java -jar 執行）。"
+              }
+            },
+            {
+              "text": {
+                "english": "source.zip — full source snapshot.",
+                "cantonese": "source.zip — 完整原始碼快照。"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "build-49",
+      "version": "1.0.49",
+      "name": "All-in-one build 1.0.49",
+      "publishedAt": "2026-06-09T06:47:09Z",
+      "url": "https://github.com/Ding-Ding-Projects/minecraft-world-downloader/releases/tag/build-49",
+      "isPrerelease": false,
+      "sourceNotes": "Automated all-in-one build.\n- **WorldDownloaderManager-Setup.exe** — desktop manager installer (bundles the jar,\n  docker-compose.yml and full source under the install dir's `resources/` folder).\n- **world-downloader.jar** — the proxy/downloader jar (run with `java -jar`).\n- **source.zip** — full source snapshot.\n",
+      "categories": [
+        {
+          "id": "summary",
+          "title": {
+            "english": "Release summary",
+            "cantonese": "發佈摘要"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "Automated all-in-one build.",
+                "cantonese": "自動化一站式構建。"
+              }
+            }
+          ]
+        },
+        {
+          "id": "artifacts",
+          "title": {
+            "english": "Included artifacts",
+            "cantonese": "隨附發佈檔案"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "WorldDownloaderManager-Setup.exe — desktop manager installer (bundles the jar, docker-compose.yml and full source under the install directory's resources folder).",
+                "cantonese": "WorldDownloaderManager-Setup.exe — 桌面管理器安裝程式（在安裝目錄的 resources 資料夾內附帶 jar、docker-compose.yml 及完整原始碼）。"
+              }
+            },
+            {
+              "text": {
+                "english": "world-downloader.jar — the proxy/downloader jar (run with java -jar).",
+                "cantonese": "world-downloader.jar — 代理／下載器 jar（以 java -jar 執行）。"
+              }
+            },
+            {
+              "text": {
+                "english": "source.zip — full source snapshot.",
+                "cantonese": "source.zip — 完整原始碼快照。"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "build-48",
+      "version": "1.0.48",
+      "name": "All-in-one build 1.0.48",
+      "publishedAt": "2026-06-09T02:29:48Z",
+      "url": "https://github.com/Ding-Ding-Projects/minecraft-world-downloader/releases/tag/build-48",
+      "isPrerelease": false,
+      "sourceNotes": "Automated all-in-one build.\n- **WorldDownloaderManager-Setup.exe** — desktop manager installer (bundles the jar,\n  docker-compose.yml and full source under the install dir's `resources/` folder).\n- **world-downloader.jar** — the proxy/downloader jar (run with `java -jar`).\n- **source.zip** — full source snapshot.\n",
+      "categories": [
+        {
+          "id": "summary",
+          "title": {
+            "english": "Release summary",
+            "cantonese": "發佈摘要"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "Automated all-in-one build.",
+                "cantonese": "自動化一站式構建。"
+              }
+            }
+          ]
+        },
+        {
+          "id": "artifacts",
+          "title": {
+            "english": "Included artifacts",
+            "cantonese": "隨附發佈檔案"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "WorldDownloaderManager-Setup.exe — desktop manager installer (bundles the jar, docker-compose.yml and full source under the install directory's resources folder).",
+                "cantonese": "WorldDownloaderManager-Setup.exe — 桌面管理器安裝程式（在安裝目錄的 resources 資料夾內附帶 jar、docker-compose.yml 及完整原始碼）。"
+              }
+            },
+            {
+              "text": {
+                "english": "world-downloader.jar — the proxy/downloader jar (run with java -jar).",
+                "cantonese": "world-downloader.jar — 代理／下載器 jar（以 java -jar 執行）。"
+              }
+            },
+            {
+              "text": {
+                "english": "source.zip — full source snapshot.",
+                "cantonese": "source.zip — 完整原始碼快照。"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "build-47",
+      "version": "1.0.47",
+      "name": "All-in-one build 1.0.47",
+      "publishedAt": "2026-06-09T02:00:49Z",
+      "url": "https://github.com/Ding-Ding-Projects/minecraft-world-downloader/releases/tag/build-47",
+      "isPrerelease": false,
+      "sourceNotes": "Automated all-in-one build.\n- **WorldDownloaderManager-Setup.exe** — desktop manager installer (bundles the jar,\n  docker-compose.yml and full source under the install dir's `resources/` folder).\n- **world-downloader.jar** — the proxy/downloader jar (run with `java -jar`).\n- **source.zip** — full source snapshot.\n",
+      "categories": [
+        {
+          "id": "summary",
+          "title": {
+            "english": "Release summary",
+            "cantonese": "發佈摘要"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "Automated all-in-one build.",
+                "cantonese": "自動化一站式構建。"
+              }
+            }
+          ]
+        },
+        {
+          "id": "artifacts",
+          "title": {
+            "english": "Included artifacts",
+            "cantonese": "隨附發佈檔案"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "WorldDownloaderManager-Setup.exe — desktop manager installer (bundles the jar, docker-compose.yml and full source under the install directory's resources folder).",
+                "cantonese": "WorldDownloaderManager-Setup.exe — 桌面管理器安裝程式（在安裝目錄的 resources 資料夾內附帶 jar、docker-compose.yml 及完整原始碼）。"
+              }
+            },
+            {
+              "text": {
+                "english": "world-downloader.jar — the proxy/downloader jar (run with java -jar).",
+                "cantonese": "world-downloader.jar — 代理／下載器 jar（以 java -jar 執行）。"
+              }
+            },
+            {
+              "text": {
+                "english": "source.zip — full source snapshot.",
+                "cantonese": "source.zip — 完整原始碼快照。"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "build-46",
+      "version": "1.0.46",
+      "name": "All-in-one build 1.0.46",
+      "publishedAt": "2026-06-09T01:46:12Z",
+      "url": "https://github.com/Ding-Ding-Projects/minecraft-world-downloader/releases/tag/build-46",
+      "isPrerelease": false,
+      "sourceNotes": "Automated all-in-one build.\n- **WorldDownloaderManager-Setup.exe** — desktop manager installer (bundles the jar,\n  docker-compose.yml and full source under the install dir's `resources/` folder).\n- **world-downloader.jar** — the proxy/downloader jar (run with `java -jar`).\n- **source.zip** — full source snapshot.\n",
+      "categories": [
+        {
+          "id": "summary",
+          "title": {
+            "english": "Release summary",
+            "cantonese": "發佈摘要"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "Automated all-in-one build.",
+                "cantonese": "自動化一站式構建。"
+              }
+            }
+          ]
+        },
+        {
+          "id": "artifacts",
+          "title": {
+            "english": "Included artifacts",
+            "cantonese": "隨附發佈檔案"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "WorldDownloaderManager-Setup.exe — desktop manager installer (bundles the jar, docker-compose.yml and full source under the install directory's resources folder).",
+                "cantonese": "WorldDownloaderManager-Setup.exe — 桌面管理器安裝程式（在安裝目錄的 resources 資料夾內附帶 jar、docker-compose.yml 及完整原始碼）。"
+              }
+            },
+            {
+              "text": {
+                "english": "world-downloader.jar — the proxy/downloader jar (run with java -jar).",
+                "cantonese": "world-downloader.jar — 代理／下載器 jar（以 java -jar 執行）。"
+              }
+            },
+            {
+              "text": {
+                "english": "source.zip — full source snapshot.",
+                "cantonese": "source.zip — 完整原始碼快照。"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "build-45",
+      "version": "1.0.45",
+      "name": "All-in-one build 1.0.45",
+      "publishedAt": "2026-06-08T22:04:22Z",
+      "url": "https://github.com/Ding-Ding-Projects/minecraft-world-downloader/releases/tag/build-45",
+      "isPrerelease": false,
+      "sourceNotes": "Automated all-in-one build.\n- **WorldDownloaderManager-Setup.exe** — desktop manager installer (bundles the jar,\n  docker-compose.yml and full source under the install dir's `resources/` folder).\n- **world-downloader.jar** — the proxy/downloader jar (run with `java -jar`).\n- **source.zip** — full source snapshot.\n",
+      "categories": [
+        {
+          "id": "summary",
+          "title": {
+            "english": "Release summary",
+            "cantonese": "發佈摘要"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "Automated all-in-one build.",
+                "cantonese": "自動化一站式構建。"
+              }
+            }
+          ]
+        },
+        {
+          "id": "artifacts",
+          "title": {
+            "english": "Included artifacts",
+            "cantonese": "隨附發佈檔案"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "WorldDownloaderManager-Setup.exe — desktop manager installer (bundles the jar, docker-compose.yml and full source under the install directory's resources folder).",
+                "cantonese": "WorldDownloaderManager-Setup.exe — 桌面管理器安裝程式（在安裝目錄的 resources 資料夾內附帶 jar、docker-compose.yml 及完整原始碼）。"
+              }
+            },
+            {
+              "text": {
+                "english": "world-downloader.jar — the proxy/downloader jar (run with java -jar).",
+                "cantonese": "world-downloader.jar — 代理／下載器 jar（以 java -jar 執行）。"
+              }
+            },
+            {
+              "text": {
+                "english": "source.zip — full source snapshot.",
+                "cantonese": "source.zip — 完整原始碼快照。"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "build-44",
+      "version": "1.0.44",
+      "name": "All-in-one build 1.0.44",
+      "publishedAt": "2026-06-08T21:35:39Z",
+      "url": "https://github.com/Ding-Ding-Projects/minecraft-world-downloader/releases/tag/build-44",
+      "isPrerelease": false,
+      "sourceNotes": "Automated all-in-one build.\n- **WorldDownloaderManager-Setup.exe** — desktop manager installer (bundles the jar,\n  docker-compose.yml and full source under the install dir's `resources/` folder).\n- **world-downloader.jar** — the proxy/downloader jar (run with `java -jar`).\n- **source.zip** — full source snapshot.\n",
+      "categories": [
+        {
+          "id": "summary",
+          "title": {
+            "english": "Release summary",
+            "cantonese": "發佈摘要"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "Automated all-in-one build.",
+                "cantonese": "自動化一站式構建。"
+              }
+            }
+          ]
+        },
+        {
+          "id": "artifacts",
+          "title": {
+            "english": "Included artifacts",
+            "cantonese": "隨附發佈檔案"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "WorldDownloaderManager-Setup.exe — desktop manager installer (bundles the jar, docker-compose.yml and full source under the install directory's resources folder).",
+                "cantonese": "WorldDownloaderManager-Setup.exe — 桌面管理器安裝程式（在安裝目錄的 resources 資料夾內附帶 jar、docker-compose.yml 及完整原始碼）。"
+              }
+            },
+            {
+              "text": {
+                "english": "world-downloader.jar — the proxy/downloader jar (run with java -jar).",
+                "cantonese": "world-downloader.jar — 代理／下載器 jar（以 java -jar 執行）。"
+              }
+            },
+            {
+              "text": {
+                "english": "source.zip — full source snapshot.",
+                "cantonese": "source.zip — 完整原始碼快照。"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "build-43",
+      "version": "1.0.43",
+      "name": "All-in-one build 1.0.43",
+      "publishedAt": "2026-06-08T21:19:27Z",
+      "url": "https://github.com/Ding-Ding-Projects/minecraft-world-downloader/releases/tag/build-43",
+      "isPrerelease": false,
+      "sourceNotes": "Automated all-in-one build.\n- **WorldDownloaderManager-Setup.exe** — desktop manager installer (bundles the jar,\n  docker-compose.yml and full source under the install dir's `resources/` folder).\n- **world-downloader.jar** — the proxy/downloader jar (run with `java -jar`).\n- **source.zip** — full source snapshot.\n",
+      "categories": [
+        {
+          "id": "summary",
+          "title": {
+            "english": "Release summary",
+            "cantonese": "發佈摘要"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "Automated all-in-one build.",
+                "cantonese": "自動化一站式構建。"
+              }
+            }
+          ]
+        },
+        {
+          "id": "artifacts",
+          "title": {
+            "english": "Included artifacts",
+            "cantonese": "隨附發佈檔案"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "WorldDownloaderManager-Setup.exe — desktop manager installer (bundles the jar, docker-compose.yml and full source under the install directory's resources folder).",
+                "cantonese": "WorldDownloaderManager-Setup.exe — 桌面管理器安裝程式（在安裝目錄的 resources 資料夾內附帶 jar、docker-compose.yml 及完整原始碼）。"
+              }
+            },
+            {
+              "text": {
+                "english": "world-downloader.jar — the proxy/downloader jar (run with java -jar).",
+                "cantonese": "world-downloader.jar — 代理／下載器 jar（以 java -jar 執行）。"
+              }
+            },
+            {
+              "text": {
+                "english": "source.zip — full source snapshot.",
+                "cantonese": "source.zip — 完整原始碼快照。"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "build-42",
+      "version": "1.0.42",
+      "name": "All-in-one build 1.0.42",
+      "publishedAt": "2026-06-08T04:36:43Z",
+      "url": "https://github.com/Ding-Ding-Projects/minecraft-world-downloader/releases/tag/build-42",
+      "isPrerelease": false,
+      "sourceNotes": "Automated all-in-one build.\n- **WorldDownloaderManager-Setup.exe** — desktop manager installer (bundles the jar,\n  docker-compose.yml and full source under the install dir's `resources/` folder).\n- **world-downloader.jar** — the proxy/downloader jar (run with `java -jar`).\n- **source.zip** — full source snapshot.\n",
+      "categories": [
+        {
+          "id": "summary",
+          "title": {
+            "english": "Release summary",
+            "cantonese": "發佈摘要"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "Automated all-in-one build.",
+                "cantonese": "自動化一站式構建。"
+              }
+            }
+          ]
+        },
+        {
+          "id": "artifacts",
+          "title": {
+            "english": "Included artifacts",
+            "cantonese": "隨附發佈檔案"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "WorldDownloaderManager-Setup.exe — desktop manager installer (bundles the jar, docker-compose.yml and full source under the install directory's resources folder).",
+                "cantonese": "WorldDownloaderManager-Setup.exe — 桌面管理器安裝程式（在安裝目錄的 resources 資料夾內附帶 jar、docker-compose.yml 及完整原始碼）。"
+              }
+            },
+            {
+              "text": {
+                "english": "world-downloader.jar — the proxy/downloader jar (run with java -jar).",
+                "cantonese": "world-downloader.jar — 代理／下載器 jar（以 java -jar 執行）。"
+              }
+            },
+            {
+              "text": {
+                "english": "source.zip — full source snapshot.",
+                "cantonese": "source.zip — 完整原始碼快照。"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "build-41",
+      "version": "1.0.41",
+      "name": "All-in-one build 1.0.41",
+      "publishedAt": "2026-06-08T04:24:03Z",
+      "url": "https://github.com/Ding-Ding-Projects/minecraft-world-downloader/releases/tag/build-41",
+      "isPrerelease": false,
+      "sourceNotes": "Automated all-in-one build.\n- **WorldDownloaderManager-Setup.exe** — desktop manager installer (bundles the jar,\n  docker-compose.yml and full source under the install dir's `resources/` folder).\n- **world-downloader.jar** — the proxy/downloader jar (run with `java -jar`).\n- **source.zip** — full source snapshot.\n",
+      "categories": [
+        {
+          "id": "summary",
+          "title": {
+            "english": "Release summary",
+            "cantonese": "發佈摘要"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "Automated all-in-one build.",
+                "cantonese": "自動化一站式構建。"
+              }
+            }
+          ]
+        },
+        {
+          "id": "artifacts",
+          "title": {
+            "english": "Included artifacts",
+            "cantonese": "隨附發佈檔案"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "WorldDownloaderManager-Setup.exe — desktop manager installer (bundles the jar, docker-compose.yml and full source under the install directory's resources folder).",
+                "cantonese": "WorldDownloaderManager-Setup.exe — 桌面管理器安裝程式（在安裝目錄的 resources 資料夾內附帶 jar、docker-compose.yml 及完整原始碼）。"
+              }
+            },
+            {
+              "text": {
+                "english": "world-downloader.jar — the proxy/downloader jar (run with java -jar).",
+                "cantonese": "world-downloader.jar — 代理／下載器 jar（以 java -jar 執行）。"
+              }
+            },
+            {
+              "text": {
+                "english": "source.zip — full source snapshot.",
+                "cantonese": "source.zip — 完整原始碼快照。"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "build-40",
+      "version": "1.0.40",
+      "name": "All-in-one build 1.0.40",
+      "publishedAt": "2026-06-08T04:19:18Z",
+      "url": "https://github.com/Ding-Ding-Projects/minecraft-world-downloader/releases/tag/build-40",
+      "isPrerelease": false,
+      "sourceNotes": "Automated all-in-one build.\n- **WorldDownloaderManager-Setup.exe** — desktop manager installer (bundles the jar,\n  docker-compose.yml and full source under the install dir's `resources/` folder).\n- **world-downloader.jar** — the proxy/downloader jar (run with `java -jar`).\n- **source.zip** — full source snapshot.\n",
+      "categories": [
+        {
+          "id": "summary",
+          "title": {
+            "english": "Release summary",
+            "cantonese": "發佈摘要"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "Automated all-in-one build.",
+                "cantonese": "自動化一站式構建。"
+              }
+            }
+          ]
+        },
+        {
+          "id": "artifacts",
+          "title": {
+            "english": "Included artifacts",
+            "cantonese": "隨附發佈檔案"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "WorldDownloaderManager-Setup.exe — desktop manager installer (bundles the jar, docker-compose.yml and full source under the install directory's resources folder).",
+                "cantonese": "WorldDownloaderManager-Setup.exe — 桌面管理器安裝程式（在安裝目錄的 resources 資料夾內附帶 jar、docker-compose.yml 及完整原始碼）。"
+              }
+            },
+            {
+              "text": {
+                "english": "world-downloader.jar — the proxy/downloader jar (run with java -jar).",
+                "cantonese": "world-downloader.jar — 代理／下載器 jar（以 java -jar 執行）。"
+              }
+            },
+            {
+              "text": {
+                "english": "source.zip — full source snapshot.",
+                "cantonese": "source.zip — 完整原始碼快照。"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "build-39",
+      "version": "1.0.39",
+      "name": "All-in-one build 1.0.39",
+      "publishedAt": "2026-06-08T04:10:30Z",
+      "url": "https://github.com/Ding-Ding-Projects/minecraft-world-downloader/releases/tag/build-39",
+      "isPrerelease": false,
+      "sourceNotes": "Automated all-in-one build.\n- **WorldDownloaderManager-Setup.exe** — desktop manager installer (bundles the jar,\n  docker-compose.yml and full source under the install dir's `resources/` folder).\n- **world-downloader.jar** — the proxy/downloader jar (run with `java -jar`).\n- **source.zip** — full source snapshot.\n",
+      "categories": [
+        {
+          "id": "summary",
+          "title": {
+            "english": "Release summary",
+            "cantonese": "發佈摘要"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "Automated all-in-one build.",
+                "cantonese": "自動化一站式構建。"
+              }
+            }
+          ]
+        },
+        {
+          "id": "artifacts",
+          "title": {
+            "english": "Included artifacts",
+            "cantonese": "隨附發佈檔案"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "WorldDownloaderManager-Setup.exe — desktop manager installer (bundles the jar, docker-compose.yml and full source under the install directory's resources folder).",
+                "cantonese": "WorldDownloaderManager-Setup.exe — 桌面管理器安裝程式（在安裝目錄的 resources 資料夾內附帶 jar、docker-compose.yml 及完整原始碼）。"
+              }
+            },
+            {
+              "text": {
+                "english": "world-downloader.jar — the proxy/downloader jar (run with java -jar).",
+                "cantonese": "world-downloader.jar — 代理／下載器 jar（以 java -jar 執行）。"
+              }
+            },
+            {
+              "text": {
+                "english": "source.zip — full source snapshot.",
+                "cantonese": "source.zip — 完整原始碼快照。"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "build-38",
+      "version": "1.0.38",
+      "name": "All-in-one build 1.0.38",
+      "publishedAt": "2026-06-08T04:07:56Z",
+      "url": "https://github.com/Ding-Ding-Projects/minecraft-world-downloader/releases/tag/build-38",
+      "isPrerelease": false,
+      "sourceNotes": "Automated all-in-one build.\n- **WorldDownloaderManager-Setup.exe** — desktop manager installer (bundles the jar,\n  docker-compose.yml and full source under the install dir's `resources/` folder).\n- **world-downloader.jar** — the proxy/downloader jar (run with `java -jar`).\n- **source.zip** — full source snapshot.\n",
+      "categories": [
+        {
+          "id": "summary",
+          "title": {
+            "english": "Release summary",
+            "cantonese": "發佈摘要"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "Automated all-in-one build.",
+                "cantonese": "自動化一站式構建。"
+              }
+            }
+          ]
+        },
+        {
+          "id": "artifacts",
+          "title": {
+            "english": "Included artifacts",
+            "cantonese": "隨附發佈檔案"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "WorldDownloaderManager-Setup.exe — desktop manager installer (bundles the jar, docker-compose.yml and full source under the install directory's resources folder).",
+                "cantonese": "WorldDownloaderManager-Setup.exe — 桌面管理器安裝程式（在安裝目錄的 resources 資料夾內附帶 jar、docker-compose.yml 及完整原始碼）。"
+              }
+            },
+            {
+              "text": {
+                "english": "world-downloader.jar — the proxy/downloader jar (run with java -jar).",
+                "cantonese": "world-downloader.jar — 代理／下載器 jar（以 java -jar 執行）。"
+              }
+            },
+            {
+              "text": {
+                "english": "source.zip — full source snapshot.",
+                "cantonese": "source.zip — 完整原始碼快照。"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "build-37",
+      "version": "1.0.37",
+      "name": "All-in-one build 1.0.37",
+      "publishedAt": "2026-06-08T04:04:04Z",
+      "url": "https://github.com/Ding-Ding-Projects/minecraft-world-downloader/releases/tag/build-37",
+      "isPrerelease": false,
+      "sourceNotes": "Automated all-in-one build.\n- **WorldDownloaderManager-Setup.exe** — desktop manager installer (bundles the jar,\n  docker-compose.yml and full source under the install dir's `resources/` folder).\n- **world-downloader.jar** — the proxy/downloader jar (run with `java -jar`).\n- **source.zip** — full source snapshot.\n",
+      "categories": [
+        {
+          "id": "summary",
+          "title": {
+            "english": "Release summary",
+            "cantonese": "發佈摘要"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "Automated all-in-one build.",
+                "cantonese": "自動化一站式構建。"
+              }
+            }
+          ]
+        },
+        {
+          "id": "artifacts",
+          "title": {
+            "english": "Included artifacts",
+            "cantonese": "隨附發佈檔案"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "WorldDownloaderManager-Setup.exe — desktop manager installer (bundles the jar, docker-compose.yml and full source under the install directory's resources folder).",
+                "cantonese": "WorldDownloaderManager-Setup.exe — 桌面管理器安裝程式（在安裝目錄的 resources 資料夾內附帶 jar、docker-compose.yml 及完整原始碼）。"
+              }
+            },
+            {
+              "text": {
+                "english": "world-downloader.jar — the proxy/downloader jar (run with java -jar).",
+                "cantonese": "world-downloader.jar — 代理／下載器 jar（以 java -jar 執行）。"
+              }
+            },
+            {
+              "text": {
+                "english": "source.zip — full source snapshot.",
+                "cantonese": "source.zip — 完整原始碼快照。"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "build-36",
+      "version": "1.0.36",
+      "name": "All-in-one build 1.0.36",
+      "publishedAt": "2026-06-08T04:02:12Z",
+      "url": "https://github.com/Ding-Ding-Projects/minecraft-world-downloader/releases/tag/build-36",
+      "isPrerelease": false,
+      "sourceNotes": "Automated all-in-one build.\n- **WorldDownloaderManager-Setup.exe** — desktop manager installer (bundles the jar,\n  docker-compose.yml and full source under the install dir's `resources/` folder).\n- **world-downloader.jar** — the proxy/downloader jar (run with `java -jar`).\n- **source.zip** — full source snapshot.\n",
+      "categories": [
+        {
+          "id": "summary",
+          "title": {
+            "english": "Release summary",
+            "cantonese": "發佈摘要"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "Automated all-in-one build.",
+                "cantonese": "自動化一站式構建。"
+              }
+            }
+          ]
+        },
+        {
+          "id": "artifacts",
+          "title": {
+            "english": "Included artifacts",
+            "cantonese": "隨附發佈檔案"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "WorldDownloaderManager-Setup.exe — desktop manager installer (bundles the jar, docker-compose.yml and full source under the install directory's resources folder).",
+                "cantonese": "WorldDownloaderManager-Setup.exe — 桌面管理器安裝程式（在安裝目錄的 resources 資料夾內附帶 jar、docker-compose.yml 及完整原始碼）。"
+              }
+            },
+            {
+              "text": {
+                "english": "world-downloader.jar — the proxy/downloader jar (run with java -jar).",
+                "cantonese": "world-downloader.jar — 代理／下載器 jar（以 java -jar 執行）。"
+              }
+            },
+            {
+              "text": {
+                "english": "source.zip — full source snapshot.",
+                "cantonese": "source.zip — 完整原始碼快照。"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "build-35",
+      "version": "1.0.35",
+      "name": "All-in-one build 1.0.35",
+      "publishedAt": "2026-06-08T03:41:14Z",
+      "url": "https://github.com/Ding-Ding-Projects/minecraft-world-downloader/releases/tag/build-35",
+      "isPrerelease": false,
+      "sourceNotes": "Automated all-in-one build.\n- **WorldDownloaderManager-Setup.exe** — desktop manager installer (bundles the jar,\n  docker-compose.yml and full source under the install dir's `resources/` folder).\n- **world-downloader.jar** — the proxy/downloader jar (run with `java -jar`).\n- **source.zip** — full source snapshot.\n",
+      "categories": [
+        {
+          "id": "summary",
+          "title": {
+            "english": "Release summary",
+            "cantonese": "發佈摘要"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "Automated all-in-one build.",
+                "cantonese": "自動化一站式構建。"
+              }
+            }
+          ]
+        },
+        {
+          "id": "artifacts",
+          "title": {
+            "english": "Included artifacts",
+            "cantonese": "隨附發佈檔案"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "WorldDownloaderManager-Setup.exe — desktop manager installer (bundles the jar, docker-compose.yml and full source under the install directory's resources folder).",
+                "cantonese": "WorldDownloaderManager-Setup.exe — 桌面管理器安裝程式（在安裝目錄的 resources 資料夾內附帶 jar、docker-compose.yml 及完整原始碼）。"
+              }
+            },
+            {
+              "text": {
+                "english": "world-downloader.jar — the proxy/downloader jar (run with java -jar).",
+                "cantonese": "world-downloader.jar — 代理／下載器 jar（以 java -jar 執行）。"
+              }
+            },
+            {
+              "text": {
+                "english": "source.zip — full source snapshot.",
+                "cantonese": "source.zip — 完整原始碼快照。"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "build-34",
+      "version": "1.0.34",
+      "name": "All-in-one build 1.0.34",
+      "publishedAt": "2026-06-08T03:30:14Z",
+      "url": "https://github.com/Ding-Ding-Projects/minecraft-world-downloader/releases/tag/build-34",
+      "isPrerelease": false,
+      "sourceNotes": "Automated all-in-one build.\n- **WorldDownloaderManager-Setup.exe** — desktop manager installer (bundles the jar,\n  docker-compose.yml and full source under the install dir's `resources/` folder).\n- **world-downloader.jar** — the proxy/downloader jar (run with `java -jar`).\n- **source.zip** — full source snapshot.\n",
+      "categories": [
+        {
+          "id": "summary",
+          "title": {
+            "english": "Release summary",
+            "cantonese": "發佈摘要"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "Automated all-in-one build.",
+                "cantonese": "自動化一站式構建。"
+              }
+            }
+          ]
+        },
+        {
+          "id": "artifacts",
+          "title": {
+            "english": "Included artifacts",
+            "cantonese": "隨附發佈檔案"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "WorldDownloaderManager-Setup.exe — desktop manager installer (bundles the jar, docker-compose.yml and full source under the install directory's resources folder).",
+                "cantonese": "WorldDownloaderManager-Setup.exe — 桌面管理器安裝程式（在安裝目錄的 resources 資料夾內附帶 jar、docker-compose.yml 及完整原始碼）。"
+              }
+            },
+            {
+              "text": {
+                "english": "world-downloader.jar — the proxy/downloader jar (run with java -jar).",
+                "cantonese": "world-downloader.jar — 代理／下載器 jar（以 java -jar 執行）。"
+              }
+            },
+            {
+              "text": {
+                "english": "source.zip — full source snapshot.",
+                "cantonese": "source.zip — 完整原始碼快照。"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "build-33",
+      "version": "1.0.33",
+      "name": "All-in-one build 1.0.33",
+      "publishedAt": "2026-06-08T02:27:51Z",
+      "url": "https://github.com/Ding-Ding-Projects/minecraft-world-downloader/releases/tag/build-33",
+      "isPrerelease": false,
+      "sourceNotes": "Automated all-in-one build.\n- **WorldDownloaderManager-Setup.exe** — desktop manager installer (bundles the jar,\n  docker-compose.yml and full source under the install dir's `resources/` folder).\n- **world-downloader.jar** — the proxy/downloader jar (run with `java -jar`).\n- **source.zip** — full source snapshot.\n",
+      "categories": [
+        {
+          "id": "summary",
+          "title": {
+            "english": "Release summary",
+            "cantonese": "發佈摘要"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "Automated all-in-one build.",
+                "cantonese": "自動化一站式構建。"
+              }
+            }
+          ]
+        },
+        {
+          "id": "artifacts",
+          "title": {
+            "english": "Included artifacts",
+            "cantonese": "隨附發佈檔案"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "WorldDownloaderManager-Setup.exe — desktop manager installer (bundles the jar, docker-compose.yml and full source under the install directory's resources folder).",
+                "cantonese": "WorldDownloaderManager-Setup.exe — 桌面管理器安裝程式（在安裝目錄的 resources 資料夾內附帶 jar、docker-compose.yml 及完整原始碼）。"
+              }
+            },
+            {
+              "text": {
+                "english": "world-downloader.jar — the proxy/downloader jar (run with java -jar).",
+                "cantonese": "world-downloader.jar — 代理／下載器 jar（以 java -jar 執行）。"
+              }
+            },
+            {
+              "text": {
+                "english": "source.zip — full source snapshot.",
+                "cantonese": "source.zip — 完整原始碼快照。"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "build-32",
+      "version": "1.0.32",
+      "name": "All-in-one build 1.0.32",
+      "publishedAt": "2026-06-08T02:19:08Z",
+      "url": "https://github.com/Ding-Ding-Projects/minecraft-world-downloader/releases/tag/build-32",
+      "isPrerelease": false,
+      "sourceNotes": "Automated all-in-one build.\n- **WorldDownloaderManager-Setup.exe** — desktop manager installer (bundles the jar,\n  docker-compose.yml and full source under the install dir's `resources/` folder).\n- **world-downloader.jar** — the proxy/downloader jar (run with `java -jar`).\n- **source.zip** — full source snapshot.\n",
+      "categories": [
+        {
+          "id": "summary",
+          "title": {
+            "english": "Release summary",
+            "cantonese": "發佈摘要"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "Automated all-in-one build.",
+                "cantonese": "自動化一站式構建。"
+              }
+            }
+          ]
+        },
+        {
+          "id": "artifacts",
+          "title": {
+            "english": "Included artifacts",
+            "cantonese": "隨附發佈檔案"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "WorldDownloaderManager-Setup.exe — desktop manager installer (bundles the jar, docker-compose.yml and full source under the install directory's resources folder).",
+                "cantonese": "WorldDownloaderManager-Setup.exe — 桌面管理器安裝程式（在安裝目錄的 resources 資料夾內附帶 jar、docker-compose.yml 及完整原始碼）。"
+              }
+            },
+            {
+              "text": {
+                "english": "world-downloader.jar — the proxy/downloader jar (run with java -jar).",
+                "cantonese": "world-downloader.jar — 代理／下載器 jar（以 java -jar 執行）。"
+              }
+            },
+            {
+              "text": {
+                "english": "source.zip — full source snapshot.",
+                "cantonese": "source.zip — 完整原始碼快照。"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "build-31",
+      "version": "1.0.31",
+      "name": "All-in-one build 1.0.31",
+      "publishedAt": "2026-06-08T02:01:14Z",
+      "url": "https://github.com/Ding-Ding-Projects/minecraft-world-downloader/releases/tag/build-31",
+      "isPrerelease": false,
+      "sourceNotes": "Automated all-in-one build.\n- **WorldDownloaderManager-Setup.exe** — desktop manager installer (bundles the jar,\n  docker-compose.yml and full source under the install dir's `resources/` folder).\n- **world-downloader.jar** — the proxy/downloader jar (run with `java -jar`).\n- **source.zip** — full source snapshot.\n",
+      "categories": [
+        {
+          "id": "summary",
+          "title": {
+            "english": "Release summary",
+            "cantonese": "發佈摘要"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "Automated all-in-one build.",
+                "cantonese": "自動化一站式構建。"
+              }
+            }
+          ]
+        },
+        {
+          "id": "artifacts",
+          "title": {
+            "english": "Included artifacts",
+            "cantonese": "隨附發佈檔案"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "WorldDownloaderManager-Setup.exe — desktop manager installer (bundles the jar, docker-compose.yml and full source under the install directory's resources folder).",
+                "cantonese": "WorldDownloaderManager-Setup.exe — 桌面管理器安裝程式（在安裝目錄的 resources 資料夾內附帶 jar、docker-compose.yml 及完整原始碼）。"
+              }
+            },
+            {
+              "text": {
+                "english": "world-downloader.jar — the proxy/downloader jar (run with java -jar).",
+                "cantonese": "world-downloader.jar — 代理／下載器 jar（以 java -jar 執行）。"
+              }
+            },
+            {
+              "text": {
+                "english": "source.zip — full source snapshot.",
+                "cantonese": "source.zip — 完整原始碼快照。"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "build-30",
+      "version": "1.0.30",
+      "name": "All-in-one build 1.0.30",
+      "publishedAt": "2026-06-08T01:55:48Z",
+      "url": "https://github.com/Ding-Ding-Projects/minecraft-world-downloader/releases/tag/build-30",
+      "isPrerelease": false,
+      "sourceNotes": "Automated all-in-one build.\n- **WorldDownloaderManager-Setup.exe** — desktop manager installer (bundles the jar,\n  docker-compose.yml and full source under the install dir's `resources/` folder).\n- **world-downloader.jar** — the proxy/downloader jar (run with `java -jar`).\n- **source.zip** — full source snapshot.\n",
+      "categories": [
+        {
+          "id": "summary",
+          "title": {
+            "english": "Release summary",
+            "cantonese": "發佈摘要"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "Automated all-in-one build.",
+                "cantonese": "自動化一站式構建。"
+              }
+            }
+          ]
+        },
+        {
+          "id": "artifacts",
+          "title": {
+            "english": "Included artifacts",
+            "cantonese": "隨附發佈檔案"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "WorldDownloaderManager-Setup.exe — desktop manager installer (bundles the jar, docker-compose.yml and full source under the install directory's resources folder).",
+                "cantonese": "WorldDownloaderManager-Setup.exe — 桌面管理器安裝程式（在安裝目錄的 resources 資料夾內附帶 jar、docker-compose.yml 及完整原始碼）。"
+              }
+            },
+            {
+              "text": {
+                "english": "world-downloader.jar — the proxy/downloader jar (run with java -jar).",
+                "cantonese": "world-downloader.jar — 代理／下載器 jar（以 java -jar 執行）。"
+              }
+            },
+            {
+              "text": {
+                "english": "source.zip — full source snapshot.",
+                "cantonese": "source.zip — 完整原始碼快照。"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "build-29",
+      "version": "1.0.29",
+      "name": "All-in-one build 1.0.29",
+      "publishedAt": "2026-06-08T00:30:30Z",
+      "url": "https://github.com/Ding-Ding-Projects/minecraft-world-downloader/releases/tag/build-29",
+      "isPrerelease": false,
+      "sourceNotes": "Automated all-in-one build.\n- **WorldDownloaderManager-Setup.exe** — desktop manager installer (bundles the jar,\n  docker-compose.yml and full source under the install dir's `resources/` folder).\n- **world-downloader.jar** — the proxy/downloader jar (run with `java -jar`).\n- **source.zip** — full source snapshot.\n",
+      "categories": [
+        {
+          "id": "summary",
+          "title": {
+            "english": "Release summary",
+            "cantonese": "發佈摘要"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "Automated all-in-one build.",
+                "cantonese": "自動化一站式構建。"
+              }
+            }
+          ]
+        },
+        {
+          "id": "artifacts",
+          "title": {
+            "english": "Included artifacts",
+            "cantonese": "隨附發佈檔案"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "WorldDownloaderManager-Setup.exe — desktop manager installer (bundles the jar, docker-compose.yml and full source under the install directory's resources folder).",
+                "cantonese": "WorldDownloaderManager-Setup.exe — 桌面管理器安裝程式（在安裝目錄的 resources 資料夾內附帶 jar、docker-compose.yml 及完整原始碼）。"
+              }
+            },
+            {
+              "text": {
+                "english": "world-downloader.jar — the proxy/downloader jar (run with java -jar).",
+                "cantonese": "world-downloader.jar — 代理／下載器 jar（以 java -jar 執行）。"
+              }
+            },
+            {
+              "text": {
+                "english": "source.zip — full source snapshot.",
+                "cantonese": "source.zip — 完整原始碼快照。"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "build-28",
+      "version": "1.0.28",
+      "name": "All-in-one build 1.0.28",
+      "publishedAt": "2026-06-07T22:33:03Z",
+      "url": "https://github.com/Ding-Ding-Projects/minecraft-world-downloader/releases/tag/build-28",
+      "isPrerelease": false,
+      "sourceNotes": "Automated all-in-one build.\n- **WorldDownloaderManager-Setup.exe** — desktop manager installer (bundles the jar,\n  docker-compose.yml and full source under the install dir's `resources/` folder).\n- **world-downloader.jar** — the proxy/downloader jar (run with `java -jar`).\n- **source.zip** — full source snapshot.\n",
+      "categories": [
+        {
+          "id": "summary",
+          "title": {
+            "english": "Release summary",
+            "cantonese": "發佈摘要"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "Automated all-in-one build.",
+                "cantonese": "自動化一站式構建。"
+              }
+            }
+          ]
+        },
+        {
+          "id": "artifacts",
+          "title": {
+            "english": "Included artifacts",
+            "cantonese": "隨附發佈檔案"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "WorldDownloaderManager-Setup.exe — desktop manager installer (bundles the jar, docker-compose.yml and full source under the install directory's resources folder).",
+                "cantonese": "WorldDownloaderManager-Setup.exe — 桌面管理器安裝程式（在安裝目錄的 resources 資料夾內附帶 jar、docker-compose.yml 及完整原始碼）。"
+              }
+            },
+            {
+              "text": {
+                "english": "world-downloader.jar — the proxy/downloader jar (run with java -jar).",
+                "cantonese": "world-downloader.jar — 代理／下載器 jar（以 java -jar 執行）。"
+              }
+            },
+            {
+              "text": {
+                "english": "source.zip — full source snapshot.",
+                "cantonese": "source.zip — 完整原始碼快照。"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "build-27",
+      "version": "1.0.27",
+      "name": "All-in-one build 1.0.27",
+      "publishedAt": "2026-06-07T21:55:35Z",
+      "url": "https://github.com/Ding-Ding-Projects/minecraft-world-downloader/releases/tag/build-27",
+      "isPrerelease": false,
+      "sourceNotes": "Automated all-in-one build.\n- **WorldDownloaderManager-Setup.exe** — desktop manager installer (bundles the jar,\n  docker-compose.yml and full source under the install dir's `resources/` folder).\n- **world-downloader.jar** — the proxy/downloader jar (run with `java -jar`).\n- **source.zip** — full source snapshot.\n",
+      "categories": [
+        {
+          "id": "summary",
+          "title": {
+            "english": "Release summary",
+            "cantonese": "發佈摘要"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "Automated all-in-one build.",
+                "cantonese": "自動化一站式構建。"
+              }
+            }
+          ]
+        },
+        {
+          "id": "artifacts",
+          "title": {
+            "english": "Included artifacts",
+            "cantonese": "隨附發佈檔案"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "WorldDownloaderManager-Setup.exe — desktop manager installer (bundles the jar, docker-compose.yml and full source under the install directory's resources folder).",
+                "cantonese": "WorldDownloaderManager-Setup.exe — 桌面管理器安裝程式（在安裝目錄的 resources 資料夾內附帶 jar、docker-compose.yml 及完整原始碼）。"
+              }
+            },
+            {
+              "text": {
+                "english": "world-downloader.jar — the proxy/downloader jar (run with java -jar).",
+                "cantonese": "world-downloader.jar — 代理／下載器 jar（以 java -jar 執行）。"
+              }
+            },
+            {
+              "text": {
+                "english": "source.zip — full source snapshot.",
+                "cantonese": "source.zip — 完整原始碼快照。"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "build-26",
+      "version": "1.0.26",
+      "name": "All-in-one build 1.0.26",
+      "publishedAt": "2026-06-07T20:29:28Z",
+      "url": "https://github.com/Ding-Ding-Projects/minecraft-world-downloader/releases/tag/build-26",
+      "isPrerelease": false,
+      "sourceNotes": "Automated all-in-one build.\n- **WorldDownloaderManager-Setup.exe** — desktop manager installer (bundles the jar,\n  docker-compose.yml and full source under the install dir's `resources/` folder).\n- **world-downloader.jar** — the proxy/downloader jar (run with `java -jar`).\n- **source.zip** — full source snapshot.\n",
+      "categories": [
+        {
+          "id": "summary",
+          "title": {
+            "english": "Release summary",
+            "cantonese": "發佈摘要"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "Automated all-in-one build.",
+                "cantonese": "自動化一站式構建。"
+              }
+            }
+          ]
+        },
+        {
+          "id": "artifacts",
+          "title": {
+            "english": "Included artifacts",
+            "cantonese": "隨附發佈檔案"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "WorldDownloaderManager-Setup.exe — desktop manager installer (bundles the jar, docker-compose.yml and full source under the install directory's resources folder).",
+                "cantonese": "WorldDownloaderManager-Setup.exe — 桌面管理器安裝程式（在安裝目錄的 resources 資料夾內附帶 jar、docker-compose.yml 及完整原始碼）。"
+              }
+            },
+            {
+              "text": {
+                "english": "world-downloader.jar — the proxy/downloader jar (run with java -jar).",
+                "cantonese": "world-downloader.jar — 代理／下載器 jar（以 java -jar 執行）。"
+              }
+            },
+            {
+              "text": {
+                "english": "source.zip — full source snapshot.",
+                "cantonese": "source.zip — 完整原始碼快照。"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "build-25",
+      "version": "1.0.25",
+      "name": "All-in-one build 1.0.25",
+      "publishedAt": "2026-06-07T20:26:52Z",
+      "url": "https://github.com/Ding-Ding-Projects/minecraft-world-downloader/releases/tag/build-25",
+      "isPrerelease": false,
+      "sourceNotes": "Automated all-in-one build.\n- **WorldDownloaderManager-Setup.exe** — desktop manager installer (bundles the jar,\n  docker-compose.yml and full source under the install dir's `resources/` folder).\n- **world-downloader.jar** — the proxy/downloader jar (run with `java -jar`).\n- **source.zip** — full source snapshot.\n",
+      "categories": [
+        {
+          "id": "summary",
+          "title": {
+            "english": "Release summary",
+            "cantonese": "發佈摘要"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "Automated all-in-one build.",
+                "cantonese": "自動化一站式構建。"
+              }
+            }
+          ]
+        },
+        {
+          "id": "artifacts",
+          "title": {
+            "english": "Included artifacts",
+            "cantonese": "隨附發佈檔案"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "WorldDownloaderManager-Setup.exe — desktop manager installer (bundles the jar, docker-compose.yml and full source under the install directory's resources folder).",
+                "cantonese": "WorldDownloaderManager-Setup.exe — 桌面管理器安裝程式（在安裝目錄的 resources 資料夾內附帶 jar、docker-compose.yml 及完整原始碼）。"
+              }
+            },
+            {
+              "text": {
+                "english": "world-downloader.jar — the proxy/downloader jar (run with java -jar).",
+                "cantonese": "world-downloader.jar — 代理／下載器 jar（以 java -jar 執行）。"
+              }
+            },
+            {
+              "text": {
+                "english": "source.zip — full source snapshot.",
+                "cantonese": "source.zip — 完整原始碼快照。"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "build-24",
+      "version": "1.0.24",
+      "name": "All-in-one build 1.0.24",
+      "publishedAt": "2026-06-07T20:20:25Z",
+      "url": "https://github.com/Ding-Ding-Projects/minecraft-world-downloader/releases/tag/build-24",
+      "isPrerelease": false,
+      "sourceNotes": "Automated all-in-one build.\n- **WorldDownloaderManager-Setup.exe** — desktop manager installer (bundles the jar,\n  docker-compose.yml and full source under the install dir's `resources/` folder).\n- **world-downloader.jar** — the proxy/downloader jar (run with `java -jar`).\n- **source.zip** — full source snapshot.\n",
+      "categories": [
+        {
+          "id": "summary",
+          "title": {
+            "english": "Release summary",
+            "cantonese": "發佈摘要"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "Automated all-in-one build.",
+                "cantonese": "自動化一站式構建。"
+              }
+            }
+          ]
+        },
+        {
+          "id": "artifacts",
+          "title": {
+            "english": "Included artifacts",
+            "cantonese": "隨附發佈檔案"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "WorldDownloaderManager-Setup.exe — desktop manager installer (bundles the jar, docker-compose.yml and full source under the install directory's resources folder).",
+                "cantonese": "WorldDownloaderManager-Setup.exe — 桌面管理器安裝程式（在安裝目錄的 resources 資料夾內附帶 jar、docker-compose.yml 及完整原始碼）。"
+              }
+            },
+            {
+              "text": {
+                "english": "world-downloader.jar — the proxy/downloader jar (run with java -jar).",
+                "cantonese": "world-downloader.jar — 代理／下載器 jar（以 java -jar 執行）。"
+              }
+            },
+            {
+              "text": {
+                "english": "source.zip — full source snapshot.",
+                "cantonese": "source.zip — 完整原始碼快照。"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "build-23",
+      "version": "1.0.23",
+      "name": "All-in-one build 1.0.23",
+      "publishedAt": "2026-06-07T19:40:53Z",
+      "url": "https://github.com/Ding-Ding-Projects/minecraft-world-downloader/releases/tag/build-23",
+      "isPrerelease": false,
+      "sourceNotes": "Automated all-in-one build.\n- **WorldDownloaderManager-Setup.exe** — desktop manager installer (bundles the jar,\n  docker-compose.yml and full source under the install dir's `resources/` folder).\n- **world-downloader.jar** — the proxy/downloader jar (run with `java -jar`).\n- **source.zip** — full source snapshot.\n",
+      "categories": [
+        {
+          "id": "summary",
+          "title": {
+            "english": "Release summary",
+            "cantonese": "發佈摘要"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "Automated all-in-one build.",
+                "cantonese": "自動化一站式構建。"
+              }
+            }
+          ]
+        },
+        {
+          "id": "artifacts",
+          "title": {
+            "english": "Included artifacts",
+            "cantonese": "隨附發佈檔案"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "WorldDownloaderManager-Setup.exe — desktop manager installer (bundles the jar, docker-compose.yml and full source under the install directory's resources folder).",
+                "cantonese": "WorldDownloaderManager-Setup.exe — 桌面管理器安裝程式（在安裝目錄的 resources 資料夾內附帶 jar、docker-compose.yml 及完整原始碼）。"
+              }
+            },
+            {
+              "text": {
+                "english": "world-downloader.jar — the proxy/downloader jar (run with java -jar).",
+                "cantonese": "world-downloader.jar — 代理／下載器 jar（以 java -jar 執行）。"
+              }
+            },
+            {
+              "text": {
+                "english": "source.zip — full source snapshot.",
+                "cantonese": "source.zip — 完整原始碼快照。"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "build-22",
+      "version": "1.0.22",
+      "name": "All-in-one build 1.0.22",
+      "publishedAt": "2026-06-07T19:25:25Z",
+      "url": "https://github.com/Ding-Ding-Projects/minecraft-world-downloader/releases/tag/build-22",
+      "isPrerelease": false,
+      "sourceNotes": "Automated all-in-one build.\n- **WorldDownloaderManager-Setup.exe** — desktop manager installer (bundles the jar,\n  docker-compose.yml and full source under the install dir's `resources/` folder).\n- **world-downloader.jar** — the proxy/downloader jar (run with `java -jar`).\n- **source.zip** — full source snapshot.\n",
+      "categories": [
+        {
+          "id": "summary",
+          "title": {
+            "english": "Release summary",
+            "cantonese": "發佈摘要"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "Automated all-in-one build.",
+                "cantonese": "自動化一站式構建。"
+              }
+            }
+          ]
+        },
+        {
+          "id": "artifacts",
+          "title": {
+            "english": "Included artifacts",
+            "cantonese": "隨附發佈檔案"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "WorldDownloaderManager-Setup.exe — desktop manager installer (bundles the jar, docker-compose.yml and full source under the install directory's resources folder).",
+                "cantonese": "WorldDownloaderManager-Setup.exe — 桌面管理器安裝程式（在安裝目錄的 resources 資料夾內附帶 jar、docker-compose.yml 及完整原始碼）。"
+              }
+            },
+            {
+              "text": {
+                "english": "world-downloader.jar — the proxy/downloader jar (run with java -jar).",
+                "cantonese": "world-downloader.jar — 代理／下載器 jar（以 java -jar 執行）。"
+              }
+            },
+            {
+              "text": {
+                "english": "source.zip — full source snapshot.",
+                "cantonese": "source.zip — 完整原始碼快照。"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "build-21",
+      "version": "1.0.21",
+      "name": "All-in-one build 1.0.21",
+      "publishedAt": "2026-06-07T19:24:00Z",
+      "url": "https://github.com/Ding-Ding-Projects/minecraft-world-downloader/releases/tag/build-21",
+      "isPrerelease": false,
+      "sourceNotes": "Automated all-in-one build.\n- **WorldDownloaderManager-Setup.exe** — desktop manager installer (bundles the jar,\n  docker-compose.yml and full source under the install dir's `resources/` folder).\n- **world-downloader.jar** — the proxy/downloader jar (run with `java -jar`).\n- **source.zip** — full source snapshot.\n",
+      "categories": [
+        {
+          "id": "summary",
+          "title": {
+            "english": "Release summary",
+            "cantonese": "發佈摘要"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "Automated all-in-one build.",
+                "cantonese": "自動化一站式構建。"
+              }
+            }
+          ]
+        },
+        {
+          "id": "artifacts",
+          "title": {
+            "english": "Included artifacts",
+            "cantonese": "隨附發佈檔案"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "WorldDownloaderManager-Setup.exe — desktop manager installer (bundles the jar, docker-compose.yml and full source under the install directory's resources folder).",
+                "cantonese": "WorldDownloaderManager-Setup.exe — 桌面管理器安裝程式（在安裝目錄的 resources 資料夾內附帶 jar、docker-compose.yml 及完整原始碼）。"
+              }
+            },
+            {
+              "text": {
+                "english": "world-downloader.jar — the proxy/downloader jar (run with java -jar).",
+                "cantonese": "world-downloader.jar — 代理／下載器 jar（以 java -jar 執行）。"
+              }
+            },
+            {
+              "text": {
+                "english": "source.zip — full source snapshot.",
+                "cantonese": "source.zip — 完整原始碼快照。"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "build-20",
+      "version": "1.0.20",
+      "name": "All-in-one build 1.0.20",
+      "publishedAt": "2026-06-07T19:20:24Z",
+      "url": "https://github.com/Ding-Ding-Projects/minecraft-world-downloader/releases/tag/build-20",
+      "isPrerelease": false,
+      "sourceNotes": "Automated all-in-one build.\n- **WorldDownloaderManager-Setup.exe** — desktop manager installer (bundles the jar,\n  docker-compose.yml and full source under the install dir's `resources/` folder).\n- **world-downloader.jar** — the proxy/downloader jar (run with `java -jar`).\n- **source.zip** — full source snapshot.\n",
+      "categories": [
+        {
+          "id": "summary",
+          "title": {
+            "english": "Release summary",
+            "cantonese": "發佈摘要"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "Automated all-in-one build.",
+                "cantonese": "自動化一站式構建。"
+              }
+            }
+          ]
+        },
+        {
+          "id": "artifacts",
+          "title": {
+            "english": "Included artifacts",
+            "cantonese": "隨附發佈檔案"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "WorldDownloaderManager-Setup.exe — desktop manager installer (bundles the jar, docker-compose.yml and full source under the install directory's resources folder).",
+                "cantonese": "WorldDownloaderManager-Setup.exe — 桌面管理器安裝程式（在安裝目錄的 resources 資料夾內附帶 jar、docker-compose.yml 及完整原始碼）。"
+              }
+            },
+            {
+              "text": {
+                "english": "world-downloader.jar — the proxy/downloader jar (run with java -jar).",
+                "cantonese": "world-downloader.jar — 代理／下載器 jar（以 java -jar 執行）。"
+              }
+            },
+            {
+              "text": {
+                "english": "source.zip — full source snapshot.",
+                "cantonese": "source.zip — 完整原始碼快照。"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "build-19",
+      "version": "1.0.19",
+      "name": "All-in-one build 1.0.19",
+      "publishedAt": "2026-06-07T19:16:26Z",
+      "url": "https://github.com/Ding-Ding-Projects/minecraft-world-downloader/releases/tag/build-19",
+      "isPrerelease": false,
+      "sourceNotes": "Automated all-in-one build.\n- **WorldDownloaderManager-Setup.exe** — desktop manager installer (bundles the jar,\n  docker-compose.yml and full source under the install dir's `resources/` folder).\n- **world-downloader.jar** — the proxy/downloader jar (run with `java -jar`).\n- **source.zip** — full source snapshot.\n",
+      "categories": [
+        {
+          "id": "summary",
+          "title": {
+            "english": "Release summary",
+            "cantonese": "發佈摘要"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "Automated all-in-one build.",
+                "cantonese": "自動化一站式構建。"
+              }
+            }
+          ]
+        },
+        {
+          "id": "artifacts",
+          "title": {
+            "english": "Included artifacts",
+            "cantonese": "隨附發佈檔案"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "WorldDownloaderManager-Setup.exe — desktop manager installer (bundles the jar, docker-compose.yml and full source under the install directory's resources folder).",
+                "cantonese": "WorldDownloaderManager-Setup.exe — 桌面管理器安裝程式（在安裝目錄的 resources 資料夾內附帶 jar、docker-compose.yml 及完整原始碼）。"
+              }
+            },
+            {
+              "text": {
+                "english": "world-downloader.jar — the proxy/downloader jar (run with java -jar).",
+                "cantonese": "world-downloader.jar — 代理／下載器 jar（以 java -jar 執行）。"
+              }
+            },
+            {
+              "text": {
+                "english": "source.zip — full source snapshot.",
+                "cantonese": "source.zip — 完整原始碼快照。"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "build-18",
+      "version": "1.0.18",
+      "name": "All-in-one build 1.0.18",
+      "publishedAt": "2026-06-07T19:05:53Z",
+      "url": "https://github.com/Ding-Ding-Projects/minecraft-world-downloader/releases/tag/build-18",
+      "isPrerelease": false,
+      "sourceNotes": "Automated all-in-one build.\n- **WorldDownloaderManager-Setup.exe** — desktop manager installer (bundles the jar,\n  docker-compose.yml and full source under the install dir's `resources/` folder).\n- **world-downloader.jar** — the proxy/downloader jar (run with `java -jar`).\n- **source.zip** — full source snapshot.\n",
+      "categories": [
+        {
+          "id": "summary",
+          "title": {
+            "english": "Release summary",
+            "cantonese": "發佈摘要"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "Automated all-in-one build.",
+                "cantonese": "自動化一站式構建。"
+              }
+            }
+          ]
+        },
+        {
+          "id": "artifacts",
+          "title": {
+            "english": "Included artifacts",
+            "cantonese": "隨附發佈檔案"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "WorldDownloaderManager-Setup.exe — desktop manager installer (bundles the jar, docker-compose.yml and full source under the install directory's resources folder).",
+                "cantonese": "WorldDownloaderManager-Setup.exe — 桌面管理器安裝程式（在安裝目錄的 resources 資料夾內附帶 jar、docker-compose.yml 及完整原始碼）。"
+              }
+            },
+            {
+              "text": {
+                "english": "world-downloader.jar — the proxy/downloader jar (run with java -jar).",
+                "cantonese": "world-downloader.jar — 代理／下載器 jar（以 java -jar 執行）。"
+              }
+            },
+            {
+              "text": {
+                "english": "source.zip — full source snapshot.",
+                "cantonese": "source.zip — 完整原始碼快照。"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "build-17",
+      "version": "1.0.17",
+      "name": "All-in-one build 1.0.17",
+      "publishedAt": "2026-06-07T18:50:12Z",
+      "url": "https://github.com/Ding-Ding-Projects/minecraft-world-downloader/releases/tag/build-17",
+      "isPrerelease": false,
+      "sourceNotes": "Automated all-in-one build.\n- **WorldDownloaderManager-Setup.exe** — desktop manager installer (bundles the jar,\n  docker-compose.yml and full source under the install dir's `resources/` folder).\n- **world-downloader.jar** — the proxy/downloader jar (run with `java -jar`).\n- **source.zip** — full source snapshot.\n",
+      "categories": [
+        {
+          "id": "summary",
+          "title": {
+            "english": "Release summary",
+            "cantonese": "發佈摘要"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "Automated all-in-one build.",
+                "cantonese": "自動化一站式構建。"
+              }
+            }
+          ]
+        },
+        {
+          "id": "artifacts",
+          "title": {
+            "english": "Included artifacts",
+            "cantonese": "隨附發佈檔案"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "WorldDownloaderManager-Setup.exe — desktop manager installer (bundles the jar, docker-compose.yml and full source under the install directory's resources folder).",
+                "cantonese": "WorldDownloaderManager-Setup.exe — 桌面管理器安裝程式（在安裝目錄的 resources 資料夾內附帶 jar、docker-compose.yml 及完整原始碼）。"
+              }
+            },
+            {
+              "text": {
+                "english": "world-downloader.jar — the proxy/downloader jar (run with java -jar).",
+                "cantonese": "world-downloader.jar — 代理／下載器 jar（以 java -jar 執行）。"
+              }
+            },
+            {
+              "text": {
+                "english": "source.zip — full source snapshot.",
+                "cantonese": "source.zip — 完整原始碼快照。"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "build-16",
+      "version": "1.0.16",
+      "name": "All-in-one build 1.0.16",
+      "publishedAt": "2026-06-07T18:42:15Z",
+      "url": "https://github.com/Ding-Ding-Projects/minecraft-world-downloader/releases/tag/build-16",
+      "isPrerelease": false,
+      "sourceNotes": "Automated all-in-one build.\n- **WorldDownloaderManager-Setup.exe** — desktop manager installer (bundles the jar,\n  docker-compose.yml and full source under the install dir's `resources/` folder).\n- **world-downloader.jar** — the proxy/downloader jar (run with `java -jar`).\n- **source.zip** — full source snapshot.\n",
+      "categories": [
+        {
+          "id": "summary",
+          "title": {
+            "english": "Release summary",
+            "cantonese": "發佈摘要"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "Automated all-in-one build.",
+                "cantonese": "自動化一站式構建。"
+              }
+            }
+          ]
+        },
+        {
+          "id": "artifacts",
+          "title": {
+            "english": "Included artifacts",
+            "cantonese": "隨附發佈檔案"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "WorldDownloaderManager-Setup.exe — desktop manager installer (bundles the jar, docker-compose.yml and full source under the install directory's resources folder).",
+                "cantonese": "WorldDownloaderManager-Setup.exe — 桌面管理器安裝程式（在安裝目錄的 resources 資料夾內附帶 jar、docker-compose.yml 及完整原始碼）。"
+              }
+            },
+            {
+              "text": {
+                "english": "world-downloader.jar — the proxy/downloader jar (run with java -jar).",
+                "cantonese": "world-downloader.jar — 代理／下載器 jar（以 java -jar 執行）。"
+              }
+            },
+            {
+              "text": {
+                "english": "source.zip — full source snapshot.",
+                "cantonese": "source.zip — 完整原始碼快照。"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "build-15",
+      "version": "1.0.15",
+      "name": "All-in-one build 1.0.15",
+      "publishedAt": "2026-06-07T18:40:29Z",
+      "url": "https://github.com/Ding-Ding-Projects/minecraft-world-downloader/releases/tag/build-15",
+      "isPrerelease": false,
+      "sourceNotes": "Automated all-in-one build.\n- **WorldDownloaderManager-Setup.exe** — desktop manager installer (bundles the jar,\n  docker-compose.yml and full source under the install dir's `resources/` folder).\n- **world-downloader.jar** — the proxy/downloader jar (run with `java -jar`).\n- **source.zip** — full source snapshot.\n",
+      "categories": [
+        {
+          "id": "summary",
+          "title": {
+            "english": "Release summary",
+            "cantonese": "發佈摘要"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "Automated all-in-one build.",
+                "cantonese": "自動化一站式構建。"
+              }
+            }
+          ]
+        },
+        {
+          "id": "artifacts",
+          "title": {
+            "english": "Included artifacts",
+            "cantonese": "隨附發佈檔案"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "WorldDownloaderManager-Setup.exe — desktop manager installer (bundles the jar, docker-compose.yml and full source under the install directory's resources folder).",
+                "cantonese": "WorldDownloaderManager-Setup.exe — 桌面管理器安裝程式（在安裝目錄的 resources 資料夾內附帶 jar、docker-compose.yml 及完整原始碼）。"
+              }
+            },
+            {
+              "text": {
+                "english": "world-downloader.jar — the proxy/downloader jar (run with java -jar).",
+                "cantonese": "world-downloader.jar — 代理／下載器 jar（以 java -jar 執行）。"
+              }
+            },
+            {
+              "text": {
+                "english": "source.zip — full source snapshot.",
+                "cantonese": "source.zip — 完整原始碼快照。"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "build-14",
+      "version": "1.0.14",
+      "name": "All-in-one build 1.0.14",
+      "publishedAt": "2026-06-07T18:16:44Z",
+      "url": "https://github.com/Ding-Ding-Projects/minecraft-world-downloader/releases/tag/build-14",
+      "isPrerelease": false,
+      "sourceNotes": "Automated all-in-one build.\n- **WorldDownloaderManager-Setup.exe** — desktop manager installer (bundles the jar,\n  docker-compose.yml and full source under the install dir's `resources/` folder).\n- **world-downloader.jar** — the proxy/downloader jar (run with `java -jar`).\n- **source.zip** — full source snapshot.\n",
+      "categories": [
+        {
+          "id": "summary",
+          "title": {
+            "english": "Release summary",
+            "cantonese": "發佈摘要"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "Automated all-in-one build.",
+                "cantonese": "自動化一站式構建。"
+              }
+            }
+          ]
+        },
+        {
+          "id": "artifacts",
+          "title": {
+            "english": "Included artifacts",
+            "cantonese": "隨附發佈檔案"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "WorldDownloaderManager-Setup.exe — desktop manager installer (bundles the jar, docker-compose.yml and full source under the install directory's resources folder).",
+                "cantonese": "WorldDownloaderManager-Setup.exe — 桌面管理器安裝程式（在安裝目錄的 resources 資料夾內附帶 jar、docker-compose.yml 及完整原始碼）。"
+              }
+            },
+            {
+              "text": {
+                "english": "world-downloader.jar — the proxy/downloader jar (run with java -jar).",
+                "cantonese": "world-downloader.jar — 代理／下載器 jar（以 java -jar 執行）。"
+              }
+            },
+            {
+              "text": {
+                "english": "source.zip — full source snapshot.",
+                "cantonese": "source.zip — 完整原始碼快照。"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "build-13",
+      "version": "1.0.13",
+      "name": "All-in-one build 1.0.13",
+      "publishedAt": "2026-06-07T18:14:10Z",
+      "url": "https://github.com/Ding-Ding-Projects/minecraft-world-downloader/releases/tag/build-13",
+      "isPrerelease": false,
+      "sourceNotes": "Automated all-in-one build.\n- **WorldDownloaderManager-Setup.exe** — desktop manager installer (bundles the jar,\n  docker-compose.yml and full source under the install dir's `resources/` folder).\n- **world-downloader.jar** — the proxy/downloader jar (run with `java -jar`).\n- **source.zip** — full source snapshot.\n",
+      "categories": [
+        {
+          "id": "summary",
+          "title": {
+            "english": "Release summary",
+            "cantonese": "發佈摘要"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "Automated all-in-one build.",
+                "cantonese": "自動化一站式構建。"
+              }
+            }
+          ]
+        },
+        {
+          "id": "artifacts",
+          "title": {
+            "english": "Included artifacts",
+            "cantonese": "隨附發佈檔案"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "WorldDownloaderManager-Setup.exe — desktop manager installer (bundles the jar, docker-compose.yml and full source under the install directory's resources folder).",
+                "cantonese": "WorldDownloaderManager-Setup.exe — 桌面管理器安裝程式（在安裝目錄的 resources 資料夾內附帶 jar、docker-compose.yml 及完整原始碼）。"
+              }
+            },
+            {
+              "text": {
+                "english": "world-downloader.jar — the proxy/downloader jar (run with java -jar).",
+                "cantonese": "world-downloader.jar — 代理／下載器 jar（以 java -jar 執行）。"
+              }
+            },
+            {
+              "text": {
+                "english": "source.zip — full source snapshot.",
+                "cantonese": "source.zip — 完整原始碼快照。"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "build-12",
+      "version": "1.0.12",
+      "name": "All-in-one build 1.0.12",
+      "publishedAt": "2026-06-07T17:52:45Z",
+      "url": "https://github.com/Ding-Ding-Projects/minecraft-world-downloader/releases/tag/build-12",
+      "isPrerelease": false,
+      "sourceNotes": "Automated all-in-one build.\n- **WorldDownloaderManager-Setup.exe** — desktop manager installer (bundles the jar,\n  docker-compose.yml and full source under the install dir's `resources/` folder).\n- **world-downloader.jar** — the proxy/downloader jar (run with `java -jar`).\n- **source.zip** — full source snapshot.\n",
+      "categories": [
+        {
+          "id": "summary",
+          "title": {
+            "english": "Release summary",
+            "cantonese": "發佈摘要"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "Automated all-in-one build.",
+                "cantonese": "自動化一站式構建。"
+              }
+            }
+          ]
+        },
+        {
+          "id": "artifacts",
+          "title": {
+            "english": "Included artifacts",
+            "cantonese": "隨附發佈檔案"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "WorldDownloaderManager-Setup.exe — desktop manager installer (bundles the jar, docker-compose.yml and full source under the install directory's resources folder).",
+                "cantonese": "WorldDownloaderManager-Setup.exe — 桌面管理器安裝程式（在安裝目錄的 resources 資料夾內附帶 jar、docker-compose.yml 及完整原始碼）。"
+              }
+            },
+            {
+              "text": {
+                "english": "world-downloader.jar — the proxy/downloader jar (run with java -jar).",
+                "cantonese": "world-downloader.jar — 代理／下載器 jar（以 java -jar 執行）。"
+              }
+            },
+            {
+              "text": {
+                "english": "source.zip — full source snapshot.",
+                "cantonese": "source.zip — 完整原始碼快照。"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "build-11",
+      "version": "1.0.11",
+      "name": "All-in-one build 1.0.11",
+      "publishedAt": "2026-06-07T17:48:41Z",
+      "url": "https://github.com/Ding-Ding-Projects/minecraft-world-downloader/releases/tag/build-11",
+      "isPrerelease": false,
+      "sourceNotes": "Automated all-in-one build.\n- **WorldDownloaderManager-Setup.exe** — desktop manager installer (bundles the jar,\n  docker-compose.yml and full source under the install dir's `resources/` folder).\n- **world-downloader.jar** — the proxy/downloader jar (run with `java -jar`).\n- **source.zip** — full source snapshot.\n",
+      "categories": [
+        {
+          "id": "summary",
+          "title": {
+            "english": "Release summary",
+            "cantonese": "發佈摘要"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "Automated all-in-one build.",
+                "cantonese": "自動化一站式構建。"
+              }
+            }
+          ]
+        },
+        {
+          "id": "artifacts",
+          "title": {
+            "english": "Included artifacts",
+            "cantonese": "隨附發佈檔案"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "WorldDownloaderManager-Setup.exe — desktop manager installer (bundles the jar, docker-compose.yml and full source under the install directory's resources folder).",
+                "cantonese": "WorldDownloaderManager-Setup.exe — 桌面管理器安裝程式（在安裝目錄的 resources 資料夾內附帶 jar、docker-compose.yml 及完整原始碼）。"
+              }
+            },
+            {
+              "text": {
+                "english": "world-downloader.jar — the proxy/downloader jar (run with java -jar).",
+                "cantonese": "world-downloader.jar — 代理／下載器 jar（以 java -jar 執行）。"
+              }
+            },
+            {
+              "text": {
+                "english": "source.zip — full source snapshot.",
+                "cantonese": "source.zip — 完整原始碼快照。"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "build-10",
+      "version": "1.0.10",
+      "name": "All-in-one build 1.0.10",
+      "publishedAt": "2026-06-07T17:18:41Z",
+      "url": "https://github.com/Ding-Ding-Projects/minecraft-world-downloader/releases/tag/build-10",
+      "isPrerelease": false,
+      "sourceNotes": "Automated all-in-one build.\n- **WorldDownloaderManager-Setup.exe** — desktop manager installer (bundles the jar,\n  docker-compose.yml and full source under the install dir's `resources/` folder).\n- **world-downloader.jar** — the proxy/downloader jar (run with `java -jar`).\n- **source.zip** — full source snapshot.\n",
+      "categories": [
+        {
+          "id": "summary",
+          "title": {
+            "english": "Release summary",
+            "cantonese": "發佈摘要"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "Automated all-in-one build.",
+                "cantonese": "自動化一站式構建。"
+              }
+            }
+          ]
+        },
+        {
+          "id": "artifacts",
+          "title": {
+            "english": "Included artifacts",
+            "cantonese": "隨附發佈檔案"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "WorldDownloaderManager-Setup.exe — desktop manager installer (bundles the jar, docker-compose.yml and full source under the install directory's resources folder).",
+                "cantonese": "WorldDownloaderManager-Setup.exe — 桌面管理器安裝程式（在安裝目錄的 resources 資料夾內附帶 jar、docker-compose.yml 及完整原始碼）。"
+              }
+            },
+            {
+              "text": {
+                "english": "world-downloader.jar — the proxy/downloader jar (run with java -jar).",
+                "cantonese": "world-downloader.jar — 代理／下載器 jar（以 java -jar 執行）。"
+              }
+            },
+            {
+              "text": {
+                "english": "source.zip — full source snapshot.",
+                "cantonese": "source.zip — 完整原始碼快照。"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "build-9",
+      "version": "1.0.9",
+      "name": "All-in-one build 1.0.9",
+      "publishedAt": "2026-06-07T16:38:42Z",
+      "url": "https://github.com/Ding-Ding-Projects/minecraft-world-downloader/releases/tag/build-9",
+      "isPrerelease": false,
+      "sourceNotes": "Automated all-in-one build.\n- **WorldDownloaderManager-Setup.exe** — desktop manager installer (bundles the jar,\n  docker-compose.yml and full source under the install dir's `resources/` folder).\n- **world-downloader.jar** — the proxy/downloader jar (run with `java -jar`).\n- **source.zip** — full source snapshot.\n",
+      "categories": [
+        {
+          "id": "summary",
+          "title": {
+            "english": "Release summary",
+            "cantonese": "發佈摘要"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "Automated all-in-one build.",
+                "cantonese": "自動化一站式構建。"
+              }
+            }
+          ]
+        },
+        {
+          "id": "artifacts",
+          "title": {
+            "english": "Included artifacts",
+            "cantonese": "隨附發佈檔案"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "WorldDownloaderManager-Setup.exe — desktop manager installer (bundles the jar, docker-compose.yml and full source under the install directory's resources folder).",
+                "cantonese": "WorldDownloaderManager-Setup.exe — 桌面管理器安裝程式（在安裝目錄的 resources 資料夾內附帶 jar、docker-compose.yml 及完整原始碼）。"
+              }
+            },
+            {
+              "text": {
+                "english": "world-downloader.jar — the proxy/downloader jar (run with java -jar).",
+                "cantonese": "world-downloader.jar — 代理／下載器 jar（以 java -jar 執行）。"
+              }
+            },
+            {
+              "text": {
+                "english": "source.zip — full source snapshot.",
+                "cantonese": "source.zip — 完整原始碼快照。"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "build-8",
+      "version": "1.0.8",
+      "name": "All-in-one build 1.0.8",
+      "publishedAt": "2026-06-07T16:30:38Z",
+      "url": "https://github.com/Ding-Ding-Projects/minecraft-world-downloader/releases/tag/build-8",
+      "isPrerelease": false,
+      "sourceNotes": "Automated all-in-one build.\n- **WorldDownloaderManager-Setup.exe** — desktop manager installer (bundles the jar,\n  docker-compose.yml and full source under the install dir's `resources/` folder).\n- **world-downloader.jar** — the proxy/downloader jar (run with `java -jar`).\n- **source.zip** — full source snapshot.\n",
+      "categories": [
+        {
+          "id": "summary",
+          "title": {
+            "english": "Release summary",
+            "cantonese": "發佈摘要"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "Automated all-in-one build.",
+                "cantonese": "自動化一站式構建。"
+              }
+            }
+          ]
+        },
+        {
+          "id": "artifacts",
+          "title": {
+            "english": "Included artifacts",
+            "cantonese": "隨附發佈檔案"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "WorldDownloaderManager-Setup.exe — desktop manager installer (bundles the jar, docker-compose.yml and full source under the install directory's resources folder).",
+                "cantonese": "WorldDownloaderManager-Setup.exe — 桌面管理器安裝程式（在安裝目錄的 resources 資料夾內附帶 jar、docker-compose.yml 及完整原始碼）。"
+              }
+            },
+            {
+              "text": {
+                "english": "world-downloader.jar — the proxy/downloader jar (run with java -jar).",
+                "cantonese": "world-downloader.jar — 代理／下載器 jar（以 java -jar 執行）。"
+              }
+            },
+            {
+              "text": {
+                "english": "source.zip — full source snapshot.",
+                "cantonese": "source.zip — 完整原始碼快照。"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "build-6",
+      "version": "1.0.6",
+      "name": "All-in-one build 1.0.6",
+      "publishedAt": "2026-06-07T16:20:56Z",
+      "url": "https://github.com/Ding-Ding-Projects/minecraft-world-downloader/releases/tag/build-6",
+      "isPrerelease": false,
+      "sourceNotes": "Automated all-in-one build.\n- **WorldDownloaderManager-Setup.exe** — desktop manager installer (bundles the jar,\n  docker-compose.yml and full source under the install dir's `resources/` folder).\n- **world-downloader.jar** — the proxy/downloader jar (run with `java -jar`).\n- **source.zip** — full source snapshot.\n",
+      "categories": [
+        {
+          "id": "summary",
+          "title": {
+            "english": "Release summary",
+            "cantonese": "發佈摘要"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "Automated all-in-one build.",
+                "cantonese": "自動化一站式構建。"
+              }
+            }
+          ]
+        },
+        {
+          "id": "artifacts",
+          "title": {
+            "english": "Included artifacts",
+            "cantonese": "隨附發佈檔案"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "WorldDownloaderManager-Setup.exe — desktop manager installer (bundles the jar, docker-compose.yml and full source under the install directory's resources folder).",
+                "cantonese": "WorldDownloaderManager-Setup.exe — 桌面管理器安裝程式（在安裝目錄的 resources 資料夾內附帶 jar、docker-compose.yml 及完整原始碼）。"
+              }
+            },
+            {
+              "text": {
+                "english": "world-downloader.jar — the proxy/downloader jar (run with java -jar).",
+                "cantonese": "world-downloader.jar — 代理／下載器 jar（以 java -jar 執行）。"
+              }
+            },
+            {
+              "text": {
+                "english": "source.zip — full source snapshot.",
+                "cantonese": "source.zip — 完整原始碼快照。"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "build-7",
+      "version": "1.0.7",
+      "name": "All-in-one build 1.0.7",
+      "publishedAt": "2026-06-07T16:20:44Z",
+      "url": "https://github.com/Ding-Ding-Projects/minecraft-world-downloader/releases/tag/build-7",
+      "isPrerelease": false,
+      "sourceNotes": "Automated all-in-one build.\n- **WorldDownloaderManager-Setup.exe** — desktop manager installer (bundles the jar,\n  docker-compose.yml and full source under the install dir's `resources/` folder).\n- **world-downloader.jar** — the proxy/downloader jar (run with `java -jar`).\n- **source.zip** — full source snapshot.\n",
+      "categories": [
+        {
+          "id": "summary",
+          "title": {
+            "english": "Release summary",
+            "cantonese": "發佈摘要"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "Automated all-in-one build.",
+                "cantonese": "自動化一站式構建。"
+              }
+            }
+          ]
+        },
+        {
+          "id": "artifacts",
+          "title": {
+            "english": "Included artifacts",
+            "cantonese": "隨附發佈檔案"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "WorldDownloaderManager-Setup.exe — desktop manager installer (bundles the jar, docker-compose.yml and full source under the install directory's resources folder).",
+                "cantonese": "WorldDownloaderManager-Setup.exe — 桌面管理器安裝程式（在安裝目錄的 resources 資料夾內附帶 jar、docker-compose.yml 及完整原始碼）。"
+              }
+            },
+            {
+              "text": {
+                "english": "world-downloader.jar — the proxy/downloader jar (run with java -jar).",
+                "cantonese": "world-downloader.jar — 代理／下載器 jar（以 java -jar 執行）。"
+              }
+            },
+            {
+              "text": {
+                "english": "source.zip — full source snapshot.",
+                "cantonese": "source.zip — 完整原始碼快照。"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "test-worlds",
+      "version": "test-worlds",
+      "name": "Test worlds (auto-open verification)",
+      "publishedAt": "2026-06-07T16:17:57Z",
+      "url": "https://github.com/Ding-Ding-Projects/minecraft-world-downloader/releases/tag/test-worlds",
+      "isPrerelease": false,
+      "sourceNotes": "Worlds downloaded by the proxy during automated tests (Paper + mineflayer). Each holds auto-opened containers (all block types + a chest minecart). 1.20.4 and 1.21.8 were re-opened in a fresh server and the chests read back in-game.",
+      "categories": [
+        {
+          "id": "verification",
+          "title": {
+            "english": "Automated verification data",
+            "cantonese": "自動驗證資料"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "Worlds downloaded by the proxy during automated tests (Paper + mineflayer).",
+                "cantonese": "這些世界由代理在自動測試期間下載（Paper + mineflayer）。"
+              }
+            },
+            {
+              "text": {
+                "english": "Each holds auto-opened containers (all block types + a chest minecart).",
+                "cantonese": "每個世界都包含自動開啟過的容器（所有方塊類型及一架箱子礦車）。"
+              }
+            },
+            {
+              "text": {
+                "english": "1.20.4 and 1.21.8 were re-opened in a fresh server and the chests read back in-game.",
+                "cantonese": "1.20.4 及 1.21.8 曾在全新伺服器重新開啟，並在遊戲內讀回箱子內容。"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "build-5",
+      "version": "1.0.5",
+      "name": "All-in-one build 1.0.5",
+      "publishedAt": "2026-06-07T16:11:28Z",
+      "url": "https://github.com/Ding-Ding-Projects/minecraft-world-downloader/releases/tag/build-5",
+      "isPrerelease": false,
+      "sourceNotes": "Automated all-in-one build.\n- **WorldDownloaderManager-Setup.exe** — desktop manager installer (bundles the jar,\n  docker-compose.yml and full source under the install dir's `resources/` folder).\n- **world-downloader.jar** — the proxy/downloader jar (run with `java -jar`).\n- **source.zip** — full source snapshot.\n",
+      "categories": [
+        {
+          "id": "summary",
+          "title": {
+            "english": "Release summary",
+            "cantonese": "發佈摘要"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "Automated all-in-one build.",
+                "cantonese": "自動化一站式構建。"
+              }
+            }
+          ]
+        },
+        {
+          "id": "artifacts",
+          "title": {
+            "english": "Included artifacts",
+            "cantonese": "隨附發佈檔案"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "WorldDownloaderManager-Setup.exe — desktop manager installer (bundles the jar, docker-compose.yml and full source under the install directory's resources folder).",
+                "cantonese": "WorldDownloaderManager-Setup.exe — 桌面管理器安裝程式（在安裝目錄的 resources 資料夾內附帶 jar、docker-compose.yml 及完整原始碼）。"
+              }
+            },
+            {
+              "text": {
+                "english": "world-downloader.jar — the proxy/downloader jar (run with java -jar).",
+                "cantonese": "world-downloader.jar — 代理／下載器 jar（以 java -jar 執行）。"
+              }
+            },
+            {
+              "text": {
+                "english": "source.zip — full source snapshot.",
+                "cantonese": "source.zip — 完整原始碼快照。"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "build-4",
+      "version": "1.0.4",
+      "name": "All-in-one build 1.0.4",
+      "publishedAt": "2026-06-07T16:06:50Z",
+      "url": "https://github.com/Ding-Ding-Projects/minecraft-world-downloader/releases/tag/build-4",
+      "isPrerelease": false,
+      "sourceNotes": "Automated all-in-one build.\n- **WorldDownloaderManager-Setup.exe** — desktop manager installer (bundles the jar,\n  docker-compose.yml and full source under the install dir's `resources/` folder).\n- **world-downloader.jar** — the proxy/downloader jar (run with `java -jar`).\n- **source.zip** — full source snapshot.\n",
+      "categories": [
+        {
+          "id": "summary",
+          "title": {
+            "english": "Release summary",
+            "cantonese": "發佈摘要"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "Automated all-in-one build.",
+                "cantonese": "自動化一站式構建。"
+              }
+            }
+          ]
+        },
+        {
+          "id": "artifacts",
+          "title": {
+            "english": "Included artifacts",
+            "cantonese": "隨附發佈檔案"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "WorldDownloaderManager-Setup.exe — desktop manager installer (bundles the jar, docker-compose.yml and full source under the install directory's resources folder).",
+                "cantonese": "WorldDownloaderManager-Setup.exe — 桌面管理器安裝程式（在安裝目錄的 resources 資料夾內附帶 jar、docker-compose.yml 及完整原始碼）。"
+              }
+            },
+            {
+              "text": {
+                "english": "world-downloader.jar — the proxy/downloader jar (run with java -jar).",
+                "cantonese": "world-downloader.jar — 代理／下載器 jar（以 java -jar 執行）。"
+              }
+            },
+            {
+              "text": {
+                "english": "source.zip — full source snapshot.",
+                "cantonese": "source.zip — 完整原始碼快照。"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
