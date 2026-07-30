@@ -3,6 +3,7 @@
 - [Home](Home)
 - [Installation](Installation)
 - [Docker & Web Console](Docker-Web-Console)
+- [Windows Desktop Manager](Desktop-Manager)
 - [Authentication](Authentication)
 - [Supported Versions](Supported-Versions)
 - [Command-Line Options](Command-Line-Options)

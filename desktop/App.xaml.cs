@@ -2,6 +2,8 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Interop;
+using System.Windows.Media;
 
 namespace WorldDownloaderManager;
 
@@ -9,6 +11,12 @@ public partial class App : Application
 {
     protected override void OnStartup(StartupEventArgs e)
     {
+        // Win32 off-screen desktops have no DWM surface for WPF's hardware renderer. The capture
+        // harness opts into software rendering so PrintWindow receives real pixels; normal launches
+        // keep hardware acceleration.
+        if (Environment.GetEnvironmentVariable("MWD_HEADLESS_QA") == "1")
+            RenderOptions.ProcessRenderMode = RenderMode.SoftwareOnly;
+
         // Surface and log any crash instead of the window silently vanishing, and keep the app alive
         // through non-fatal UI errors (e.g. a bad theme/render action) rather than terminating.
         DispatcherUnhandledException += (_, ev) => { Report(ev.Exception, "UI"); ev.Handled = true; };

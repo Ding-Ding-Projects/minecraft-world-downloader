@@ -18,7 +18,7 @@ The project ships accessibility and theming controls in two separate front-ends:
 
   Choices persist per-device in `localStorage`. When the user hasn't chosen, the system honours OS preferences (`prefers-color-scheme: light`, `prefers-reduced-motion: reduce`, `prefers-contrast: more`). The console also provides a keyboard "Skip to content" link and a strong always-visible focus outline.
 
-- **Windows desktop manager** (WPF). The app header has a **Theme** combo box (`Dark` / `Light` / `High contrast`) and a **Large text** checkbox that scales the entire UI to 1.25x. These recolour/resize the native window at runtime; they are not persisted.
+- **Windows desktop manager** (WPF). The app header has a persisted **Theme** combo box (`Dark` / `Light` / `High contrast`) and **Large text** control. Settings adds persisted font family/scale, language mode, and independent English/Cantonese funny levels. Browser-style tabs have visible keyboard focus, and non-decision status/error messages appear in a corner toast with a reviewable Notifications tab.
 
 The two front-ends are independent implementations that share the same colour palettes and intent, but no code.
 
@@ -97,7 +97,7 @@ None. There are no CLI flags, server-side config keys, or settings-file entries 
 
 ## Verification
 
-No automated tests cover this feature (it is UI/CSS plus a WPF code-behind). Verification to date is by code reading:
+The desktop preference and localization foundations are covered by `desktop.tests`; the web implementation remains verified by its own source/runtime checks:
 
 - The web side is self-contained client JS/CSS with no backend coupling; the `data-*` attribute names in `a11y.js` match the CSS selectors in `style.css`, and `a11y.js` is referenced by all three templates.
 - The desktop side's `SetBrush` keys match the eight `po:Freeze="False"` brush resources declared in `MainWindow.xaml`, and the `Theme_Changed` / `LargeText_Changed` handlers are wired to the `ThemeBox` / `LargeTextBox` controls.

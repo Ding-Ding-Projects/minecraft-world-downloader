@@ -24,12 +24,16 @@ dependency-reduced-pom.xml
 # .NET / WinUI desktop build output
 desktop/bin/
 desktop/obj/
+desktop.tests/bin/
+desktop.tests/obj/
 publish/
+/publish-verify/
 *.user
 
 .tmp_build/
 
 # Local analysis / debugging artifacts (do not commit)
+/artifacts/
 saved_items_report.txt
 lock_report.txt
 scan_saved_items.py

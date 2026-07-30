@@ -86,7 +86,9 @@ and a bot read the chests back to confirm the items are correct **in-game**, not
   the choppy pop-in.
 - **Accessibility & themes** — the web console has a ♿ menu (dark / light / high-contrast themes,
   ADHD-focus / calm / easy-reading / low-vision presets, reduced motion, dyslexia font, text scaling,
-  skip links, keyboard focus) and the desktop manager has theme + large-text options.
+  skip links, keyboard focus); the desktop manager adds persisted M3 tabs, English/Cantonese/bilingual
+  copy with independent funny levels, font controls, searchable settings with a safe .NET regex builder,
+  reviewable notifications, external-editor launch, and an optional bundled 1% dim-sum startup delight.
 
 ### ✅ Verified versions
 End-to-end (Paper server + mineflayer bot through the proxy), **3/3 runs each** on **1.12.2, 1.20.4,

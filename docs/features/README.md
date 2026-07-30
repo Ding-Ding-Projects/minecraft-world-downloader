@@ -32,7 +32,7 @@ conventions see [`../../AGENTS.md`](../../AGENTS.md).
 | Feature | Summary | Doc |
 |---|---|---|
 | **Web management console** | Flask dashboard (the Docker container's entrypoint) mirroring the CLI flags; manages the headless Java process + the bot, handles Minecraft account auth, and serves the live map + world downloads. | [web-console.md](web-console.md) |
-| **Desktop manager (C# WPF)** | Windows GUI that configures/runs the console as a Docker container and drives the BlueMap render + auto-explore bot helpers. | [desktop-manager.md](desktop-manager.md) |
+| **Desktop manager (C# WPF)** | Windows GUI with M3 tabs, persisted language/funny/font controls, safe settings, a bounded .NET regex builder, notifications, external-editor launch, bundled dim-sum delight, Docker management, BlueMap and bot helpers. | [desktop-manager.md](desktop-manager.md) |
 | **Accessibility & themes** | Dark/light/high-contrast theming plus an accessibility menu (presets, reduced motion, calm, focus, dyslexia font, text scaling) in the web console, mirrored by a theme + large-text switcher in the desktop app. | [accessibility-themes.md](accessibility-themes.md) |
 
 ## Ported & ops

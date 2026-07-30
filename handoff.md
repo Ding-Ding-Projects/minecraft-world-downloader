@@ -53,7 +53,8 @@ an auto-explore bot.
   trichhoffson), both regression-tested.
 - **Accessibility & themes**: web console ♿ menu (dark/light/high-contrast; ADHD-focus / calm /
   easy-reading / low-vision presets; reduced motion; dyslexia font; text scaling; skip links) and
-  desktop themes + large-text.
+  desktop persisted themes + large-text, M3 tabs, font controls, language/funny modes, notification
+  history, and searchable settings backed by the bounded .NET regex builder.
 - **Jar GUI parity**: the JavaFX settings window has **Auto-open** and **Extras** tabs exposing the
   fork's features (auto-open suite incl. trapped-chest/player-radius safety + log/state paths, chat
   auto-reply, extended-render pace, voice proxy, modded block colours, web-map tile writing) — so every
@@ -95,6 +96,12 @@ Full details + flags: `AGENTS.md` and `docs/wiki/Command-Line-Options.md`.
   and `bluemap/pipeline.py`, `node -e "require('./scraper/scrape.js')"`.
 
 ## 6. Open items / in progress
+
+- Desktop global-memory rollout: the first verified milestone includes encrypted current-user password
+  storage, Docker-log redaction, defensive YAML scalars, tabs, language/funny preferences, regex building,
+  notifications, external-editor launch, bundled dim-sum assets, ten desktop tests and headless captures.
+  Remaining work is tracked in `ROADMAP.md`: full element-level appearance editing, tab management,
+  Git-backed local history, and the complete historical changelog viewer.
 
 - **1.12.2 instant disconnect on a specific online-mode server (cause is server-side, not the proxy).**
   Conclusion after a deep investigation against the author's upstream (`git fetch upstream` + diffs):

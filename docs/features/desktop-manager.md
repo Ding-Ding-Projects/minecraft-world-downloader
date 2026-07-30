@@ -13,16 +13,20 @@ The desktop manager (`WorldDownloaderManager`) is a single-window Windows app th
 - Run one or more **mineflayer auto-explore bots** that connect through the proxy and walk/fly a grid so an area downloads automatically.
 - Show **live output** from every command it runs, plus a status banner.
 - Switch **theme** (Dark / Light / High contrast) and toggle **Large text** for accessibility.
+- Navigate browser-style **Downloader / Settings / Regex builder / Notifications** tabs.
+- Choose English, playful Hong Kong-style Cantonese, or bilingual copy with independent persisted funny levels from 1–5.
+- Search Settings in plain text or with its anchored, bounded **.NET regex builder**; the full builder tab adds guided constructs, flags, sample text, live matches/captures, copy and export.
+- Review non-blocking notifications, select an external editor, and opt out of the bundled 1% startup dim-sum delight.
 
 Settings persist between launches, and unhandled errors are caught and logged rather than silently killing the window.
 
 ## How it works
 
-**Stack & shell.** The app is a WPF app (`WorldDownloaderManager.csproj`: `UseWPF=true`, `OutputType=WinExe`, `TargetFramework=net8.0-windows`, `RuntimeIdentifiers=win-x64;win-arm64`). Note: several header comments describe it as "WinUI 3", but the actual project is WPF. The UI is defined in `MainWindow.xaml` (a single scrollable `StackPanel` of "card" sections) with all logic in the `MainWindow` code-behind.
+**Stack & shell.** The app is WPF (`WorldDownloaderManager.csproj`: `UseWPF=true`, `OutputType=WinExe`, `TargetFramework=net8.0-windows`, `RuntimeIdentifiers=win-x64;win-arm64`). `MainWindow.xaml` now uses a persistent M3-styled tab strip with scrollable card pages; code-behind is supplemented by focused copy and regex services.
 
 **Startup & crash handling.** `App.OnStartup` (`App.xaml.cs`) wires three global handlers — `DispatcherUnhandledException` (marked `Handled = true` so the app survives UI errors), `AppDomain.CurrentDomain.UnhandledException`, and `TaskScheduler.UnobservedTaskException`. Each calls `Report`, which appends the exception to `%LOCALAPPDATA%\WorldDownloaderManager\crash.log` and shows a `MessageBox`.
 
-**Settings.** `Settings` (`Settings.cs`) is a POCO serialized to `%APPDATA%\WorldDownloaderManager\settings.json`. `Settings.Load()` falls back to defaults on any read/parse error and, if `DataFolder` is empty, defaults it to `%USERPROFILE%\WorldDownloader`. Defaults: `WebPort=8080`, `ProxyPort=25565`, `Image=ghcr.io/cafepromenade/minecraft-world-downloader-web:latest`, `ContainerName=minecraft-world-downloader`, `RequireLogin=false`, `Username=admin`, `Password=""`. `Load()` also migrates the legacy `...minecraft-world-downloader:latest` image name to the `-web` package (whose `:latest` actually receives updates). `Save()` swallows write errors.
+**Settings.** `Settings` (`Settings.cs`) is serialized to `%APPDATA%\WorldDownloaderManager\settings.json`. `Load()` falls back to defaults, migrates the legacy image name, clamps preference ranges, and migrates the legacy plaintext password into Windows DPAPI ciphertext scoped to the current user. The clear password is never serialized. Language, independent funny levels, dim-sum opt-out, theme, text/font preferences and external-editor path persist.
 
 **Docker integration.** `DockerService` (`DockerService.cs`) is a thin wrapper over the `docker` CLI. `RunAsync` launches `docker` with `UseShellExecute=false`, streams stdout/stderr (UTF-8) line-by-line to the `OnOutput` callback (the app routes this to the log box), and returns `(exitCode, capturedOutput)`. Key operations:
 - `IsDockerAvailableAsync` → `docker version --format {{.Server.Version}}` (success = exit 0).
@@ -41,7 +45,9 @@ Settings persist between launches, and unhandled errors are caught and logged ra
 - **Open console / Live map**: `Process.Start` to `http://localhost:<webPort>` and `…/map`.
 - A `Busying(bool)` helper toggles the indeterminate progress bar and disables Start/Stop/Pull/Browse while work is in flight.
 
-**Theme & accessibility.** Brushes in `MainWindow.xaml` are declared `po:Freeze="False"` so they can be recolored at runtime. `ApplyTheme` swaps brush colors for Dark / Light / High contrast via `SetBrush` (which replaces a brush if it happens to be frozen, avoiding a crash). `LargeText_Changed` scales the root panel via a `ScaleTransform` (1.0 ↔ 1.25).
+**Theme & accessibility.** Brushes in `MainWindow.xaml` are mutable and recolored live for Dark / Light / High contrast. Theme, large text, font family and font scale persist. Tabs use native tab semantics and visible keyboard focus. Toasts are named live regions, dismissible, and mirrored into Notifications history. The startup dim-sum surface cannot take focus and uses dish-specific alt text.
+
+**Regex safety.** `RegexBuilderService` evaluates the real .NET dialect locally with flags `i`, `m`, `s`, and `n`, a 2,048-character pattern limit, 100,000-character sample limit, 150 ms timeout and 500-result cap. Syntax/timeout errors are inline; zero-width matches and capture groups are handled safely.
 
 **BlueMap 3D map.** `RenderMap_Click` requires a data folder, then locates `bluemap/pipeline.py` via `FindPipeline` (checks next to the executable, one level up, then `<data>/bluemap`). It derives `world=<data>/world`, `workdir=<data>/bluemap`, `webroot=<workdir>/web`, builds a `settings.json` from the UI (`acceptDownload:true`, `renderThreadCount`, `webserverEnabled:true`, `webserverPort`, and the chosen `dimensions` of overworld/nether/end), and invokes the pipeline as `<py> pipeline.py all --world … --out … --workdir … --settings …` plus `--server-jar <jar>` if one is set. `RunPythonAsync` tries `python`, then `python3`, then `py` in order, streaming output. `OpenMap_Click` opens `http://localhost:<bmPort>`.
 
@@ -56,6 +62,10 @@ Settings persist between launches, and unhandled errors are caught and logged ra
 - `desktop/Settings.cs` — persisted settings model (`%APPDATA%\WorldDownloaderManager\settings.json`), defaults, and `ToDockerCompose`/`WriteDockerCompose`.
 - `desktop/DockerService.cs` — `docker` CLI wrapper: availability/running checks, `rm -f`, `pull`, and `run` with port/volume/login mapping.
 - `desktop/App.xaml.cs` — global exception handlers and crash logging to `%LOCALAPPDATA%\WorldDownloaderManager\crash.log`.
+- `desktop/AppCopy.cs` — factual localized event copy with independent English/Cantonese funny levels.
+- `desktop/RegexBuilderService.cs` — bounded .NET regex construction/evaluation and capture models.
+- `desktop/Assets/DimSum/` — three bundled offline startup-delight images.
+- `desktop.tests/DesktopFeatureTests.cs` — security, YAML, localization and regex regression tests.
 - `desktop/WorldDownloaderManager.csproj` — WPF / `net8.0-windows` project; `win-x64`/`win-arm64` RIDs.
 - `installer/installer.nsi` — NSIS installer (shortcuts, Add/Remove Programs entry, uninstaller).
 - `.github/workflows/desktop-release.yml` — publishes self-contained `win-x64` build and packages it with NSIS, attaching to a release on tag.
@@ -90,15 +100,20 @@ Build-time NSIS defines (`installer.nsi`): `APP_VERSION`, `SRC_DIR`, `OUT_FILE` 
 
 ## Verification
 
-- **Compile/build-verified via CI**: `.github/workflows/desktop-release.yml` does a self-contained `win-x64` publish on every tag/dispatch and packages it with NSIS, so the C# project and installer script are exercised end to end in CI.
-- A prior `desktop/bin/Release/...` and `desktop/publish-test/` build output tree exists in the working copy, indicating local publish runs have succeeded.
-- **No automated unit/integration tests** for the manager itself were found in this area — Docker interaction, BlueMap, and bot launching are not covered by an automated test harness. Their correctness depends on the behavior of the external `docker` CLI, `bluemap/pipeline.py`, and `scraper/scrape.js`, which the app only shells out to. Treat runtime behavior of the GUI as manually/CI-build-verified, not integration-tested.
+- `dotnet build desktop/WorldDownloaderManager.csproj -c Release` passes with zero warnings and zero errors.
+- `dotnet test desktop.tests/WorldDownloaderManager.Tests.csproj -c Release` passes 10/10 tests covering DPAPI/no-plaintext serialization, secret redaction, hostile YAML values, valid/invalid/Unicode/zero-width/adversarial regexes, capture groups, bounded output, and independent bilingual humour.
+- Lowlevel MCP launched the real WPF build on an off-screen desktop and captured Downloader, Settings, Regex builder, and forced dim-sum states under [`docs/images/desktop-global-memory/`](../images/desktop-global-memory/).
+- Docker, BlueMap and bot process integrations remain outside this unit-test boundary and require their external runtimes.
+
+| Downloader | Settings | Regex builder | Startup delight |
+|---|---|---|---|
+| ![Downloader tab](../images/desktop-global-memory/downloader-tab.png) | ![Settings tab](../images/desktop-global-memory/settings-tab.png) | ![Regex builder tab](../images/desktop-global-memory/regex-builder-tab.png) | ![Shrimp dumpling startup toast](../images/desktop-global-memory/dim-sum-toast.png) |
 
 ## Gotchas & limitations
 
 - **Windows-only.** WPF + `net8.0-windows`; the bot/python launchers also probe Windows-style executables (`npm.cmd`, `node.exe`, `py`).
-- **Console password is stored in plaintext** in `settings.json` and is written verbatim into `docker run -e WEB_PASSWORD=…` and into the generated `docker-compose.yml`.
-- **Compose values are not escaped/quoted defensively.** `ToDockerCompose` interpolates username/password directly into double-quoted YAML; values containing quotes or special characters could produce invalid YAML.
+- **Explicit compose export contains the configured password** when login protection is enabled; protect that user-requested deployment file accordingly. Normal settings use current-user DPAPI encryption, and Docker command logs redact password/token/secret/key environment values.
+- **Compose scalars are defensively encoded.** Quotes, backslashes, newlines, tabs and control characters cannot escape their YAML value.
 - **Docker must be present and running**; if `docker version` fails the app shows an error and does not retry automatically (you must reopen the app).
 - **`ContainerName` is fixed via settings only** — there is no UI to run multiple containers with different names at once.
 - **External helpers are not bundled by the C# project.** `bluemap/pipeline.py` and `scraper/scrape.js` must be discoverable next to the executable, one directory up, or under the data folder; if missing, the feature reports an error. Whether the installer ships them depends on what is present in the published output tree (`File /r "${SRC_DIR}\*.*"`), which is not guaranteed by the csproj itself.
@@ -108,4 +123,4 @@ Build-time NSIS defines (`installer.nsi`): `APP_VERSION`, `SRC_DIR`, `OUT_FILE` 
 
 ## Open items
 
-None known.
+- Full per-element appearance editing, theme import/export, tab reordering/pinning/overflow, local Git-backed version history, and the complete in-app historical changelog remain planned global-memory work.

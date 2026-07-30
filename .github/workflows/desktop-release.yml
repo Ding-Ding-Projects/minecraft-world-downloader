@@ -1,7 +1,6 @@
 name: Desktop manager release
 
-# Builds the WinUI 3 manager app (self-contained, unpackaged) and packages it
-# with NSIS. On a version tag the installer is attached to a GitHub release.
+# Builds the WPF manager app (self-contained) and packages it with NSIS.
 
 on:
   push:
@@ -30,6 +29,9 @@ jobs:
           $v = "${{ github.ref_name }}" -replace '^(desktop-)?v',''
           if ([string]::IsNullOrWhiteSpace($v) -or $v -notmatch '^\d') { $v = "1.0.0" }
           "version=$v" >> $env:GITHUB_OUTPUT
+
+      - name: Test desktop manager
+        run: dotnet test desktop.tests/WorldDownloaderManager.Tests.csproj -c Release --logger "console;verbosity=normal"
 
       - name: Publish (self-contained, win-x64)
         shell: pwsh
@@ -60,7 +62,9 @@ jobs:
           path: WorldDownloaderManager-Setup.exe
 
       - name: Attach to release
-        if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
+          token: ${{ secrets.RELEASE_TOKEN || secrets.ORG_TOKEN || secrets.GITHUB_TOKEN }}
+          tag_name: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || format('desktop-build-{0}', github.run_number) }}
+          name: Desktop manager ${{ steps.ver.outputs.version }}
           files: WorldDownloaderManager-Setup.exe

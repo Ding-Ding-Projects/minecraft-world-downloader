@@ -30,7 +30,7 @@ public class DockerService
         var sb = new StringBuilder();
         try
         {
-            if (log) Log("$ docker " + string.Join(" ", args));
+            if (log) Log("$ docker " + FormatArgumentsForLog(args));
             using var p = new Process { StartInfo = psi, EnableRaisingEvents = true };
             p.OutputDataReceived += (_, e) => { if (e.Data != null) { sb.AppendLine(e.Data); if (log) Log(e.Data); } };
             p.ErrorDataReceived += (_, e) => { if (e.Data != null) { sb.AppendLine(e.Data); if (log) Log(e.Data); } };
@@ -45,6 +45,31 @@ public class DockerService
             Log("Error: " + ex.Message + "  (Is Docker Desktop installed and running?)");
             return (-1, ex.Message);
         }
+    }
+
+    internal static string FormatArgumentsForLog(IReadOnlyList<string> args)
+    {
+        var safe = new List<string>(args.Count);
+        bool environmentValueFollows = false;
+        foreach (var argument in args)
+        {
+            if (environmentValueFollows)
+            {
+                var equals = argument.IndexOf('=');
+                var key = equals >= 0 ? argument[..equals] : argument;
+                bool sensitive = key.Contains("PASSWORD", StringComparison.OrdinalIgnoreCase) ||
+                                 key.Contains("TOKEN", StringComparison.OrdinalIgnoreCase) ||
+                                 key.Contains("SECRET", StringComparison.OrdinalIgnoreCase) ||
+                                 key.Contains("KEY", StringComparison.OrdinalIgnoreCase);
+                safe.Add(sensitive && equals >= 0 ? key + "=<redacted>" : argument);
+                environmentValueFollows = false;
+                continue;
+            }
+
+            safe.Add(argument);
+            environmentValueFollows = argument is "-e" or "--env";
+        }
+        return string.Join(" ", safe);
     }
 
     public async Task<bool> IsDockerAvailableAsync()

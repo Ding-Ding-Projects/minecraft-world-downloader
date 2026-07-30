@@ -1,10 +1,15 @@
 using System;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 
 namespace WorldDownloaderManager;
 
@@ -13,6 +18,12 @@ public partial class MainWindow : Window
     private readonly Settings _settings;
     private readonly DockerService _docker = new();
     private Process? _botProc;
+    private bool _loadingPreferences = true;
+    private bool _settingsSearchUsesRegex;
+    private bool _startupHealthy;
+    private readonly ObservableCollection<string> _notificationHistory = new();
+    private readonly DispatcherTimer _toastTimer = new() { Interval = TimeSpan.FromSeconds(6) };
+    private readonly DispatcherTimer _dimSumTimer = new() { Interval = TimeSpan.FromSeconds(8) };
 
     public MainWindow()
     {
@@ -37,7 +48,21 @@ public partial class MainWindow : Window
         BuildPanel.Visibility = _settings.BuildLocally ? Visibility.Visible : Visibility.Collapsed;
         PullBtn.IsEnabled = !_settings.BuildLocally;
 
-        Loaded += async (_, _) => await InitAsync();
+        InitializePreferences();
+        NotificationHistoryList.ItemsSource = _notificationHistory;
+        _toastTimer.Tick += (_, _) => { _toastTimer.Stop(); ToastBorder.Visibility = Visibility.Collapsed; };
+        _dimSumTimer.Tick += (_, _) => { _dimSumTimer.Stop(); DimSumToast.Visibility = Visibility.Collapsed; };
+
+        Loaded += async (_, _) =>
+        {
+            await InitAsync();
+            if (_settings.HasCompletedFirstRun && _startupHealthy) MaybeShowDimSum();
+            if (!_settings.HasCompletedFirstRun)
+            {
+                _settings.HasCompletedFirstRun = true;
+                _settings.Save();
+            }
+        };
     }
 
     private async Task InitAsync()
@@ -50,6 +75,7 @@ public partial class MainWindow : Window
                 return;
             }
             await RefreshStatusAsync();
+            _startupHealthy = true;
         }
         catch (Exception ex)
         {
@@ -97,7 +123,40 @@ public partial class MainWindow : Window
         StatusBorder.Background = Brush(bg);
         StatusText.Foreground = Brush(fg);
         StatusText.Text = text;
+        ShowToast(kind, kind switch
+        {
+            "success" => "Completed",
+            "error" => "Action needed",
+            "warn" => "Check this",
+            _ => "World Downloader",
+        }, text);
     }
+
+    private void ShowToast(string kind, string title, string body)
+    {
+        if (ToastBorder is null) return;
+        _notificationHistory.Insert(0, $"{DateTimeOffset.Now:yyyy-MM-dd HH:mm:ss zzz}  [{kind.ToUpperInvariant()}]  {title} — {body}");
+        ToastTitle.Text = title;
+        ToastBody.Text = body;
+        ToastBorder.BorderBrush = Brush(kind switch
+        {
+            "success" => "#3DDC84",
+            "error" => "#FF8A85",
+            "warn" => "#FFCA52",
+            _ => "#93A1B5",
+        });
+        ToastBorder.Visibility = Visibility.Visible;
+        _toastTimer.Stop();
+        if (kind is not ("error" or "warn")) _toastTimer.Start();
+    }
+
+    private void DismissToast_Click(object sender, RoutedEventArgs e)
+    {
+        _toastTimer.Stop();
+        ToastBorder.Visibility = Visibility.Collapsed;
+    }
+
+    private void ClearNotifications_Click(object sender, RoutedEventArgs e) => _notificationHistory.Clear();
 
     private static SolidColorBrush Brush(string hex) =>
         new((Color)ColorConverter.ConvertFromString(hex));
@@ -314,12 +373,22 @@ public partial class MainWindow : Window
         if (ThemeBox == null) return;
         var name = (ThemeBox.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "Dark";
         ApplyTheme(name);
+        if (!_loadingPreferences)
+        {
+            _settings.Theme = name;
+            _settings.Save();
+        }
     }
 
     private void LargeText_Changed(object sender, RoutedEventArgs e)
     {
         double s = LargeTextBox.IsChecked == true ? 1.25 : 1.0;
-        if (RootScale != null) { RootScale.ScaleX = s; RootScale.ScaleY = s; }
+        if (RootScale != null) { RootScale.ScaleX = s * _settings.UiFontScale; RootScale.ScaleY = s * _settings.UiFontScale; }
+        if (!_loadingPreferences)
+        {
+            _settings.LargeText = LargeTextBox.IsChecked == true;
+            _settings.Save();
+        }
     }
 
     private void SetBrush(string key, string hex)
@@ -587,5 +656,274 @@ public partial class MainWindow : Window
         var p = StartProc(exeCandidates, args, cwd);
         if (p == null) { AppendLog($"Could not run {exeCandidates[0]} (not found on PATH)."); return; }
         await p.WaitForExitAsync();
+    }
+
+    // ---- Global-memory preferences -------------------------------------------------------------
+    private void InitializePreferences()
+    {
+        _loadingPreferences = true;
+        ThemeBox.SelectedIndex = _settings.Theme switch { "Light" => 1, "High contrast" => 2, _ => 0 };
+        LargeTextBox.IsChecked = _settings.LargeText;
+        LanguageModeBox.SelectedIndex = _settings.LanguageMode switch { "Cantonese" => 1, "Bilingual" => 2, _ => 0 };
+        EnglishFunnySlider.Value = _settings.EnglishFunnyLevel;
+        CantoneseFunnySlider.Value = _settings.CantoneseFunnyLevel;
+        DimSumCheck.IsChecked = _settings.DimSumSurpriseEnabled;
+        UiFontBox.Text = _settings.UiFontFamily;
+        UiFontScaleSlider.Value = _settings.UiFontScale;
+        EditorPathBox.Text = string.IsNullOrWhiteSpace(_settings.ExternalEditorPath)
+            ? DetectEditorPath() ?? ""
+            : _settings.ExternalEditorPath;
+        ApplyTheme(_settings.Theme);
+        ApplyPreferencePreview();
+        _loadingPreferences = false;
+        FilterSettings();
+        EvaluateRegexBuilder();
+    }
+
+    private void Preference_Changed(object sender, RoutedEventArgs e)
+    {
+        if (_loadingPreferences || LanguageModeBox is null) return;
+        _settings.LanguageMode = LanguageModeBox.SelectedIndex switch { 1 => "Cantonese", 2 => "Bilingual", _ => "English" };
+        _settings.EnglishFunnyLevel = (int)EnglishFunnySlider.Value;
+        _settings.CantoneseFunnyLevel = (int)CantoneseFunnySlider.Value;
+        _settings.DimSumSurpriseEnabled = DimSumCheck.IsChecked == true;
+        _settings.UiFontFamily = string.IsNullOrWhiteSpace(UiFontBox.Text) ? "Segoe UI" : UiFontBox.Text.Trim();
+        _settings.UiFontScale = UiFontScaleSlider.Value;
+        _settings.ExternalEditorPath = EditorPathBox.Text.Trim();
+        _settings.Save();
+        ApplyPreferencePreview();
+    }
+
+    private void ApplyPreferencePreview()
+    {
+        try { FontFamily = new FontFamily(string.IsNullOrWhiteSpace(_settings.UiFontFamily) ? "Segoe UI" : _settings.UiFontFamily); }
+        catch { FontFamily = new FontFamily("Segoe UI"); }
+        var scale = _settings.UiFontScale * (_settings.LargeText ? 1.25 : 1.0);
+        if (RootScale is not null) { RootScale.ScaleX = scale; RootScale.ScaleY = scale; }
+        CopyPreviewText.Text = AppCopy.Get("settingsSaved", _settings.LanguageMode,
+            _settings.EnglishFunnyLevel, _settings.CantoneseFunnyLevel);
+    }
+
+    private void ResetAppearance_Click(object sender, RoutedEventArgs e)
+    {
+        _loadingPreferences = true;
+        _settings.Theme = "Dark";
+        _settings.LargeText = false;
+        _settings.UiFontFamily = "Segoe UI";
+        _settings.UiFontScale = 1.0;
+        ThemeBox.SelectedIndex = 0;
+        LargeTextBox.IsChecked = false;
+        UiFontBox.Text = _settings.UiFontFamily;
+        UiFontScaleSlider.Value = 1.0;
+        _settings.Save();
+        ApplyTheme("Dark");
+        ApplyPreferencePreview();
+        _loadingPreferences = false;
+        ShowToast("success", "Appearance reset", "Theme, font and size were restored to defaults.");
+    }
+
+    private bool _syncingSettingsSearch;
+
+    private void SettingsSearch_Changed(object sender, TextChangedEventArgs e)
+    {
+        if (!_settingsSearchUsesRegex && !_syncingSettingsSearch && SettingsRegexPattern is not null)
+        {
+            _syncingSettingsSearch = true;
+            SettingsRegexPattern.Text = RegexBuilderService.Literal(SettingsSearchBox.Text);
+            _syncingSettingsSearch = false;
+        }
+        FilterSettings();
+    }
+
+    private void FilterSettings()
+    {
+        if (SettingsSearchBox is null) return;
+        var query = SettingsSearchBox.Text.Trim();
+        var cards = new[] { LanguageSettingsCard, AppearanceSettingsCard, EditorSettingsCard };
+        int shown = 0;
+        RegexEvaluation? validation = null;
+        if (_settingsSearchUsesRegex)
+            validation = RegexBuilderService.Evaluate(SettingsRegexPattern.Text, SettingsRegexFlags.Text, "");
+
+        foreach (var card in cards)
+        {
+            var searchable = card.Tag?.ToString() ?? "";
+            bool matches = string.IsNullOrEmpty(query);
+            if (!matches && _settingsSearchUsesRegex)
+            {
+                var result = RegexBuilderService.Evaluate(SettingsRegexPattern.Text, SettingsRegexFlags.Text, searchable);
+                validation = result;
+                matches = result.IsValid && result.Matches.Count > 0;
+            }
+            else if (!matches)
+            {
+                matches = searchable.Contains(query, StringComparison.CurrentCultureIgnoreCase);
+            }
+            card.Visibility = matches ? Visibility.Visible : Visibility.Collapsed;
+            if (matches) shown++;
+        }
+
+        SettingsSearchFeedback.Text = validation is { IsValid: false }
+            ? "Regex error: " + validation.Error
+            : $"{shown} settings section{(shown == 1 ? "" : "s")} shown. Search is {(_settingsSearchUsesRegex ? "regex" : "plain text")}.";
+    }
+
+    private void SettingsRegex_Click(object sender, RoutedEventArgs e)
+    {
+        SettingsRegexPopup.IsOpen = true;
+        SettingsRegexPattern.Focus();
+    }
+
+    private void SettingsRegexPopup_Closed(object sender, EventArgs e) => SettingsSearchBox.Focus();
+
+    private void SettingsRegexPattern_Changed(object sender, TextChangedEventArgs e)
+    {
+        if (SettingsRegexFeedback is null || SettingsRegexPattern is null || SettingsRegexFlags is null || _syncingSettingsSearch) return;
+        var result = RegexBuilderService.Evaluate(SettingsRegexPattern.Text, SettingsRegexFlags.Text,
+            "language appearance external editor dim sum");
+        SettingsRegexFeedback.Text = result.IsValid
+            ? $"Valid .NET pattern · {result.Matches.Count} preview match(es)."
+            : "Regex error: " + result.Error;
+        if (_settingsSearchUsesRegex) FilterSettings();
+    }
+
+    private void SettingsRegexLiteral_Click(object sender, RoutedEventArgs e) =>
+        SettingsRegexPattern.Text = RegexBuilderService.Literal(SettingsRegexPattern.Text);
+    private void SettingsRegexGroup_Click(object sender, RoutedEventArgs e) =>
+        SettingsRegexPattern.Text = RegexBuilderService.Group(SettingsRegexPattern.Text);
+    private void SettingsRegexAnchor_Click(object sender, RoutedEventArgs e) =>
+        SettingsRegexPattern.Text = RegexBuilderService.Anchored(SettingsRegexPattern.Text);
+
+    private void SettingsRegexApply_Click(object sender, RoutedEventArgs e)
+    {
+        var result = RegexBuilderService.Evaluate(SettingsRegexPattern.Text, SettingsRegexFlags.Text, "settings");
+        if (!result.IsValid) { SettingsRegexFeedback.Text = "Regex error: " + result.Error; return; }
+        _settingsSearchUsesRegex = true;
+        _syncingSettingsSearch = true;
+        SettingsSearchBox.Text = SettingsRegexPattern.Text;
+        _syncingSettingsSearch = false;
+        SettingsRegexPopup.IsOpen = false;
+        FilterSettings();
+    }
+
+    // ---- Full regex builder -------------------------------------------------------------------
+    private void RegexInput_Changed(object sender, TextChangedEventArgs e) => EvaluateRegexBuilder();
+
+    private void EvaluateRegexBuilder()
+    {
+        // TextChanged fires while InitializeComponent is still creating the controls. Do not
+        // evaluate until the whole builder exists; this guard prevents an early-startup crash.
+        if (RegexPatternBox is null || RegexFlagsBox is null || RegexSampleBox is null ||
+            RegexFeedbackText is null || RegexResultsBox is null || _settings is null) return;
+        var result = RegexBuilderService.Evaluate(RegexPatternBox.Text, RegexFlagsBox.Text, RegexSampleBox.Text);
+        if (!result.IsValid)
+        {
+            RegexFeedbackText.Text = "Regex error: " + result.Error;
+            RegexResultsBox.Text = "";
+            return;
+        }
+
+        RegexFeedbackText.Text = result.Matches.Count == 0
+            ? AppCopy.Get("regexNoMatch", _settings.LanguageMode, _settings.EnglishFunnyLevel, _settings.CantoneseFunnyLevel)
+            : $"{result.Matches.Count} match(es); .NET regular expression dialect.";
+        var output = new StringBuilder();
+        foreach (var match in result.Matches)
+        {
+            output.AppendLine($"[{match.Index}..{match.Index + match.Length}] {match.Value}");
+            foreach (var capture in match.Captures.Where(c => c.Group > 0))
+                output.AppendLine($"  group {capture.Name}: [{capture.Index}..{capture.Index + capture.Length}] {capture.Value}");
+        }
+        RegexResultsBox.Text = output.ToString();
+    }
+
+    private void RegexLiteral_Click(object sender, RoutedEventArgs e) => RegexPatternBox.Text = RegexBuilderService.Literal(RegexPatternBox.Text);
+    private void RegexClass_Click(object sender, RoutedEventArgs e) => RegexPatternBox.Text = RegexBuilderService.CharacterClass(RegexPatternBox.Text);
+    private void RegexGroup_Click(object sender, RoutedEventArgs e) => RegexPatternBox.Text = RegexBuilderService.Group(RegexPatternBox.Text);
+    private void RegexAlternate_Click(object sender, RoutedEventArgs e) => RegexPatternBox.Text += "|";
+    private void RegexAnchor_Click(object sender, RoutedEventArgs e) => RegexPatternBox.Text = RegexBuilderService.Anchored(RegexPatternBox.Text);
+    private void RegexQuantifier_Click(object sender, RoutedEventArgs e) => RegexPatternBox.Text = RegexBuilderService.Quantify(RegexPatternBox.Text, 1);
+
+    private void CopyRegex_Click(object sender, RoutedEventArgs e)
+    {
+        try { Clipboard.SetText(RegexPatternBox.Text); ShowToast("success", "Pattern copied", "The .NET regex pattern was copied to the clipboard."); }
+        catch (Exception ex) { ShowToast("error", "Copy failed", "The pattern was not copied: " + ex.Message); }
+    }
+
+    private void ExportRegex_Click(object sender, RoutedEventArgs e)
+    {
+        var dialog = new Microsoft.Win32.SaveFileDialog { Filter = "Markdown (*.md)|*.md|Text (*.txt)|*.txt", FileName = "world-downloader-regex.md" };
+        if (dialog.ShowDialog() != true) return;
+        try
+        {
+            File.WriteAllText(dialog.FileName, $"# .NET regular expression\n\nFlags: `{RegexFlagsBox.Text}`\n\n```regex\n{RegexPatternBox.Text}\n```\n");
+            ShowToast("success", "Pattern exported", "The current .NET regex and flags were exported to " + dialog.FileName);
+        }
+        catch (Exception ex) { ShowToast("error", "Export failed", "The pattern was not exported: " + ex.Message); }
+    }
+
+    // ---- External editor ----------------------------------------------------------------------
+    private static string? DetectEditorPath()
+    {
+        var local = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+        var candidates = new[]
+        {
+            Path.Combine(local, "Programs", "Microsoft VS Code", "Code.exe"),
+            Path.Combine(local, "Programs", "Microsoft VS Code Insiders", "Code - Insiders.exe"),
+        };
+        return candidates.FirstOrDefault(File.Exists);
+    }
+
+    private void BrowseEditor_Click(object sender, RoutedEventArgs e)
+    {
+        var dialog = new Microsoft.Win32.OpenFileDialog { Filter = "Applications (*.exe)|*.exe|All files (*.*)|*.*", Title = "Choose an external editor" };
+        if (dialog.ShowDialog() == true) EditorPathBox.Text = dialog.FileName;
+    }
+
+    private void OpenProjectEditor_Click(object sender, RoutedEventArgs e)
+    {
+        Preference_Changed(sender, e);
+        if (string.IsNullOrWhiteSpace(_settings.ExternalEditorPath) || !File.Exists(_settings.ExternalEditorPath))
+        {
+            ShowToast("error", "Editor unavailable", "Choose an installed editor executable in Settings, then retry.");
+            return;
+        }
+        var folder = FindBuildContext() ?? _settings.DataFolder;
+        try
+        {
+            var start = new ProcessStartInfo(_settings.ExternalEditorPath) { UseShellExecute = false };
+            start.ArgumentList.Add(folder);
+            Process.Start(start);
+            ShowToast("success", "Project opened", "The project folder was sent to the configured external editor.");
+        }
+        catch (Exception ex) { ShowToast("error", "Editor launch failed", "The project was not opened: " + ex.Message); }
+    }
+
+    // ---- One-percent local dim-sum delight ----------------------------------------------------
+    private void MaybeShowDimSum()
+    {
+        if (!_settings.DimSumSurpriseEnabled) return;
+        bool forcedForCapture = Environment.GetEnvironmentVariable("MWD_FORCE_DIM_SUM") == "1";
+        if (!forcedForCapture && Random.Shared.NextDouble() >= 0.01) return;
+
+        var dishes = new[]
+        {
+            (English: "Shrimp dumpling", Cantonese: "蝦餃", Asset: "har-gow.png"),
+            (English: "Siu mai", Cantonese: "燒賣", Asset: "siu-mai.png"),
+            (English: "Egg custard bun", Cantonese: "流沙包", Asset: "custard-bun.png"),
+        };
+        var dish = dishes[Random.Shared.Next(dishes.Length)];
+        DimSumName.Text = _settings.LanguageMode switch
+        {
+            "Cantonese" => dish.Cantonese,
+            "Bilingual" => $"{dish.English} · {dish.Cantonese}",
+            _ => dish.English,
+        };
+        DimSumCopy.Text = AppCopy.Get("dimSumSurprise", _settings.LanguageMode,
+            _settings.EnglishFunnyLevel, _settings.CantoneseFunnyLevel);
+        DimSumImage.Source = new BitmapImage(new Uri($"pack://application:,,,/Assets/DimSum/{dish.Asset}"));
+        System.Windows.Automation.AutomationProperties.SetName(DimSumImage, $"{dish.English} · {dish.Cantonese}");
+        DimSumToast.Visibility = Visibility.Visible;
+        _dimSumTimer.Stop();
+        if (Environment.GetEnvironmentVariable("MWD_HEADLESS_QA") != "1") _dimSumTimer.Start();
     }
 }
