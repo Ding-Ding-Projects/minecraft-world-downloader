@@ -19,7 +19,7 @@ public sealed class ChangelogServiceTests
         var highestBuild = service.Releases
             .Where(release => release.Tag.StartsWith("build-", StringComparison.Ordinal))
             .Max(release => int.Parse(release.Tag[6..], CultureInfo.InvariantCulture));
-        Assert.True(highestBuild >= 59);
+        Assert.True(highestBuild >= 60);
 
         Assert.Equal("Ding-Ding-Projects/minecraft-world-downloader", service.SourceRepository);
         Assert.Equal(tags.Length, tags.Distinct(StringComparer.Ordinal).Count());
@@ -32,6 +32,10 @@ public sealed class ChangelogServiceTests
         var build59 = Assert.Single(service.Releases, release => release.Tag == "build-59");
         Assert.Equal("1.0.59", build59.Version);
         Assert.Equal(new DateOnly(2026, 7, 30), build59.ReleaseDate);
+        var build60 = Assert.Single(service.Releases, release => release.Tag == "build-60");
+        Assert.Equal("1.0.60", build60.Version);
+        Assert.Equal(new DateOnly(2026, 7, 30), build60.ReleaseDate);
+        Assert.Equal("All-in-one build 1.0.60", build60.Name);
         var newest = service.Releases[0];
         Assert.Equal($"build-{highestBuild}", newest.Tag);
         Assert.Equal($"{newest.ReleaseDate:yyyy-MM-dd} · {newest.Name} · {newest.Tag}", newest.DisplayName);
@@ -67,6 +71,10 @@ public sealed class ChangelogServiceTests
         Assert.Contains("Automated all-in-one build.", build.SourceNotes);
         Assert.Contains("WorldDownloaderManager-Setup.exe", build.SourceNotes);
         Assert.Contains("source.zip", build.SourceNotes);
+
+        var build60 = Assert.Single(service.Releases, release => release.Tag == "build-60");
+        Assert.Contains("BlueMap helper", build60.SourceNotes);
+        Assert.Contains("SHA256SUMS.txt", build60.SourceNotes);
 
         var testWorlds = Assert.Single(service.Releases, release => release.Tag == "test-worlds");
         Assert.Contains("1.20.4 and 1.21.8", testWorlds.SourceNotes);
@@ -134,12 +142,10 @@ public sealed class ChangelogServiceTests
     [Fact]
     public void PlainTextSearchIncludesCantoneseFactualFields()
     {
-        var result = Load().Filter(new ChangelogFilterOptions(Query: "完整原始碼快照"));
+        var result = Load().Filter(new ChangelogFilterOptions(Query: "發佈 tag build-60"));
 
         Assert.True(result.IsValid, result.Error);
-        Assert.Equal(Load().Releases.Count(release => release.Tag.StartsWith("build-", StringComparison.Ordinal)),
-            result.Releases.Count);
-        Assert.DoesNotContain(result.Releases, release => release.Tag == "test-worlds");
+        Assert.Equal("build-60", Assert.Single(result.Releases).Tag);
     }
 
     [Fact]

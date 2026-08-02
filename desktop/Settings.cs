@@ -51,6 +51,7 @@ public class Settings
     public string UiFontFamily { get; set; } = "Segoe UI";
     public double UiFontScale { get; set; } = 1.0;
     public string ExternalEditorPath { get; set; } = "";
+    public TabWorkspaceSettings TabWorkspace { get; set; } = new();
 
     // BlueMap profile. These fields belong in the same recoverable settings snapshot as the rest
     // of the app-managed state.
@@ -258,6 +259,7 @@ public class Settings
         AccentColor ??= "#6750A4";
         UiFontFamily ??= "Segoe UI";
         ExternalEditorPath ??= "";
+        TabWorkspace = TabWorkspaceService.Normalize(TabWorkspace);
         BuildContext ??= "";
         ServerJarPath ??= "";
         BotAuth ??= "offline";

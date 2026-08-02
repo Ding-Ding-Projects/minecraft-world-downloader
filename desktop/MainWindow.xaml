@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:po="http://schemas.microsoft.com/winfx/2006/xaml/presentation/options"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        xmlns:local="clr-namespace:WorldDownloaderManager"
         Title="World Downloader Manager" Height="940" Width="960" MinHeight="640" MinWidth="720"
         WindowStartupLocation="CenterScreen"
         FontFamily="Segoe UI" Background="#0F1419">
@@ -298,10 +299,167 @@
         </Style>
     </Window.Resources>
 
-    <Grid>
-      <TabControl x:Name="MainTabs" Margin="16" Background="{StaticResource Bg}" BorderThickness="0"
-                  AutomationProperties.Name="World Downloader pages">
-       <TabItem Header="Downloader" AutomationProperties.Name="Downloader tab">
+    <Grid PreviewKeyDown="TabWorkspace_PreviewKeyDown">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="*" />
+      </Grid.RowDefinitions>
+
+      <Border x:Name="TabWorkspaceBar" Grid.Row="0" Margin="16,16,16,8" Padding="12"
+              CornerRadius="16" Background="{StaticResource Surface}" BorderBrush="{StaticResource Outline}"
+              BorderThickness="1" AutomationProperties.Name="Tab workspace controls">
+       <StackPanel>
+         <StackPanel VerticalAlignment="Center">
+          <TextBlock Style="{StaticResource H}" Text="Workspace tabs · 工作區分頁" />
+          <TextBlock Style="{StaticResource Desc}" Text="Pin, group, reorder, find, close and reopen pages. Ctrl+Shift+P pins; Alt+Shift+Left/Right moves; Ctrl+W closes." />
+         </StackPanel>
+         <WrapPanel Margin="0,10,0,0" HorizontalAlignment="Left" VerticalAlignment="Center">
+          <Button x:Name="PinSelectedTabButton" Style="{StaticResource Btn}" Content="Pin · 釘選" Click="PinSelectedTab_Click" AutomationProperties.Name="Pin or unpin selected tab" />
+          <Button Style="{StaticResource Btn}" Content="←" Margin="8,0,0,0" Click="MoveSelectedTabLeft_Click" AutomationProperties.Name="Move selected tab left" />
+          <Button Style="{StaticResource Btn}" Content="→" Margin="8,0,0,0" Click="MoveSelectedTabRight_Click" AutomationProperties.Name="Move selected tab right" />
+          <Button x:Name="TabGroupButton" Style="{StaticResource Btn}" Content="Groups · 群組" Margin="8,0,0,0" Click="TabGroupButton_Click" AutomationProperties.Name="Manage tab groups" />
+          <Button x:Name="TabSearchButton" Style="{StaticResource Btn}" Content="Find tabs · 搵分頁" Margin="8,0,0,0" Click="TabSearchButton_Click" AutomationProperties.Name="Open tab search and bulk close" />
+          <Button x:Name="TabOverflowButton" Style="{StaticResource Btn}" Content="All tabs · 全部分頁" Margin="8,0,0,0" Click="TabOverflowButton_Click" AutomationProperties.Name="Open all tabs and overflow list" />
+         </WrapPanel>
+        <ScrollViewer MaxHeight="96" Margin="0,8,0,0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+         <WrapPanel x:Name="TabGroupChipPanel" AutomationProperties.Name="Tab groups" />
+        </ScrollViewer>
+       </StackPanel>
+      </Border>
+
+      <Popup x:Name="TabSearchPopup" PlacementTarget="{Binding ElementName=TabSearchButton}" Placement="Bottom"
+             StaysOpen="True" AllowsTransparency="True">
+       <Border Style="{StaticResource Card}" Width="{Binding ActualWidth, ElementName=MainTabs}" MaxWidth="680"
+               MaxHeight="{Binding ActualHeight, ElementName=MainTabs}" Margin="0,8,0,0">
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <Grid>
+         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+         <DockPanel LastChildFill="True">
+          <Button DockPanel.Dock="Right" Style="{StaticResource Btn}" Content="×" Click="CloseTabSearchPopup_Click" AutomationProperties.Name="Close tab search" />
+          <StackPanel><TextBlock Style="{StaticResource H}" Text="Find and close tabs · 搜尋及關閉分頁"/><TextBlock Style="{StaticResource Desc}" Text="Four searches keep independent session state. Plain text is the default; each field has its own full anchored .NET regex builder. Search text, regex patterns and samples are never saved."/></StackPanel>
+         </DockPanel>
+         <TabControl Grid.Row="1" Margin="0,12,0,0" AutomationProperties.Name="Tab search scopes">
+          <TabItem Header="Strip · 分頁列" AutomationProperties.Name="Current tab strip search">
+           <StackPanel Margin="8">
+            <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+             <TextBox x:Name="CurrentTabSearchBox" Style="{StaticResource Tb}" MaxLength="2048" TextChanged="TabSearchInput_Changed" AutomationProperties.Name="Search the current tab strip" />
+             <CheckBox x:Name="CurrentTabRegexCheck" Grid.Column="1" Content="Regex" Foreground="{StaticResource Text}" MinHeight="44" Margin="8,0,0,0" Click="TabSearchMode_Changed" AutomationProperties.Name="Use regex for current strip search" />
+             <Button Grid.Column="2" Style="{StaticResource Btn}" Content=".*" Tag="current" Margin="8,0,0,0" Click="OpenTabRegexBuilder_Click" AutomationProperties.Name="Open regex builder for current strip search" />
+            </Grid>
+            <TextBlock x:Name="CurrentTabSearchFeedback" Style="{StaticResource Desc}" AutomationProperties.LiveSetting="Polite" />
+            <ListBox x:Name="CurrentTabSearchResults" Height="210" DisplayMemberPath="DisplayText" Tag="current" MouseDoubleClick="TabSearchResult_MouseDoubleClick" KeyDown="TabSearchResult_KeyDown" AutomationProperties.Name="Current strip search results" />
+            <Popup x:Name="CurrentTabRegexPopup" PlacementTarget="{Binding ElementName=CurrentTabSearchBox}" Placement="Bottom" StaysOpen="False" AllowsTransparency="True" Closed="TabRegexPopup_Closed">
+             <local:RegexBuilderPopover x:Name="CurrentTabRegexBuilder" Width="{Binding ActualWidth, ElementName=MainTabs}" MaxWidth="640" MaxHeight="{Binding ActualHeight, ElementName=MainTabs}" Tag="current" ApplyRequested="TabRegexBuilder_ApplyRequested" DismissRequested="TabRegexBuilder_DismissRequested" />
+            </Popup>
+           </StackPanel>
+          </TabItem>
+
+          <TabItem Header="Inside group · 群組內" AutomationProperties.Name="Search inside a tab group">
+           <StackPanel Margin="8">
+            <ComboBox x:Name="TabGroupSearchGroupBox" SelectionChanged="TabGroupSearchGroup_Changed" AutomationProperties.Name="Group to search" />
+            <Grid Margin="0,8,0,0"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+             <TextBox x:Name="GroupTabSearchBox" Style="{StaticResource Tb}" MaxLength="2048" TextChanged="TabSearchInput_Changed" AutomationProperties.Name="Search tabs inside selected group" />
+             <CheckBox x:Name="GroupTabRegexCheck" Grid.Column="1" Content="Regex" Foreground="{StaticResource Text}" MinHeight="44" Margin="8,0,0,0" Click="TabSearchMode_Changed" AutomationProperties.Name="Use regex for group tab search" />
+             <Button Grid.Column="2" Style="{StaticResource Btn}" Content=".*" Tag="group-tabs" Margin="8,0,0,0" Click="OpenTabRegexBuilder_Click" AutomationProperties.Name="Open regex builder for group tab search" />
+            </Grid>
+            <TextBlock x:Name="GroupTabSearchFeedback" Style="{StaticResource Desc}" AutomationProperties.LiveSetting="Polite" />
+            <ListBox x:Name="GroupTabSearchResults" Height="190" DisplayMemberPath="DisplayText" Tag="group-tabs" MouseDoubleClick="TabSearchResult_MouseDoubleClick" KeyDown="TabSearchResult_KeyDown" AutomationProperties.Name="Group tab search results" />
+            <Popup x:Name="GroupTabRegexPopup" PlacementTarget="{Binding ElementName=GroupTabSearchBox}" Placement="Bottom" StaysOpen="False" AllowsTransparency="True" Closed="TabRegexPopup_Closed">
+             <local:RegexBuilderPopover x:Name="GroupTabRegexBuilder" Width="{Binding ActualWidth, ElementName=MainTabs}" MaxWidth="640" MaxHeight="{Binding ActualHeight, ElementName=MainTabs}" Tag="group-tabs" ApplyRequested="TabRegexBuilder_ApplyRequested" DismissRequested="TabRegexBuilder_DismissRequested" />
+            </Popup>
+           </StackPanel>
+          </TabItem>
+
+          <TabItem Header="Groups · 群組" AutomationProperties.Name="Search tab group names">
+           <StackPanel Margin="8">
+            <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+             <TextBox x:Name="GroupNameSearchBox" Style="{StaticResource Tb}" MaxLength="2048" TextChanged="TabSearchInput_Changed" AutomationProperties.Name="Search tab group names" />
+             <CheckBox x:Name="GroupNameRegexCheck" Grid.Column="1" Content="Regex" Foreground="{StaticResource Text}" MinHeight="44" Margin="8,0,0,0" Click="TabSearchMode_Changed" AutomationProperties.Name="Use regex for group name search" />
+             <Button Grid.Column="2" Style="{StaticResource Btn}" Content=".*" Tag="group-names" Margin="8,0,0,0" Click="OpenTabRegexBuilder_Click" AutomationProperties.Name="Open regex builder for group name search" />
+            </Grid>
+            <TextBlock x:Name="GroupNameSearchFeedback" Style="{StaticResource Desc}" AutomationProperties.LiveSetting="Polite" />
+            <ListBox x:Name="GroupNameSearchResults" Height="210" DisplayMemberPath="DisplayText" Tag="group-names" MouseDoubleClick="TabSearchResult_MouseDoubleClick" KeyDown="TabSearchResult_KeyDown" AutomationProperties.Name="Group name search results" />
+            <Popup x:Name="GroupNameRegexPopup" PlacementTarget="{Binding ElementName=GroupNameSearchBox}" Placement="Bottom" StaysOpen="False" AllowsTransparency="True" Closed="TabRegexPopup_Closed">
+             <local:RegexBuilderPopover x:Name="GroupNameRegexBuilder" Width="{Binding ActualWidth, ElementName=MainTabs}" MaxWidth="640" MaxHeight="{Binding ActualHeight, ElementName=MainTabs}" Tag="group-names" ApplyRequested="TabRegexBuilder_ApplyRequested" DismissRequested="TabRegexBuilder_DismissRequested" />
+            </Popup>
+           </StackPanel>
+          </TabItem>
+
+          <TabItem Header="Every tab · 全部" AutomationProperties.Name="Search every application tab">
+           <StackPanel Margin="8">
+            <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+             <TextBox x:Name="MasterTabSearchBox" Style="{StaticResource Tb}" MaxLength="2048" TextChanged="TabSearchInput_Changed" AutomationProperties.Name="Search every application tab" />
+             <CheckBox x:Name="MasterTabRegexCheck" Grid.Column="1" Content="Regex" Foreground="{StaticResource Text}" MinHeight="44" Margin="8,0,0,0" Click="TabSearchMode_Changed" AutomationProperties.Name="Use regex for master tab search" />
+             <Button Grid.Column="2" Style="{StaticResource Btn}" Content=".*" Tag="master" Margin="8,0,0,0" Click="OpenTabRegexBuilder_Click" AutomationProperties.Name="Open regex builder for master tab search" />
+            </Grid>
+            <TextBlock x:Name="MasterTabSearchFeedback" Style="{StaticResource Desc}" AutomationProperties.LiveSetting="Polite" />
+            <ListBox x:Name="MasterTabSearchResults" Height="210" DisplayMemberPath="DisplayText" Tag="master" MouseDoubleClick="TabSearchResult_MouseDoubleClick" KeyDown="TabSearchResult_KeyDown" AutomationProperties.Name="Master tab search results" />
+            <Popup x:Name="MasterTabRegexPopup" PlacementTarget="{Binding ElementName=MasterTabSearchBox}" Placement="Bottom" StaysOpen="False" AllowsTransparency="True" Closed="TabRegexPopup_Closed">
+             <local:RegexBuilderPopover x:Name="MasterTabRegexBuilder" Width="{Binding ActualWidth, ElementName=MainTabs}" MaxWidth="640" MaxHeight="{Binding ActualHeight, ElementName=MainTabs}" Tag="master" ApplyRequested="TabRegexBuilder_ApplyRequested" DismissRequested="TabRegexBuilder_DismissRequested" />
+            </Popup>
+           </StackPanel>
+          </TabItem>
+
+          <TabItem Header="Bulk close · 批量關閉" AutomationProperties.Name="Close tabs by label">
+           <StackPanel Margin="8">
+            <TextBlock Style="{StaticResource Desc}" Text="Matches use visible tab labels. Pinned tabs are excluded unless you explicitly include them; no tab closes before the preview is confirmed." />
+            <Grid Margin="0,8,0,0"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+             <TextBox x:Name="TabCloseSearchBox" Style="{StaticResource Tb}" MaxLength="2048" TextChanged="TabCloseSearch_Changed" AutomationProperties.Name="Text used to choose tabs to close" />
+             <CheckBox x:Name="TabCloseRegexCheck" Grid.Column="1" Content="Regex" Foreground="{StaticResource Text}" MinHeight="44" Margin="8,0,0,0" Click="TabCloseSearch_Changed" AutomationProperties.Name="Use regex for bulk tab close" />
+             <Button Grid.Column="2" Style="{StaticResource Btn}" Content=".*" Tag="close" Margin="8,0,0,0" Click="OpenTabRegexBuilder_Click" AutomationProperties.Name="Open regex builder for bulk tab close" />
+            </Grid>
+            <WrapPanel Margin="0,8,0,0">
+             <ComboBox x:Name="TabCloseModeBox" MinWidth="230" SelectionChanged="TabCloseSearch_Changed" AutomationProperties.Name="Bulk close matching mode"><ComboBoxItem Content="Close tabs containing text" Tag="contains" IsSelected="True"/><ComboBoxItem Content="Close tabs not containing text" Tag="not-contains"/></ComboBox>
+             <CheckBox x:Name="TabCloseIncludePinnedCheck" Content="Include pinned tabs" Foreground="{StaticResource Text}" MinHeight="44" Margin="12,0,0,0" Click="TabCloseSearch_Changed" AutomationProperties.Name="Include pinned tabs in bulk close" />
+            </WrapPanel>
+            <TextBlock x:Name="TabClosePreviewText" Style="{StaticResource Desc}" AutomationProperties.LiveSetting="Assertive" />
+            <WrapPanel Margin="0,10,0,0"><Button Style="{StaticResource Btn}" Content="Refresh preview · 更新預覽" Click="PreviewTabClose_Click"/><Button x:Name="ApplyTabCloseButton" Style="{StaticResource DangerBtn}" Content="Close previewed tabs · 關閉預覽分頁" IsEnabled="False" Margin="8,0,0,0" Click="ApplyTabClose_Click"/></WrapPanel>
+            <Popup x:Name="TabCloseRegexPopup" PlacementTarget="{Binding ElementName=TabCloseSearchBox}" Placement="Bottom" StaysOpen="False" AllowsTransparency="True" Closed="TabRegexPopup_Closed">
+             <local:RegexBuilderPopover x:Name="TabCloseRegexBuilder" Width="{Binding ActualWidth, ElementName=MainTabs}" MaxWidth="640" MaxHeight="{Binding ActualHeight, ElementName=MainTabs}" Tag="close" ApplyRequested="TabRegexBuilder_ApplyRequested" DismissRequested="TabRegexBuilder_DismissRequested" />
+            </Popup>
+           </StackPanel>
+          </TabItem>
+         </TabControl>
+        </Grid>
+        </ScrollViewer>
+       </Border>
+      </Popup>
+
+      <Popup x:Name="TabGroupPopup" PlacementTarget="{Binding ElementName=TabGroupButton}" Placement="Bottom" StaysOpen="True" AllowsTransparency="True">
+       <Border Style="{StaticResource Card}" Width="{Binding ActualWidth, ElementName=MainTabs}" MaxWidth="540" MaxHeight="{Binding ActualHeight, ElementName=MainTabs}" Margin="0,8,0,0"><ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"><StackPanel>
+        <DockPanel><Button DockPanel.Dock="Right" Style="{StaticResource Btn}" Content="×" Click="CloseTabGroupPopup_Click" AutomationProperties.Name="Close tab group editor"/><StackPanel><TextBlock Style="{StaticResource H}" Text="Tab groups · 分頁群組"/><TextBlock Style="{StaticResource Desc}" Text="Create, rename, colour, reorder and collapse groups, then assign the selected tab."/></StackPanel></DockPanel>
+        <TextBlock Style="{StaticResource Lbl}" Text="Existing group" Margin="2,12,0,4"/><ComboBox x:Name="TabGroupEditorSelection" SelectionChanged="TabGroupEditorSelection_Changed" AutomationProperties.Name="Group to edit"/>
+        <Grid Margin="0,8,0,0"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="170"/></Grid.ColumnDefinitions><StackPanel Margin="0,0,6,0"><TextBlock Style="{StaticResource Lbl}" Text="Group name"/><TextBox x:Name="TabGroupNameBox" Style="{StaticResource Tb}" AutomationProperties.Name="Tab group name"/></StackPanel><StackPanel Grid.Column="1" Margin="6,0,0,0"><TextBlock Style="{StaticResource Lbl}" Text="Color (#RRGGBB or #RRGGBBAA)"/><TextBox x:Name="TabGroupColorBox" Style="{StaticResource Tb}" Text="#6750A4" AutomationProperties.Name="Tab group color"/></StackPanel></Grid>
+        <WrapPanel Margin="0,10,0,0"><Button Style="{StaticResource AccentBtn}" Content="Create" Click="CreateTabGroup_Click"/><Button Style="{StaticResource Btn}" Content="Save" Margin="8,0,0,0" Click="SaveTabGroup_Click"/><Button Style="{StaticResource Btn}" Content="←" Margin="8,0,0,0" Click="MoveTabGroupLeft_Click" AutomationProperties.Name="Move group left"/><Button Style="{StaticResource Btn}" Content="→" Margin="8,0,0,0" Click="MoveTabGroupRight_Click" AutomationProperties.Name="Move group right"/><Button Style="{StaticResource Btn}" Content="Collapse / expand" Margin="8,0,0,0" Click="ToggleTabGroupCollapsed_Click"/><Button Style="{StaticResource DangerBtn}" Content="Delete" Margin="8,0,0,0" Click="DeleteTabGroup_Click"/></WrapPanel>
+        <TextBlock Style="{StaticResource Lbl}" Text="Assign selected tab" Margin="2,14,0,4"/><ComboBox x:Name="SelectedTabGroupBox" SelectionChanged="SelectedTabGroup_Changed" AutomationProperties.Name="Group for selected tab"/>
+        <TextBlock x:Name="TabGroupFeedback" Style="{StaticResource Desc}" AutomationProperties.LiveSetting="Polite"/>
+       </StackPanel></ScrollViewer></Border>
+      </Popup>
+
+      <Popup x:Name="TabOverflowPopup" PlacementTarget="{Binding ElementName=TabOverflowButton}" Placement="Bottom" StaysOpen="True" AllowsTransparency="True">
+       <Border Style="{StaticResource Card}" Width="{Binding ActualWidth, ElementName=MainTabs}" MaxWidth="480" MaxHeight="{Binding ActualHeight, ElementName=MainTabs}" Margin="0,8,0,0"><ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"><StackPanel>
+        <DockPanel><Button DockPanel.Dock="Right" Style="{StaticResource Btn}" Content="×" Click="CloseTabOverflowPopup_Click" AutomationProperties.Name="Close all tabs list"/><StackPanel><TextBlock Style="{StaticResource H}" Text="All tabs · 全部分頁"/><TextBlock x:Name="TabOverflowFeedback" Style="{StaticResource Desc}" AutomationProperties.LiveSetting="Polite"/></StackPanel></DockPanel>
+        <ListBox x:Name="TabOverflowList" Height="320" Margin="0,10,0,0" DisplayMemberPath="DisplayText" Tag="master" MouseDoubleClick="TabSearchResult_MouseDoubleClick" KeyDown="TabSearchResult_KeyDown" AutomationProperties.Name="All open, closed and overflowed tabs"/>
+       </StackPanel></ScrollViewer></Border>
+      </Popup>
+
+      <TabControl Grid.Row="1" x:Name="MainTabs" Margin="16,0,16,16" Background="{StaticResource Bg}" BorderThickness="0"
+                  AutomationProperties.Name="World Downloader pages" SelectionChanged="MainTabs_SelectionChanged"
+                  SizeChanged="MainTabs_SizeChanged" AllowDrop="True" DragOver="MainTabs_DragOver" Drop="MainTabs_Drop">
+       <TabControl.Template>
+        <ControlTemplate TargetType="TabControl">
+         <Grid KeyboardNavigation.TabNavigation="Local">
+          <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+          <ScrollViewer x:Name="TabHeaderScroller" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Disabled" Focusable="False">
+           <TabPanel IsItemsHost="True" KeyboardNavigation.TabIndex="1" Background="Transparent"/>
+          </ScrollViewer>
+          <Border Grid.Row="1" Background="{TemplateBinding Background}" BorderBrush="{StaticResource Outline}" BorderThickness="0,1,0,0">
+           <ContentPresenter x:Name="PART_SelectedContentHost" ContentSource="SelectedContent"/>
+          </Border>
+         </Grid>
+        </ControlTemplate>
+       </TabControl.Template>
+       <TabItem x:Name="DownloaderTab" Tag="downloader" Header="Downloader" AutomationProperties.Name="Downloader tab">
         <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
         <StackPanel x:Name="RootPanel" Margin="26" MaxWidth="780" HorizontalAlignment="Stretch">
 
@@ -647,7 +805,7 @@
         </ScrollViewer>
        </TabItem>
 
-       <TabItem Header="Settings" AutomationProperties.Name="Settings tab">
+       <TabItem x:Name="SettingsTab" Tag="settings" Header="Settings" AutomationProperties.Name="Settings tab">
         <ScrollViewer VerticalScrollBarVisibility="Auto">
          <StackPanel x:Name="SettingsPanel" Margin="26" MaxWidth="780">
           <TextBlock Style="{StaticResource H}" FontSize="22" Text="Settings" />
@@ -712,7 +870,7 @@
         </ScrollViewer>
        </TabItem>
 
-       <TabItem Header="Regex builder" AutomationProperties.Name="Regex builder tab">
+       <TabItem x:Name="RegexBuilderTab" Tag="regex-builder" Header="Regex builder" AutomationProperties.Name="Regex builder tab">
         <ScrollViewer VerticalScrollBarVisibility="Auto">
          <StackPanel x:Name="RegexBuilderPanel" Margin="26" MaxWidth="780">
           <TextBlock Style="{StaticResource H}" FontSize="22" Text=".NET regex builder" />
@@ -734,7 +892,7 @@
        </ScrollViewer>
        </TabItem>
 
-       <TabItem Header="Changelog" AutomationProperties.Name="Application changelog tab">
+       <TabItem x:Name="ChangelogTab" Tag="changelog" Header="Changelog" AutomationProperties.Name="Application changelog tab">
         <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
          <StackPanel x:Name="ChangelogPanel" Margin="26" MaxWidth="780">
           <TextBlock Style="{StaticResource H}" FontSize="{DynamicResource TitleFontSize}" Text="Changelog" />
@@ -789,7 +947,7 @@
         </ScrollViewer>
        </TabItem>
 
-       <TabItem Header="History" AutomationProperties.Name="Local version history tab">
+       <TabItem x:Name="HistoryTab" Tag="history" Header="History" AutomationProperties.Name="Local version history tab">
         <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
          <StackPanel x:Name="HistoryPanel" Margin="26" MaxWidth="780">
           <TextBlock Style="{StaticResource H}" FontSize="{DynamicResource TitleFontSize}" Text="Local version history" />
@@ -830,7 +988,7 @@
         </ScrollViewer>
        </TabItem>
 
-       <TabItem Header="Notifications" AutomationProperties.Name="Notification history tab">
+       <TabItem x:Name="NotificationsTab" Tag="notifications" Header="Notifications" AutomationProperties.Name="Notification history tab">
         <StackPanel x:Name="NotificationsPanel" Margin="26">
          <TextBlock Style="{StaticResource H}" FontSize="22" Text="Notification history" />
          <TextBlock Style="{StaticResource Desc}" Margin="2,3,0,16" Text="Informational, success, progress and non-decision errors remain reviewable here after their corner notification closes." />
@@ -840,7 +998,7 @@
        </TabItem>
       </TabControl>
 
-      <Border x:Name="ToastBorder" Visibility="Collapsed" HorizontalAlignment="Right" VerticalAlignment="Bottom"
+      <Border Grid.RowSpan="2" x:Name="ToastBorder" Visibility="Collapsed" HorizontalAlignment="Right" VerticalAlignment="Bottom"
               Width="420" Margin="0,0,32,32" Padding="16" CornerRadius="20" Background="{StaticResource Surface2}"
               BorderBrush="{StaticResource Outline}" BorderThickness="1" Panel.ZIndex="20"
               AutomationProperties.LiveSetting="Assertive" AutomationProperties.Name="Application notification">
@@ -850,7 +1008,7 @@
        </Grid>
       </Border>
 
-      <Border x:Name="DimSumToast" Visibility="Collapsed" HorizontalAlignment="Right" VerticalAlignment="Bottom"
+      <Border Grid.RowSpan="2" x:Name="DimSumToast" Visibility="Collapsed" HorizontalAlignment="Right" VerticalAlignment="Bottom"
               Width="420" Margin="0,0,32,32" Padding="12" CornerRadius="20" Background="{StaticResource Surface2}"
               BorderBrush="{StaticResource Outline}" BorderThickness="1" Panel.ZIndex="21" IsHitTestVisible="False">
        <StackPanel Orientation="Horizontal">

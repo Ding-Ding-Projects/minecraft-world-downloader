@@ -111,7 +111,7 @@ public partial class MainWindow : Window
         _closingForDrain = true;
         _preferenceSaveTimer.Stop();
         _changelogFilterTimer.Stop();
-        MainTabs.IsEnabled = false;
+        SetWorkspaceInteractionEnabled(false);
         var botCompletion = StopBotRun(updateUi: false);
         var readyToClose = false;
 
@@ -160,12 +160,12 @@ public partial class MainWindow : Window
             {
                 _closeAfterDrain = false;
                 _closingForDrain = false;
-                MainTabs.IsEnabled = true;
+                SetWorkspaceInteractionEnabled(true);
             }
             else
             {
                 _closingForDrain = false;
-                MainTabs.IsEnabled = true;
+                SetWorkspaceInteractionEnabled(true);
             }
         }
     }
@@ -1214,14 +1214,23 @@ public partial class MainWindow : Window
         try
         {
             var changelog = _changelog!;
-            result = await Task.Run(() => changelog.Filter(options));
+            result = await Task.Run(() => changelog.Filter(options)).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
-            if (generation == _changelogFilterGeneration)
-                InvalidateChangelogFilter(null, "Filter error: " + ex.Message);
+            DispatchChangelogUi(() =>
+            {
+                if (generation == _changelogFilterGeneration)
+                    InvalidateChangelogFilter(null, "Filter error: " + ex.Message);
+            });
             return;
         }
+
+        DispatchChangelogUi(() => CompleteChangelogFilter(generation, result));
+    }
+
+    private void CompleteChangelogFilter(int generation, ChangelogFilterResult result)
+    {
         if (generation != _changelogFilterGeneration) return;
         if (!result.IsValid)
         {
@@ -1244,6 +1253,18 @@ public partial class MainWindow : Window
         if (_changelogReleases.Count == 0)
             ChangelogDetailBox.Text = "No releases match the active date and search filters.";
         SetChangelogExportAvailability(true);
+    }
+
+    private void DispatchChangelogUi(Action action)
+    {
+        if (Dispatcher.CheckAccess())
+        {
+            action();
+            return;
+        }
+        if (Dispatcher.HasShutdownStarted || Dispatcher.HasShutdownFinished) return;
+        try { Dispatcher.BeginInvoke(action, DispatcherPriority.Background); }
+        catch (InvalidOperationException) { /* the owning window dispatcher shut down */ }
     }
 
     private void MarkChangelogFilterPending()
@@ -1542,7 +1563,7 @@ public partial class MainWindow : Window
             "Restore local revision", MessageBoxButton.YesNo, MessageBoxImage.Warning);
         if (decision != MessageBoxResult.Yes) return;
 
-        MainTabs.IsEnabled = false;
+        SetWorkspaceInteractionEnabled(false);
         _preferenceSaveTimer.Stop();
         ApplySettingsFromUi();
         var preRestoreJson = _settings.ToJson();
@@ -1553,7 +1574,7 @@ public partial class MainWindow : Window
         catch (Exception ex) { ShowToast("error", "Revision was not restored", ex.Message); }
         finally
         {
-            if (!_closingForDrain) MainTabs.IsEnabled = true;
+            if (!_closingForDrain) SetWorkspaceInteractionEnabled(true);
         }
     }
 
@@ -1705,6 +1726,7 @@ public partial class MainWindow : Window
         _loadingPreferences = false;
         FilterSettings();
         EvaluateRegexBuilder();
+        InitializeTabWorkspace();
     }
 
     private void Preference_Changed(object sender, RoutedEventArgs e)
@@ -1718,6 +1740,7 @@ public partial class MainWindow : Window
         _settings.UiFontScale = UiFontScaleSlider.Value;
         _settings.ExternalEditorPath = EditorPathBox.Text.Trim();
         ApplyPreferencePreview();
+        RefreshTabWorkspaceLanguage();
         if (ChangelogReleaseList?.SelectedItem is ChangelogRelease) RenderSelectedChangelogRelease();
         _preferenceSaveTimer.Stop();
         _preferenceSaveTimer.Start();

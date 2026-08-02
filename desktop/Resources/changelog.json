@@ -2,6 +2,71 @@
   "sourceRepository": "Ding-Ding-Projects/minecraft-world-downloader",
   "releases": [
     {
+      "tag": "build-60",
+      "version": "1.0.60",
+      "name": "All-in-one build 1.0.60",
+      "publishedAt": "2026-07-30T03:46:47Z",
+      "url": "https://github.com/Ding-Ding-Projects/minecraft-world-downloader/releases/tag/build-60",
+      "isPrerelease": false,
+      "sourceNotes": "Automated all-in-one build.\n- **WorldDownloaderManager-Setup.exe** — desktop manager installer (bundles the jar,\n  docker-compose.yml, BlueMap helper, scraper helper and full source).\n- **world-downloader.jar** — the proxy/downloader jar (run with `java -jar`).\n- **source.zip** — full source snapshot.\n- **SHA256SUMS.txt** — SHA-256 checksums for every downloadable asset.\n",
+      "categories": [
+        {
+          "id": "release-metadata",
+          "title": {
+            "english": "Release metadata",
+            "cantonese": "發佈資料"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "GitHub published tag build-60 as 'All-in-one build 1.0.60' at 2026-07-30T03:46:47Z.",
+                "cantonese": "GitHub 喺 2026-07-30T03:46:47Z 發佈 tag build-60，名稱係「All-in-one build 1.0.60」。"
+              }
+            },
+            {
+              "text": {
+                "english": "GitHub prerelease status: false.",
+                "cantonese": "GitHub 預發佈狀態：false。"
+              }
+            }
+          ]
+        },
+        {
+          "id": "artifacts",
+          "title": {
+            "english": "Published artifacts",
+            "cantonese": "已發佈檔案"
+          },
+          "changes": [
+            {
+              "text": {
+                "english": "SHA256SUMS.txt — GitHub release asset (266 bytes; media type text/plain).",
+                "cantonese": "SHA256SUMS.txt — GitHub 發佈檔案 (266 bytes; media type text/plain)。"
+              }
+            },
+            {
+              "text": {
+                "english": "source.zip — GitHub release asset (2598777 bytes; media type application/zip).",
+                "cantonese": "source.zip — GitHub 發佈檔案 (2598777 bytes; media type application/zip)。"
+              }
+            },
+            {
+              "text": {
+                "english": "world-downloader.jar — GitHub release asset (14055454 bytes; media type application/java-archive).",
+                "cantonese": "world-downloader.jar — GitHub 發佈檔案 (14055454 bytes; media type application/java-archive)。"
+              }
+            },
+            {
+              "text": {
+                "english": "WorldDownloaderManager-Setup.exe — GitHub release asset (87118077 bytes; media type application/x-msdos-program).",
+                "cantonese": "WorldDownloaderManager-Setup.exe — GitHub 發佈檔案 (87118077 bytes; media type application/x-msdos-program)。"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
       "tag": "build-59",
       "version": "1.0.59",
       "name": "All-in-one build 1.0.59",

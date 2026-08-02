@@ -92,6 +92,22 @@ public class DesktopFeatureTests
     }
 
     [Fact]
+    public void LocalizationFormatsDynamicFactsWithIndependentHumour()
+    {
+        var text = AppCopy.Format(
+            "Closed 2 tabs; pinned tabs stayed open.",
+            "已關閉 2 個分頁；釘選分頁保持開啟。",
+            "Bilingual",
+            englishFunny: 1,
+            cantoneseFunny: 4);
+
+        Assert.Contains("Closed 2 tabs", text);
+        Assert.Contains("已關閉 2 個分頁", text);
+        Assert.DoesNotContain("goblin", text);
+        Assert.Contains("伺服器精靈", text);
+    }
+
+    [Fact]
     public void SettingsSerializeOnlyTheProtectedPassword()
     {
         var settings = new Settings { Password = "never-write-this-clear-value" };

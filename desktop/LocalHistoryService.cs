@@ -80,6 +80,7 @@ public sealed class LocalHistoryService
             ["UiFontFamily"] = "UI font family",
             ["UiFontScale"] = "UI font scale",
             ["ExternalEditorPath"] = "external editor",
+            ["TabWorkspace"] = "tab workspace",
             ["BuildLocally"] = "local image build",
             ["BuildContext"] = "Docker build context",
             ["ServerJarPath"] = "BlueMap server jar",

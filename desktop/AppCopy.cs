@@ -31,13 +31,23 @@ public static class AppCopy
         var pair = Copy.TryGetValue(key, out var value)
             ? value
             : (English: key, Cantonese: key);
-        var english = StyleEnglish(pair.English, englishFunny);
-        var cantonese = StyleCantonese(pair.Cantonese, cantoneseFunny);
+        return Format(pair.English, pair.Cantonese, languageMode, englishFunny, cantoneseFunny);
+    }
+
+    public static string Format(
+        string english,
+        string cantonese,
+        string languageMode,
+        int englishFunny,
+        int cantoneseFunny)
+    {
+        var styledEnglish = StyleEnglish(english, englishFunny);
+        var styledCantonese = StyleCantonese(cantonese, cantoneseFunny);
         return languageMode switch
         {
-            "Cantonese" => cantonese,
-            "Bilingual" => english + Environment.NewLine + cantonese,
-            _ => english,
+            "Cantonese" => styledCantonese,
+            "Bilingual" => styledEnglish + Environment.NewLine + styledCantonese,
+            _ => styledEnglish,
         };
     }
 

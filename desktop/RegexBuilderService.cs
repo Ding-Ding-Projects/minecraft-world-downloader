@@ -28,12 +28,18 @@ public static class RegexBuilderService
     public const int MaxMatches = 500;
     public const int MaxCaptureGroups = 2_000;
     public const int MaxResultOutputCharacters = 128 * 1_024;
+    public const int MaxSearchItems = 10_000;
+    public const int MaxSearchAggregateCharacters = 1_000_000;
     public const int EvaluationTimeoutMilliseconds = 150;
     private const int SearchOperationTimeoutMilliseconds = 25;
     private static readonly TimeSpan MatchTimeout = TimeSpan.FromMilliseconds(EvaluationTimeoutMilliseconds);
 
     public static RegexEvaluation Evaluate(string pattern, string flags, string sample) =>
         EvaluateCore(pattern, flags, sample, MatchTimeout);
+
+    public static RegexSearchSetEvaluation EvaluateSearchSet(
+        string pattern, string flags, IReadOnlyList<string> samples) =>
+        EvaluateSearchSet(pattern, flags, samples, MatchTimeout);
 
     internal static RegexEvaluation EvaluateWithTotalTimeoutForTesting(
         string pattern, string flags, string sample, TimeSpan totalTimeout)
@@ -50,29 +56,52 @@ public static class RegexBuilderService
     internal static RegexSearchSetEvaluation EvaluateSearchSet(
         string pattern, string flags, IReadOnlyList<string> samples, TimeSpan totalTimeout)
     {
+        ArgumentNullException.ThrowIfNull(pattern);
+        ArgumentNullException.ThrowIfNull(flags);
         ArgumentNullException.ThrowIfNull(samples);
         if (totalTimeout < TimeSpan.Zero || totalTimeout > MatchTimeout)
             throw new ArgumentOutOfRangeException(nameof(totalTimeout));
+        var timer = Stopwatch.StartNew();
+        if (totalTimeout == TimeSpan.Zero) return TimedOutSearchSet();
         if (pattern.Length > MaxPatternLength)
             return InvalidSearchSet($"Pattern is limited to {MaxPatternLength} characters.");
-        if (samples.Any(sample => sample is null || sample.Length > MaxSampleLength))
-            return InvalidSearchSet($"Each searchable item is limited to {MaxSampleLength} characters.");
-        if (totalTimeout == TimeSpan.Zero) return TimedOutSearchSet();
+        var sampleCount = samples.Count;
+        if (sampleCount > MaxSearchItems)
+            return InvalidSearchSet($"A search set is limited to {MaxSearchItems} items.");
+
+        var boundedSamples = new string[sampleCount];
+        var aggregateCharacters = 0L;
+        for (var index = 0; index < sampleCount; index++)
+        {
+            if (timer.Elapsed >= totalTimeout) return TimedOutSearchSet();
+            string sample;
+            try { sample = samples[index]; }
+            catch (ArgumentOutOfRangeException)
+            {
+                return InvalidSearchSet("The searchable item collection changed during evaluation.");
+            }
+            if (sample is null || sample.Length > MaxSampleLength)
+                return InvalidSearchSet($"Each searchable item is limited to {MaxSampleLength} characters.");
+            aggregateCharacters += sample.Length;
+            if (aggregateCharacters > MaxSearchAggregateCharacters)
+                return InvalidSearchSet(
+                    $"Combined searchable text is limited to {MaxSearchAggregateCharacters} characters.");
+            boundedSamples[index] = sample;
+        }
 
         try
         {
-            var timer = Stopwatch.StartNew();
             var operationTimeout = TimeSpan.FromMilliseconds(Math.Min(
                 SearchOperationTimeoutMilliseconds,
                 Math.Max(1d, totalTimeout.TotalMilliseconds)));
             var regex = new Regex(pattern, ParseOptions(flags), operationTimeout);
             if (timer.Elapsed >= totalTimeout) return TimedOutSearchSet();
 
-            var matches = new bool[samples.Count];
-            for (var index = 0; index < samples.Count; index++)
+            var matches = new bool[boundedSamples.Length];
+            for (var index = 0; index < boundedSamples.Length; index++)
             {
                 if (timer.Elapsed >= totalTimeout) return TimedOutSearchSet();
-                matches[index] = regex.IsMatch(samples[index]);
+                matches[index] = regex.IsMatch(boundedSamples[index]);
             }
             if (timer.Elapsed >= totalTimeout) return TimedOutSearchSet();
             return new RegexSearchSetEvaluation(true, null, matches);

@@ -1,0 +1,58 @@
+<UserControl x:Class="WorldDownloaderManager.RegexBuilderPopover"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Focusable="False" PreviewKeyDown="Builder_PreviewKeyDown">
+    <Border Background="{DynamicResource Surface2}" BorderBrush="{DynamicResource Outline}"
+            BorderThickness="1.5" CornerRadius="16" Padding="16">
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                      MaxHeight="680">
+            <StackPanel>
+                <TextBlock x:Name="TitleText" Style="{DynamicResource H}" Text="Anchored regex builder" />
+                <TextBlock x:Name="DescriptionText" Style="{DynamicResource Desc}"
+                           Text="Local .NET regular expression evaluation. Pattern 2,048 characters; sample 100,000 characters; 150 ms deadline." />
+
+                <Grid Margin="0,12,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="112" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Margin="0,0,6,0">
+                        <TextBlock x:Name="PatternLabel" Style="{DynamicResource Lbl}" Text="Raw pattern" />
+                        <TextBox x:Name="PatternBox" Style="{DynamicResource Tb}" MaxLength="2048" TextChanged="Input_Changed"
+                                 AutomationProperties.Name="Raw regex pattern" />
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" Margin="6,0,0,0">
+                        <TextBlock x:Name="FlagsLabel" Style="{DynamicResource Lbl}" Text="Flags" />
+                        <TextBox x:Name="FlagsBox" Style="{DynamicResource Tb}" MaxLength="4" Text="i" TextChanged="Input_Changed"
+                                 AutomationProperties.Name="Regex flags i m s n" />
+                    </StackPanel>
+                </Grid>
+
+                <WrapPanel Margin="0,10,0,0">
+                    <Button x:Name="LiteralButton" Style="{DynamicResource Btn}" Content="Escape literal" Click="Literal_Click" />
+                    <Button x:Name="ClassButton" Style="{DynamicResource Btn}" Content="[class]" Margin="8,0,0,0" Click="Class_Click" />
+                    <Button x:Name="GroupButton" Style="{DynamicResource Btn}" Content="(group)" Margin="8,0,0,0" Click="Group_Click" />
+                    <Button x:Name="AlternateButton" Style="{DynamicResource Btn}" Content="| alternate" Margin="8,0,0,0" Click="Alternate_Click" />
+                    <Button x:Name="AnchorButton" Style="{DynamicResource Btn}" Content="^ anchor $" Margin="8,0,0,0" Click="Anchor_Click" />
+                    <Button x:Name="QuantifierButton" Style="{DynamicResource Btn}" Content="One or more" Margin="8,0,0,0" Click="Quantifier_Click" />
+                </WrapPanel>
+
+                <TextBlock x:Name="SampleLabel" Style="{DynamicResource Lbl}" Text="Sample text" Margin="2,14,0,4" />
+                <TextBox x:Name="SampleBox" Style="{DynamicResource Tb}" MaxLength="100000" Height="100" AcceptsReturn="True"
+                         TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" TextChanged="Input_Changed"
+                         AutomationProperties.Name="Regex sample text" />
+                <TextBlock x:Name="FeedbackText" Style="{DynamicResource Desc}" Margin="2,10,0,0"
+                           AutomationProperties.LiveSetting="Polite" />
+                <TextBox x:Name="ResultsBox" Style="{DynamicResource Tb}" Height="120" Margin="0,8,0,0"
+                         IsReadOnly="True" AcceptsReturn="True" TextWrapping="Wrap"
+                         VerticalScrollBarVisibility="Auto" AutomationProperties.Name="Regex matches and capture groups" />
+
+                <WrapPanel Margin="0,10,0,0">
+                    <Button x:Name="CopyButton" Style="{DynamicResource Btn}" Content="Copy pattern" Click="Copy_Click" />
+                    <Button x:Name="ExportButton" Style="{DynamicResource Btn}" Content="Export pattern…" Margin="8,0,0,0" Click="Export_Click" />
+                    <Button x:Name="ApplyButton" Style="{DynamicResource AccentBtn}" Content="Apply to search" Margin="8,0,0,0" Click="Apply_Click" />
+                </WrapPanel>
+            </StackPanel>
+        </ScrollViewer>
+    </Border>
+</UserControl>
