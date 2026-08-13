@@ -240,7 +240,7 @@ export const STATUS_STRINGS: Catalogue = {
     ladder('Could not open that link: {reason}'),
     ladder('開唔到嗰個連結：{reason}')
   ),
-  'status.lane.gates.heading': entry(ladder('Next gates'), ladder('下一步嘅Chut')),
+  'status.lane.gates.heading': entry(ladder('Next gates'), ladder('下一步嘅關卡')),
   'status.lane.gates.empty': entry(ladder('No next gates recorded.'), ladder('未有記低下一步。')),
 
   /* ---------------- notifications ---------------- */
@@ -350,9 +350,9 @@ export const STATUS_STRINGS: Catalogue = {
     ladder('Up to {max} pieces of evidence per lane.'),
     ladder('每條最多 {max} 個證據。')
   ),
-  'status.form.gates.heading': entry(ladder('Next gates'), ladder('下一步嘅Chut')),
-  'status.form.gates.add': entry(ladder('Add a gate'), ladder('加一個Chut')),
-  'status.form.gates.remove': entry(ladder('Remove this gate'), ladder('移除呢個Chut')),
+  'status.form.gates.heading': entry(ladder('Next gates'), ladder('下一步嘅關卡')),
+  'status.form.gates.add': entry(ladder('Add a gate'), ladder('加一個關卡')),
+  'status.form.gates.remove': entry(ladder('Remove this gate'), ladder('移除呢個關卡')),
   'status.form.gates.placeholder': entry(ladder('What has to happen next'), ladder('下一步要做咩')),
   'status.form.gates.max': entry(
     ladder('Up to {max} next gates per lane.'),
