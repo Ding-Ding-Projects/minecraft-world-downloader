@@ -726,6 +726,124 @@ export const strings: Catalogue = {
       'Worldlens 未安裝，對面根本冇人接呢個世界。去佢個發佈頁裝返佢再試過。'
     ]
   },
+  'worldlens.handoff.bodyCopyFailed': {
+    en: [
+      'Worldlens is opening, but the world path could not be copied to the clipboard: {error}. The world is {world}, at {path} — copy it by hand into Worldlens’s own world picker.',
+      'Worldlens is opening, but the world path could not be copied to the clipboard: {error}. The world is {world}, at {path} — copy it by hand into Worldlens’s own world picker.',
+      'Worldlens is opening, but the path would not copy to the clipboard: {error}. The world is {world}, at {path} — type it into Worldlens’s world picker by hand.',
+      'Worldlens is on its way up, but the clipboard would not take the path: {error}. The world is {world}, at {path} — you will need to type that one in yourself.',
+      'Worldlens is on its way up, but the clipboard would not take the path: {error}. The world is {world}, at {path} — you will need to type that one in yourself.'
+    ],
+    yue: [
+      'Worldlens 開緊，不過世界路徑複製唔到去剪貼簿：{error}。世界係 {world}，喺 {path} —— 要自己手打入 Worldlens 個世界選擇器。',
+      'Worldlens 開緊，不過世界路徑複製唔到去剪貼簿：{error}。世界係 {world}，喺 {path} —— 要自己手打入 Worldlens 個世界選擇器。',
+      'Worldlens 開緊，不過路徑複製唔到去剪貼簿：{error}。世界係 {world}，喺 {path} —— 自己手打入去 Worldlens 個世界選擇器。',
+      'Worldlens 上緊嚟，不過剪貼簿唔肯收個路徑：{error}。世界係 {world}，喺 {path} —— 呢個要你自己打返入去。',
+      'Worldlens 上緊嚟，不過剪貼簿唔肯收個路徑：{error}。世界係 {world}，喺 {path} —— 呢個要你自己打返入去。'
+    ]
+  },
+
+  /* ---------------- dimensions ---------------- */
+
+  'worldlens.dimension.overworld': {
+    en: ['Overworld', 'Overworld', 'Overworld', 'Overworld', 'Overworld'],
+    yue: ['主世界', '主世界', '主世界', '主世界', '主世界']
+  },
+  'worldlens.dimension.the_nether': {
+    en: ['Nether', 'Nether', 'Nether', 'Nether', 'Nether'],
+    yue: ['地獄', '地獄', '地獄', '地獄', '地獄']
+  },
+  'worldlens.dimension.the_end': {
+    en: ['End', 'End', 'End', 'End', 'End'],
+    yue: ['終界', '終界', '終界', '終界', '終界']
+  },
+  'worldlens.run.noDimensions': {
+    en: [
+      'Select at least one dimension to render.',
+      'Select at least one dimension to render.',
+      'Select at least one dimension to render.',
+      'Tick at least one dimension — the renderer needs something to draw.',
+      'Tick at least one dimension — the renderer needs something to draw.'
+    ],
+    yue: [
+      '至少揀一個維度先可以渲染。',
+      '至少揀一個維度先可以渲染。',
+      '至少揀一個維度先可以渲染。',
+      '至少剔一個維度 —— 渲染器要有嘢畫先得。',
+      '至少剔一個維度 —— 渲染器要有嘢畫先得。'
+    ]
+  },
+  'worldlens.run.dimensionAbsent': {
+    en: [
+      'This world has no {dimension} save data.',
+      'This world has no {dimension} save data.',
+      'This world has no {dimension} data to render.',
+      'There is no {dimension} in this world — no region files, nothing to draw.',
+      'There is no {dimension} in this world — no region files, nothing to draw.'
+    ],
+    yue: [
+      '呢個世界冇 {dimension} 嘅存檔資料。',
+      '呢個世界冇 {dimension} 嘅存檔資料。',
+      '呢個世界冇 {dimension} 資料可以渲染。',
+      '呢個世界冇 {dimension} —— 冇區域檔案，冇嘢好畫。',
+      '呢個世界冇 {dimension} —— 冇區域檔案，冇嘢好畫。'
+    ]
+  },
+
+  'worldlens.action.useSuggestedRenderer': {
+    en: [
+      'Use the renderer bundled with Worldlens',
+      'Use the renderer bundled with Worldlens',
+      'Use the renderer that came with Worldlens',
+      'Grab the renderer Worldlens already brought along',
+      'Grab the renderer Worldlens already brought along'
+    ],
+    yue: [
+      '用 Worldlens 自帶嘅渲染器',
+      '用 Worldlens 自帶嘅渲染器',
+      '用返 Worldlens 自己帶嚟嘅渲染器',
+      '執返 Worldlens 自己帶埋嚟嘅渲染器',
+      '執返 Worldlens 自己帶埋嚟嘅渲染器'
+    ]
+  },
+  'worldlens.notify.noSuggestedRenderer': {
+    en: [
+      'No renderer was found inside the installed Worldlens. Choose one by hand in settings.',
+      'No renderer was found inside the installed Worldlens. Choose one by hand in settings.',
+      'No renderer was found inside the installed copy. Set the path by hand in settings.',
+      'The installed copy is not carrying a renderer this reader recognises. Point the setting at one by hand.',
+      'The installed copy is not carrying a renderer this reader recognises. Point the setting at one by hand.'
+    ],
+    yue: [
+      '已安裝嘅 Worldlens 入面搵唔到渲染器。去設定手動揀一個。',
+      '已安裝嘅 Worldlens 入面搵唔到渲染器。去設定手動揀一個。',
+      '已安裝嗰份入面搵唔到渲染器。去設定手動填個路徑。',
+      '已裝嗰份入面冇認得出嘅渲染器。去設定自己手動指一個。',
+      '已裝嗰份入面冇認得出嘅渲染器。去設定自己手動指一個。'
+    ]
+  },
+
+  'worldlens.action.previousPage': {
+    en: ['Previous page', 'Previous page', 'Previous page', 'Back a page', 'Back a page'],
+    yue: ['上一頁', '上一頁', '上一頁', '返上一頁', '返上一頁']
+  },
+  'worldlens.action.nextPage': {
+    en: ['Next page', 'Next page', 'Next page', 'Onward a page', 'Onward a page'],
+    yue: ['下一頁', '下一頁', '下一頁', '去下一頁', '去下一頁']
+  },
+
+  /* ---------------- selection ---------------- */
+
+  'worldlens.selection.count': {
+    en: [
+      '{count} selected',
+      '{count} selected',
+      '{count} selected',
+      '{count} picked out',
+      '{count} picked out'
+    ],
+    yue: ['已選 {count} 個', '已選 {count} 個', '已選 {count} 個', '揀咗 {count} 個', '揀咗 {count} 個']
+  },
 
   /* ---------------- render run ---------------- */
 

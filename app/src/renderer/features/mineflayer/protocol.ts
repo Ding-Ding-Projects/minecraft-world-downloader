@@ -144,6 +144,10 @@ export interface BotState {
   yaw: number | null;
   pitch: number | null;
   onGround: boolean | null;
+  /** `bot.entity.eyeHeight` — how far above the feet the ray-trace origin sits. */
+  eyeHeight: number | null;
+  /** `bot.entity.isInWater`, from `lib/plugins/physics.js`. */
+  isInWater: boolean | null;
   isSleeping: boolean | null;
   heldItem: HeldItemValue | null;
   quickBarSlot: number | null;
@@ -230,17 +234,27 @@ export type HostMessage =
 /* ------------------------------------------------------------------ */
 
 /**
- * Every event the library emits, taken from `BotEvents` in `index.d.ts` plus
- * `connect`, which `lib/loader.js` emits directly and the type declaration
- * omits.
+ * Every event the library emits.
+ *
+ * Most of this list is `BotEvents` from `index.d.ts` plus `connect`, which
+ * `lib/loader.js` emits directly and the type declaration omits. Five more —
+ * `blockPlaced`, `entityPlaced`, `weatherUpdate`, `title_times` and
+ * `title_clear` — are real `bot.emit(...)` calls in `lib/plugins/place_block.js`,
+ * `place_entity.js`, `rain.js` and `title.js` that the shipped `index.d.ts` does
+ * not declare. The type file lags the implementation on this version; an event
+ * inspector that only trusted the types would silently drop five real events.
  *
  * `blockUpdate:(x, y, z)` is deliberately absent: it is a template for a
  * per-coordinate listener rather than an event name anything ever emits.
+ * `tablist` is deliberately absent too: `lib/plugins/tablist.js` updates
+ * `bot.tablist.header`/`.footer` in place and never emits anything — there is
+ * no library event to subscribe to, only the `tablist` method below to read it.
  */
 export const EVENT_NAMES: readonly string[] = [
   'actionBar',
   'blockBreakProgressEnd',
   'blockBreakProgressObserved',
+  'blockPlaced',
   'blockUpdate',
   'bossBarCreated',
   'bossBarDeleted',
@@ -273,6 +287,7 @@ export const EVENT_NAMES: readonly string[] = [
   'entityHurt',
   'entityMagicCriticalEffect',
   'entityMoved',
+  'entityPlaced',
   'entitySleep',
   'entitySpawn',
   'entitySwingArm',
@@ -326,9 +341,12 @@ export const EVENT_NAMES: readonly string[] = [
   'teamUpdated',
   'time',
   'title',
+  'title_clear',
+  'title_times',
   'unmatchedMessage',
   'usedFirework',
   'wake',
+  'weatherUpdate',
   'whisper',
   'windowClose',
   'windowOpen'

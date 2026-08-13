@@ -1,0 +1,189 @@
+/*
+ * The world downloader tab.
+ *
+ * Every colour, radius and spacing value is a Material Design 3 token, so a
+ * seed-colour, density or contrast change reaches this feature without editing
+ * it. Wide content (the command line, the launch-option flag text) scrolls or
+ * wraps inside its own box rather than ever pushing the panel sideways.
+ */
+
+.downloader-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-4);
+  padding-block-end: var(--md-space-8);
+  min-inline-size: 0;
+}
+
+.downloader-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-3);
+  padding: var(--md-space-4);
+  border-radius: var(--md-sys-shape-corner-large);
+  background: var(--md-sys-color-surface-container);
+  min-inline-size: 0;
+}
+
+.downloader-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--md-space-2);
+}
+
+.downloader-stat {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--md-space-2);
+  padding-block: var(--md-space-1);
+  border-block-end: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.downloader-stat:last-child {
+  border-block-end: none;
+}
+
+.downloader-stat__label {
+  color: var(--md-sys-color-on-surface-variant);
+  flex: 0 0 auto;
+  min-inline-size: 10rem;
+}
+
+.downloader-stat__value {
+  color: var(--md-sys-color-on-surface);
+  word-break: break-word;
+}
+
+.downloader-status--error {
+  color: var(--md-sys-color-error);
+}
+
+.downloader-status--warn {
+  color: var(--md-sys-color-warning, var(--md-sys-color-error));
+}
+
+.downloader-callout {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-2);
+  padding: var(--md-space-3);
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: var(--md-sys-color-primary-container);
+  color: var(--md-sys-color-on-primary-container);
+}
+
+.downloader-code {
+  font-family: var(--md-sys-typeface-mono);
+  padding: var(--md-space-1) var(--md-space-2);
+  border-radius: var(--md-sys-shape-corner-small);
+  background: var(--md-sys-color-surface);
+  color: var(--md-sys-color-on-surface);
+  letter-spacing: 0.08em;
+  user-select: all;
+}
+
+.downloader-command {
+  font-family: var(--md-sys-typeface-mono);
+  white-space: pre-wrap;
+  word-break: break-all;
+  overflow-x: auto;
+  padding: var(--md-space-3);
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: var(--md-sys-color-surface);
+  color: var(--md-sys-color-on-surface);
+  margin: 0;
+}
+
+/* ---------------- launch options ---------------- */
+
+.downloader-option-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-3);
+  padding-block: var(--md-space-2);
+}
+
+.downloader-option-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-1);
+  padding: var(--md-space-2);
+  border-radius: var(--md-sys-shape-corner-small);
+}
+
+.downloader-option-row--invalid {
+  outline: 1px solid var(--md-sys-color-error);
+}
+
+.downloader-option-row__header {
+  display: flex;
+  align-items: center;
+  gap: var(--md-space-2);
+}
+
+.downloader-option-row__changed {
+  color: var(--md-sys-color-tertiary);
+}
+
+.downloader-option-row__description {
+  color: var(--md-sys-color-on-surface-variant);
+  max-inline-size: 60ch;
+}
+
+.downloader-option-row__flag {
+  font-family: var(--md-sys-typeface-mono);
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+/* ---------------- profiles ---------------- */
+
+.downloader-profile-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-3);
+  min-inline-size: min(28rem, 90vw);
+}
+
+.downloader-export-picker {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-2);
+  min-inline-size: min(20rem, 90vw);
+}
+
+/* ---------------- log ---------------- */
+
+.downloader-log-line--error {
+  border-inline-start: 3px solid var(--md-sys-color-error);
+}
+
+.downloader-log-line--warning {
+  border-inline-start: 3px solid var(--md-sys-color-tertiary);
+}
+
+.downloader-log-line--notice {
+  border-inline-start: 3px solid var(--md-sys-color-primary);
+}
+
+.downloader-log-line--info {
+  border-inline-start: 3px solid transparent;
+}
+
+.downloader-versions__detected {
+  color: var(--md-sys-color-primary);
+}
+
+/* ---------------- narrow widths ---------------- */
+
+@media (max-width: 640px) {
+  .downloader-stat {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .downloader-stat__label {
+    min-inline-size: 0;
+  }
+}

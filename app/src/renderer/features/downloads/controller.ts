@@ -137,6 +137,19 @@ export class DownloadsController {
     return joinPath(ctx.studio.info.userDataDir, 'downloads');
   }
 
+  /**
+   * Applies the "Overwrite by default" setting's starting position to a
+   * freshly created record. It is still, every time, a real switch the user
+   * sees and can change in the Start download dialog; this only decides where
+   * that switch starts for a capture that has not been decided yet.
+   */
+  private withDefaultOverwrite(record: DownloadRecord): DownloadRecord {
+    const ctx = this.require();
+    const defaultOverwrite = ctx.settings.get<boolean>(DOWNLOAD_SETTINGS.overwrite, false) === true;
+    if (!defaultOverwrite || record.overwrite) return record;
+    return downloadStore.patch(record.id, { overwrite: true }) ?? record;
+  }
+
   private async onCapture(capture: CapturePayload): Promise<void> {
     const ctx = this.require();
     const folder = this.defaultFolder();
@@ -144,7 +157,7 @@ export class DownloadsController {
       capture.suggestedFilename || filenameFromUrl(capture.url),
       filenameFromUrl(capture.url)
     );
-    const record = downloadStore.add(recordFromCapture(capture, folder, filename, newId()));
+    const record = this.withDefaultOverwrite(downloadStore.add(recordFromCapture(capture, folder, filename, newId())));
 
     ctx.notify.info(
       ctx.t('downloads.capture.title', 'A download was captured'),
@@ -214,8 +227,8 @@ export class DownloadsController {
       return;
     }
 
-    const record = downloadStore.add(
-      manualRecord(parsed.toString(), this.defaultFolder(), filenameFromUrl(parsed.toString()), newId())
+    const record = this.withDefaultOverwrite(
+      downloadStore.add(manualRecord(parsed.toString(), this.defaultFolder(), filenameFromUrl(parsed.toString()), newId()))
     );
     const decision = await openStartDialog(ctx, record);
     if (!decision.started) {

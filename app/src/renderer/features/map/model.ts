@@ -21,6 +21,7 @@ export const JUMP_ID = 'map-jump';
 export const MARKERS_ID = 'map-markers';
 export const READOUT_ID = 'map-readout';
 export const STATUS_ID = 'map-status';
+export const WORLDLENS_ID = 'map-worldlens';
 
 /* Settings ---------------------------------------------------------- */
 

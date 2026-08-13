@@ -143,14 +143,24 @@ function resolveLibrary(extraRoots) {
   // And up from this script, in case it was placed inside a project tree.
   push(__dirname);
 
+  /*
+   * Three shapes are tried at every candidate root:
+   *   - '.' — the root itself is the library (this is how a directly-supplied
+   *     `--library-root=<path>/vendor/mineflayer` is found);
+   *   - 'vendor/mineflayer' — this application's own vendored copy, checked out
+   *     beside the repository root rather than installed as a dependency;
+   *   - 'node_modules/mineflayer' and 'app/node_modules/mineflayer' — an
+   *     ordinary installed dependency, for a build that chooses to install it.
+   */
   for (const root of candidates) {
-    for (const suffix of ['node_modules/mineflayer', 'app/node_modules/mineflayer']) {
-      const target = path.join(root, suffix);
+    for (const suffix of ['.', 'vendor/mineflayer', 'node_modules/mineflayer', 'app/node_modules/mineflayer']) {
+      const target = suffix === '.' ? root : path.join(root, suffix);
       attempted.push(target);
       try {
         if (!fs.existsSync(path.join(target, 'package.json'))) continue;
-        const library = require(target);
         const manifest = JSON.parse(fs.readFileSync(path.join(target, 'package.json'), 'utf8'));
+        if (manifest.name !== 'mineflayer') continue;
+        const library = require(target);
         return { library: library, version: manifest.version, path: target, attempted: attempted };
       } catch (error) {
         attempted.push('  ↳ ' + describe(error));
@@ -231,6 +241,21 @@ function serialize(value, depth) {
         /* fall through to the generic path */
       }
     }
+    /*
+     * `BossBar`, `ScoreBoard` and `Team` (`lib/bossbar.js`, `lib/scoreboard.js`,
+     * `lib/team.js`) hold their real fields behind class-level getters over
+     * underscore-prefixed backing properties. The generic walk below only ever
+     * sees OWN enumerable keys and deliberately skips anything starting with
+     * `_`, so a raw instance of one of these three serializes to `{}` — every
+     * key it would show is on the prototype, not the instance. `bossBarCreated`,
+     * `scoreboardCreated` and `teamCreated` (among others) hand one of these
+     * straight to `bot.emit`, so this is not a hypothetical: it is what the
+     * event inspector would show for those events without this branch.
+     */
+    const constructorName = value.constructor && value.constructor.name;
+    if (constructorName === 'BossBar') return serializeBossBar(value);
+    if (constructorName === 'ScoreBoard') return serializeScoreboard(value);
+    if (constructorName === 'Team') return serializeTeam(value);
     const out = {};
     let count = 0;
     for (const key of Object.keys(value)) {
@@ -311,6 +336,51 @@ function serializeEntity(entity) {
   };
 }
 
+/** `lib/bossbar.js` — every real field is a prototype getter; see the note in `serialize()`. */
+function serializeBossBar(bar) {
+  if (!bar) return null;
+  return {
+    entityUUID: bar.entityUUID,
+    title: typeof bar.title === 'string' ? bar.title : (bar.title && bar.title.toString ? bar.title.toString() : ''),
+    health: typeof bar.health === 'number' ? bar.health : 0,
+    dividers: typeof bar.dividers === 'number' ? bar.dividers : 0,
+    color: bar.color || 'pink',
+    shouldDarkenSky: !!bar.shouldDarkenSky,
+    isDragonBar: !!bar.isDragonBar,
+    createFog: !!bar.createFog
+  };
+}
+
+/** `lib/scoreboard.js`. `items` is a prototype getter over an internal `itemsMap`. */
+function serializeScoreboard(board) {
+  if (!board) return null;
+  return {
+    name: board.name,
+    title: typeof board.title === 'string' ? board.title : String(board.title || ''),
+    items: (board.items || []).slice(0, MAX_PAYLOAD_ARRAY).map((item) => ({
+      name: item.name,
+      displayName: item.displayName && item.displayName.toString ? item.displayName.toString() : String(item.name),
+      value: item.value
+    }))
+  };
+}
+
+/** `lib/team.js`. `members` is a prototype getter over an internal `membersMap`. */
+function serializeTeam(team) {
+  if (!team) return null;
+  return {
+    team: team.team,
+    name: team.name && team.name.toString ? team.name.toString() : String(team.team),
+    color: team.color || 'reset',
+    prefix: team.prefix && team.prefix.toString ? team.prefix.toString() : '',
+    suffix: team.suffix && team.suffix.toString ? team.suffix.toString() : '',
+    friendlyFire: team.friendlyFire !== 0 && team.friendlyFire !== false,
+    nameTagVisibility: team.nameTagVisibility || '',
+    collisionRule: team.collisionRule || '',
+    members: Array.isArray(team.members) ? team.members.slice(0, MAX_PAYLOAD_ARRAY) : []
+  };
+}
+
 function serializeWindow(window) {
   if (!window) return null;
   const slots = Array.isArray(window.slots) ? window.slots : [];
@@ -372,6 +442,8 @@ function snapshot(session) {
     yaw: null,
     pitch: null,
     onGround: null,
+    eyeHeight: null,
+    isInWater: null,
     isSleeping: null,
     heldItem: null,
     quickBarSlot: null,
@@ -415,6 +487,8 @@ function snapshot(session) {
     base.yaw = numberOrNull(bot.entity.yaw);
     base.pitch = numberOrNull(bot.entity.pitch);
     base.onGround = typeof bot.entity.onGround === 'boolean' ? bot.entity.onGround : null;
+    base.eyeHeight = numberOrNull(bot.entity.eyeHeight);
+    base.isInWater = typeof bot.entity.isInWater === 'boolean' ? bot.entity.isInWater : null;
   }
   base.isSleeping = typeof bot.isSleeping === 'boolean' ? bot.isSleeping : null;
   if (bot.heldItem) {
@@ -927,6 +1001,42 @@ const METHODS = {
       s.bot.quit(a[0] === undefined ? 'disconnect.quitting' : checkString(a[0], 'reason'));
       return null;
     }
+  },
+  /**
+   * The chat length limit actually in force.
+   *
+   * There is no `bot.chatLengthLimit` property: `lib/plugins/chat.js` computes
+   * it once into a closure variable nothing outside that file can read. This
+   * reproduces its exact formula — the connection's own `chatLengthLimit` when
+   * one was set, otherwise `bot.supportFeature('lessCharsInChat') ? 100 : 256`.
+   */
+  chatLengthLimit: {
+    run: (s) => (typeof s.options.chatLengthLimit === 'number' && s.options.chatLengthLimit > 0
+      ? s.options.chatLengthLimit
+      : (s.bot.supportFeature('lessCharsInChat') ? 100 : 256))
+  },
+
+  /* --- server text surfaces (chat, boss bars, scoreboards, teams) --- */
+  tablist: {
+    run: (s) => ({
+      header: s.bot.tablist && s.bot.tablist.header ? s.bot.tablist.header.toString() : '',
+      footer: s.bot.tablist && s.bot.tablist.footer ? s.bot.tablist.footer.toString() : ''
+    })
+  },
+  bossBars: {
+    run: (s) => (Array.isArray(s.bot.bossBars) ? s.bot.bossBars : [])
+      .slice(0, MAX_PAYLOAD_ARRAY)
+      .map((bar) => serializeBossBar(bar))
+  },
+  scoreboards: {
+    run: (s) => Object.values(s.bot.scoreboards || {})
+      .slice(0, MAX_PAYLOAD_ARRAY)
+      .map((board) => Object.assign(serializeScoreboard(board), {
+        slots: Object.keys(s.bot.scoreboard || {}).filter((slot) => s.bot.scoreboard[slot] === board)
+      }))
+  },
+  teams: {
+    run: (s) => Object.values(s.bot.teams || {}).slice(0, MAX_PAYLOAD_ARRAY).map((team) => serializeTeam(team))
   }
 };
 
@@ -938,18 +1048,20 @@ const METHOD_NAMES = Object.keys(METHODS).sort();
 
 /**
  * Every event the library emits, plus `connect`, which `lib/loader.js` emits
- * directly. `blockUpdate:(x, y, z)` is a template rather than an event name and
- * is deliberately absent.
+ * directly. Must stay identical to `EVENT_NAMES` in `protocol.ts` — see that
+ * file for which five of these are real `bot.emit(...)` calls the shipped
+ * `index.d.ts` fails to declare, and for why `blockUpdate:(x, y, z)` and
+ * `tablist` are deliberately absent.
  */
 const EVENT_NAMES = [
-  'actionBar', 'blockBreakProgressEnd', 'blockBreakProgressObserved', 'blockUpdate',
+  'actionBar', 'blockBreakProgressEnd', 'blockBreakProgressObserved', 'blockPlaced', 'blockUpdate',
   'bossBarCreated', 'bossBarDeleted', 'bossBarUpdated', 'breath', 'chat', 'chestLidMove',
   'chunkColumnLoad', 'chunkColumnUnload', 'connect', 'death', 'diggingAborted',
   'diggingCompleted', 'dismount', 'end', 'entityAttach', 'entityAttributes',
   'entityCriticalEffect', 'entityCrouch', 'entityDead', 'entityDetach', 'entityEat',
   'entityEatingGrass', 'entityEffect', 'entityEffectEnd', 'entityElytraFlew', 'entityEquip',
   'entityGone', 'entityHandSwap', 'entityHurt', 'entityMagicCriticalEffect', 'entityMoved',
-  'entitySleep', 'entitySpawn', 'entitySwingArm', 'entityTamed', 'entityTaming',
+  'entityPlaced', 'entitySleep', 'entitySpawn', 'entitySwingArm', 'entityTamed', 'entityTaming',
   'entityUncrouch', 'entityUpdate', 'entityWake', 'entityShakingOffWater', 'error',
   'experience', 'forcedMove', 'game', 'hardcodedSoundEffectHeard', 'health', 'heldItemChanged',
   'inject_allowed', 'itemDrop', 'kicked', 'login', 'message', 'messagestr', 'mount', 'move',
@@ -958,7 +1070,8 @@ const EVENT_NAMES = [
   'scoreRemoved', 'scoreUpdated', 'scoreboardCreated', 'scoreboardDeleted', 'scoreboardPosition',
   'scoreboardTitleChanged', 'sleep', 'soundEffectHeard', 'spawn', 'spawnReset', 'teamCreated',
   'teamMemberAdded', 'teamMemberRemoved', 'teamRemoved', 'teamUpdated', 'time', 'title',
-  'unmatchedMessage', 'usedFirework', 'wake', 'whisper', 'windowClose', 'windowOpen'
+  'title_clear', 'title_times', 'unmatchedMessage', 'usedFirework', 'wake', 'weatherUpdate',
+  'whisper', 'windowClose', 'windowOpen'
 ];
 
 const sessions = new Map();

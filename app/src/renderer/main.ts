@@ -130,17 +130,29 @@ async function boot(): Promise<void> {
   registry.register(coreFeature());
 
   const discovered = import.meta.glob<{ default?: FeatureModule }>('./features/*/index.ts', { eager: true });
+
+  // A feature that fails to register is not silently dropped. Registration is
+  // all-or-nothing in the registry, so a refused module changes nothing — but a
+  // console line is not a report, and a missing destination in a strip of thirty
+  // is exactly the kind of absence nobody notices. The failures are collected
+  // here and raised once the notification service has a context to render into.
+  const registrationFailures: Array<{ path: string; reason: string }> = [];
+
   for (const [path, module] of Object.entries(discovered)) {
     const feature = module?.default;
     if (!feature) {
-      console.error(`"${path}" has no default export, so it was not registered as a feature.`);
+      const reason = 'the file has no default export.';
+      console.error(`"${path}" was not registered: ${reason}`);
+      registrationFailures.push({ path, reason });
       continue;
     }
     try {
       registry.register(feature);
       if (feature.strings) i18n.register(feature.strings);
     } catch (error) {
-      console.error(`"${path}" could not be registered:`, error);
+      const reason = error instanceof Error ? error.message : String(error);
+      console.error(`"${path}" could not be registered: ${reason}`);
+      registrationFailures.push({ path, reason });
     }
   }
 
@@ -178,6 +190,15 @@ async function boot(): Promise<void> {
   };
 
   registry.initializeAll(ctx);
+
+  for (const failure of registrationFailures) {
+    notifications.error(
+      i18n.t('core.feature.registerFailed.title', 'A feature did not load'),
+      i18n.t('core.feature.registerFailed.body', '{path} was skipped: {reason}', {
+        values: { path: failure.path, reason: failure.reason }
+      })
+    );
+  }
 
   /* ---------------- shell wiring ---------------- */
 

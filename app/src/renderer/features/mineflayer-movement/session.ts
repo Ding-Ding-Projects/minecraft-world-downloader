@@ -19,6 +19,8 @@
  * when no session module is present rather than pretending to be connected.
  */
 
+import type { MovementControlsBridge } from './model';
+
 /* ================================================================== */
 /* The vendored vocabulary                                             */
 /* ================================================================== */
@@ -382,6 +384,13 @@ export interface MovementProviderBridge {
 declare global {
   interface Window {
     mineflayerMovement?: MovementProviderBridge;
+    /**
+     * Lets the "Stop all bot movement" palette command (in `index.ts`) act on
+     * the tab's real, live state instead of only navigating to it. See the
+     * `MovementControlsBridge` doc comment in `model.ts` for the full reason
+     * this augmentation lives here rather than in its own `declare global`.
+     */
+    mineflayerMovementControls?: MovementControlsBridge;
   }
 }
 

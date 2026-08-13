@@ -1,0 +1,619 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Downloads · World Downloader Studio</title>
+<meta name="description" content="Download World Downloader Studio for Windows, or read the honest reason there is nothing to download yet. Unsigned installer, automatic updates, and why this never asks for money.">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='112' fill='%230D8F4E'/%3E%3Cpolygon points='256,52 440,156 256,260 72,156' fill='%23B6FFCE'/%3E%3Cpolygon points='72,156 256,260 256,460 72,356' fill='%2362DE89'/%3E%3Cpolygon points='256,260 440,156 440,356 256,460' fill='%2322A85F'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/tokens.css">
+<link rel="stylesheet" href="assets/material.css">
+<link rel="stylesheet" href="assets/site.css">
+<script defer src="assets/site.js"></script>
+<style>
+/* Page-scoped layout only. Nothing here restyles a .wds- runtime class,
+   and every colour comes from a token. */
+.dl-panel { padding: 4px 20px 32px; min-width: 0; }
+.dl-panel h2:first-of-type { margin-top: 0; }
+.dl-hero {
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-corner-large);
+  background: var(--md-sys-color-surface-container-low);
+  padding: 20px; margin: 8px 0 20px;
+  display: flex; flex-direction: column; gap: 14px; min-width: 0;
+}
+.dl-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  min-height: 56px; padding: 0 28px; width: 100%; max-width: 460px;
+  border-radius: var(--md-sys-shape-corner-full);
+  background: var(--md-sys-color-primary); color: var(--md-sys-color-on-primary);
+  font: var(--md-sys-typescale-title-medium-weight) var(--md-sys-typescale-title-medium-size)/1 var(--md-sys-typeface-plain);
+  text-decoration: none; text-align: center; position: relative; overflow: hidden;
+}
+.dl-btn::after { content: ""; position: absolute; inset: 0; background: currentColor; opacity: 0; transition: opacity var(--md-sys-motion-duration-short2) var(--md-sys-motion-easing-standard); }
+.dl-btn:hover::after { opacity: var(--md-sys-state-hover-opacity); }
+.dl-btn:active::after { opacity: var(--md-sys-state-pressed-opacity); }
+.dl-btn:focus-visible { outline: var(--wds-focus-width) solid var(--md-sys-color-secondary); outline-offset: var(--wds-focus-offset); }
+:root[data-motion="reduced"] .dl-btn::after { transition: none; }
+.dl-meta { font-size: var(--md-sys-typescale-body-small-size); line-height: 1.6; color: var(--md-sys-color-on-surface-variant); overflow-wrap: anywhere; }
+.dl-meta dl { display: grid; grid-template-columns: auto 1fr; gap: 2px 12px; margin: 8px 0 0; }
+.dl-meta dt { color: var(--md-sys-color-on-surface); font-weight: 600; }
+.dl-meta dd { margin: 0; overflow-wrap: anywhere; }
+.dl-meta code { font-family: var(--md-sys-typeface-mono); font-size: 0.94em; }
+.dl-unsigned {
+  display: flex; gap: 8px; align-items: flex-start;
+  padding: 10px 12px; border-radius: var(--md-sys-shape-corner-medium);
+  background: var(--md-sys-color-tertiary-container); color: var(--md-sys-color-on-tertiary-container);
+  font-size: var(--md-sys-typescale-body-small-size);
+}
+.dl-none { border: 1px dashed var(--md-sys-color-outline); border-radius: var(--md-sys-shape-corner-medium); background: var(--md-sys-color-surface-container-high); padding: 16px; display: flex; flex-direction: column; gap: 8px; }
+.dl-none h3 { margin: 0; text-transform: none; letter-spacing: 0; color: var(--md-sys-color-on-surface); font-size: var(--md-sys-typescale-title-small-size); }
+.dl-none p { margin: 0; font-size: var(--md-sys-typescale-body-small-size); color: var(--md-sys-color-on-surface-variant); }
+.dl-why { font-family: var(--md-sys-typeface-mono); font-size: var(--md-sys-typescale-body-small-size); background: var(--md-sys-color-surface-container-highest); border-radius: var(--md-sys-shape-corner-small); padding: 8px 10px; overflow-wrap: anywhere; }
+.dl-assetlabel { display: flex; align-items: center; gap: 6px; }
+.dl-faq { display: flex; flex-direction: column; gap: 4px; margin: 10px 0; }
+.dl-faq > details { border: 1px solid var(--md-sys-color-outline-variant); border-radius: var(--md-sys-shape-corner-medium); padding: 10px 14px; background: var(--md-sys-color-surface-container-low); }
+.dl-faq > details > summary { cursor: pointer; font-weight: 600; }
+.dl-faq > details > p { margin: 10px 0 0; }
+.dl-free { display: flex; gap: 12px; align-items: flex-start; padding: 16px; border-radius: var(--md-sys-shape-corner-large); background: var(--md-sys-color-primary-container); color: var(--md-sys-color-on-primary-container); margin: 12px 0; }
+.dl-free b { display: block; margin-bottom: 4px; }
+.dl-fundlist { display: flex; flex-direction: column; gap: 8px; margin: 10px 0; padding: 0; list-style: none; }
+.dl-fundlist li { border: 1px solid var(--md-sys-color-outline-variant); border-radius: var(--md-sys-shape-corner-medium); padding: 10px 14px; }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to the content</a>
+
+<header class="site-appbar">
+  <div class="appbar">
+    <a class="site-brand" href="index.html">
+      <svg class="site-brand__mark" viewBox="0 0 512 512" aria-hidden="true" focusable="false"><use href="#wds-logo"></use></svg>
+      <span class="site-brand__name">World Downloader Studio</span>
+    </a>
+    <nav class="row" aria-label="Site" style="gap:2px;flex:1;min-width:0">
+      <a class="btn btn--text" href="index.html">Home</a>
+      <a class="btn btn--text" href="docs/index.html">Documentation</a>
+      <a class="btn btn--text" href="changelog.html">Changelog</a>
+      <a class="btn btn--text" href="downloads.html" aria-current="page">Downloads</a>
+      <a class="btn btn--text" href="settings.html">Settings</a>
+    </nav>
+    <div class="appbar__actions" id="appbar-actions"></div>
+  </div>
+</header>
+
+<main id="main" class="wrap wrap--wide">
+  <h1 id="page-title">Downloads</h1>
+  <p class="lede" id="page-lede">The Windows installer, when one has actually been verified — and the honest reason when it has not.</p>
+
+  <div class="wrap wrap--wide wrap--flush" style="padding:0;display:flex;min-height:56vh;align-items:stretch" id="tabhost"></div>
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer__inner">
+    <div>
+      <p><strong>World Downloader Studio</strong></p>
+      <p>Free, for everyone, with no purchase of any kind.</p>
+    </div>
+    <div>
+      <p><a href="index.html">Home</a> · <a href="docs/index.html">Documentation</a> · <a href="changelog.html">Changelog</a> · <a href="settings.html">Settings</a></p>
+      <p id="footer-privacy"></p>
+    </div>
+  </div>
+</footer>
+
+<svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <linearGradient id="wds-backdrop" x1="0" y1="0" x2="0" y2="512" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0D8F4E"></stop>
+      <stop offset="1" stop-color="#00382C"></stop>
+    </linearGradient>
+    <clipPath id="wds-topface"><polygon points="256,52 440,156 256,260 72,156"></polygon></clipPath>
+    <symbol id="wds-logo" viewBox="0 0 512 512">
+      <rect x="0" y="0" width="512" height="512" rx="112" ry="112" fill="url(#wds-backdrop)"></rect>
+      <polygon points="256,52 440,156 256,260 72,156" fill="#B6FFCE"></polygon>
+      <polygon points="72,156 256,260 256,460 72,356" fill="#62DE89"></polygon>
+      <polygon points="256,260 440,156 440,356 256,460" fill="#22A85F"></polygon>
+      <g clip-path="url(#wds-topface)" fill="#0D8F4E" fill-opacity="0.3">
+        <polygon points="346.28,100.95 162.28,204.95 165.72,211.05 349.72,107.05"></polygon>
+        <polygon points="162.28,107.05 346.28,211.05 349.72,204.95 165.72,100.95"></polygon>
+      </g>
+      <polygon points="212,104 300,104 300,268 350,268 256,394 162,268 212,268" fill="url(#wds-backdrop)"></polygon>
+    </symbol>
+  </defs>
+</svg>
+
+<script>
+Studio.ready(function (S) {
+  'use strict';
+  var el = S.el, icon = S.icon, t = S.t, clear = S.clear;
+
+  /* ================================================================
+   * 1. Copy. Five variants per language, lowest funny level first. The
+   * voice moves; the version, the byte size, the digest, the platform
+   * and the honest verified state below never do.
+   * ================================================================ */
+  function same(en, zh) { return { en: [en, en, en, en, en], zh: [zh, zh, zh, zh, zh] }; }
+
+  S.i18n.define({
+    'dl.title': same('Downloads', '下載'),
+    'dl.lede': {
+      en: [
+        'The Windows installer, once one has actually been verified. Until then, the honest reason there is nothing here yet.',
+        'The Windows installer, once one has actually been verified. Until then, the honest reason there is nothing here yet.',
+        'The Windows installer, once one has actually been verified — and until then, the honest reason there is nothing here.',
+        'The Windows installer, once one has actually been verified against its own published digest — and until then, the honest reason there is nothing here rather than a guess dressed up as a button.',
+        'The Windows installer, once one has actually been verified against its own published digest — and until then, the plain honest reason there is nothing here, rather than a button that guesses at an address and hopes.'
+      ],
+      zh: [
+        'Windows 安裝檔，一經核實就擺喺呢度。喺此之前，會照直講清楚而家點解未有。',
+        'Windows 安裝檔，一經核實就擺喺呢度。喺此之前，會照直講清楚而家點解未有。',
+        'Windows 安裝檔，一經核實就擺呢度——喺此之前，照直講點解未有。',
+        'Windows 安裝檔，要真係對得上發佈嘅雜湊值先會擺呢度——喺此之前，寧願照直講未有，都唔會擺個亂估嚟嘅掣扮有嘢俾你。',
+        'Windows 安裝檔，要真係對得上發佈嘅雜湊值先會擺呢度——喺此之前，就老老實實話你知未有，唔會擺個亂估地址嘅掣扮嘢兼碰運氣。'
+      ]
+    },
+    'dl.tabDownload': same('Download', '下載'),
+    'dl.tabAbout': same('Cost, signing and updates', '收費、簽署同更新'),
+    'dl.searchHelp': same(
+      'Searches the asset list, when there is one, and the questions below it. Plain text by default; switch on regular expressions with the control beside the field.',
+      '搜尋檔案清單（如果有）同下面嘅問答。預設純文字，撳埋隔籬個掣就可以開正規表達式。'
+    ),
+    'dl.checking': {
+      en: [
+        'Reading the release manifest.',
+        'Reading the release manifest.',
+        'Reading the release manifest from this site.',
+        'Reading the release manifest from this site, to see whether there is a verified installer to offer.',
+        'Reading the release manifest from this site, to see whether there is a verified installer to offer. It is a small file, so this is quick.'
+      ],
+      zh: [
+        '正在讀取發佈清單。',
+        '正在讀取發佈清單。',
+        '喺度睇緊呢個網站嘅發佈清單。',
+        '喺度睇緊呢個網站嘅發佈清單，睇下有冇一個已核實嘅安裝檔可以俾你。',
+        '喺度睇緊呢個網站嘅發佈清單，睇下有冇一個已核實嘅安裝檔可以俾你。個檔好細，一秒都唔使。'
+      ]
+    },
+    'dl.noneTitle': {
+      en: ['No verified release yet', 'No verified release yet', 'There is no verified release yet', 'There is no verified release yet, so there is nothing to hand you', 'There is no verified release yet, so there is honestly nothing to hand you'],
+      zh: ['暫時未有已核實嘅發佈版本', '暫時未有已核實嘅發佈版本', '而家仲未有已核實嘅發佈版本', '而家仲未有已核實嘅發佈版本，所以冇嘢可以俾你', '而家仲未有已核實嘅發佈版本，老實講，冇嘢可以俾你']
+    },
+    'dl.noneBody': {
+      en: [
+        'A download button appears here as soon as this site\'s release manifest names an installer with an immutable address and a matching digest. Until then there is nothing to click, because a button pointing at a guessed address is worse than no button.',
+        'A download button appears here as soon as this site\'s release manifest names an installer with an immutable address and a matching digest. Until then there is nothing to click, because a button pointing at a guessed address is worse than no button.',
+        'A download button turns up here the moment this site\'s release manifest names an installer with an immutable address and a matching digest. Until then there is nothing to click: a button pointing at a guessed address is worse than no button.',
+        'A download button turns up here the moment this site\'s release manifest names an installer with an immutable address and a digest that actually matched. Until then there is deliberately nothing to click, because a button pointing at a guessed address is worse than no button at all.',
+        'A download button turns up here the moment this site\'s release manifest names an installer with an immutable address and a digest that actually matched. Until then there is deliberately nothing to click. A button pointing at a guessed address that returns a 404 is worse than no button, and it is worse in the most annoying way: it works right up until you press it.'
+      ],
+      zh: [
+        '一旦呢個網站嘅發佈清單列出一個有固定網址同對得上雜湊值嘅安裝檔，下載掣就會出現。喺此之前呢度冇嘢可以㩒，因為一個亂估網址嘅掣，比冇掣仲差。',
+        '一旦呢個網站嘅發佈清單列出一個有固定網址同對得上雜湊值嘅安裝檔，下載掣就會出現。喺此之前呢度冇嘢可以㩒，因為一個亂估網址嘅掣，比冇掣仲差。',
+        '等呢個網站嘅發佈清單列出一個有固定網址同對得上雜湊值嘅安裝檔，下載掣就會即刻出現。喺此之前冇嘢俾你㩒：一個亂估網址嘅掣，比冇掣仲差。',
+        '等呢個網站嘅發佈清單列出一個有固定網址、而且雜湊值真係對得上嘅安裝檔，下載掣就會即刻出現。喺此之前係特登冇嘢俾你㩒，因為一個亂估網址嘅掣，真係比冇掣仲差。',
+        '等呢個網站嘅發佈清單列出一個有固定網址、而且雜湊值真係對得上嘅安裝檔，下載掣就會即刻出現。喺此之前係特登冇嘢俾你㩒。一個亂估網址、㩒落去 404 嘅掣最陰功：佢一路睇落去都好正常，直到你真係㩒佢嗰下。'
+      ]
+    },
+    'dl.recheck': same('Check again', '再檢查一次'),
+    'dl.buildInstead': same('Build it yourself instead', '不如自己 build 一個'),
+    'dl.otherAssets': same('Every file in this release', '呢個版本嘅所有檔案'),
+    'dl.unsignedNote': {
+      en: [
+        'This installer is unsigned. Windows will warn about an unknown publisher on first run.',
+        'This installer is unsigned. Windows will warn about an unknown publisher on first run.',
+        'This installer is unsigned. Windows will warn about an unknown publisher the first time it runs.',
+        'This installer is unsigned, on purpose: code signing is out of scope for this project. Windows will warn about an unknown publisher the first time it runs, and nothing here claims authenticity or a verified signature.',
+        'This installer is unsigned, on purpose, because code signing is deliberately out of scope for this project. Windows will warn about an unknown publisher the first time it runs, and nothing here — not this page, not the installer — claims authenticity or a verified signature.'
+      ],
+      zh: [
+        '呢個安裝檔冇簽署。Windows 第一次執行會警告「未知發行者」。',
+        '呢個安裝檔冇簽署。Windows 第一次執行會警告「未知發行者」。',
+        '呢個安裝檔冇簽署，Windows 第一次執行會警告未知發行者。',
+        '呢個安裝檔冇簽署，係特登嘅：呢個項目唔會做代碼簽署。Windows 第一次執行會警告未知發行者，呢度冇話真確性或者簽署已核實。',
+        '呢個安裝檔冇簽署，係特登嘅，因為呢個項目根本唔做代碼簽署。Windows 第一次執行會警告未知發行者，而呢度、安裝檔本身，都冇講過真確性或者簽署已核實。'
+      ]
+    }
+  });
+
+  /* ================================================================
+   * 2. release.json — the only thing this page fetches, from this
+   * same origin. It never constructs, completes or guesses a URL.
+   * ================================================================ */
+  var releaseState = { state: 'checking', why: '' };
+
+  function readManifest() {
+    return new Promise(function (resolve) {
+      if (!window.fetch) { resolve({ ok: false, why: 'This browser has no fetch, so release.json could not be read.' }); return; }
+      var settled = false;
+      var timer = window.setTimeout(function () {
+        if (settled) return; settled = true;
+        resolve({ ok: false, why: 'Reading release.json took longer than 8 seconds and was given up on.' });
+      }, 8000);
+      window.fetch('release.json', { cache: 'no-cache' }).then(function (r) {
+        if (!r.ok) throw new Error('release.json responded with HTTP ' + r.status + '.');
+        return r.json();
+      }).then(function (json) {
+        if (settled) return; settled = true; window.clearTimeout(timer);
+        resolve({ ok: true, manifest: json });
+      })['catch'](function (e) {
+        if (settled) return; settled = true; window.clearTimeout(timer);
+        var msg = (e && e.message) ? String(e.message) : String(e);
+        if (window.location.protocol === 'file:') msg += ' This page was opened from a file rather than served, and a browser refuses to read a sibling file that way.';
+        resolve({ ok: false, why: msg });
+      });
+    });
+  }
+
+  function assetOk(a) {
+    return a && a.verified === true && typeof a.url === 'string' && a.url.indexOf('https://') === 0 &&
+      typeof a.sha256 === 'string' && /^[0-9a-f]{64}$/.test(a.sha256) &&
+      typeof a.bytes === 'number' && a.bytes > 0 && typeof a.filename === 'string' && a.filename;
+  }
+
+  function validate(m) {
+    if (!m || typeof m !== 'object') return { ok: false, why: 'release.json did not parse into an object.' };
+    if (m.schemaVersion !== 1) return { ok: false, why: 'release.json declares schema version ' + JSON.stringify(m.schemaVersion) + '. This page reads version 1 and refuses to guess at anything else.' };
+    if (m.verified !== true) {
+      return { ok: false, why: typeof m.unverifiedReason === 'string' && m.unverifiedReason ? m.unverifiedReason : 'release.json is marked verified: false.' };
+    }
+    var assets = Array.isArray(m.assets) ? m.assets : [];
+    if (!assets.length) return { ok: false, why: 'release.json is marked verified but lists no assets.' };
+    var primary = null, i;
+    for (i = 0; i < assets.length; i++) { if (assets[i] && assets[i].primary) { primary = assets[i]; break; } }
+    if (!primary) primary = assets[0];
+    if (!assetOk(primary)) {
+      var missing = [];
+      if (primary.verified !== true) missing.push('its own verified: true');
+      if (typeof primary.url !== 'string' || primary.url.indexOf('https://') !== 0) missing.push('an absolute https URL');
+      if (typeof primary.sha256 !== 'string' || !/^[0-9a-f]{64}$/.test(primary.sha256)) missing.push('a 64-character lowercase sha256');
+      if (typeof primary.bytes !== 'number' || !(primary.bytes > 0)) missing.push('a positive byte size');
+      if (typeof primary.filename !== 'string' || !primary.filename) missing.push('a filename');
+      return { ok: false, why: 'The asset that would be offered is missing ' + missing.join(', ') + '.' };
+    }
+    if (!m.release || typeof m.release.version !== 'string' || !m.release.version) return { ok: false, why: 'release.json has no release version.' };
+    return { ok: true, primary: primary, assets: assets, release: m.release, signing: m.signing || {} };
+  }
+
+  function bytesLabel(n) {
+    if (n < 1024) return n + ' bytes';
+    if (n < 1024 * 1024) return (n / 1024).toFixed(1) + ' KB';
+    return (n / (1024 * 1024)).toFixed(1) + ' MB';
+  }
+  function dateLabel(iso) {
+    var d = new Date(iso);
+    if (isNaN(d.getTime())) return String(iso);
+    return d.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
+  }
+
+  /* ================================================================
+   * 3. FAQ / search index. Real, always-present content, so the
+   * required search bar has something genuine to filter regardless of
+   * whether a release has ever been published.
+   * ================================================================ */
+  var FAQ = [
+    {
+      id: 'cost', q: 'Does this ever cost anything?',
+      a: 'No. Not the installer, not a feature inside it, not a later version of it. No purchase, no licence, no subscription, no trial that lapses, no feature held behind an unlock, and no tier where the useful version is the one you have to pay for. This page will never ask you for money, and neither will the application.'
+    },
+    {
+      id: 'signed', q: 'Is the installer signed?',
+      a: 'No, deliberately. Code signing is out of scope for this project, so Windows shows an unknown-publisher or SmartScreen warning the first time you run it. Nothing on this page, and nothing in the installer, claims authenticity or a verified signature — that would be a claim this project cannot back up.'
+    },
+    {
+      id: 'updates', q: 'How do updates work?',
+      a: 'Once installed, the application checks for updates on its own over an unsigned Squirrel feed, downloads and validates the update in the background, and shows a persistent, non-blocking banner naming the new version with a Restart to install and a Later action — it never interrupts what you are doing. A manual Check for updates command exists too. Because the feed is unsigned, the update inherits the same honesty as the installer: no claim of authenticity, only a byte hash check.'
+    },
+    {
+      id: 'funding', q: 'Where does a funding link go, if there is one?',
+      a: 'To the project this one is built on, never to this fork. This project is a fork of Mirco Kroon\'s minecraft-world-downloader, so a funding link points at his GitHub Sponsors page, plainly labelled as going to him. Nothing here collects money on his behalf beyond forwarding the link, and nothing here collects money for itself.'
+    },
+    {
+      id: 'nowarn', q: 'What if there is no verified release yet?',
+      a: 'Then this page says so, in plain words, with the exact reason the release manifest gave — never a guessed download address. Build it yourself from source in the meantime, using the instructions on the documentation site, or check back once a release has actually shipped.'
+    }
+  ];
+
+  /* ================================================================
+   * 4. Panels
+   * ================================================================ */
+  var search = null, dlState = null, resultsHost = null, faqHost = null;
+
+  function currentAssetRows() {
+    return releaseState.state === 'ready' ? releaseState.assets.slice() : [];
+  }
+
+  function assetSearchText(a) {
+    return [a.label, a.filename, a.platform, a.kind, a.id].filter(Boolean).join(' ');
+  }
+
+  function renderFaq() {
+    if (!faqHost) return;
+    clear(faqHost);
+    var m = search ? search.matcher() : function () { return true; };
+    var q = search ? search.value() : '';
+    var hits = FAQ.filter(function (f) { return m(f.q + ' ' + f.a); });
+    if (q && !hits.length && !currentAssetRows().filter(function (a) { return m(assetSearchText(a)); }).length) {
+      faqHost.appendChild(el('p', { class: 'note', text: S.t('msg.noMatch') }));
+      return;
+    }
+    var wrap = el('div', { class: 'dl-faq' });
+    hits.forEach(function (f) {
+      wrap.appendChild(el('details', { open: !!q }, [
+        el('summary', { text: f.q }),
+        el('p', { text: f.a })
+      ]));
+    });
+    faqHost.appendChild(wrap);
+  }
+
+  function renderChecking() {
+    clear(dlState);
+    dlState.appendChild(el('p', { class: 'dl-meta', text: t('dl.checking') }));
+  }
+
+  function renderReady(v) {
+    clear(dlState);
+    var metaId = S.uid('dlmeta');
+    var link = el('a', {
+      class: 'dl-btn', href: v.primary.url, rel: 'noopener', 'aria-describedby': metaId, download: v.primary.filename
+    }, [icon('download', 'i--lg'), 'Download ' + (v.primary.label || 'the installer') + ' ' + v.release.version]);
+
+    var dl = el('dl');
+    function pair(k, val) { dl.appendChild(el('dt', { text: k })); dl.appendChild(el('dd', {}, val)); }
+    pair('Version', v.release.version + (v.release.codeName ? ' · ' + v.release.codeName : ''));
+    pair('Platform', v.primary.platform || 'Windows');
+    pair('File', v.primary.filename);
+    pair('Size', bytesLabel(v.primary.bytes));
+    if (v.release.publishedAt) pair('Published', dateLabel(v.release.publishedAt));
+    if (v.release.commit) pair('Built from', el('code', { text: v.release.commit }));
+    pair('SHA-256', el('code', { text: v.primary.sha256 }));
+
+    var meta = el('div', { class: 'dl-meta', id: metaId }, [
+      el('p', { text: 'The address above is the immutable release asset URL recorded in this site’s release manifest. Nothing on this page builds, completes or guesses a URL of its own.' }),
+      dl
+    ]);
+
+    var unsigned = el('p', { class: 'dl-unsigned' }, [icon('warn'), el('span', { text: v.signing.note || t('dl.unsignedNote') })]);
+
+    var notes = v.release.notesUrl
+      ? el('p', {}, el('a', { href: v.release.notesUrl, rel: 'noopener', text: 'Release notes for ' + v.release.version }))
+      : null;
+
+    S.append(dlState, [link, unsigned, meta, notes].filter(Boolean));
+    paintAssetTable();
+  }
+
+  function renderNone(why) {
+    clear(dlState);
+    var box = el('div', { class: 'dl-none' });
+    box.appendChild(el('h3', { text: t('dl.noneTitle') }));
+    box.appendChild(el('p', { text: t('dl.noneBody') }));
+    box.appendChild(el('p', { class: 'muted t-label-medium', text: 'What the manifest said:' }));
+    box.appendChild(el('p', { class: 'dl-why', text: why }));
+    box.appendChild(el('div', { class: 'row' }, [
+      el('a', { class: 'btn btn--tonal', href: 'docs/index.html' }, [icon('play'), t('dl.buildInstead')]),
+      el('button', { class: 'btn btn--text', type: 'button', onclick: function () { start(); } }, [icon('reset'), t('dl.recheck')])
+    ]));
+    box.appendChild(el('p', { class: 'muted t-body-small', text: 'Once a release does exist, it will be unsigned — see the Cost, signing and updates tab for what that means and why.' }));
+    dlState.appendChild(box);
+    paintAssetTable();
+  }
+
+  var assetTableHost = null;
+  function paintAssetTable() {
+    if (!assetTableHost) return;
+    clear(assetTableHost);
+    var rows = currentAssetRows();
+    if (!rows.length) return;
+    var m = search ? search.matcher() : function () { return true; };
+    var filtered = rows.filter(function (a) { return m(assetSearchText(a)); });
+    if (search && search.value() && !filtered.length) return;
+    var body = el('div', { class: 'dl-panel', style: { padding: '0' } }, [
+      el('h3', { text: t('dl.otherAssets') + ' (' + filtered.length + (filtered.length === rows.length ? '' : ' of ' + rows.length) + ')' }),
+      el('div', { class: 'scrollx' }, el('table', { class: 'tbl' }, [
+        el('thead', {}, el('tr', {}, ['Asset', 'Platform', 'File', 'Size', 'SHA-256', 'Verified'].map(function (h) { return el('th', { text: h }); }))),
+        el('tbody', {}, filtered.map(function (a) {
+          var ok = assetOk(a);
+          return el('tr', {}, [
+            el('td', {}, el('span', { class: 'dl-assetlabel' }, [
+              a.primary ? el('span', { class: 'chip', text: 'Primary' }) : null,
+              document.createTextNode(a.label || a.id || a.kind || 'asset')
+            ].filter(Boolean))),
+            el('td', { text: a.platform || '' }),
+            el('td', {}, ok ? el('a', { href: a.url, rel: 'noopener', text: a.filename }) : el('span', { class: 'muted', text: (a.filename || a.id || 'asset') + ' — not verified' })),
+            el('td', { text: typeof a.bytes === 'number' ? bytesLabel(a.bytes) : '—' }),
+            el('td', {}, typeof a.sha256 === 'string' && /^[0-9a-f]{64}$/.test(a.sha256) ? el('code', { text: a.sha256 }) : el('span', { class: 'muted', text: '—' })),
+            el('td', {}, el('span', { class: 'status ' + (ok ? 'status--ok' : 'status--error'), text: ok ? 'Verified' : 'Not verified' }))
+          ]);
+        }))
+      ]))
+    ]);
+    assetTableHost.appendChild(body);
+  }
+
+  function start() {
+    releaseState = { state: 'checking', why: '' };
+    renderChecking();
+    readManifest().then(function (r) {
+      if (!r.ok) { releaseState = { state: 'none', why: r.why }; renderNone(r.why); return; }
+      var v = validate(r.manifest);
+      if (!v.ok) { releaseState = { state: 'none', why: v.why }; renderNone(v.why); return; }
+      releaseState = { state: 'ready', why: '', assets: v.assets, release: v.release };
+      renderReady(v);
+    });
+  }
+
+  function panelDownload() {
+    var root = el('div', { class: 'dl-panel' });
+
+    search = S.createSearchBar({
+      label: 'Search downloads and questions', placeholder: 'Search files, platforms and questions',
+      storageKey: 'downloads', help: t('dl.searchHelp'),
+      sampleProvider: function () { return FAQ.map(function (f) { return f.q; }).join('\n'); },
+      onChange: function () { renderFaq(); paintAssetTable(); }
+    });
+
+    dlState = el('div', { id: 'download-state', role: 'status', 'aria-live': 'polite' });
+    assetTableHost = el('div');
+    faqHost = el('div');
+
+    var hero = el('div', { class: 'dl-hero', 'data-wds-akey': 'downloads:hero' }, [
+      el('h2', { text: t('dl.tabDownload') }),
+      dlState
+    ]);
+
+    root.appendChild(search.el);
+    root.appendChild(hero);
+    root.appendChild(assetTableHost);
+    root.appendChild(el('h3', { text: 'Questions people ask' }));
+    root.appendChild(faqHost);
+
+    S.appearance.enable(hero, 'downloads:hero', 'The download panel');
+    S.contextMenu(hero, function () {
+      return [
+        { label: S.t('act.openEditor') + '…', icon: 'palette', shortcut: 'Shift+Right click', run: function () { S.appearance.openEditor(hero, 'downloads:hero', 'The download panel'); } },
+        { label: S.t('locks.lockThis') + '…', icon: 'lock', run: function () { S.locks.wizard(hero, 'downloads:hero', 'The download panel'); } }
+      ];
+    }, { ariaLabel: 'Download panel menu', storageKey: 'downloads-hero' });
+
+    renderFaq();
+    start();
+    return root;
+  }
+
+  function fundRow(name, href, note) {
+    return el('li', {}, [
+      el('p', {}, [el('b', { text: name }), document.createTextNode(' — ')].concat(
+        href ? [el('a', { href: href, rel: 'noopener', text: href })] : [document.createTextNode('no link published yet')]
+      )),
+      el('p', { class: 'muted t-body-small', text: note })
+    ]);
+  }
+
+  function panelAbout() {
+    var root = el('div', { class: 'dl-panel prose' });
+    S.append(root, [
+      el('h2', { text: t('dl.tabAbout') }),
+
+      el('div', { class: 'dl-free' }, [
+        icon('info', 'i--lg'),
+        el('div', {}, [
+          el('b', { text: 'Nobody ever pays a penny to use this.' }),
+          el('span', { text: 'No purchase, no licence, no subscription, no trial that lapses, no feature held behind an unlock, no tier where the useful version costs money. This page will never ask you for money, and neither will the application.' })
+        ])
+      ]),
+
+      el('h3', { text: 'Where a funding link points' }),
+      el('p', { text: 'Where this project is built on someone else’s work, a funding link — if one exists at all — points at that upstream project, labelled plainly as going to them. Nothing here collects on their behalf beyond forwarding the link, and nothing here collects money for itself.' }),
+      el('ul', { class: 'dl-fundlist' }, [
+        fundRow('Mirco Kroon (original author of minecraft-world-downloader)', 'https://github.com/sponsors/mircokroon', 'This project is a fork of his work. Any funding link supports him, not this fork.'),
+      ]),
+      el('p', {}, ['Full credits, dependency by dependency: ', el('a', { href: 'https://github.com/Ding-Ding-Projects/minecraft-world-downloader/blob/main/CREDITS.md', rel: 'noopener', text: 'CREDITS.md' })]),
+
+      el('h3', { text: 'Signing' }),
+      el('p', { text: t('dl.unsignedNote') }),
+      el('p', { class: 'muted', text: 'This is a project-wide policy, not a missing step: no certificate is requested, purchased, or silently discovered by a later build. Every release says so in its own notes.' }),
+
+      el('h3', { text: 'Automatic updates' }),
+      el('p', { text: 'Once installed, the application checks for updates on its own over an unsigned Squirrel feed. It downloads and validates the candidate in the background without interrupting anything, then shows a persistent, non-blocking banner naming the new version with a Restart to install action and a Later action — it never forces a restart on you. A manual Check for updates command exists in the application’s own settings. This site is documentation, not the application: it has no updater of its own to demonstrate, and this paragraph describes the installed program’s real behaviour rather than something this page performs.' }),
+
+      el('h3', { text: 'No nagging, ever' }),
+      el('p', { text: 'No unsolicited dialog, banner or startup interruption ever asks for payment, a donation, a review, or a rating. A funding link, where one exists, sits quietly on a page like this one — found by someone who went looking, never pushed at someone who did not.' }),
+
+      el('h3', { text: 'Build it yourself' }),
+      el('p', {}, ['Prefer to build from source, or there is no verified release yet? The documentation site covers the build. ', el('a', { class: 'btn btn--outlined', href: 'docs/index.html' }, [icon('doc'), 'Read the documentation'])])
+    ]);
+    return root;
+  }
+
+  /* ================================================================
+   * 5. Tabs, appbar, palette
+   * ================================================================ */
+  var strip = S.tabs.create(document.getElementById('tabhost'), {
+    id: 'downloads', dock: 'left',
+    tabs: [
+      { id: 'download', labelKey: 'dl.tabDownload', icon: 'download', closable: false, keywords: 'installer windows unsigned sha256 assets', panel: panelDownload },
+      { id: 'about', labelKey: 'dl.tabAbout', icon: 'info', closable: false, keywords: 'cost free price signing updates squirrel funding donate credits', panel: panelAbout }
+    ]
+  });
+
+  function paintPageCopy() {
+    S.label(document.getElementById('page-title'), 'dl.title', 'Downloads');
+    S.label(document.getElementById('page-lede'), 'dl.lede', '');
+    document.title = S.tBoth('dl.title', 'Downloads') + ' · World Downloader Studio';
+    var fp = document.getElementById('footer-privacy');
+    clear(fp);
+    fp.appendChild(document.createTextNode(S.privacy.note));
+  }
+
+  function buildAppbarActions() {
+    var host = document.getElementById('appbar-actions');
+    clear(host);
+    var searchBtn = el('button', {
+      class: 'btn btn--icon', type: 'button', 'aria-label': 'Search downloads', title: 'Search downloads',
+      onclick: function () { strip.select('download'); window.setTimeout(function () { if (search) { search.focus(); search.el.scrollIntoView({ block: 'center' }); } }, 30); }
+    }, icon('search'));
+    var langBtn = el('button', {
+      class: 'btn btn--icon', type: 'button', 'aria-haspopup': 'menu',
+      'aria-label': t('lang.title', 'Language'), title: t('lang.title', 'Language'),
+      onclick: function () {
+        var items = [{ label: t('lang.en', 'English'), checked: S.i18n.mode() === 'en', run: function () { S.i18n.setMode('en'); } }];
+        if (!S.school.suppresses('cantonese')) items.push({ label: t('lang.zh', 'Cantonese'), checked: S.i18n.mode() === 'zh', run: function () { S.i18n.setMode('zh'); } });
+        if (!S.school.suppresses('bilingual')) items.push({ label: t('lang.both', 'Both'), checked: S.i18n.mode() === 'both', run: function () { S.i18n.setMode('both'); } });
+        S.createMenu({ anchor: langBtn, returnTo: langBtn, ariaLabel: t('lang.title', 'Language'), filterLabel: 'Filter languages', storageKey: 'appbar-language', items: items });
+      }
+    }, icon('globe'));
+    var themeBtn = el('button', {
+      class: 'btn btn--icon', type: 'button', 'aria-haspopup': 'menu',
+      'aria-label': t('theme.mode', 'Theme'), title: t('theme.mode', 'Theme'),
+      onclick: function () {
+        S.createMenu({
+          anchor: themeBtn, returnTo: themeBtn, ariaLabel: t('theme.mode', 'Theme'),
+          filterLabel: 'Filter themes', storageKey: 'appbar-theme',
+          items: [
+            { label: t('theme.light', 'Light'), checked: S.theme.mode() === 'light', run: function () { S.theme.setMode('light'); } },
+            { label: t('theme.dark', 'Dark'), checked: S.theme.mode() === 'dark', run: function () { S.theme.setMode('dark'); } },
+            { label: t('theme.system', 'Follow the system'), checked: S.theme.mode() === 'system', run: function () { S.theme.setMode('system'); } },
+            '-',
+            { label: 'Appearance settings', icon: 'palette', run: function () { window.location.href = 'settings.html'; } }
+          ]
+        });
+      }
+    }, icon('eye'));
+    var bellBtn = el('button', {
+      class: 'btn btn--icon', type: 'button', 'aria-label': t('notify.centre', 'Notifications'), title: t('notify.centre', 'Notifications'),
+      onclick: function () { S.notifications.open(bellBtn); }
+    }, icon('bell'));
+    var palBtn = el('button', {
+      class: 'btn btn--icon', type: 'button', 'aria-label': t('palette.title', 'Command palette'),
+      title: t('palette.title', 'Command palette') + ' (' + S.palette.shortcut + ')', 'aria-keyshortcuts': 'Control+Shift+F',
+      onclick: function () { S.palette.open(); }
+    }, icon('grid'));
+    S.append(host, [searchBtn, langBtn, themeBtn, bellBtn, palBtn]);
+  }
+
+  function registerPalette() {
+    var items = [
+      { id: 'downloads.page', title: S.t('dl.title', 'Downloads'), kind: 'page', keywords: 'installer windows unsigned exe setup', page: 'downloads.html' },
+      { id: 'downloads.tab.download', title: S.t('dl.tabDownload', 'Download'), subtitle: 'Downloads', kind: 'destination', tabStrip: 'downloads', tabId: 'download', target: '[data-wds-akey="downloads:hero"]', run: function () { strip.select('download'); } },
+      { id: 'downloads.tab.about', title: S.t('dl.tabAbout', 'Cost, signing and updates'), subtitle: 'Downloads', kind: 'destination', tabStrip: 'downloads', tabId: 'about', run: function () { strip.select('about'); } },
+      { id: 'downloads.recheck', title: S.t('dl.recheck', 'Check again'), kind: 'command', keywords: 'refresh manifest release', run: function () { strip.select('download'); start(); } }
+    ];
+    FAQ.forEach(function (f) {
+      items.push({ id: 'downloads.faq.' + f.id, title: f.q, subtitle: 'Downloads · question', kind: 'article', keywords: f.a, tabStrip: 'downloads', tabId: 'download', run: function () { strip.select('download'); } });
+    });
+    S.palette.register(items);
+  }
+
+  /* ================================================================
+   * 6. Go
+   * ================================================================ */
+  S.on('i18n', function () { S.i18n.apply(document.body); paintPageCopy(); buildAppbarActions(); if (dlState) { if (releaseState.state === 'none') renderNone(releaseState.why); else if (releaseState.state === 'checking') renderChecking(); } renderFaq(); });
+  paintPageCopy();
+  buildAppbarActions();
+  registerPalette();
+});
+</script>
+</body>
+</html>

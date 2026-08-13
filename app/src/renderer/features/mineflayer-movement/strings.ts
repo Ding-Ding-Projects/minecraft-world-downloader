@@ -845,6 +845,48 @@ export const MOVEMENT_STRINGS: Catalogue = {
     ],
     yue: ['要先揀一個實體嚟跟。', '要先揀一個實體嚟跟。', '先揀個實體跟先。', '先揀個目標跟住先，佢唔會估。', '先揀個目標跟住先，佢唔會估。']
   },
+  'mineflayerMovement.walk.blockedByFollow': {
+    en: [
+      'A follow is running. Stop following before starting a walk.',
+      'A follow is running. Stop following before starting a walk.',
+      'A follow is running — stop it before starting a walk.',
+      'It is busy tailing something. Stop that first, then send it walking.',
+      'It is busy tailing something. Stop that first, then send it walking.'
+    ],
+    yue: [
+      '而家跟緊嘢，要先停止跟隨先可以行走。',
+      '而家跟緊嘢，要先停止跟隨先可以行走。',
+      '而家跟緊嘢，先停咗跟隨先開到行走。',
+      '而家忙緊跟人，先停咗，再叫佢行過去。',
+      '而家忙緊跟人，先停咗，再叫佢行過去。'
+    ]
+  },
+  'mineflayerMovement.follow.blockedByWalk': {
+    en: [
+      'A walk is running. Cancel it before starting to follow.',
+      'A walk is running. Cancel it before starting to follow.',
+      'A walk is running — cancel it before starting to follow.',
+      'It is already off on a walk. Cancel that first, then set it tailing.',
+      'It is already off on a walk. Cancel that first, then set it tailing.'
+    ],
+    yue: [
+      '而家行緊路，要先取消先可以跟隨。',
+      '而家行緊路，要先取消先可以跟隨。',
+      '而家行緊路，先取消先開到跟隨。',
+      '佢已經行緊去邊度，先取消，先至叫佢去跟人。',
+      '佢已經行緊去邊度，先取消，先至叫佢去跟人。'
+    ]
+  },
+  'mineflayerMovement.look.appliedEntity': {
+    en: [
+      'Looking at {name}.',
+      'Looking at {name}.',
+      'Now looking at {name}.',
+      'Head turned to face {name}.',
+      'Head turned to face {name}.'
+    ],
+    yue: ['已望向 {name}。', '已望向 {name}。', '而家望住 {name}。', '個頭擰咗去望 {name}。', '個頭擰咗去望 {name}。']
+  },
 
   /* ---------------- preview ---------------- */
 

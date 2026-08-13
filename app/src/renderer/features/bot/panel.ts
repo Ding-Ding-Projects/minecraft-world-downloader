@@ -1061,7 +1061,7 @@ export function mountBotPanel(host: HTMLElement, deps: PanelDeps): void {
         label: ctx.t('core.action.copy', 'Copy'),
         variant: 'text',
         icon: 'copy',
-        disabled: messageSelection.size(),
+        disabled: messageSelection.length === 0,
         disabledReason: noSelection,
         onClick: () => {
           const set = new Set(messageSelection);

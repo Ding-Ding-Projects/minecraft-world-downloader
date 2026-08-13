@@ -1,0 +1,233 @@
+/**
+ * Styling for the bot-chat surface.
+ *
+ * The sixteen vanilla colours are declared as custom properties here, on
+ * `:root`, rather than baked into `format.ts` as literals. That is what keeps
+ * them reachable from the per-element appearance editor like every other
+ * colour in the application: a custom property on a real selector, not a
+ * hard-coded hex value inside a `style.color =` assignment. A red death
+ * message stays red because the server said red, not because it follows the
+ * user's seed colour — but the exact red is still something a user could
+ * repaint if they opened the editor on it.
+ */
+
+:root {
+  --mineflayer-chat-color-black: #000000;
+  --mineflayer-chat-color-dark-blue: #0000aa;
+  --mineflayer-chat-color-dark-green: #00aa00;
+  --mineflayer-chat-color-dark-aqua: #00aaaa;
+  --mineflayer-chat-color-dark-red: #aa0000;
+  --mineflayer-chat-color-dark-purple: #aa00aa;
+  --mineflayer-chat-color-gold: #ffaa00;
+  --mineflayer-chat-color-gray: #aaaaaa;
+  --mineflayer-chat-color-dark-gray: #555555;
+  --mineflayer-chat-color-blue: #5555ff;
+  --mineflayer-chat-color-green: #55ff55;
+  --mineflayer-chat-color-aqua: #55ffff;
+  --mineflayer-chat-color-red: #ff5555;
+  --mineflayer-chat-color-light-purple: #ff55ff;
+  --mineflayer-chat-color-yellow: #ffff55;
+  --mineflayer-chat-color-white: #ffffff;
+}
+
+:root[data-theme='light'] {
+  /* The palette above already reads correctly against a light surface; the
+     darkest vanilla colours (black, dark-*) are the ones the game itself
+     expects to sit on a light chat background, so nothing is swapped here. */
+}
+
+/* ------------------------------------------------------------------ */
+/* Styled runs                                                         */
+/* ------------------------------------------------------------------ */
+
+.mineflayer-chat-run {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.mineflayer-chat-color-black { color: var(--mineflayer-chat-color-black); }
+.mineflayer-chat-color-dark-blue { color: var(--mineflayer-chat-color-dark-blue); }
+.mineflayer-chat-color-dark-green { color: var(--mineflayer-chat-color-dark-green); }
+.mineflayer-chat-color-dark-aqua { color: var(--mineflayer-chat-color-dark-aqua); }
+.mineflayer-chat-color-dark-red { color: var(--mineflayer-chat-color-dark-red); }
+.mineflayer-chat-color-dark-purple { color: var(--mineflayer-chat-color-dark-purple); }
+.mineflayer-chat-color-gold { color: var(--mineflayer-chat-color-gold); }
+.mineflayer-chat-color-gray { color: var(--mineflayer-chat-color-gray); }
+.mineflayer-chat-color-dark-gray { color: var(--mineflayer-chat-color-dark-gray); }
+.mineflayer-chat-color-blue { color: var(--mineflayer-chat-color-blue); }
+.mineflayer-chat-color-green { color: var(--mineflayer-chat-color-green); }
+.mineflayer-chat-color-aqua { color: var(--mineflayer-chat-color-aqua); }
+.mineflayer-chat-color-red { color: var(--mineflayer-chat-color-red); }
+.mineflayer-chat-color-light-purple { color: var(--mineflayer-chat-color-light-purple); }
+.mineflayer-chat-color-yellow { color: var(--mineflayer-chat-color-yellow); }
+.mineflayer-chat-color-white { color: var(--mineflayer-chat-color-white); }
+
+.mineflayer-chat-bold { font-weight: 700; }
+.mineflayer-chat-italic { font-style: italic; }
+.mineflayer-chat-underline { text-decoration: underline; }
+.mineflayer-chat-strike { text-decoration: line-through; }
+.mineflayer-chat-underline.mineflayer-chat-strike { text-decoration: underline line-through; }
+
+/* Obfuscated text still carries its real words in the DOM (copy, export and a
+   screen reader all get them); the flicker is decoration only, and it backs
+   off entirely for reduced motion rather than merely slowing down. */
+.mineflayer-chat-obfuscated {
+  font-family: var(--md-sys-typeface-mono);
+  letter-spacing: 0.02em;
+  animation: mineflayer-chat-flicker 0.6s steps(2) infinite;
+}
+.mineflayer-chat-obfuscated-still {
+  animation: none;
+  text-decoration: underline dotted;
+  text-decoration-color: var(--md-sys-color-outline);
+}
+@keyframes mineflayer-chat-flicker {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
+}
+
+/* ------------------------------------------------------------------ */
+/* Shared layout                                                       */
+/* ------------------------------------------------------------------ */
+
+.mineflayer-chat-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-4);
+  padding: var(--md-space-4);
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+.mineflayer-chat-status {
+  display: flex;
+  align-items: center;
+  gap: var(--md-space-3);
+  padding: var(--md-space-3) var(--md-space-4);
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: var(--md-sys-color-surface-container);
+}
+.mineflayer-chat-status--bad {
+  background: var(--md-sys-color-error-container);
+  color: var(--md-sys-color-on-error-container);
+}
+.mineflayer-chat-status--good {
+  background: var(--md-sys-color-success-container);
+  color: var(--md-sys-color-on-success-container);
+}
+
+.mineflayer-chat-channels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-space-2);
+}
+
+.mineflayer-chat-dropped {
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.mineflayer-chat-table-wrap {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.mineflayer-chat-bulkbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--md-space-2);
+  padding: var(--md-space-2) var(--md-space-3);
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: var(--md-sys-color-secondary-container);
+  color: var(--md-sys-color-on-secondary-container);
+}
+
+.mineflayer-chat-composer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-3);
+  padding: var(--md-space-4);
+  border-radius: var(--md-sys-shape-corner-large);
+  background: var(--md-sys-color-surface-container-low);
+}
+.mineflayer-chat-composer__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--md-space-3);
+}
+.mineflayer-chat-composer__row > * {
+  flex: 1 1 220px;
+  min-width: 0;
+}
+.mineflayer-chat-composer__meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--md-space-2);
+  color: var(--md-sys-color-on-surface-variant);
+}
+.mineflayer-chat-composer__warning {
+  padding: var(--md-space-2) var(--md-space-3);
+  border-radius: var(--md-sys-shape-corner-small);
+  background: var(--md-sys-color-error-container);
+  color: var(--md-sys-color-on-error-container);
+}
+
+.mineflayer-chat-rule-editor {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-3);
+  max-width: min(560px, 90vw);
+}
+.mineflayer-chat-rule-editor__flags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-space-3);
+}
+.mineflayer-chat-rule-editor__channels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-space-3);
+}
+.mineflayer-chat-rule-editor__will-do {
+  padding: var(--md-space-3);
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: var(--md-sys-color-surface-container);
+}
+.mineflayer-chat-rule-editor__speak-warning {
+  padding: var(--md-space-2) var(--md-space-3);
+  border-radius: var(--md-sys-shape-corner-small);
+  background: var(--md-sys-color-tertiary-container);
+  color: var(--md-sys-color-on-tertiary-container);
+}
+
+.mineflayer-chat-server-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--md-space-4);
+  max-width: 100%;
+}
+.mineflayer-chat-server-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-2);
+}
+.mineflayer-chat-server-card__title {
+  font-family: inherit;
+}
+.mineflayer-chat-bossbar__meta,
+.mineflayer-chat-team__meta,
+.mineflayer-chat-scoreboard__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-space-2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mineflayer-chat-obfuscated {
+    animation: none;
+    text-decoration: underline dotted;
+    text-decoration-color: var(--md-sys-color-outline);
+  }
+}

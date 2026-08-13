@@ -1,0 +1,197 @@
+/**
+ * Movement surface styling.
+ *
+ * Every value comes from a design-system token; nothing here is a literal
+ * colour, radius or duration. Wide content (the log table, the coordinate row)
+ * scrolls inside its own container rather than the panel itself scrolling
+ * sideways.
+ */
+
+.mineflayerMovement-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-4);
+  padding: var(--md-space-4);
+  max-width: 960px;
+}
+
+.mineflayerMovement-banner {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-2);
+  padding: var(--md-space-4);
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: var(--md-sys-color-surface-container);
+  color: var(--md-sys-color-on-surface);
+}
+
+.mineflayerMovement-banner--connected {
+  background: var(--md-sys-color-tertiary-container);
+  color: var(--md-sys-color-on-tertiary-container);
+}
+
+.mineflayerMovement-banner__searched {
+  margin: 0;
+  padding-left: var(--md-space-5);
+}
+
+.mineflayerMovement-card {
+  padding: var(--md-space-4);
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: var(--md-sys-color-surface-container-low);
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-3);
+}
+
+.mineflayerMovement-readout {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--md-space-3);
+}
+
+.mineflayerMovement-readout__item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-1);
+}
+
+.mineflayerMovement-readout__label {
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.mineflayerMovement-readout__value {
+  color: var(--md-sys-color-on-surface);
+}
+
+/* ---------------- the pad ---------------- */
+
+.mineflayerMovement-pad {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-space-6);
+  align-items: flex-start;
+  border-radius: var(--md-sys-shape-corner-medium);
+  outline-offset: 2px;
+}
+
+.mineflayerMovement-pad__directional {
+  display: grid;
+  grid-template-columns: repeat(3, var(--md-comp-touch-target));
+  grid-template-rows: repeat(2, var(--md-comp-touch-target));
+  gap: var(--md-space-2);
+}
+
+.mineflayerMovement-pad__forward {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.mineflayerMovement-pad__left {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+.mineflayerMovement-pad__back {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+.mineflayerMovement-pad__right {
+  grid-column: 3;
+  grid-row: 2;
+}
+
+.mineflayerMovement-pad__modifiers {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-2);
+}
+
+.mineflayerMovement-control--held {
+  background: var(--md-sys-color-primary);
+  color: var(--md-sys-color-on-primary);
+}
+
+.mineflayerMovement-pad__hint {
+  flex-basis: 100%;
+  color: var(--md-sys-color-on-surface-variant);
+  margin: 0;
+}
+
+/* ---------------- coordinate rows ---------------- */
+
+.mineflayerMovement-coords {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-space-3);
+  overflow-x: auto;
+}
+
+.mineflayerMovement-coords__field {
+  min-width: 120px;
+  flex: 1 1 120px;
+}
+
+.mineflayerMovement-coords__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-space-2);
+}
+
+.mineflayerMovement-coords__status {
+  margin: 0;
+  color: var(--md-sys-color-error);
+  min-height: 1.2em;
+}
+
+/* ---------------- preview ---------------- */
+
+.mineflayerMovement-preview {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.mineflayerMovement-preview__svg {
+  width: 100%;
+  height: auto;
+  max-width: 480px;
+  display: block;
+}
+
+.mineflayerMovement-preview__legend {
+  margin: 0;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+/* ---------------- the log ---------------- */
+
+.mineflayerMovement-log {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-3);
+}
+
+.mineflayerMovement-log__bulk {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-space-2);
+  align-items: center;
+}
+
+.mineflayerMovement-log__status {
+  margin: 0;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.mineflayerMovement-log__table {
+  overflow-x: auto;
+}
+
+/* ---------------- narrow widths ---------------- */
+
+@media (max-width: 480px) {
+  .mineflayerMovement-pad {
+    gap: var(--md-space-4);
+  }
+}

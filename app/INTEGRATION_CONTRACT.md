@@ -889,6 +889,13 @@ npm run build                                 # main + preload + renderer
 npm run dev                                   # run it
 ```
 
+**Type-check against `tsconfig.web.json`, never against `tsconfig.json`.**
+`tsconfig.json` is a solution-style root: it holds `"files": []` and two
+references, so `tsc --noEmit -p tsconfig.json` compiles an empty program and
+**exits 0 on code that does not compile**. It is a green tick that checked
+nothing. Use `tsconfig.web.json` for renderer and feature code,
+`tsconfig.node.json` for main and preload, or `npm run typecheck` for both.
+
 `npm run dist` packages the Windows installer with electron-builder, target
 `squirrel`. Code signing is permanently out of scope: never add a certificate, a
 signing key or a signing step anywhere.

@@ -1789,5 +1789,25 @@ export const DOWNLOADER_STRINGS: Catalogue = {
   'downloader.options.reset': t3(
     ['Every launch option is back at its default.', 'Every launch option is back at its default.', 'Every option is back at its default.'],
     ['全部啟動選項已還原預設。', '全部啟動選項已還原預設。', '全部選項打返晒回原位。']
+  ),
+  'downloader.option.changed': t3(
+    ['Changed from default', 'Changed from default', 'Not the default anymore'],
+    ['同預設值唔同', '同預設值唔同', '同原本個預設唔同咗']
+  ),
+  'downloader.log.copyFailed': t3(
+    ['The clipboard refused the copy: {reason}', 'The clipboard refused the copy: {reason}', 'The clipboard would not take it: {reason}'],
+    ['剪貼簿拒絕咗：{reason}', '剪貼簿拒絕咗：{reason}', '剪貼簿唔收：{reason}']
+  ),
+  'downloader.log.needsSelection': t3(
+    ['Select at least one line first.', 'Select at least one line first.', 'Pick at least one line first.'],
+    ['要先至少揀一行。', '要先至少揀一行。', '起碼揀一行先啦。']
+  ),
+  'downloader.search.versions': t3(
+    ['Search the supported versions', 'Search the supported versions', 'Search the versions it knows'],
+    ['搜尋支援嘅版本', '搜尋支援嘅版本', '搵下佢識嘅版本']
+  ),
+  'downloader.action.applyPreset': t3(
+    ['Apply the preset', 'Apply the preset', 'Use this preset'],
+    ['套用預設', '套用預設', '用返呢個預設']
   )
 };

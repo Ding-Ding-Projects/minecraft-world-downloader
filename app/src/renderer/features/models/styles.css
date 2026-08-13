@@ -1,0 +1,302 @@
+/*
+ * The local model suite manager.
+ *
+ * Every colour, radius, spacing and duration comes from the Material Design 3
+ * tokens rather than a literal, so a seed-colour change, a density change or a
+ * contrast change reaches this feature without editing it. Wide content (the
+ * inventory tables, the harness argument preview) scrolls inside its own
+ * container so the panel itself never scrolls sideways, and nothing here is
+ * sized in a way that clips at 200% display scale or under the longest
+ * bilingual label.
+ */
+
+.models-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-4);
+  padding: var(--md-space-4);
+  max-inline-size: 100%;
+  box-sizing: border-box;
+}
+
+.models-panel__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--md-space-2);
+}
+
+.models-panel__toolbar > * {
+  min-inline-size: 0;
+}
+
+.models-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-3);
+  padding: var(--md-space-4);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-corner-large);
+  background: var(--md-sys-color-surface-container-low);
+}
+
+.models-section--bad {
+  border-color: var(--md-sys-color-error);
+}
+
+.models-section--bad .md-typescale-body-medium,
+.models-section--bad .md-typescale-title-medium {
+  color: var(--md-sys-color-error);
+}
+
+.models-scroll {
+  overflow-x: auto;
+  max-inline-size: 100%;
+}
+
+.models-muted {
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.models-evidence {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-1);
+}
+
+.models-evidence__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-space-2);
+  padding-block: var(--md-space-1);
+  border-block-end: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.models-evidence__row:last-child {
+  border-block-end: none;
+}
+
+.models-evidence__label {
+  min-inline-size: 12rem;
+  font-weight: var(--md-sys-typescale-weight);
+}
+
+.models-evidence__approx::after {
+  content: ' *';
+  color: var(--md-sys-color-tertiary);
+}
+
+.models-gaps {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-1);
+  padding: var(--md-space-3);
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: var(--md-sys-color-surface-container);
+}
+
+.models-fit-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--md-space-1);
+  padding-inline: var(--md-space-2);
+  padding-block: 2px;
+  border-radius: var(--md-sys-shape-corner-full);
+  font: inherit;
+  font-size: var(--md-sys-typescale-label-medium-size);
+}
+
+.models-fit-chip--well {
+  background: var(--md-sys-color-success-container);
+  color: var(--md-sys-color-on-success-container);
+}
+
+.models-fit-chip--limits {
+  background: var(--md-sys-color-warning-container);
+  color: var(--md-sys-color-on-warning-container);
+}
+
+.models-fit-chip--unlikely {
+  background: var(--md-sys-color-error-container);
+  color: var(--md-sys-color-on-error-container);
+}
+
+.models-fit-chip--unknown {
+  background: var(--md-sys-color-surface-variant);
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.models-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-space-3);
+}
+
+.models-filters > * {
+  flex: 1 1 12rem;
+  min-inline-size: 0;
+}
+
+.models-reasoning {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-1);
+  padding-inline-start: var(--md-space-4);
+  margin: 0;
+}
+
+.models-two-pane {
+  display: flex;
+  gap: var(--md-space-4);
+  align-items: stretch;
+  min-block-size: 24rem;
+}
+
+.models-two-pane__list {
+  flex: 0 1 20rem;
+  min-inline-size: 12rem;
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-2);
+}
+
+.models-two-pane__main {
+  flex: 1 1 auto;
+  min-inline-size: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-3);
+}
+
+@media (max-width: 720px) {
+  .models-two-pane {
+    flex-direction: column;
+  }
+
+  .models-two-pane__list {
+    flex: 1 1 auto;
+    max-block-size: 16rem;
+    overflow-y: auto;
+  }
+}
+
+.models-chat-log {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-3);
+  padding: var(--md-space-3);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-corner-large);
+  background: var(--md-sys-color-surface-container-lowest);
+  overflow-y: auto;
+  min-block-size: 16rem;
+  max-block-size: 32rem;
+}
+
+.models-chat-bubble {
+  max-inline-size: 42rem;
+  padding: var(--md-space-3);
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: var(--md-sys-color-surface-container-high);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.models-chat-bubble--user {
+  align-self: flex-end;
+  background: var(--md-sys-color-primary-container);
+  color: var(--md-sys-color-on-primary-container);
+}
+
+.models-chat-bubble--error {
+  border: 1px solid var(--md-sys-color-error);
+}
+
+.models-chat-log {
+  display: flex;
+}
+
+.models-chat-stats {
+  margin-block-start: var(--md-space-1);
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.models-chat-input {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-2);
+}
+
+.models-chat-input__row {
+  display: flex;
+  gap: var(--md-space-2);
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+.models-chat-input__row > .md-field {
+  flex: 1 1 20rem;
+}
+
+.models-attachments {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-space-2);
+}
+
+.models-harness-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-3);
+  max-block-size: 60vh;
+  overflow-y: auto;
+  padding-inline-end: var(--md-space-2);
+}
+
+.models-harness-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-space-2);
+  align-items: flex-end;
+  padding: var(--md-space-2);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-corner-medium);
+}
+
+.models-harness-row > * {
+  flex: 1 1 10rem;
+  min-inline-size: 0;
+}
+
+.models-preview {
+  font-family: var(--md-sys-typeface-mono);
+  font-size: var(--md-sys-typescale-body-small-size);
+  padding: var(--md-space-3);
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: var(--md-sys-color-surface-container);
+  overflow-x: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.models-check-row {
+  display: flex;
+  gap: var(--md-space-2);
+  align-items: flex-start;
+  padding-block: var(--md-space-1);
+}
+
+.models-check-row__status {
+  flex: 0 0 auto;
+}
+
+.models-check-row__body {
+  flex: 1 1 auto;
+  min-inline-size: 0;
+}
+
+@media (min-width: 100%) {
+  .models-panel {
+    inline-size: 100%;
+  }
+}

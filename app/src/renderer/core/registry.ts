@@ -30,6 +30,24 @@ class RegistryImpl implements Registry {
   private readonly sectionIds = new Set<string>();
   private isReady = false;
 
+  /**
+   * Registers a feature module, or rejects it whole.
+   *
+   * Registration is all-or-nothing. Every check runs against staging maps first
+   * and the live indexes are only written once the module has passed all of
+   * them, so a module that is refused leaves the registry exactly as it found
+   * it.
+   *
+   * That matters because features are written independently and the likeliest
+   * integration failure is two of them inventing the same id. Validating as it
+   * mutated would let a module that is refused for one duplicate setting id
+   * still leave its tabs live in the strip — a tab belonging to a module that
+   * `modules()` does not list, whose copy catalogue was never registered, so it
+   * renders raw i18n keys — and would leave the section and setting ids it had
+   * already claimed behind, refusing the next, innocent feature that used one
+   * of them. One collision would become a corrupted strip plus an unrelated
+   * lane rejected for a clash it did not cause.
+   */
   register(module: FeatureModule): void {
     if (!module || typeof module !== 'object') {
       throw new Error('A feature module must be an object.');
@@ -43,25 +61,30 @@ class RegistryImpl implements Registry {
       );
     }
 
+    // Staged, not committed. Nothing below touches the live indexes.
+    const stagedTabs = new Map<string, TabDefinition>();
+    const stagedSections = new Set<string>();
+    const stagedSettings = new Map<string, SettingControl>();
+
     for (const tab of module.tabs ?? []) {
-      if (this.tabIndex.has(tab.id)) {
+      if (this.tabIndex.has(tab.id) || stagedTabs.has(tab.id)) {
         throw new Error(`Two features register the tab id "${tab.id}" (the second is "${module.id}").`);
       }
       if (typeof tab.mount !== 'function') {
         throw new Error(`The tab "${tab.id}" in feature "${module.id}" has no mount function.`);
       }
-      this.tabIndex.set(tab.id, tab);
+      stagedTabs.set(tab.id, tab);
     }
 
     for (const section of module.settings ?? []) {
-      if (this.sectionIds.has(section.id)) {
+      if (this.sectionIds.has(section.id) || stagedSections.has(section.id)) {
         throw new Error(
           `Two features register the settings section "${section.id}" (the second is "${module.id}").`
         );
       }
-      this.sectionIds.add(section.id);
+      stagedSections.add(section.id);
       for (const control of section.controls) {
-        if (this.settingIndex.has(control.id)) {
+        if (this.settingIndex.has(control.id) || stagedSettings.has(control.id)) {
           throw new Error(
             `Two settings claim the id "${control.id}". A setting id is stable and unique across the whole application.`
           );
@@ -75,10 +98,14 @@ class RegistryImpl implements Registry {
         if (control.kind === 'select' && (!control.options || control.options.length === 0)) {
           throw new Error(`The select setting "${control.id}" has no options.`);
         }
-        this.settingIndex.set(control.id, control);
+        stagedSettings.set(control.id, control);
       }
     }
 
+    // Every check passed. Commit.
+    for (const [id, tab] of stagedTabs) this.tabIndex.set(id, tab);
+    for (const id of stagedSections) this.sectionIds.add(id);
+    for (const [id, control] of stagedSettings) this.settingIndex.set(id, control);
     this.byId.set(module.id, module);
   }
 

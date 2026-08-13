@@ -442,6 +442,38 @@ const CORE: Catalogue = {
   'core.state.emptyTitle': entry(ladder('Nothing here yet'), ladder('暫時乜都冇')),
   'core.feature.initFailed.title': entry(ladder('A feature did not start'), ladder('有個功能開唔到')),
   'core.feature.initFailed.body': entry(ladder('{id} reported: {message}'), ladder('{id} 話：{message}')),
+  'core.feature.registerFailed.title': entry(
+    ladder(
+      'A feature did not load',
+      'A feature did not load',
+      'One feature never made it in',
+      'One feature never made it through the door',
+      'One feature never made it through the door'
+    ),
+    ladder(
+      '有個功能載入唔到',
+      '有個功能載入唔到',
+      '有個功能入唔到嚟',
+      '有個功能連門口都入唔到',
+      '有個功能連門口都入唔到'
+    )
+  ),
+  'core.feature.registerFailed.body': entry(
+    ladder(
+      '{path} was skipped: {reason} Nothing else was changed, and the rest of the application is unaffected.',
+      '{path} was skipped: {reason} Nothing else was changed, and the rest of the application is unaffected.',
+      '{path} was skipped: {reason} Nothing else changed; everything else still works.',
+      '{path} got left on the doorstep: {reason} Nothing else was touched, and the rest of the application carries on regardless.',
+      '{path} got left on the doorstep: {reason} Nothing else was touched, and the rest of the application carries on regardless.'
+    ),
+    ladder(
+      '{path} 跳過咗：{reason} 其他嘢一律冇改動，應用程式其餘部分照常運作。',
+      '{path} 跳過咗：{reason} 其他嘢一律冇改動，應用程式其餘部分照常運作。',
+      '{path} 跳過咗：{reason} 其他嘢冇郁過，第啲功能照用得。',
+      '{path} 俾人擱喺門口：{reason} 其他嘢一啲都冇郁過，應用程式其餘部分照樣運作。',
+      '{path} 俾人擱喺門口：{reason} 其他嘢一啲都冇郁過，應用程式其餘部分照樣運作。'
+    )
+  ),
 
   /* --- home --- */
   'core.home.title': entry(ladder('Overview'), ladder('概覽')),

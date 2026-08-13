@@ -245,6 +245,8 @@ export class ModelsState {
   installed: InstalledModel[] = [];
   running: RunningModel[] = [];
   installedError: string | null = null;
+  /** When the installed list was last read successfully. Survives a later failure. */
+  installedReadAt: string | null = null;
   /** Extra metadata read from the runtime's own show endpoint, per reference. */
   readonly detail = new Map<string, { capabilities: string[]; contextLength: number | null; family: string | null }>();
 
@@ -394,6 +396,7 @@ export class ModelsState {
     if (tags.ok) {
       this.installed = tags.value;
       this.installedError = null;
+      this.installedReadAt = nowIso();
     } else {
       this.installedError = tags.error;
     }

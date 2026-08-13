@@ -82,15 +82,19 @@ const CATEGORY_OF = {
   'auto-open-containers': 'downloading',
 
   'live-map': 'maps',
+  'map': 'maps',
   'bluemap': 'maps',
   'ported-features': 'maps',
 
   'scraper-bot': 'automation',
   'chat-auto-reply': 'automation',
+  'mineflayer-movement': 'automation',
 
   'web-console': 'servers',
   'desktop-manager': 'servers',
   'deployment-ci': 'servers',
+  'console': 'servers',
+  'server': 'servers',
 
   'language': 'language',
   'vocabulary': 'language',
@@ -113,6 +117,9 @@ const CATEGORY_OF = {
 
   'locks': 'locks',
   'support-tickets': 'locks',
+  'authenticator': 'locks',
+  'external-editor': 'records',
+  'updates': 'records',
 
   'dim-sum': 'delight'
 }
@@ -125,9 +132,13 @@ const PREREQ_OF = {
   'extended-render-distance': 'world-download',
   'auto-open-containers': 'world-download',
   'disconnect-diagnostics': 'world-download',
+  'map': 'live-map',
   'bluemap': 'live-map',
   'ported-features': 'live-map',
   'chat-auto-reply': 'scraper-bot',
+  'mineflayer-movement': 'scraper-bot',
+  'console': 'web-console',
+  'server': 'deployment-ci',
   'scheduled-settings': 'settings',
   'vocabulary': 'language',
   'school-mode': 'language',
@@ -140,7 +151,9 @@ const PREREQ_OF = {
   'export': 'history',
   'notification-centre': 'settings',
   'docs-browser': 'settings',
-  'deployment-ci': 'web-console'
+  'deployment-ci': 'web-console',
+  'external-editor': 'export',
+  'authenticator': 'locks'
 }
 
 const NEXT_OF = {
@@ -149,14 +162,19 @@ const NEXT_OF = {
   'extended-render-distance': 'live-map',
   'disconnect-diagnostics': 'protocol-versions',
   'auto-open-containers': 'scraper-bot',
-  'live-map': 'bluemap',
+  'live-map': 'map',
+  'map': 'bluemap',
   'bluemap': 'ported-features',
   'ported-features': 'web-console',
   'scraper-bot': 'chat-auto-reply',
-  'chat-auto-reply': 'web-console',
-  'web-console': 'desktop-manager',
+  'chat-auto-reply': 'mineflayer-movement',
+  'mineflayer-movement': 'web-console',
+  'web-console': 'console',
+  'console': 'server',
+  'server': 'desktop-manager',
   'desktop-manager': 'settings',
   'deployment-ci': 'changelog',
+  'updates': 'changelog',
   'language': 'vocabulary',
   'vocabulary': 'school-mode',
   'school-mode': 'narrator',
@@ -172,9 +190,11 @@ const NEXT_OF = {
   'changelog': 'docs-browser',
   'notification-centre': 'history',
   'docs-browser': 'export',
-  'locks': 'support-tickets',
+  'locks': 'authenticator',
+  'authenticator': 'support-tickets',
   'support-tickets': 'history',
-  'dim-sum': 'language'
+  'dim-sum': 'language',
+  'external-editor': 'history'
 }
 
 /* --------------------------------------------------------------------------
@@ -244,7 +264,7 @@ function rewriteTarget(slug, target, isImage) {
 
   const m = clean.match(/^([A-Za-z0-9._-]+)\.md(#.*)?$/)
   if (m) {
-    const target Slug = m[1]
+    const targetSlug = m[1]
     if (knownSlugs.has(targetSlug)) return '#/' + targetSlug
   }
 

@@ -636,5 +636,115 @@ export const MODELS_STRINGS: Catalogue = {
   'models.notice.enriched': entry(
     ladder('{enriched} manifests read, {failed} refused.'),
     ladder('讀咗 {enriched} 份資訊，有 {failed} 份被拒。')
-  )
+  ),
+
+  /* ---------------- details dialog ---------------- */
+
+  'models.details.format': entry(ladder('Format'), ladder('格式')),
+  'models.details.digest': entry(ladder('Digest'), ladder('摘要值')),
+  'models.details.verifiedAt': entry(ladder('Metadata last verified'), ladder('資料最後驗證')),
+  'models.details.readManifest': entry(ladder('Read this manifest'), ladder('讀取呢份資訊')),
+
+  /* ---------------- confirmations ---------------- */
+
+  'models.confirm.deleteAction': entry(
+    ladder('Delete {count} local model(s)'),
+    ladder('刪除 {count} 個本機模型')
+  ),
+  'models.confirm.deleteIrreversible': entry(
+    ladder(
+      'Every selected model is removed from the local runtime and its weights are deleted from disk. A retained pull-queue record for it stays, and re-adding it downloads it again from the catalog source.'
+    ),
+    ladder(
+      '每個揀咗嘅模型都會由本機執行環境移除，權重檔案亦都會由磁碟刪走。落載隊列入面舊有紀錄會留低，再加返個模型會由目錄來源重新落載。'
+    )
+  ),
+  'models.confirm.removeQueueAction': entry(
+    ladder('Remove {count} pull queue item(s)'),
+    ladder('移除 {count} 項落載隊列')
+  ),
+  'models.confirm.removeQueue': entry(
+    ladder('The record is deleted from the queue. Any layers already fetched stay on disk; add the model again to resume from them.'),
+    ladder('隊列入面嘅紀錄會刪走。已經攞到嘅層仍然留喺磁碟，再加返個模型就會由嗰度續落去。')
+  ),
+  'models.confirm.removeQueueRunning': entry(
+    ladder(
+      'A running item is stopped immediately and its record is deleted. Any layers already fetched stay on disk, but the queue no longer tracks or resumes them.'
+    ),
+    ladder('行緊嗰項會即刻停低，紀錄亦都刪走。已經攞到嘅層仍然留喺磁碟，但隊列唔會再追蹤或者續落去。')
+  ),
+  'models.confirm.cancelledCount': entry(ladder('{count} item(s) were cancelled.'), ladder('取消咗 {count} 項。')),
+  'models.confirm.retriedCount': entry(ladder('{count} item(s) were returned to the queue.'), ladder('{count} 項放返入隊列。')),
+  'models.confirm.deleteSessionsAction': entry(
+    ladder('Delete {count} chat session(s)'),
+    ladder('刪除 {count} 個對話')
+  ),
+  'models.confirm.deleteSessionsIrreversible': entry(
+    ladder('Every message in the deleted sessions is removed from local storage. The model runtime is not touched.'),
+    ladder('刪走嗰啲對話入面嘅每一句訊息都會由本機儲存移除。模型執行環境唔會受影響。')
+  ),
+  'models.confirm.deleteProfilesAction': entry(
+    ladder('Delete {count} harness profile(s)'),
+    ladder('刪除 {count} 個啟動設定檔')
+  ),
+  'models.confirm.deleteProfilesIrreversible': entry(
+    ladder('The profiles are removed. Their launch snapshots stay in the snapshot list below and can still be restored into a new profile.'),
+    ladder('呢啲設定檔會刪走。佢哋嘅啟動快照仍然留喺下面嘅快照清單，可以還原做一個新設定檔。')
+  ),
+  'models.confirm.restoreAction': entry(
+    ladder('Restore the snapshot of {name} taken at {time}'),
+    ladder('還原 {name} 喺 {time} 拍嘅快照')
+  ),
+  'models.confirm.restoreIrreversible': entry(
+    ladder(
+      'The profile’s current fields are replaced by the snapshot. The state being replaced is itself kept as a new snapshot, so this can be undone the same way.'
+    ),
+    ladder('設定檔而家嘅內容會被快照取代。俾取代嘅狀態本身都會存做一個新快照，所以呢個動作一樣可以還原返轉頭。')
+  ),
+
+  /* ---------------- hardware probe dialog ---------------- */
+
+  'models.probe.disabledReason': entry(
+    ladder('Turn on the measurement helper in Settings › Local models first.'),
+    ladder('請先喺「設定 › 本機模型」開啟量度小工具。')
+  ),
+
+  /* ---------------- chat, extra ---------------- */
+
+  'models.chat.titleField': entry(ladder('Title'), ladder('標題')),
+
+  /* ---------------- store, extra ---------------- */
+
+  'models.store.groupHint': entry(
+    ladder('Sorts the inventory so variants from the same repository sit next to each other.'),
+    ladder('將庫存排序，令同一個倉庫嘅版本擺埋一齊。')
+  ),
+
+  /* ---------------- harness editor ---------------- */
+
+  'models.harness.nameField': entry(ladder('Name'), ladder('名稱')),
+  'models.harness.descriptionField': entry(ladder('Description'), ladder('描述')),
+  'models.harness.chooseAtLaunch': entry(ladder('Choose at launch'), ladder('啟動嗰陣先揀')),
+  'models.harness.ports.hint': entry(ladder('Comma-separated port numbers'), ladder('用逗號分隔嘅連接埠號碼')),
+  'models.harness.files.hint': entry(ladder('Comma-separated relative file names'), ladder('用逗號分隔嘅相對檔案名')),
+  'models.harness.detectScripts': entry(ladder('Detect npm scripts'), ladder('偵測 npm scripts')),
+  'models.harness.scriptsField': entry(ladder('Script'), ladder('Script')),
+  'models.harness.addArg': entry(ladder('Add an argument'), ladder('加一個引數')),
+  'models.harness.removeArg': entry(ladder('Remove this argument'), ladder('移走呢個引數')),
+  'models.harness.argKind': entry(ladder('Argument kind'), ladder('引數種類')),
+  'models.harness.argKind.literal': entry(ladder('Literal text'), ladder('原文字')),
+  'models.harness.argKind.path': entry(ladder('Path (browse)'), ladder('路徑（用揀選器）')),
+  'models.harness.argKind.number': entry(ladder('Number'), ladder('數字')),
+  'models.harness.argKind.model': entry(ladder('The chosen model'), ladder('揀咗嘅模型')),
+  'models.harness.argKind.runtimeUrl': entry(ladder('The runtime address'), ladder('執行環境地址')),
+  'models.harness.addEnv': entry(ladder('Add an environment entry'), ladder('加一個環境變數')),
+  'models.harness.removeEnv': entry(ladder('Remove this entry'), ladder('移走呢項')),
+  'models.harness.envKey': entry(ladder('Key'), ladder('鍵名')),
+  'models.harness.envSource': entry(ladder('Where the value comes from'), ladder('個值嚟自邊度')),
+  'models.harness.envSource.literal': entry(ladder('A literal value'), ladder('一個原文值')),
+  'models.harness.envSource.vault': entry(ladder('An operating system vault account'), ladder('一個作業系統保險庫帳戶')),
+  'models.harness.envValue': entry(ladder('Value'), ladder('值')),
+  'models.harness.check.pass': entry(ladder('Passed'), ladder('過關')),
+  'models.harness.check.blocked': entry(ladder('Blocked'), ladder('卡住咗')),
+  'models.harness.check.unchecked': entry(ladder('Not checked'), ladder('未檢查'))
 };

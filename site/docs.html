@@ -1,0 +1,708 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Documentation · World Downloader Studio</title>
+<meta name="description" content="Every World Downloader Studio feature, one article each: behaviour, configuration, failure modes, security and verification. Searchable and tabbed, bundled locally with no network request.">
+<meta name="color-scheme" content="light dark">
+<link rel="stylesheet" href="assets/tokens.css">
+<link rel="stylesheet" href="assets/material.css">
+<link rel="stylesheet" href="assets/site.css">
+<script defer src="assets/articles.js"></script>
+<script defer src="assets/site.js"></script>
+<style>
+/* ==================================================================
+ * Page-scoped layout only. Nothing here restyles a .wds- runtime
+ * class, and every colour comes from a token -- there is not one
+ * literal colour value in this block, so both themes and a visitor's
+ * own seed colour reach it without a second definition.
+ * ================================================================== */
+.doc-host {
+  display: flex; min-height: 68vh; min-width: 0;
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-corner-large);
+  overflow: hidden;
+  background: var(--md-sys-color-surface);
+}
+.doc-panel { padding: 20px; display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+.doc-meta { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; }
+.doc-meta__item { display: inline-flex; align-items: center; gap: 4px; }
+.doc-article { min-width: 0; }
+.doc-article h2:first-child { margin-top: 0; }
+.doc-summary { font-size: var(--md-sys-typescale-body-large-size); }
+.doc-contents {
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: var(--md-sys-color-surface-container-low);
+  padding: 12px 16px;
+}
+.doc-contents h3 { margin: 0 0 6px; text-transform: none; letter-spacing: 0; }
+.doc-contents__list { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 2px; }
+.doc-contents__item a {
+  display: block; padding: 4px 0; color: var(--md-sys-color-primary); text-decoration: none;
+  min-height: var(--wds-target-min); line-height: var(--wds-target-min);
+}
+.doc-contents__item a:hover, .doc-contents__item a:focus-visible { text-decoration: underline; }
+.doc-contents__item--l3 { padding-inline-start: 16px; }
+.doc-contents__item--l4 { padding-inline-start: 32px; }
+.doc-suggested {
+  border-top: 1px solid var(--md-sys-color-outline-variant);
+  padding-top: 16px; display: flex; flex-direction: column; gap: 10px;
+}
+.doc-suggested h3 { margin: 0; }
+.doc-suggested__grid {
+  display: grid; gap: 10px; margin: 0; padding: 0;
+  grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
+}
+.doc-suggested__btn {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 2px;
+  text-align: start; height: auto; padding: 10px 14px; white-space: normal;
+}
+.doc-suggested__role { text-transform: uppercase; letter-spacing: .04em; }
+.doc-suggested__title { font-weight: 600; }
+.doc-results { margin: 16px 0 24px; }
+.doc-note { margin: 8px 0 20px; }
+@media (max-width: 760px) {
+  .doc-host { min-height: 0; border-radius: var(--md-sys-shape-corner-medium); }
+  .doc-panel { padding: 16px 12px; gap: 16px; }
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to the content</a>
+
+<header class="site-appbar">
+  <div class="appbar">
+    <a class="site-brand" href="index.html">
+      <svg class="site-brand__mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none"
+           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 4L3 7v13l6-3 6 3 6-3V4l-6 3z"></path><path d="M9 4v13M15 7v13"></path>
+      </svg>
+      <span class="site-brand__name">World Downloader Studio</span>
+    </a>
+    <nav class="row" aria-label="Site" style="gap:2px;flex:1;min-width:0">
+      <a class="btn btn--text" href="index.html">Home</a>
+      <a class="btn btn--text" href="docs.html" aria-current="page">Documentation</a>
+      <a class="btn btn--text" href="changelog.html">Changelog</a>
+      <a class="btn btn--text" href="settings.html">Settings</a>
+    </nav>
+    <div class="appbar__actions" id="appbar-actions"></div>
+  </div>
+</header>
+
+<main id="main" class="wrap wrap--wide">
+  <h1 id="page-title">Documentation</h1>
+  <p class="lede" id="page-lede">Every feature, one article each.</p>
+
+  <div class="note doc-note" id="network-note"></div>
+
+  <div id="search-host"></div>
+  <div class="doc-results" id="search-results" role="region" aria-label="Documentation search results" hidden></div>
+
+  <div class="doc-host" id="tabs-host"></div>
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer__inner">
+    <div>
+      <p><strong>World Downloader Studio</strong></p>
+      <p>Free, for everyone, with no purchase of any kind.</p>
+    </div>
+    <div>
+      <p>Every article on this page is bundled into it. Reading them makes no network request.</p>
+    </div>
+    <div>
+      <p><a href="index.html">Home</a> · <a href="docs.html" aria-current="page">Documentation</a> · <a href="changelog.html">Changelog</a> · <a href="settings.html">Settings</a></p>
+      <p id="footer-privacy"></p>
+    </div>
+  </div>
+</footer>
+
+<script>
+Studio.ready(function (S) {
+  'use strict';
+
+  var el = S.el, icon = S.icon, t = S.t, clear = S.clear;
+
+  /* ================================================================
+   * 1. Copy
+   *
+   * Five variants per language, lowest funny level first, exactly as
+   * the runtime requires. Facts -- what a control does, what a search
+   * covers, what a fallback shows -- stay identical at every level;
+   * only the voice moves. Short factual labels reuse `same()`, which
+   * the settings and landing pages use for the same reason: a chip
+   * label or a button word is not the place humour earns its keep.
+   * ================================================================ */
+  function same(en, zh) { return { en: [en, en, en, en, en], zh: [zh, zh, zh, zh, zh] }; }
+
+  S.i18n.define({
+    'doc.title': same('Documentation', '文檔'),
+
+    'doc.lede': {
+      en: [
+        'Every feature this application and this site carry, documented one article at a time.',
+        'Every feature this application and this site carry, one article each.',
+        'Every feature gets its own article: what it does, how to configure it, how it fails, and how to check it actually works.',
+        'One article per feature -- what it does, how to configure it, what it looks like when it fails, and exactly how to prove it works -- rather than one page trying to be everything at once.',
+        'One article per feature and not one page pretending to cover them all: what it does, how to set it up, what it looks like the day it breaks, and the steps that prove it actually works rather than just looking like it does.'
+      ],
+      zh: [
+        '呢個應用程式同呢個網站嘅每個功能，一篇文一個功能咁介紹。',
+        '每個功能一篇文，齊晒。',
+        '每個功能都有自己嘅一篇文：做乜、點設定、壞嘅時候點樣、點樣核實佢真係得。',
+        '一個功能一篇文——做乜、點設定、壞咗會係點、仲有點樣證明佢真係做緊嘢——唔會塞晒去一版度扮萬能。',
+        '一個功能一篇文，唔會有一版扮晒萬能：做乜、點設定、壞嗰日會係點、仲有真真正正證明佢做緊嘢嘅步驟，唔係得個睇落似咁滯。'
+      ]
+    },
+
+    'doc.networkNote': {
+      en: [
+        'Every article below is bundled into this page at build time. Reading them makes no network request.',
+        'Every article below is bundled into this page. Reading them makes no network request.',
+        'Every article is already sitting inside this page, bundled in when the site was built. Opening one makes no network request at all.',
+        'Every article you can open here was bundled into this page when the site was built, not fetched while you read. Opening one, searching all of them, and jumping between them makes no network request of any kind.',
+        'Every last article you can open here was already baked into this page when the site was built -- nothing is fetched while you read it. Open one, search all thirty-something of them, jump between them all day: not one network request the whole time.'
+      ],
+      zh: [
+        '下面每篇文都喺整站嗰陣已經打包咗入呢版。睇文唔會有任何網絡請求。',
+        '下面每篇文都已經打包咗入呢版。睇文唔會有網絡請求。',
+        '下面每篇文早就打包晒入呢版，唔係你睇嗰陣先攞。打開一篇，一個網絡請求都無。',
+        '下面每篇文喺整站嗰陣已經打包晒入呢版，唔係你睇嗰陣先去攞。打開一篇、搵晒成批、喺篇與篇之間跳嚟跳去，全程一個網絡請求都無。',
+        '下面呢成三十幾篇文，喺整站嗰陣已經齊齊整整打包咗入呢版，唔係你打開嗰刻先去攞。打開一篇、成批噉搵、成日喺篇與篇之間跳嚟跳去都得，成程一個網絡請求都唔會有。'
+      ]
+    },
+
+    'doc.searchLabel': same('Search the documentation', '搜尋文檔'),
+    'doc.searchHelp': same(
+      'Searches every article’s title, headings and full body text, not just the tab labels.',
+      '搜尋每篇文嘅標題、小標題同全文內容，唔止分頁名。'
+    ),
+    'doc.noMatch': same('Nothing in the documentation matches that.', '文檔入面搵唔到相關內容。'),
+
+    'doc.open': same('Open', '開啟'),
+    'doc.suggestedHeading': same('Suggested articles', '相關文章推介'),
+    'doc.prereq': same('Before this', '之前要睇'),
+    'doc.next': same('Next', '下一篇'),
+    'doc.related': same('Related', '相關'),
+    'doc.noSuggested': same('No related article yet.', '暫時未有相關文章。'),
+    'doc.contents': same('On this page', '本頁內容'),
+    'doc.reading': same('Reading time', '閱讀時間'),
+    'doc.updated': same('Last changed', '最後更新'),
+    'doc.minutes': same(' min read', ' 分鐘閱讀'),
+    'doc.exportOmitted': same(
+      'The full article text is left out of this file; each row links back to the article on this site.',
+      '呢個檔案唔會有全文內容；每一行都會連返去本站嗰篇文。'
+    ),
+
+    'doc.notFoundTitle': same('That is not its own article', '呢個項目未有獨立文章'),
+    'doc.notFoundBody': {
+      en: [
+        'That link points at something this site does not document as a separate article. Showing the full list instead.',
+        'That link points at something without its own article on this site. Showing the full list instead.',
+        'That link points at an inventory row that does not have its own article here -- it may be covered inside a broader one. Showing the full list instead.',
+        'That link points at an inventory row with no dedicated article of its own on this site -- it may well be covered as part of a broader one. Showing the full article list instead, so nothing is left unreachable.',
+        'That link points at an inventory row that never got its own dedicated article here -- it is probably folded into a broader one somewhere below. Showing the full article list instead, because a dead link is worse than an honest index.'
+      ],
+      zh: [
+        '呢個連結指向嘅嘢，喺呢個網站入面無獨立成一篇文。而家顯示晒成個文章清單畀你。',
+        '呢個連結指嘅嘢喺呢度無獨立文章。而家顯示晒成個清單。',
+        '呢個連結指嘅清單項目喺呢度無獨立文章——可能已經收埋喺另一篇入面。而家顯示晒成個文章清單。',
+        '呢個連結指嘅清單項目喺呢個網站無自己嗰篇文，可能已經收咗入另一篇入面。而家顯示晒成個文章清單，唔會有連結去死。',
+        '呢個連結指嘅清單項目由頭到尾都無出過自己一篇文，多數係收埋咗喺下面某一篇入面。而家顯示晒成個文章清單畀你——連結去死好過扮乜都搵到。'
+      ]
+    },
+
+    'doc.ambiguousTitle': same('More than one article covers that', '不止一篇文提到呢一項'),
+    'doc.ambiguousBody': same(
+      'More than one article mentions that inventory row, so this page cannot pick a single one for you. Showing the full list instead.',
+      '唔止一篇文提到呢個清單項目，本頁揀唔到一篇畀你。而家顯示晒成個文章清單。'
+    )
+  });
+
+  /* ================================================================
+   * 2. Read the bundle. window.WDS_ARTICLES is written by
+   *    scripts/build-site-articles.mjs from docs/features/*.md and
+   *    loaded by assets/articles.js before this script runs. If it is
+   *    somehow absent, this page still renders honestly rather than
+   *    throwing: an empty documentation reader that says so, never a
+   *    blank page that reads as broken.
+   * ================================================================ */
+  var bundle = window.WDS_ARTICLES || { articles: [], categories: [] };
+  var articles = bundle.articles || [];
+  var categories = bundle.categories || [];
+
+  var bySlug = Object.create(null);
+  articles.forEach(function (a) { bySlug[a.slug] = a; });
+
+  var categoryById = Object.create(null);
+  categories.forEach(function (c) { categoryById[c.id] = c; });
+
+  /* Arbitrary, decorative group colours -- ten distinct tags so the
+     strip stays scannable at a glance, matching the way the landing
+     page and settings page already pick arbitrary hex for their own
+     tab groups. Not a token: this is decoration on a per-visitor
+     customizable strip, not chrome. */
+  var GROUP_COLOUR = {
+    downloading: '#006D34', maps: '#006973', automation: '#5C4B00',
+    servers: '#37618B', language: '#7A3F8C', appearance: '#8C3F5A',
+    settings: '#46664D', records: '#4A6357', locks: '#8C4A2B', delight: '#B3005C'
+  };
+
+  /* ================================================================
+   * 3. Page copy and the appbar actions
+   * ================================================================ */
+  function paintPageCopy() {
+    S.label(document.getElementById('page-title'), 'doc.title', 'Documentation');
+    S.label(document.getElementById('page-lede'), 'doc.lede', '');
+    document.title = S.tBoth('doc.title', 'Documentation') + ' · World Downloader Studio';
+
+    var note = document.getElementById('network-note');
+    clear(note);
+    note.appendChild(el('p', { text: t('doc.networkNote', '') }));
+
+    var fp = document.getElementById('footer-privacy');
+    clear(fp);
+    fp.appendChild(document.createTextNode(S.privacy.note));
+  }
+
+  function buildAppbarActions() {
+    var host = document.getElementById('appbar-actions');
+    clear(host);
+
+    host.appendChild(el('button', {
+      class: 'btn btn--icon', type: 'button',
+      'aria-label': 'Search the documentation', title: 'Search the documentation',
+      onclick: function () { search.focus(); search.el.scrollIntoView({ block: 'center' }); }
+    }, icon('search')));
+
+    var langBtn = el('button', {
+      class: 'btn btn--icon', type: 'button', 'aria-haspopup': 'menu',
+      'aria-label': t('lang.title', 'Language'), title: t('lang.title', 'Language'),
+      onclick: function () {
+        var items = [{
+          label: t('lang.en', 'English'), checked: S.i18n.mode() === 'en',
+          run: function () { S.i18n.setMode('en'); }
+        }];
+        if (!S.school.suppresses('cantonese')) {
+          items.push({ label: t('lang.zh', 'Cantonese'), checked: S.i18n.mode() === 'zh',
+            run: function () { S.i18n.setMode('zh'); } });
+        }
+        if (!S.school.suppresses('bilingual')) {
+          items.push({ label: t('lang.both', 'Both'), checked: S.i18n.mode() === 'both',
+            run: function () { S.i18n.setMode('both'); } });
+        }
+        items.push('-');
+        items.push({ label: 'Settings for this site', icon: 'settings',
+          run: function () { window.location.href = 'settings.html'; } });
+        S.createMenu({
+          anchor: langBtn, returnTo: langBtn, ariaLabel: t('lang.title', 'Language'),
+          filterLabel: 'Filter languages', storageKey: 'appbar-language', items: items
+        });
+      }
+    }, icon('globe'));
+    host.appendChild(langBtn);
+
+    var themeBtn = el('button', {
+      class: 'btn btn--icon', type: 'button', 'aria-haspopup': 'menu',
+      'aria-label': t('theme.mode', 'Theme'), title: t('theme.mode', 'Theme'),
+      onclick: function () {
+        S.createMenu({
+          anchor: themeBtn, returnTo: themeBtn, ariaLabel: t('theme.mode', 'Theme'),
+          filterLabel: 'Filter themes', storageKey: 'appbar-theme',
+          items: [
+            { label: t('theme.light', 'Light'), checked: S.theme.mode() === 'light', run: function () { S.theme.setMode('light'); } },
+            { label: t('theme.dark', 'Dark'), checked: S.theme.mode() === 'dark', run: function () { S.theme.setMode('dark'); } },
+            { label: t('theme.system', 'Follow the system'), checked: S.theme.mode() === 'system', run: function () { S.theme.setMode('system'); } }
+          ]
+        });
+      }
+    }, icon('eye'));
+    host.appendChild(themeBtn);
+
+    var bellBtn = el('button', {
+      class: 'btn btn--icon', type: 'button',
+      'aria-label': t('notify.centre', 'Notifications'), title: t('notify.centre', 'Notifications'),
+      onclick: function () { S.notifications.open(bellBtn); }
+    }, icon('bell'));
+    host.appendChild(bellBtn);
+
+    var palBtn = el('button', {
+      class: 'btn btn--icon', type: 'button',
+      'aria-label': t('palette.title', 'Command palette'),
+      title: t('palette.title', 'Command palette') + ' (' + S.palette.shortcut + ')',
+      'aria-keyshortcuts': 'Control+Shift+F',
+      onclick: function () { S.palette.open(); }
+    }, icon('grid'));
+    host.appendChild(palBtn);
+
+    var moreBtn = el('button', {
+      class: 'btn btn--icon', type: 'button', 'aria-haspopup': 'menu',
+      'aria-label': 'More actions', title: 'More actions',
+      onclick: function (e) {
+        S.createMenu({
+          anchor: moreBtn, returnTo: moreBtn, ariaLabel: 'More actions',
+          filterLabel: 'Filter actions', storageKey: 'appbar-more',
+          items: [
+            { label: 'Home', icon: 'globe', run: function () { window.location.href = 'index.html'; } },
+            { label: 'Changelog', icon: 'history', run: function () { window.location.href = 'changelog.html'; } },
+            { label: 'Settings for this site', icon: 'settings', run: function () { window.location.href = 'settings.html'; } },
+            '-',
+            { label: t('history.title', 'Version history'), icon: 'history', keywords: 'undo restore versions', run: function () { S.history.open(moreBtn); } },
+            { label: t('locks.title', 'Locks'), icon: 'lock', keywords: 'password otp', run: function () { S.locks.manage(moreBtn); } },
+            { label: t('auth.title', 'Authenticator'), icon: 'key', keywords: 'totp two factor', run: function () { S.authenticator.open(moreBtn); } },
+            { label: t('tickets.title', 'Support Tickets'), icon: 'ticket', keywords: 'support help forgot', run: function () { S.support.open(moreBtn); } },
+            '-',
+            { label: t('act.openEditor', 'Edit appearance'), icon: 'palette', shortcut: 'Shift+Right click',
+              run: function () { S.appearance.openEditor(document.getElementById('page-title'), 'docs:title', 'The documentation page heading'); } }
+          ]
+        });
+      }
+    }, icon('more'));
+    host.appendChild(moreBtn);
+  }
+
+  /* ================================================================
+   * 4. Tabs -- one per article, grouped by category.
+   *
+   * The strip carries the whole shared contract for free: any dock
+   * edge, overflow, reordering, pinning, groups, the four built-in
+   * searches, and persistence. Articles stay closable:false, matching
+   * the landing page's own core tabs -- closing a reference article
+   * would remove its panel entirely, and a "Open" button in a search
+   * result that then finds nothing to open is a broken control, not a
+   * convenience.
+   * ================================================================ */
+  function suggestedRow(slug, roleLabel) {
+    var art = bySlug[slug];
+    if (!art) return null;
+    return el('button', {
+      class: 'btn btn--outlined doc-suggested__btn', type: 'button',
+      'aria-label': roleLabel + ': ' + art.title,
+      onclick: function () { goToArticle(slug); }
+    }, [
+      el('span', { class: 'doc-suggested__role muted t-label-small', text: roleLabel }),
+      el('span', { class: 'doc-suggested__title', text: art.title })
+    ]);
+  }
+
+  function buildSuggested(a) {
+    var wrap = el('section', { class: 'doc-suggested', 'aria-labelledby': 'sugg-h-' + a.slug });
+    wrap.appendChild(el('h3', { id: 'sugg-h-' + a.slug, text: t('doc.suggestedHeading', 'Suggested articles') }));
+    var grid = el('div', { class: 'doc-suggested__grid' });
+    var any = false;
+    if (a.prereq) {
+      var pr = suggestedRow(a.prereq, t('doc.prereq', 'Before this'));
+      if (pr) { grid.appendChild(pr); any = true; }
+    }
+    (a.related || []).forEach(function (slug) {
+      var rr = suggestedRow(slug, t('doc.related', 'Related'));
+      if (rr) { grid.appendChild(rr); any = true; }
+    });
+    if (a.next) {
+      var nx = suggestedRow(a.next, t('doc.next', 'Next'));
+      if (nx) { grid.appendChild(nx); any = true; }
+    }
+    if (any) wrap.appendChild(grid);
+    else wrap.appendChild(el('p', { class: 'muted', text: t('doc.noSuggested', 'No related article yet.') }));
+    return wrap;
+  }
+
+  function buildArticlePanel(a) {
+    var panel = el('div', { class: 'doc-panel' });
+    var cat = categoryById[a.category];
+
+    var meta = el('div', { class: 'doc-meta' }, [
+      el('span', { class: 'chip', text: cat ? cat.name : a.category }),
+      el('span', { class: 'doc-meta__item muted t-body-small' }, [
+        icon('history', 'i--sm'),
+        document.createTextNode(' ' + t('doc.reading', 'Reading time') + ': ' + a.readingMinutes + t('doc.minutes', ' min read'))
+      ]),
+      el('span', { class: 'doc-meta__item muted t-body-small' }, [
+        icon('calendar', 'i--sm'),
+        document.createTextNode(' ' + t('doc.updated', 'Last changed') + ': ' + a.updated + ' (' + a.updatedSource + ')')
+      ])
+    ]);
+    panel.appendChild(meta);
+
+    var article = el('article', { class: 'prose doc-article' });
+    article.appendChild(el('h2', { text: a.title }));
+    if (a.summary) article.appendChild(el('p', { class: 'lede doc-summary', text: a.summary }));
+
+    var body = el('div');
+    S.markdown.renderInto(body, a.body);
+    article.appendChild(body);
+
+    if ((a.headings || []).length >= 3) {
+      var heads = body.querySelectorAll('h2,h3,h4');
+      if (heads.length) {
+        var contents = el('nav', { class: 'doc-contents', 'aria-label': t('doc.contents', 'On this page') });
+        contents.appendChild(el('h3', { text: t('doc.contents', 'On this page') }));
+        var list = el('ul', { class: 'doc-contents__list' });
+        Array.prototype.forEach.call(heads, function (node, idx) {
+          var id = 'h-' + a.slug + '-' + idx;
+          node.id = id;
+          var level = parseInt(node.tagName.slice(1), 10) || 2;
+          list.appendChild(el('li', { class: 'doc-contents__item doc-contents__item--l' + level }, [
+            el('a', {
+              href: '#' + id,
+              text: node.textContent,
+              onclick: function (e) {
+                e.preventDefault();
+                node.scrollIntoView({ block: 'start', behavior: S.a11y.reducedMotion() ? 'auto' : 'smooth' });
+                node.setAttribute('tabindex', '-1');
+                try { node.focus({ preventScroll: true }); } catch (er) { node.focus(); }
+              }
+            })
+          ]));
+        });
+        contents.appendChild(list);
+        panel.appendChild(contents);
+      }
+    }
+
+    panel.appendChild(article);
+    panel.appendChild(buildSuggested(a));
+
+    var key = 'docs:article:' + a.slug;
+    S.appearance.enable(panel, key, a.title);
+    S.contextMenu(panel, function () {
+      return [
+        { label: t('act.openEditor', 'Edit appearance') + '…', icon: 'palette', shortcut: 'Shift+Right click',
+          run: function () { S.appearance.openEditor(panel, key, a.title); } },
+        { label: t('locks.lockThis', 'Lock this element') + '…', icon: 'lock',
+          run: function () { S.locks.wizard(panel, key, a.title); } },
+        '-',
+        { label: t('act.search', 'Search') + ' the documentation', icon: 'search', run: function () { search.focus(); } },
+        { label: t('palette.title', 'Command palette'), icon: 'grid', shortcut: 'Ctrl+Shift+F', run: function () { S.palette.open(); } }
+      ];
+    }, { ariaLabel: a.title + ' menu', storageKey: 'doc-panel-' + a.slug });
+
+    if (S.locks.isLocked(key) && !S.locks.isUnlocked(key)) S.locks.veil(panel, key, a.title);
+
+    return panel;
+  }
+
+  var tabs = articles.map(function (a) {
+    var cat = categoryById[a.category];
+    return {
+      id: a.slug, label: a.title, closable: false,
+      icon: cat ? cat.icon : 'doc',
+      keywords: [a.summary, (a.headings || []).map(function (h) { return h.text; }).join(' '), cat ? cat.name : ''].join(' '),
+      panel: function () { return buildArticlePanel(a); }
+    };
+  });
+
+  var groups = categories.map(function (c) {
+    return {
+      id: 'g-' + c.id, name: c.name, colour: GROUP_COLOUR[c.id] || null,
+      members: articles.filter(function (a) { return a.category === c.id; }).map(function (a) { return a.slug; })
+    };
+  });
+
+  var strip = S.tabs.create(document.getElementById('tabs-host'), {
+    id: 'docs', dock: 'left', tabs: tabs, groups: groups
+  });
+
+  function goToArticle(slug) {
+    if (!bySlug[slug]) return false;
+    strip.select(slug);
+    window.setTimeout(function () {
+      var node = document.querySelector('[data-wds-akey="docs:article:' + slug + '"]');
+      if (node) { node.scrollIntoView({ block: 'start', behavior: S.a11y.reducedMotion() ? 'auto' : 'smooth' }); S.flash(node); }
+    }, 30);
+    return true;
+  }
+
+  /* ================================================================
+   * 5. Hash routing.
+   *
+   * Article-to-article links inside the bundle resolve to "#/slug",
+   * rewritten that way by scripts/build-site-articles.mjs. A link from
+   * the landing page's feature inventory instead carries the older
+   * "#f-<dashed-id>" form; this page best-effort resolves that against
+   * the "Inventory row"/"Inventory rows" text each article states for
+   * itself, and falls back to an honest notice plus the full list
+   * rather than a dead link or a silent no-op.
+   * ================================================================ */
+  function slugFromSlashHash() {
+    var m = (window.location.hash || '').match(/^#\/([A-Za-z0-9._-]+)$/);
+    return (m && bySlug[m[1]]) ? m[1] : null;
+  }
+
+  function slugsFromInventoryHash() {
+    var m = (window.location.hash || '').match(/^#f-(.+)$/);
+    if (!m) return null;
+    var raw = decodeURIComponent(m[1]).replace('-', '.');
+    var pattern = new RegExp('(^|[^0-9.])' + S.escapeRegex(raw) + '(?![0-9.])');
+    return articles.filter(function (a) { return pattern.test(a.body); }).map(function (a) { return a.slug; });
+  }
+
+  function applyInitialSelection() {
+    if (window.location.hash) {
+      var direct = slugFromSlashHash();
+      if (direct) { strip.select(direct); return; }
+      if (/^#f-/.test(window.location.hash)) {
+        var hits = slugsFromInventoryHash() || [];
+        if (hits.length === 1) { strip.select(hits[0]); return; }
+        S.notify({
+          kind: 'info',
+          title: t(hits.length > 1 ? 'doc.ambiguousTitle' : 'doc.notFoundTitle', 'Not a separate article'),
+          body: t(hits.length > 1 ? 'doc.ambiguousBody' : 'doc.notFoundBody', '')
+        });
+      }
+    }
+    var current = strip.selected();
+    if (!current || !bySlug[current]) {
+      var first = articles[0] && articles[0].slug;
+      if (first) strip.select(first);
+    }
+  }
+
+  S.on('tab-selected', function (payload) {
+    if (payload.strip !== 'docs' || !bySlug[payload.tab]) return;
+    try { window.history.replaceState(null, '', '#/' + payload.tab); } catch (e) { /* history is a convenience here */ }
+  });
+
+  /* ================================================================
+   * 6. Search -- titles, headings and full body text.
+   *
+   * The tab strip's own built-in searches (this strip, each group,
+   * groups by name, every open tab) already cover labels and keywords.
+   * This search bar is the deeper one the brief asks for: full body
+   * text, with a result list that shows a real snippet of what
+   * actually matched and jumps straight to the article.
+   * ================================================================ */
+  function haystack(a) {
+    return a.title + ' ' + a.summary + ' ' + (a.headings || []).map(function (h) { return h.text; }).join(' ') + ' ' + a.body;
+  }
+
+  function snippetFor(a, api) {
+    var text = a.body;
+    var idx = -1, len = 0;
+    if (api.mode() === 'regex' && api.valid()) {
+      var c = S.regex.compile(api.pattern(), api.flags());
+      if (c.ok) {
+        var mres = c.re.exec(text);
+        if (mres) { idx = mres.index; len = mres[0].length || 1; }
+      }
+    } else {
+      var v = api.value();
+      if (v) { idx = text.toLowerCase().indexOf(v.toLowerCase()); len = v.length; }
+    }
+    if (idx < 0) return a.summary;
+    var start = Math.max(0, idx - 60), end = Math.min(text.length, idx + len + 60);
+    var snip = text.slice(start, end).replace(/\s+/g, ' ').trim();
+    return (start > 0 ? '… ' : '') + snip + (end < text.length ? ' …' : '');
+  }
+
+  var resultsHost = document.getElementById('search-results');
+
+  var search = S.createSearchBar({
+    label: t('doc.searchLabel', 'Search the documentation'),
+    placeholder: t('act.search', 'Search'),
+    storageKey: 'docs-page',
+    help: t('doc.searchHelp', ''),
+    sampleProvider: function () { return articles.map(function (a) { return a.title; }).join('\n'); },
+    onChange: function () { paintResults(); }
+  });
+  document.getElementById('search-host').appendChild(search.el);
+
+  function paintResults() {
+    var q = search.value();
+    clear(resultsHost);
+    if (!q) { resultsHost.hidden = true; return; }
+    resultsHost.hidden = false;
+
+    var m = search.matcher();
+    var hits = articles.filter(function (a) { return m(haystack(a)); });
+
+    if (!hits.length) {
+      resultsHost.appendChild(el('p', { class: 'muted', text: t('doc.noMatch', 'Nothing in the documentation matches that.') }));
+      return;
+    }
+
+    resultsHost.appendChild(el('p', {
+      class: 'muted t-body-small',
+      text: hits.length + ' article' + (hits.length === 1 ? '' : 's') + ' match.'
+    }));
+
+    var ul = el('ul', { class: 'list', role: 'listbox', 'aria-label': 'Matching articles', 'aria-multiselectable': 'true' });
+    hits.forEach(function (a) {
+      var cat = categoryById[a.category];
+      ul.appendChild(el('li', {
+        class: 'li', 'data-bulk-item': '', 'data-id': a.slug, tabindex: '0', role: 'option', 'aria-selected': 'false'
+      }, [
+        el('span', { class: 'cbx', 'data-bulk-check': '', role: 'checkbox', 'aria-checked': 'false', 'aria-label': 'Select ' + a.title }),
+        el('div', { class: 'li__t' }, [
+          el('div', { class: 'li__h', text: a.title }),
+          el('div', { class: 'li__s', text: (cat ? cat.name : a.category) + ' · ' + snippetFor(a, search) })
+        ]),
+        el('button', {
+          class: 'btn btn--tonal', type: 'button', text: t('doc.open', 'Open'),
+          'aria-label': t('doc.open', 'Open') + ': ' + a.title,
+          onclick: function () { goToArticle(a.slug); search.setValue(''); paintResults(); }
+        })
+      ]));
+    });
+    resultsHost.appendChild(ul);
+
+    S.bulk.attach(ul, {
+      getLabel: function (id) { var a = bySlug[id]; return a ? a.title : id; },
+      allMatchingCount: function () { return hits.length; },
+      allMatchingIds: function () { return hits.map(function (a) { return a.slug; }); },
+      actions: [
+        {
+          id: 'export', label: t('act.export', 'Export'),
+          run: function (ids) {
+            var rows = hits.filter(function (a) { return ids.indexOf(a.slug) >= 0; }).map(function (a) {
+              var cat = categoryById[a.category];
+              return {
+                title: a.title, category: cat ? cat.name : a.category, summary: a.summary,
+                updated: a.updated, readingMinutes: a.readingMinutes, url: 'docs.html#/' + a.slug
+              };
+            });
+            S.exportDialog(rows, { name: 'documentation-search', anchor: ul, omitted: t('doc.exportOmitted', '') });
+          }
+        }
+      ]
+    });
+  }
+
+  /* ================================================================
+   * 7. Palette registration.
+   *
+   * Every article, and every command this page owns. Local items omit
+   * `page` -- this page's own filename already matches, and leaving it
+   * off keeps a redirect-shim visit (site/docs/index.html forwarding
+   * here) from ever mattering to this logic.
+   * ================================================================ */
+  S.palette.register(articles.map(function (a) {
+    var cat = categoryById[a.category];
+    return {
+      id: 'docs.' + a.slug, title: a.title, subtitle: (cat ? cat.name : 'Documentation') + ' · Documentation',
+      kind: 'article', keywords: [a.summary, (a.headings || []).map(function (h) { return h.text; }).join(' ')].join(' '),
+      tabStrip: 'docs', tabId: a.slug, target: '[data-wds-akey="docs:article:' + a.slug + '"]',
+      locked: 'docs:article:' + a.slug
+    };
+  }));
+  S.palette.register([
+    { id: 'docs.search', title: t('doc.searchLabel', 'Search the documentation'), subtitle: 'Documentation',
+      kind: 'command', keywords: 'find article text body', run: function () { search.focus(); } }
+  ]);
+
+  /* ================================================================
+   * 8. Boot
+   * ================================================================ */
+  paintPageCopy();
+  buildAppbarActions();
+  applyInitialSelection();
+  paintResults();
+
+  S.on('i18n', function () { paintPageCopy(); buildAppbarActions(); paintResults(); });
+  S.on('school', function () { buildAppbarActions(); });
+});
+</script>
+</body>
+</html>

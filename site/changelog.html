@@ -1,0 +1,828 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Changelog · World Downloader Studio</title>
+<meta name="description" content="Every released version of World Downloader Studio, generated from the real commit history, with a date filter, a regular-expression search, category filters, export and copy, and a validated commit link on every entry.">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='112' fill='%230D8F4E'/%3E%3Cpolygon points='256,52 440,156 256,260 72,156' fill='%23B6FFCE'/%3E%3Cpolygon points='72,156 256,260 256,460 72,356' fill='%2362DE89'/%3E%3Cpolygon points='256,260 440,156 440,356 256,460' fill='%2322A85F'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/tokens.css">
+<link rel="stylesheet" href="assets/material.css">
+<link rel="stylesheet" href="assets/site.css">
+<script defer src="assets/site.js"></script>
+<style>
+/* Page-scoped layout only. Nothing here restyles a .wds- runtime class,
+   and every colour comes from a token. */
+.cl-summary {
+  display: grid; gap: 10px; margin: 4px 0 18px;
+  grid-template-columns: repeat(auto-fit, minmax(min(170px, 100%), 1fr));
+}
+.cl-stat {
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: var(--md-sys-color-surface-container-low);
+  padding: 12px 14px; min-width: 0;
+}
+.cl-stat dt { font-size: var(--md-sys-typescale-label-small-size); color: var(--md-sys-color-on-surface-variant); margin: 0 0 2px; }
+.cl-stat dd { margin: 0; font: var(--md-sys-typescale-title-medium-weight) var(--md-sys-typescale-title-medium-size)/1.2 var(--md-sys-typeface-plain); }
+.cl-panel { padding: 4px 20px 32px; min-width: 0; }
+.cl-panel h2:first-of-type { margin-top: 0; }
+.cl-tools { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 10px 0; }
+.cl-filters { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.cl-filters .chipset { min-width: 0; }
+.cl-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 16px; }
+.cl-version {
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: var(--md-sys-color-surface-container-low);
+  padding: 14px 16px; min-width: 0;
+}
+.cl-version.is-sel { border-color: var(--md-sys-color-primary); background: var(--md-sys-color-primary-container); color: var(--md-sys-color-on-primary-container); }
+.cl-version__head { display: flex; flex-wrap: wrap; gap: 8px; align-items: baseline; }
+.cl-version__head h3 { margin: 0; text-transform: none; letter-spacing: 0; font-size: var(--md-sys-typescale-title-medium-size); }
+.cl-version__meta { color: var(--md-sys-color-on-surface-variant); font-size: var(--md-sys-typescale-body-small-size); display: flex; flex-wrap: wrap; gap: 4px 10px; margin: 4px 0 10px; align-items: center; }
+.cl-version__meta code { font-family: var(--md-sys-typeface-mono); }
+.cl-entries { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.cl-entry {
+  display: grid; grid-template-columns: auto 1fr auto; gap: 4px 10px; align-items: start;
+  padding: 6px 0; border-top: 1px solid var(--md-sys-color-outline-variant);
+}
+.cl-entry:first-child { border-top: 0; }
+.cl-entry__subject { min-width: 0; overflow-wrap: anywhere; }
+.cl-entry__tags { display: flex; flex-wrap: wrap; gap: 4px; grid-column: 1 / -1; }
+.cl-entry__sha { grid-column: 3; justify-self: end; display: flex; gap: 4px; align-items: center; }
+.cl-entry__sha code { font-family: var(--md-sys-typeface-mono); font-size: var(--md-sys-typescale-body-small-size); }
+.cl-badge { font-size: var(--md-sys-typescale-label-small-size); padding: 2px 8px; border-radius: var(--md-sys-shape-corner-full); white-space: nowrap; }
+.cl-badge--breaking { background: var(--md-sys-color-error-container); color: var(--md-sys-color-on-error-container); }
+.cl-badge--agent { background: var(--md-sys-color-tertiary-container); color: var(--md-sys-color-on-tertiary-container); }
+.cl-badge--unreleased { background: var(--md-sys-color-secondary-container); color: var(--md-sys-color-on-secondary-container); }
+@media (max-width: 640px) {
+  .cl-entry { grid-template-columns: 1fr; }
+  .cl-entry__sha { grid-column: 1; justify-self: start; }
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to the content</a>
+
+<header class="site-appbar">
+  <div class="appbar">
+    <a class="site-brand" href="index.html">
+      <svg class="site-brand__mark" viewBox="0 0 512 512" aria-hidden="true" focusable="false"><use href="#wds-logo"></use></svg>
+      <span class="site-brand__name">World Downloader Studio</span>
+    </a>
+    <nav class="row" aria-label="Site" style="gap:2px;flex:1;min-width:0">
+      <a class="btn btn--text" href="index.html">Home</a>
+      <a class="btn btn--text" href="docs/index.html">Documentation</a>
+      <a class="btn btn--text" href="changelog.html" aria-current="page">Changelog</a>
+      <a class="btn btn--text" href="downloads.html">Downloads</a>
+      <a class="btn btn--text" href="settings.html">Settings</a>
+    </nav>
+    <div class="appbar__actions" id="appbar-actions"></div>
+  </div>
+</header>
+
+<main id="main" class="wrap wrap--wide">
+  <h1 id="page-title">Changelog</h1>
+  <p class="lede" id="page-lede">Every released version, generated from this repository's real commit history.</p>
+
+  <dl class="cl-summary" id="summary"></dl>
+
+  <div class="wrap wrap--wide wrap--flush" style="padding:0;display:flex;min-height:60vh;align-items:stretch" id="tabhost"></div>
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer__inner">
+    <div>
+      <p><strong>World Downloader Studio</strong></p>
+      <p>Free, for everyone, with no purchase of any kind.</p>
+    </div>
+    <div>
+      <p><a href="index.html">Home</a> · <a href="docs/index.html">Documentation</a> · <a href="downloads.html">Downloads</a> · <a href="settings.html">Settings</a></p>
+      <p id="footer-privacy"></p>
+    </div>
+  </div>
+</footer>
+
+<svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <linearGradient id="wds-backdrop" x1="0" y1="0" x2="0" y2="512" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0D8F4E"></stop>
+      <stop offset="1" stop-color="#00382C"></stop>
+    </linearGradient>
+    <clipPath id="wds-topface"><polygon points="256,52 440,156 256,260 72,156"></polygon></clipPath>
+    <symbol id="wds-logo" viewBox="0 0 512 512">
+      <rect x="0" y="0" width="512" height="512" rx="112" ry="112" fill="url(#wds-backdrop)"></rect>
+      <polygon points="256,52 440,156 256,260 72,156" fill="#B6FFCE"></polygon>
+      <polygon points="72,156 256,260 256,460 72,356" fill="#62DE89"></polygon>
+      <polygon points="256,260 440,156 440,356 256,460" fill="#22A85F"></polygon>
+      <g clip-path="url(#wds-topface)" fill="#0D8F4E" fill-opacity="0.3">
+        <polygon points="346.28,100.95 162.28,204.95 165.72,211.05 349.72,107.05"></polygon>
+        <polygon points="162.28,107.05 346.28,211.05 349.72,204.95 165.72,100.95"></polygon>
+      </g>
+      <polygon points="212,104 300,104 300,268 350,268 256,394 162,268 212,268" fill="url(#wds-backdrop)"></polygon>
+    </symbol>
+  </defs>
+</svg>
+
+<script src="assets/changelog.js"></script>
+<script>
+Studio.ready(function (S) {
+  'use strict';
+  var el = S.el, icon = S.icon, t = S.t, clear = S.clear;
+
+  /* ================================================================
+   * 0. The generated data.
+   *
+   * Written by scripts/build-site-changelog.mjs from this repository's
+   * real commit history. Every SHA in it was checked back against the
+   * object database before the file was written, so nothing here links
+   * to a commit that does not exist. This page adds one more defensive
+   * check of its own before it ever renders a link: a SHA has to look
+   * like a SHA, or it is shown as plain copyable text instead.
+   * ================================================================ */
+  var DATA = window.WDS_CHANGELOG || null;
+  var VERSIONS = DATA ? DATA.versions : [];
+  var COMMIT_BASE = (DATA && DATA.commitUrlBase) || null;
+  var SHA_RE = /^[0-9a-f]{40}$/i;
+
+  function commitUrl(sha) {
+    if (!COMMIT_BASE || typeof sha !== 'string' || !SHA_RE.test(sha)) return null;
+    return COMMIT_BASE + sha;
+  }
+
+  /* ================================================================
+   * 1. Copy. Five variants per language, lowest funny level first. The
+   * voice moves; the version numbers, dates, subjects and SHAs below
+   * never do — those are facts, copied through from git unchanged.
+   * ================================================================ */
+  function same(en, zh) { return { en: [en, en, en, en, en], zh: [zh, zh, zh, zh, zh] }; }
+
+  S.i18n.define({
+    'cl.title': same('Changelog', '更新日誌'),
+    'cl.lede': {
+      en: [
+        'Every released version, generated from this repository\'s real commit history. Nothing here was typed by hand.',
+        'Every released version, generated from this repository\'s real commit history. Nothing here was typed by hand.',
+        'Every released version, straight out of this repository\'s real commit history. Not one line of it was typed by hand.',
+        'Every released version, straight out of this repository\'s real commit history, regenerated whenever the site is built. Not one line of it was typed by hand, and a version with nothing recorded says exactly that.',
+        'Every released version, straight out of this repository\'s real commit history, regenerated whenever the site is built, so it cannot quietly drift out of date. Not one line of it was typed by hand, and a version with nothing recorded says exactly that rather than pretending.'
+      ],
+      zh: [
+        '每個已發佈版本，都由呢個倉庫嘅真實 commit 記錄自動生成，冇一隻字係手打嘅。',
+        '每個已發佈版本，都由呢個倉庫嘅真實 commit 記錄自動生成，冇一隻字係手打嘅。',
+        '每個已發佈版本，直接由呢個倉庫嘅真實 commit 記錄生成，一隻字都唔係手打。',
+        '每個已發佈版本，直接由呢個倉庫嘅真實 commit 記錄生成，每次建站都會重新生成，一隻字都唔係手打。冇記錄嘅版本，就照直咁講。',
+        '每個已發佈版本，直接由呢個倉庫嘅真實 commit 記錄生成，每次建站都重新生成，唔會靜靜雞過時。一隻字都唔係手打，冇記錄嘅版本就照直講，唔會扮嘢。'
+      ]
+    },
+    'cl.tabTimeline': same('Timeline', '時間軸'),
+    'cl.tabAbout': same('About this changelog', '關於呢份日誌'),
+
+    'cl.filtersTitle': same('Filters', '篩選'),
+    'cl.searchHelp': {
+      en: [
+        'Searches the subject, the SHA and the category of every entry. Plain text by default; switch on regular expressions with the control beside the field.',
+        'Searches the subject, the SHA and the category of every entry. Plain text by default; switch on regular expressions with the control beside the field.',
+        'Searches the subject, the SHA and the category of every entry across every version. Plain text by default, regular expressions an explicit opt-in.',
+        'Searches the subject, the SHA and the category of every entry across every version, filtered and unfiltered alike. Plain text by default, regular expressions an explicit opt-in beside the field.',
+        'Searches the subject, the SHA and the category of every single entry across every version, filtered and unfiltered alike, down to the last build tag. Plain text by default, regular expressions an explicit opt-in beside the field.'
+      ],
+      zh: [
+        '搜尋每一項嘅內容、SHA 同分類。預設純文字，撳埋隔籬個掣就可以開正規表達式。',
+        '搜尋每一項嘅內容、SHA 同分類。預設純文字，撳埋隔籬個掣就可以開正規表達式。',
+        '搜尋每個版本入面每一項嘅內容、SHA 同分類。預設純文字，正規表達式要自己開。',
+        '搜尋每個版本入面每一項嘅內容、SHA 同分類，過唔過濾都搵到。預設純文字，正規表達式要自己開。',
+        '搜尋每個版本入面每一項嘅內容、SHA 同分類，過唔過濾都搵到，去到最後一個 build 標籤都唔漏。預設純文字，正規表達式要自己開。'
+      ]
+    },
+    'cl.noMatch': {
+      en: [
+        'Nothing matches that.',
+        'Nothing matches that.',
+        'Nothing matches that. Clear a filter or the search and the rest comes back.',
+        'Nothing matches that combination of filters and search. Clear one of them and the rest comes back.',
+        'Nothing matches that particular combination of filters and search. Clear one of them and everything else reappears, because nothing was ever actually gone.'
+      ],
+      zh: [
+        '搵唔到符合嘅嘢。',
+        '搵唔到符合嘅嘢。',
+        '搵唔到符合嘅嘢。清咗個篩選或者搜尋，其他就返晒出嚟。',
+        '呢個篩選同搜尋組合搵唔到嘢。清咗其中一個，其他就返晒出嚟。',
+        '呢個篩選同搜尋組合真係搵唔到嘢。清咗其中一個，其他就會返晒出嚟，因為根本就冇嘢真正唔見咗。'
+      ]
+    },
+    'cl.emptyVersion': {
+      en: [
+        'No recorded changes for this version.',
+        'No recorded changes for this version.',
+        'Nothing recorded for this version.',
+        'Nothing was recorded for this version. That is the honest answer rather than a guess.',
+        'Nothing was recorded for this version — not a missing capture, just an honestly empty release with nothing to say about it.'
+      ],
+      zh: [
+        '呢個版本冇記錄到任何改動。',
+        '呢個版本冇記錄到任何改動。',
+        '呢個版本乜都冇記錄到。',
+        '呢個版本乜都冇記錄到，呢個係老實嘅答案，唔係亂估。',
+        '呢個版本真係乜都冇記錄到——唔係漏咗，純粹呢個版本本身就冇嘢好講。'
+      ]
+    },
+    'cl.unreleasedNote': {
+      en: [
+        'On the branch, not tagged yet.',
+        'On the branch, not tagged yet.',
+        'Sitting on the branch, no tag on it yet.',
+        'Sitting on the branch right now, with no tag on it yet — it moves into a version the moment one is cut.',
+        'Sitting on the branch right now, not tagged to anything yet — the moment a release is cut, this whole section becomes a real version instead.'
+      ],
+      zh: [
+        '喺分支度，仲未打 tag。',
+        '喺分支度，仲未打 tag。',
+        '而家喺分支度，未打 tag。',
+        '而家喺分支度，仲未打任何 tag——一出正式版就會變成真版本。',
+        '而家喺分支度，仲未打過任何 tag——一有正式版出咗，成段嘢就會變返做真版本。'
+      ]
+    },
+    'cl.copyVisible': same('Copy the visible changelog', '複製而家見到嘅日誌'),
+    'cl.copiedBody': {
+      en: [
+        'The visible changelog was copied, with a full commit SHA on every entry.',
+        'The visible changelog was copied, with a full commit SHA on every entry.',
+        'Copied, with a full commit SHA on every single entry.',
+        'Copied to the clipboard, with a full 40-character commit SHA left in plain text on every entry so it stays traceable after it leaves this page.',
+        'Copied to the clipboard, with a full 40-character commit SHA left in plain text on every entry, so it stays traceable long after it has wandered off this page.'
+      ],
+      zh: [
+        '已複製而家見到嘅日誌，每一項都留低完整 commit SHA。',
+        '已複製而家見到嘅日誌，每一項都留低完整 commit SHA。',
+        '複製咗，每一項都有完整 commit SHA。',
+        '已複製去剪貼簿，每一項都留低成 40 個字嘅 commit SHA 純文字，就算離開咗呢版都追蹤得返。',
+        '已複製去剪貼簿，每一項都留低成 40 個字嘅 commit SHA 純文字，就算呢份日誌流浪去邊都追蹤得返。'
+      ]
+    },
+    'cl.breakingOnly': same('Breaking changes only', '淨係睇破壞性改動'),
+    'cl.agentOnly': same('Agent-authored only', '淨係睇代理人寫嘅'),
+    'cl.relAll': same('All', '全部'),
+    'cl.relReleased': same('Released', '已發佈'),
+    'cl.relUnreleased': same('Not yet released', '未發佈'),
+    'cl.dateNote': {
+      en: [
+        'Filters by each version\'s release date — the date its tag was created, or its newest commit for the unreleased section.',
+        'Filters by each version\'s release date — the date its tag was created, or its newest commit for the unreleased section.',
+        'Filters by each version\'s release date: the date its tag was created, or the newest commit date for the not-yet-released section.',
+        'Filters by each version\'s release date: the date its tag was created, or the newest commit date for the section that has not been tagged yet.',
+        'Filters by each version\'s release date: the date its tag was created, or the date of its newest commit for the section that has not been tagged into a real version yet.'
+      ],
+      zh: [
+        '按每個版本嘅發佈日期篩選——即係打 tag 嗰日，未發佈嗰部分就用最新 commit 嘅日期。',
+        '按每個版本嘅發佈日期篩選——即係打 tag 嗰日，未發佈嗰部分就用最新 commit 嘅日期。',
+        '按每個版本嘅發佈日期篩選：打 tag 嗰日，未發佈嗰部分就用最新 commit 日期。',
+        '按每個版本嘅發佈日期篩選：打 tag 嗰日；仲未打 tag 嗰部分，就用最新一個 commit 嘅日期。',
+        '按每個版本嘅發佈日期篩選：打 tag 嗰日；仲未變成真版本嗰部分，就用最新一個 commit 嘅日期。'
+      ]
+    },
+    'cl.aboutIntro': {
+      en: [
+        'How this page is built, and what is a fact versus what is a best guess.',
+        'How this page is built, and what is a fact versus what is a best guess.',
+        'How this page is put together, and exactly which parts are a recorded fact and which are a best reading of one.',
+        'How this page is put together, and exactly which parts are a recorded fact git actually kept versus which are a best reading applied on top of one.',
+        'How this page is put together, right down to which parts are a recorded fact git actually kept and which are only a best reading applied on top of one — because a changelog that will not say which is which is not worth trusting.'
+      ],
+      zh: [
+        '呢版點樣整出嚟，邊啲係事實、邊啲係估返嚟嘅。',
+        '呢版點樣整出嚟，邊啲係事實、邊啲係估返嚟嘅。',
+        '呢版點樣砌出嚟，邊部分係 git 真係記低嘅事實，邊部分淨係估返嚟嘅睇法。',
+        '呢版點樣砌出嚟，邊部分係 git 真係記低嘅事實，邊部分淨係喺事實上面加返個估法。',
+        '呢版點樣砌出嚟，邊部分係 git 真係記低嘅事實，邊部分淨係喺事實上面加返個估法——一份唔肯講清楚呢兩樣嘅日誌，唔值得信。'
+      ]
+    },
+    'cl.honestyNote': {
+      en: [
+        'Nothing on this page was invented. Every version is a tag that exists, every entry is a commit that exists, and every date is the date git recorded, not a guess.',
+        'Nothing on this page was invented. Every version is a tag that exists, every entry is a commit that exists, and every date is the date git recorded, not a guess.',
+        'Nothing on this page was invented. Every version is a real tag, every entry is a real commit, and every date is the date git recorded rather than one anybody guessed.',
+        'Nothing on this page was invented, and nothing was quietly filled in to make the page look tidier. Every version is a real tag, every entry is a real commit, and every date is the date git recorded rather than one anybody guessed.',
+        'Nothing on this page was invented, and nothing was quietly filled in just to make the page look tidier than the history actually is. Every version is a real tag, every entry is a real commit, and every date is the date git recorded rather than one anybody guessed at.'
+      ],
+      zh: [
+        '呢版冇一樣嘢係作出嚟嘅。每個版本都係一個真實嘅 tag，每一項都係一個真實嘅 commit，每個日期都係 git 記低嗰個，唔係亂估。',
+        '呢版冇一樣嘢係作出嚟嘅。每個版本都係一個真實嘅 tag，每一項都係一個真實嘅 commit，每個日期都係 git 記低嗰個，唔係亂估。',
+        '呢版冇嘢係作出嚟。每個版本都係真 tag，每一項都係真 commit，日期都係 git 記低嗰個，唔係估。',
+        '呢版冇嘢係作出嚟，亦冇為咗好睇而靜靜雞填返啲料。每個版本都係真 tag，每一項都係真 commit，日期都係 git 記低嗰個，唔係估。',
+        '呢版冇嘢係作出嚟，亦冇為咗睇落齊整啲而靜靜雞填返啲料。每個版本都係真 tag，每一項都係真 commit，日期都係 git 老老實實記低嗰個，唔係亂估。'
+      ]
+    }
+  });
+
+  /* ================================================================
+   * 2. Page chrome and the honest missing-data state.
+   * ================================================================ */
+  function paintPageCopy() {
+    S.label(document.getElementById('page-title'), 'cl.title', 'Changelog');
+    S.label(document.getElementById('page-lede'), 'cl.lede', '');
+    document.title = S.tBoth('cl.title', 'Changelog') + ' · World Downloader Studio';
+    var fp = document.getElementById('footer-privacy');
+    clear(fp);
+    fp.appendChild(document.createTextNode(S.privacy.note));
+  }
+
+  var mainEl = document.getElementById('main');
+  if (!DATA || !VERSIONS.length) {
+    var warn = el('div', { class: 'note note--warn' }, [
+      el('p', { text: 'assets/changelog.js did not load, or it carries no versions.' }),
+      el('p', { class: 'muted', text: 'This file is generated by scripts/build-site-changelog.mjs from the repository\'s real commit history. Regenerate it with: node scripts/build-site-changelog.mjs' })
+    ]);
+    document.getElementById('tabhost').replaceWith(warn);
+  }
+
+  /* ================================================================
+   * 3. Filter state, shared by the search bar, the chip filters, the
+   * date picker and the released/unreleased switch. Composition, not
+   * override: every one of these narrows the same result set together.
+   * ================================================================ */
+  var state = { categories: [], breaking: false, agent: false, released: 'all', from: null, to: null };
+  var search = null;
+
+  var CATEGORY_COUNTS = (function () {
+    var counts = {};
+    (DATA ? DATA.categories : []).forEach(function (c) { counts[c] = 0; });
+    VERSIONS.forEach(function (v) { v.entries.forEach(function (e) { counts[e.category] = (counts[e.category] || 0) + 1; }); });
+    return counts;
+  }());
+
+  function versionDate(v) { return v.dateIso || v.date; }
+
+  function inDateRange(v) {
+    if (!state.from && !state.to) return true;
+    var d = new Date(versionDate(v));
+    if (isNaN(d.getTime())) return true;
+    if (state.from && d < state.from) return false;
+    if (state.to && d > state.to) return false;
+    return true;
+  }
+  function releasedMatch(v) {
+    if (state.released === 'released') return v.released;
+    if (state.released === 'unreleased') return !v.released;
+    return true;
+  }
+  function entryMatches(e) {
+    if (state.categories.length && state.categories.indexOf(e.category) < 0) return false;
+    if (state.breaking && !e.breaking) return false;
+    if (state.agent && !e.agent) return false;
+    if (search && search.value()) {
+      var m = search.matcher();
+      if (!m(e.subject + ' ' + e.sha + ' ' + e.short + ' ' + e.category)) return false;
+    }
+    return true;
+  }
+  function anyFilterActive() {
+    return state.categories.length > 0 || state.breaking || state.agent ||
+      state.released !== 'all' || !!state.from || !!state.to || (search && !!search.value());
+  }
+
+  function visibleVersions() {
+    return VERSIONS.filter(function (v) { return releasedMatch(v) && inDateRange(v); })
+      .map(function (v) { return { v: v, entries: v.entries.filter(entryMatches) }; })
+      .filter(function (x) { return !anyFilterActive() || x.entries.length > 0; });
+  }
+
+  function rangeNote() {
+    var totalV = VERSIONS.length, totalE = DATA.entryCount;
+    var vis = visibleVersions();
+    var shownV = vis.length;
+    var shownE = vis.reduce(function (n, x) { return n + x.entries.length; }, 0);
+    var bits = [];
+    if (state.categories.length) bits.push('category filter: ' + state.categories.join(', '));
+    if (state.breaking) bits.push('breaking changes only');
+    if (state.agent) bits.push('agent-authored only');
+    if (state.released !== 'all') bits.push(state.released === 'released' ? 'released versions only' : 'not-yet-released only');
+    if (state.from || state.to) bits.push('a date range');
+    if (search && search.value()) bits.push('a text search for "' + search.value() + '"');
+    var tail = bits.length
+      ? ('Filters applied: ' + bits.join('; ') + '.')
+      : 'No filters were applied: this is the complete changelog.';
+    return 'This reflects ' + shownV + ' of ' + totalV + ' versions and ' + shownE + ' of ' + totalE + ' entries. ' + tail;
+  }
+
+  /* ================================================================
+   * 4. Rendering
+   * ================================================================ */
+  var CATEGORY_STATUS = {
+    'Added': 'status--ok', 'Fixed': 'status--ok', 'Performance': 'status--ok',
+    'Removed': 'status--error', 'Security': 'status--error', 'Reverted': 'status--warn'
+  };
+
+  function entryRow(e) {
+    var url = commitUrl(e.sha);
+    var shaNode = url
+      ? el('a', { href: url, rel: 'noopener', text: e.short, title: e.sha })
+      : el('code', { text: e.short, title: e.sha + (COMMIT_BASE ? '' : ' — this checkout has no recognised remote, so no link can be built.') });
+    var tags = [];
+    if (e.breaking) tags.push(el('span', { class: 'cl-badge cl-badge--breaking', text: 'Breaking change' }));
+    if (e.agent) tags.push(el('span', { class: 'cl-badge cl-badge--agent', text: 'Agent-authored' }));
+    return el('li', { class: 'cl-entry' }, [
+      el('span', { class: 'status ' + (CATEGORY_STATUS[e.category] || ''), text: e.category }),
+      el('span', { class: 'cl-entry__subject', text: e.subject }),
+      el('span', { class: 'cl-entry__sha' }, [
+        shaNode,
+        el('button', {
+          class: 'btn btn--icon', type: 'button', 'aria-label': 'Copy the full commit SHA for ' + e.short,
+          title: 'Copy the full commit SHA', style: { width: '28px', height: '28px', 'min-height': '28px' },
+          onclick: function () { S.copy(e.sha).then(function () { S.notify.success(t('act.copied', 'Copied.')); }); }
+        }, icon('copy', 'i--sm'))
+      ]),
+      tags.length ? el('div', { class: 'cl-entry__tags' }, tags) : null
+    ].filter(Boolean));
+  }
+
+  function versionNode(x) {
+    var v = x.v, entries = x.entries;
+    var total = v.entries.length;
+    var tagUrl = v.tag ? commitUrl(v.tagCommit) : null;
+    var akey = 'changelog:version:' + (v.tag || ('unreleased-' + (v.tagCommit || 'head')));
+
+    var meta = [];
+    meta.push(el('span', { text: v.released ? v.date : (v.branch ? ('branch ' + v.branch) : 'unreleased') }));
+    if (!v.released) meta.push(el('span', { class: 'cl-badge cl-badge--unreleased', 'data-i18n': 'cl.unreleasedNote' }));
+    if (v.tag) {
+      meta.push(tagUrl
+        ? el('a', { href: tagUrl, rel: 'noopener', text: 'Tag commit ' + (v.tagCommit || '').slice(0, 7) })
+        : el('code', { text: (v.tagCommit || '').slice(0, 7) || v.tag }));
+    }
+    var shownCount = anyFilterActive() && entries.length !== total
+      ? (entries.length + ' of ' + total + ' shown')
+      : (total === 1 ? '1 change' : total + ' changes');
+    meta.push(el('span', { class: 'muted', text: shownCount }));
+
+    var body;
+    if (!total) {
+      body = el('p', { class: 'muted', 'data-i18n': 'cl.emptyVersion' });
+    } else if (!entries.length) {
+      body = el('p', { class: 'muted', text: S.t('msg.noMatch') });
+    } else {
+      var list = el('ul', { class: 'cl-entries' }, entries.map(entryRow));
+      body = (entries.length > 24)
+        ? el('details', { open: anyFilterActive() }, [el('summary', { text: 'Show all ' + entries.length + ' entries' }), list])
+        : list;
+    }
+
+    var node = el('li', {
+      class: 'cl-version', 'data-bulk-item': '', 'data-id': v.tag || 'unreleased', 'data-wds-akey': akey
+    }, [
+      el('div', { class: 'cl-version__head' }, [
+        el('h3', { text: v.version }),
+        v.annotated ? el('span', { class: 'muted t-body-small', text: 'annotated tag' }) : null
+      ].filter(Boolean)),
+      el('div', { class: 'cl-version__meta' }, meta),
+      body
+    ]);
+    S.appearance.enable(node, akey, v.version + ' in the changelog');
+    S.contextMenu(node, function () {
+      return [
+        { label: 'Copy the version number', icon: 'copy', run: function () { S.copy(v.version).then(function () { S.notify.success(S.t('act.copied', 'Copied.')); }); } },
+        tagUrl ? { label: 'Copy the tag commit link', icon: 'copy', run: function () { S.copy(tagUrl).then(function () { S.notify.success(S.t('act.copied', 'Copied.')); }); } } : null,
+        '-',
+        { label: S.t('act.openEditor') + '…', icon: 'palette', shortcut: 'Shift+Right click', run: function () { S.appearance.openEditor(node, akey, v.version); } },
+        { label: S.t('locks.lockThis') + '…', icon: 'lock', run: function () { S.locks.wizard(node, akey, v.version); } }
+      ].filter(Boolean);
+    }, { ariaLabel: v.version + ' menu', storageKey: 'changelog-version' });
+    S.i18n.apply(node);
+    return node;
+  }
+
+  var listHost = null, countLine = null, filterCollapse = null, catChipsHost = null, bulkCtl = null;
+
+  function render() {
+    if (!listHost) return;
+    var vis = visibleVersions();
+    clear(listHost);
+    if (!vis.length) {
+      listHost.appendChild(el('p', { class: 'note', text: S.t('cl.noMatch') }));
+    } else {
+      var ul = el('ul', { class: 'cl-list' }, vis.map(versionNode));
+      listHost.appendChild(ul);
+      bulkCtl = S.bulk.attach(ul, {
+        itemSelector: '[data-bulk-item]',
+        getLabel: function (id) { var found = vis.filter(function (x) { return (x.v.tag || 'unreleased') === id; })[0]; return found ? found.v.version : id; },
+        allMatchingCount: function () { return visibleVersions().length; },
+        allMatchingIds: function () { return visibleVersions().map(function (x) { return x.v.tag || 'unreleased'; }); },
+        actions: [
+          { id: 'export', label: t('act.export'), run: function (ids) {
+            var rows = rowsFor(vis.filter(function (x) { return ids.indexOf(x.v.tag || 'unreleased') >= 0; }));
+            S.exportDialog(rows, { name: 'changelog-selected', omitted: rangeNote() });
+            return { done: ids.length, skipped: 0 };
+          } },
+          { id: 'copy', label: t('act.copy'), run: function (ids) {
+            var chosen = vis.filter(function (x) { return ids.indexOf(x.v.tag || 'unreleased') >= 0; });
+            return S.copy(markdownFor(chosen)).then(function () { return { done: ids.length, skipped: 0 }; });
+          } }
+        ]
+      });
+    }
+    if (countLine) countLine.textContent = rangeNote();
+    if (filterCollapse) {
+      var bits = [];
+      if (state.categories.length) bits.push(state.categories.length + ' category filter' + (state.categories.length === 1 ? '' : 's'));
+      if (state.breaking) bits.push('breaking changes only');
+      if (state.agent) bits.push('agent-authored only');
+      if (state.released !== 'all') bits.push(state.released === 'released' ? 'released only' : 'not-yet-released only');
+      if (state.from || state.to) bits.push('a date range');
+      if (search && search.value()) bits.push('a text search');
+      filterCollapse.setActiveSummary(bits.length ? ('Excluding results: ' + bits.join(', ') + '.') : '');
+    }
+    renderCategoryChips();
+  }
+
+  function renderCategoryChips() {
+    if (!catChipsHost) return;
+    clear(catChipsHost);
+    (DATA.categories || []).forEach(function (c) {
+      var on = state.categories.indexOf(c) >= 0;
+      catChipsHost.appendChild(el('button', {
+        class: 'chip' + (on ? ' is-sel' : ''), type: 'button', 'aria-pressed': on ? 'true' : 'false',
+        text: c + ' (' + (CATEGORY_COUNTS[c] || 0) + ')',
+        onclick: function () {
+          if (on) state.categories = state.categories.filter(function (x) { return x !== c; });
+          else state.categories.push(c);
+          render();
+        }
+      }));
+    });
+  }
+
+  function rowsFor(vis) {
+    var rows = [];
+    vis.forEach(function (x) {
+      if (!x.entries.length) {
+        rows.push({
+          version: x.v.version, released: x.v.released, date: x.v.date,
+          category: '', breaking: false, agent: false, sha: '', shortSha: '',
+          subject: (x.v.entries.length ? '(No entries match the current filters.)' : '(No recorded changes for this version.)'),
+          commitUrl: (x.v.tag && commitUrl(x.v.tagCommit)) || ''
+        });
+        return;
+      }
+      x.entries.forEach(function (e) {
+        rows.push({
+          version: x.v.version, released: x.v.released, date: x.v.date,
+          category: e.category, breaking: e.breaking, agent: e.agent,
+          sha: e.sha, shortSha: e.short, subject: e.subject,
+          commitUrl: commitUrl(e.sha) || ''
+        });
+      });
+    });
+    return rows;
+  }
+
+  function markdownFor(vis) {
+    var lines = ['# World Downloader Studio — changelog', '', rangeNote(), ''];
+    vis.forEach(function (x) {
+      var v = x.v;
+      lines.push('## ' + v.version + (v.released ? (' — ' + v.date) : ' (not yet released)'));
+      lines.push('');
+      if (!x.entries.length) {
+        lines.push(x.v.entries.length ? '_No entries match the current filters._' : '_No recorded changes for this version._');
+        lines.push('');
+        return;
+      }
+      x.entries.forEach(function (e) {
+        var url = commitUrl(e.sha);
+        var link = url ? ('[' + e.short + '](' + url + ')') : e.short;
+        lines.push('- **' + e.category + '**' + (e.breaking ? ' · Breaking change' : '') + (e.agent ? ' · Agent-authored' : '') +
+          ' — ' + e.subject.replace(/\n/g, ' ') + ' (' + link + ' · `' + e.sha + '`)');
+      });
+      lines.push('');
+    });
+    return lines.join('\n');
+  }
+
+  /* ================================================================
+   * 5. Panels: Timeline, About.
+   * ================================================================ */
+  function panelTimeline() {
+    var root = el('div', { class: 'cl-panel' });
+
+    search = S.createSearchBar({
+      label: 'Search the changelog', placeholder: 'Search subjects, SHAs and categories',
+      storageKey: 'changelog', help: S.t('cl.searchHelp'),
+      sampleProvider: function () {
+        var all = [];
+        VERSIONS.forEach(function (v) { v.entries.forEach(function (e) { all.push(e.subject); }); });
+        return all.slice(0, 400).join('\n');
+      },
+      onChange: render
+    });
+
+    var relRow = el('div', { class: 'chipset' }, [
+      relChip('all', 'cl.relAll'), relChip('released', 'cl.relReleased'), relChip('unreleased', 'cl.relUnreleased')
+    ]);
+    function relChip(value, key) {
+      var b = el('button', {
+        class: 'chip' + (state.released === value ? ' is-sel' : ''), type: 'button',
+        'aria-pressed': state.released === value ? 'true' : 'false', 'data-i18n': key,
+        onclick: function () { state.released = value; refreshRel(); render(); }
+      });
+      return b;
+    }
+    function refreshRel() {
+      Array.prototype.forEach.call(relRow.children, function (btn, i) {
+        var v = ['all', 'released', 'unreleased'][i];
+        btn.classList.toggle('is-sel', state.released === v);
+        btn.setAttribute('aria-pressed', state.released === v ? 'true' : 'false');
+      });
+    }
+
+    var breakingChip = el('button', {
+      class: 'chip', type: 'button', 'aria-pressed': 'false', 'data-i18n': 'cl.breakingOnly',
+      onclick: function () { state.breaking = !state.breaking; breakingChip.classList.toggle('is-sel', state.breaking); breakingChip.setAttribute('aria-pressed', String(state.breaking)); render(); }
+    });
+    var agentChip = el('button', {
+      class: 'chip', type: 'button', 'aria-pressed': 'false', 'data-i18n': 'cl.agentOnly',
+      onclick: function () { state.agent = !state.agent; agentChip.classList.toggle('is-sel', state.agent); agentChip.setAttribute('aria-pressed', String(state.agent)); render(); }
+    });
+
+    catChipsHost = el('div', { class: 'chipset' });
+
+    var dateHost = el('div');
+    var picker = S.datePicker({
+      range: true,
+      onChange: function (from, to) { state.from = from; state.to = to; render(); }
+    });
+    dateHost.appendChild(picker.el);
+    dateHost.appendChild(el('p', { class: 'muted t-body-small', 'data-i18n': 'cl.dateNote' }));
+
+    var filtersInner = el('div', { class: 'cl-filters' }, [
+      el('div', {}, [el('p', { class: 'cap', 'data-i18n': 'cl.filtersTitle' }), relRow]),
+      el('div', { class: 'chipset' }, [breakingChip, agentChip]),
+      el('div', {}, [el('p', { class: 'cap', text: 'Category (' + (DATA.categories || []).length + ')' }), catChipsHost]),
+      dateHost
+    ]);
+    var filterHost = el('div');
+    filterHost.appendChild(filtersInner);
+    filterCollapse = S.collapse.attach(filterHost, { title: S.t('cl.filtersTitle', 'Filters'), descriptive: true, storageKey: 'changelog-filters' });
+
+    var tools = el('div', { class: 'cl-tools' }, [
+      el('button', {
+        class: 'btn btn--outlined', type: 'button',
+        onclick: function () {
+          var vis = visibleVersions();
+          S.copy(markdownFor(vis)).then(function () { S.notify.success(t('cl.copiedBody')); });
+        }
+      }, [icon('copy'), el('span', { 'data-i18n': 'cl.copyVisible', text: t('cl.copyVisible', 'Copy the visible changelog') })]),
+      el('button', {
+        class: 'btn btn--outlined', type: 'button',
+        onclick: function () { S.exportDialog(rowsFor(visibleVersions()), { name: 'changelog', omitted: rangeNote() }); }
+      }, [icon('download'), el('span', { 'data-i18n': 'act.export', text: t('act.export') })])
+    ]);
+
+    countLine = el('p', { class: 'muted t-body-small' });
+
+    listHost = el('div');
+
+    root.appendChild(search.el);
+    root.appendChild(filterHost);
+    root.appendChild(tools);
+    root.appendChild(countLine);
+    root.appendChild(listHost);
+    S.i18n.apply(root);
+    render();
+    return root;
+  }
+
+  function statRow(label, value) {
+    return el('div', { class: 'cl-stat' }, [el('dt', { text: label }), el('dd', { text: value })]);
+  }
+
+  function panelAbout() {
+    var root = el('div', { class: 'cl-panel prose' });
+    S.append(root, [
+      el('h2', { 'data-i18n': 'cl.tabAbout' }),
+      el('p', { class: 'lede', 'data-i18n': 'cl.aboutIntro' }),
+      el('div', { class: 'note' }, [el('p', { 'data-i18n': 'cl.honestyNote' })]),
+
+      el('h3', { text: 'How the category was decided' }),
+      el('p', { text: DATA.derivation.category }),
+      el('h3', { text: 'How "breaking change" was decided' }),
+      el('p', { text: DATA.derivation.breaking }),
+      el('h3', { text: 'How authorship was decided' }),
+      el('p', { text: DATA.derivation.authorship }),
+      el('h3', { text: 'How the date was decided' }),
+      el('p', { text: DATA.derivation.date }),
+
+      el('h3', { text: 'Commit links' }),
+      el('p', { text: DATA.commitLinkNote }),
+      DATA.repositoryWeb ? el('p', {}, ['Repository: ', el('a', { href: DATA.repositoryWeb, rel: 'noopener', text: DATA.repositoryWeb })]) : null,
+
+      el('h3', { text: 'How this file is generated' }),
+      el('div', { class: 'scrollx' }, el('pre', { text: DATA.command })),
+      el('p', { class: 'muted', text: 'Every SHA in the payload is checked with git cat-file --batch-check before the file is written; the generator fails the build rather than emit a link to a commit that does not resolve.' })
+    ].filter(Boolean));
+    return root;
+  }
+
+  /* ================================================================
+   * 6. Tabs, summary, appbar, palette.
+   * ================================================================ */
+  var strip = S.tabs.create(document.getElementById('tabhost'), {
+    id: 'changelog', dock: 'left',
+    tabs: [
+      { id: 'timeline', labelKey: 'cl.tabTimeline', icon: 'history', closable: false, keywords: 'versions entries search filter date category breaking', panel: panelTimeline },
+      { id: 'about', labelKey: 'cl.tabAbout', icon: 'info', closable: false, keywords: 'methodology derivation honesty statistics generator', panel: panelAbout }
+    ]
+  });
+
+  function paintSummary() {
+    var host = document.getElementById('summary');
+    clear(host);
+    S.append(host, [
+      statRow('Versions', String(DATA.versionCount)),
+      statRow('Released', String(DATA.releasedVersionCount)),
+      statRow('Entries', String(DATA.entryCount)),
+      statRow('Agent-authored', DATA.agentEntryCount + ' of ' + DATA.entryCount),
+      statRow('Empty versions', String(DATA.emptyVersionCount)),
+      statRow('Generated', new Date(DATA.generatedAt).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }))
+    ]);
+  }
+
+  function buildAppbarActions() {
+    var host = document.getElementById('appbar-actions');
+    clear(host);
+    var searchBtn = el('button', {
+      class: 'btn btn--icon', type: 'button', 'aria-label': 'Search the changelog', title: 'Search the changelog',
+      onclick: function () { strip.select('timeline'); window.setTimeout(function () { if (search) { search.focus(); search.el.scrollIntoView({ block: 'center' }); } }, 30); }
+    }, icon('search'));
+    var themeBtn = el('button', {
+      class: 'btn btn--icon', type: 'button', 'aria-haspopup': 'menu',
+      'aria-label': t('theme.mode', 'Theme'), title: t('theme.mode', 'Theme'),
+      onclick: function () {
+        S.createMenu({
+          anchor: themeBtn, returnTo: themeBtn, ariaLabel: t('theme.mode', 'Theme'),
+          filterLabel: 'Filter themes', storageKey: 'appbar-theme',
+          items: [
+            { label: t('theme.light', 'Light'), checked: S.theme.mode() === 'light', run: function () { S.theme.setMode('light'); } },
+            { label: t('theme.dark', 'Dark'), checked: S.theme.mode() === 'dark', run: function () { S.theme.setMode('dark'); } },
+            { label: t('theme.system', 'Follow the system'), checked: S.theme.mode() === 'system', run: function () { S.theme.setMode('system'); } },
+            '-',
+            { label: 'Appearance settings', icon: 'palette', run: function () { window.location.href = 'settings.html'; } }
+          ]
+        });
+      }
+    }, icon('eye'));
+    var langBtn = el('button', {
+      class: 'btn btn--icon', type: 'button', 'aria-haspopup': 'menu',
+      'aria-label': t('lang.title', 'Language'), title: t('lang.title', 'Language'),
+      onclick: function () {
+        var items = [{ label: t('lang.en', 'English'), checked: S.i18n.mode() === 'en', run: function () { S.i18n.setMode('en'); } }];
+        if (!S.school.suppresses('cantonese')) items.push({ label: t('lang.zh', 'Cantonese'), checked: S.i18n.mode() === 'zh', run: function () { S.i18n.setMode('zh'); } });
+        if (!S.school.suppresses('bilingual')) items.push({ label: t('lang.both', 'Both'), checked: S.i18n.mode() === 'both', run: function () { S.i18n.setMode('both'); } });
+        S.createMenu({ anchor: langBtn, returnTo: langBtn, ariaLabel: t('lang.title', 'Language'), filterLabel: 'Filter languages', storageKey: 'appbar-language', items: items });
+      }
+    }, icon('globe'));
+    var bellBtn = el('button', {
+      class: 'btn btn--icon', type: 'button', 'aria-label': t('notify.centre', 'Notifications'), title: t('notify.centre', 'Notifications'),
+      onclick: function () { S.notifications.open(bellBtn); }
+    }, icon('bell'));
+    var palBtn = el('button', {
+      class: 'btn btn--icon', type: 'button', 'aria-label': t('palette.title', 'Command palette'),
+      title: t('palette.title', 'Command palette') + ' (' + S.palette.shortcut + ')', 'aria-keyshortcuts': 'Control+Shift+F',
+      onclick: function () { S.palette.open(); }
+    }, icon('grid'));
+    S.append(host, [searchBtn, langBtn, themeBtn, bellBtn, palBtn]);
+  }
+
+  function registerPalette() {
+    var items = [
+      { id: 'changelog.page', title: S.t('cl.title', 'Changelog'), kind: 'page', keywords: 'versions history releases', page: 'changelog.html' },
+      { id: 'changelog.tab.timeline', title: S.t('cl.tabTimeline', 'Timeline'), subtitle: 'Changelog', kind: 'destination', tabStrip: 'changelog', tabId: 'timeline', run: function () { strip.select('timeline'); } },
+      { id: 'changelog.tab.about', title: S.t('cl.tabAbout', 'About this changelog'), subtitle: 'Changelog', kind: 'destination', tabStrip: 'changelog', tabId: 'about', run: function () { strip.select('about'); } },
+      { id: 'changelog.copy', title: S.t('cl.copyVisible', 'Copy the visible changelog'), kind: 'command', keywords: 'markdown export text', run: function () { strip.select('timeline'); var vis = visibleVersions(); S.copy(markdownFor(vis)).then(function () { S.notify.success(S.t('cl.copiedBody')); }); } },
+      { id: 'changelog.export', title: S.t('act.export') + ' the changelog', kind: 'command', keywords: 'csv json export download', run: function () { strip.select('timeline'); S.exportDialog(rowsFor(visibleVersions()), { name: 'changelog', omitted: rangeNote() }); } }
+    ];
+    VERSIONS.forEach(function (v) {
+      var akey = 'changelog:version:' + (v.tag || ('unreleased-' + (v.tagCommit || 'head')));
+      items.push({
+        id: 'changelog.version.' + (v.tag || 'unreleased'), title: v.version,
+        subtitle: (v.released ? v.date : 'Not yet released') + ' · ' + v.entries.length + ' change' + (v.entries.length === 1 ? '' : 's'),
+        kind: 'article', keywords: v.entries.map(function (e) { return e.subject; }).slice(0, 20).join(' '),
+        target: '[data-wds-akey="' + akey + '"]', tabStrip: 'changelog', tabId: 'timeline',
+        run: function () { strip.select('timeline'); }
+      });
+    });
+    S.palette.register(items);
+  }
+
+  /* ================================================================
+   * 7. Go
+   * ================================================================ */
+  S.on('i18n', function () { S.i18n.apply(document.body); paintPageCopy(); paintSummary(); buildAppbarActions(); });
+  paintPageCopy();
+  if (DATA) paintSummary();
+  buildAppbarActions();
+  if (DATA) registerPalette();
+});
+</script>
+</body>
+</html>

@@ -40,6 +40,7 @@ import {
   SETTING_TILE_CACHE,
   STATUS_ID,
   STORE_CAMERA,
+  WORLDLENS_ID,
   WORLD_MAX,
   WORLD_MIN,
   type CameraState,
@@ -59,6 +60,7 @@ import {
 import { TileSource, type SourceStatus } from './source';
 import { el, nextId } from '../../core/a11y';
 import type { ExportFormat, SearchBarHandle, SearchQuery, TabContext } from '../../core/registry';
+import { subscribeMapEndpoint, type WorldlensMapEndpoint } from '../worldlens/endpoint';
 
 const ROWS_PER_PAGE = 60;
 
@@ -477,6 +479,68 @@ export function mountMapTab(host: HTMLElement, ctx: TabContext): void {
     })
   );
   jumpCard.append(jumpActions);
+
+  /* worldlens -------------------------------------------------------- */
+
+  const worldlensCard = ctx.components.card({ variant: 'outlined' });
+  worldlensCard.id = WORLDLENS_ID;
+  worldlensCard.dataset.appearanceId = 'map.worldlens';
+  worldlensCard.append(
+    ctx.components.sectionHeading({ title: 'map.worldlens.title', description: 'map.worldlens.description' })
+  );
+  side.append(worldlensCard);
+
+  const worldlensStatus = el('p', {
+    className: 'map-worldlens__status md-typescale-body-small',
+    attrs: { role: 'status', 'aria-live': 'polite' }
+  });
+  worldlensCard.append(worldlensStatus);
+
+  const worldlensOpenButton = ctx.components.button({
+    label: 'map.worldlens.open',
+    variant: 'tonal',
+    icon: 'world',
+    onClick: () => {
+      void openWorldlensEndpoint();
+    }
+  });
+  worldlensCard.append(worldlensOpenButton);
+
+  let worldlensEndpoint: WorldlensMapEndpoint | null = null;
+
+  function renderWorldlensStatus(): void {
+    if (!worldlensEndpoint) {
+      worldlensStatus.textContent = t(
+        'map.worldlens.idle',
+        'Worldlens is not currently rendering anything. Open its own tab and start a render there to serve a full map here.'
+      );
+      worldlensOpenButton.disabled = true;
+      const reason = t('map.worldlens.idle.reason', 'Nothing is being served yet.');
+      worldlensOpenButton.title = reason;
+      worldlensOpenButton.setAttribute('aria-description', reason);
+      return;
+    }
+    worldlensStatus.textContent = t(
+      'map.worldlens.running',
+      'Serving {world} at {url} ({count} maps)',
+      { world: worldlensEndpoint.worldName, url: worldlensEndpoint.url, count: worldlensEndpoint.mapIds.length }
+    );
+    worldlensOpenButton.disabled = false;
+    worldlensOpenButton.removeAttribute('title');
+    worldlensOpenButton.removeAttribute('aria-description');
+  }
+
+  async function openWorldlensEndpoint(): Promise<void> {
+    const endpoint = worldlensEndpoint;
+    if (!endpoint) return;
+    const result = await window.studio.shell.openExternal(endpoint.url);
+    if (!result.ok) {
+      ctx.notify.error(
+        t('map.worldlens.title', 'Worldlens render'),
+        t('map.worldlens.openFailed', 'That could not be opened: {error}', { error: result.error })
+      );
+    }
+  }
 
   /* markers -------------------------------------------------------- */
 
@@ -1496,12 +1560,17 @@ export function mountMapTab(host: HTMLElement, ctx: TabContext): void {
 
   const stopTheme = ctx.theme.onChange(() => canvas.refreshPalette());
   const stopMarkers = store.onChange(() => canvas.draw());
+  const stopWorldlens = subscribeMapEndpoint((endpoint) => {
+    worldlensEndpoint = endpoint;
+    renderWorldlensStatus();
+  });
 
   ctx.onDispose(() => {
     if (refreshTimer) window.clearInterval(refreshTimer);
     stopSettings();
     stopTheme();
     stopMarkers();
+    stopWorldlens();
     search.destroy();
     canvas.dispose();
     source.dispose();

@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Documentation · World Downloader Studio</title>
+<meta name="description" content="Redirects to the documentation reader at ../docs.html, keeping any deep link intact.">
+<meta name="color-scheme" content="light dark">
+<meta name="robots" content="noindex">
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/material.css">
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+  /* This page has exactly one job: forward to ../docs.html, keeping
+     whatever query string or #hash the visitor arrived with (an
+     article deep link, a teleport from the command palette, an
+     inventory-row link from the landing page). It exists only because
+     a couple of the site's other pages still link to "docs/index.html"
+     from before the reader settled at "docs.html"; nothing here is a
+     second copy of the documentation. Every colour is a token, so this
+     redirect still looks correct in whichever theme fires before the
+     navigation completes. */
+  body {
+    background: var(--md-sys-color-surface);
+    color: var(--md-sys-color-on-surface);
+    min-height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    padding: 24px;
+  }
+  .redirect-card {
+    max-width: 440px;
+    display: flex; flex-direction: column; gap: 12px; align-items: flex-start;
+  }
+  .redirect-card a { color: var(--md-sys-color-primary); }
+</style>
+<script>
+  /* A plain assignment (not replace) so a visitor who lands here
+     directly still gets a normal, back-button-friendly navigation. */
+  window.location.href = '../docs.html' + window.location.search + window.location.hash;
+</script>
+</head>
+<body>
+  <noscript>
+    <div class="redirect-card">
+      <p>The documentation reader moved to <a href="../docs.html">../docs.html</a>.</p>
+      <p><a class="btn btn--filled" href="../docs.html">Open the documentation</a></p>
+    </div>
+  </noscript>
+  <div class="redirect-card">
+    <p>Taking you to the documentation reader…</p>
+    <p><a href="../docs.html">Open it directly</a> if nothing happens.</p>
+  </div>
+</body>
+</html>

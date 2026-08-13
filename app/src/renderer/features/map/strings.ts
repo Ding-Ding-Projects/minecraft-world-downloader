@@ -1127,6 +1127,85 @@ export const MAP_STRINGS: Catalogue = {
     yue: ['打唔開嗰個資料夾：{error}', '打唔開嗰個資料夾：{error}', '嗰個資料夾唔肯開：{error}', '嗰個資料夾唔肯開：{error}', '嗰個資料夾唔肯開：{error}']
   },
 
+  /* ---------------- worldlens ---------------- */
+
+  'map.worldlens.title': {
+    en: ['Worldlens render', 'Worldlens render', 'Worldlens render', 'Worldlens render', 'Worldlens render'],
+    yue: ['Worldlens 算圖', 'Worldlens 算圖', 'Worldlens 算圖', 'Worldlens 算圖', 'Worldlens 算圖']
+  },
+  'map.worldlens.description': {
+    en: [
+      'Worldlens is a separate companion application that can render this world into a full, browsable map, served locally while it runs. This card shows what it is currently serving; it never renders anything itself.',
+      'Worldlens is a separate companion application that can render this world into a full, browsable map, served locally while it runs. This card shows what it is currently serving; it never renders anything itself.',
+      'Worldlens is a separate companion application that renders this world into a full, browsable map, served locally while it runs. This card just shows what it is serving — it never renders anything itself.',
+      'Worldlens is the separate companion app that does the fancy rendering, served locally while it runs. This card is a window onto whatever it is serving, nothing more — the actual drawing happens over there.',
+      'Worldlens is the separate companion app that does the fancy rendering, served locally while it runs. This card is a window onto whatever it is serving, nothing more — the actual drawing happens over there.'
+    ],
+    yue: [
+      'Worldlens 係一個獨立嘅同伴應用程式，可以將呢個世界算成一個完整、可瀏覽嘅地圖，運行時只會喺本機提供。呢張卡淨係顯示佢而家提供緊乜嘢，本身唔會算任何圖。',
+      'Worldlens 係一個獨立嘅同伴應用程式，可以將呢個世界算成一個完整、可瀏覽嘅地圖，運行時只會喺本機提供。呢張卡淨係顯示佢而家提供緊乜嘢，本身唔會算任何圖。',
+      'Worldlens 係獨立嘅同伴應用程式，會將呢個世界算成完整可瀏覽嘅地圖，運行時淨係喺本機提供。呢張卡淨係顯示緊供緊乜嘢，本身唔算圖。',
+      'Worldlens 係嗰個做靚仔算圖嘅獨立拍檔，運行時淨係喺本機提供。呢張卡淨係一扇窗，望住佢而家喺提供緊乜嘢 — 真正嘅畫圖喺嗰邊做。',
+      'Worldlens 係嗰個做靚仔算圖嘅獨立拍檔，運行時淨係喺本機提供。呢張卡淨係一扇窗，望住佢而家喺提供緊乜嘢 — 真正嘅畫圖喺嗰邊做。'
+    ]
+  },
+  'map.worldlens.idle': {
+    en: [
+      'Worldlens is not currently rendering anything. Open its own tab and start a render there to serve a full map here.',
+      'Worldlens is not currently rendering anything. Open its own tab and start a render there to serve a full map here.',
+      'Worldlens is not rendering anything right now. Open its tab and start a render there, and it turns up here.',
+      'Worldlens has nothing on the go right now. Start a render from its own tab and it shows up here the moment it is serving.',
+      'Worldlens has nothing on the go right now. Start a render from its own tab and it shows up here the moment it is serving.'
+    ],
+    yue: [
+      'Worldlens而家未有算緊任何嘢。去佢自己個分頁開始一個算圖，先會喺呢度提供完整地圖。',
+      'Worldlens而家未有算緊任何嘢。去佢自己個分頁開始一個算圖，先會喺呢度提供完整地圖。',
+      'Worldlens而家冇嘢算緊。去佢個分頁開始算圖，就會喺呢度出現。',
+      'Worldlens而家得閒緊。喺佢自己個分頁開始算圖，一提供緊就即刻喺呢度出現。',
+      'Worldlens而家得閒緊。喺佢自己個分頁開始算圖，一提供緊就即刻喺呢度出現。'
+    ]
+  },
+  'map.worldlens.idle.reason': {
+    en: [
+      'Nothing is being served yet.',
+      'Nothing is being served yet.',
+      'Nothing is being served yet.',
+      'Nothing is being served yet.',
+      'Nothing is being served yet.'
+    ],
+    yue: ['而家未提供緊任何嘢。', '而家未提供緊任何嘢。', '而家未提供緊任何嘢。', '而家未提供緊任何嘢。', '而家未提供緊任何嘢。']
+  },
+  'map.worldlens.running': {
+    en: [
+      'Serving {world} at {url} ({count} maps)',
+      'Serving {world} at {url} ({count} maps)',
+      'Serving {world} at {url} ({count} maps)',
+      'Serving {world} at {url} ({count} maps)',
+      'Serving {world} at {url} ({count} maps)'
+    ],
+    yue: ['正提供緊 {world}，喺 {url}（{count} 個地圖）', '正提供緊 {world}，喺 {url}（{count} 個地圖）', '正提供緊 {world}，喺 {url}（{count} 個地圖）', '正提供緊 {world}，喺 {url}（{count} 個地圖）', '正提供緊 {world}，喺 {url}（{count} 個地圖）']
+  },
+  'map.worldlens.open': {
+    en: [
+      'Open in browser',
+      'Open in browser',
+      'Open it in the browser',
+      'Pop it open in the browser',
+      'Pop it open in the browser'
+    ],
+    yue: ['喺瀏覽器打開', '喺瀏覽器打開', '喺瀏覽器打開佢', '喺瀏覽器彈返個出嚟', '喺瀏覽器彈返個出嚟']
+  },
+  'map.worldlens.openFailed': {
+    en: [
+      'That could not be opened: {error}',
+      'That could not be opened: {error}',
+      'That would not open: {error}',
+      'That flatly refused to open: {error}',
+      'That flatly refused to open: {error}'
+    ],
+    yue: ['打唔開：{error}', '打唔開：{error}', '嗰個唔肯開：{error}', '嗰個死都唔肯開：{error}', '嗰個死都唔肯開：{error}']
+  },
+
   /* ---------------- palette ---------------- */
 
   'map.palette.open': {
@@ -1150,6 +1229,16 @@ export const MAP_STRINGS: Catalogue = {
   'map.palette.layers': {
     en: ['Live map: layers', 'Live map: layers', 'Live map: layers', 'Live map: layers', 'Live map: layers'],
     yue: ['即時地圖：圖層', '即時地圖：圖層', '即時地圖：圖層', '即時地圖：圖層', '即時地圖：圖層']
+  },
+  'map.palette.worldlens': {
+    en: [
+      'Live map: Worldlens render',
+      'Live map: Worldlens render',
+      'Live map: Worldlens render',
+      'Live map: Worldlens render',
+      'Live map: Worldlens render'
+    ],
+    yue: ['即時地圖：Worldlens 算圖', '即時地圖：Worldlens 算圖', '即時地圖：Worldlens 算圖', '即時地圖：Worldlens 算圖', '即時地圖：Worldlens 算圖']
   },
   'map.palette.refresh': {
     en: [

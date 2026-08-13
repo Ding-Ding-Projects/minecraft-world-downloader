@@ -1,0 +1,228 @@
+/*
+ * Styles for the `updates` feature.
+ *
+ * Every colour, radius, spacing and duration comes from a design-system token so
+ * the whole surface follows the user's seed colour, density and motion
+ * preferences automatically. Nothing here is a literal colour or a literal
+ * pixel radius.
+ */
+
+.updates-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-6);
+  max-width: 100%;
+  overflow-x: auto;
+  padding-bottom: var(--md-space-8);
+}
+
+/* -------------------------------------------------------------------- */
+/* The unsigned-artifact notice                                          */
+/* -------------------------------------------------------------------- */
+
+.updates-unsigned {
+  display: flex;
+  gap: var(--md-space-3);
+  align-items: flex-start;
+  padding: var(--md-space-4);
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: var(--md-sys-color-warning-container);
+  color: var(--md-sys-color-on-warning-container);
+}
+
+.updates-unsigned h2 {
+  margin: 0 0 var(--md-space-1) 0;
+}
+
+.updates-unsigned p {
+  margin: 0;
+}
+
+/* -------------------------------------------------------------------- */
+/* Status card                                                           */
+/* -------------------------------------------------------------------- */
+
+.updates-status {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-3);
+  padding: var(--md-space-5);
+  border-radius: var(--md-sys-shape-corner-large);
+  background: var(--md-sys-color-surface-container);
+}
+
+.updates-status h2 {
+  margin: 0;
+}
+
+.updates-status__state {
+  display: flex;
+  align-items: center;
+  gap: var(--md-space-3);
+}
+
+.updates-status__failure {
+  margin: 0;
+  color: var(--md-sys-color-error);
+}
+
+.updates-status__failure:empty {
+  display: none;
+}
+
+.updates-status__progress {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-2);
+}
+
+.updates-facts {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--md-space-1) var(--md-space-4);
+  margin: 0;
+}
+
+@media (min-width: 640px) {
+  .updates-facts {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  }
+}
+
+.updates-facts dt {
+  margin: 0;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.updates-facts dd {
+  margin: 0 0 var(--md-space-2) 0;
+  overflow-wrap: anywhere;
+}
+
+/* -------------------------------------------------------------------- */
+/* Actions row                                                           */
+/* -------------------------------------------------------------------- */
+
+.updates-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-space-3);
+}
+
+/* -------------------------------------------------------------------- */
+/* Check log                                                             */
+/* -------------------------------------------------------------------- */
+
+.updates-log {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-3);
+  max-width: 100%;
+}
+
+.updates-selection {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--md-space-3);
+}
+
+.updates-selection > p {
+  margin: 0;
+  margin-right: var(--md-space-2);
+}
+
+.updates-pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--md-space-4);
+}
+
+.updates-pager p {
+  margin: 0;
+}
+
+/* -------------------------------------------------------------------- */
+/* The ready banner                                                      */
+/* -------------------------------------------------------------------- */
+
+.updates-banner-host {
+  position: fixed;
+  right: var(--md-space-5);
+  bottom: var(--md-space-5);
+  z-index: 60;
+  max-width: min(420px, calc(100vw - 2 * var(--md-space-5)));
+  pointer-events: none;
+}
+
+.updates-banner-host[hidden] {
+  display: none;
+}
+
+.updates-banner {
+  pointer-events: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-3);
+  padding: var(--md-space-5);
+  border-radius: var(--md-sys-shape-corner-large);
+  background: var(--md-sys-color-surface-container-high);
+  color: var(--md-sys-color-on-surface);
+  box-shadow: var(--md-sys-elevation-3);
+}
+
+.updates-banner__head {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--md-space-3);
+}
+
+.updates-banner__title {
+  margin: 0;
+  flex: 1 1 auto;
+}
+
+.updates-banner__body {
+  margin: 0;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.updates-banner__facts {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--md-space-1) var(--md-space-3);
+  margin: 0;
+}
+
+.updates-banner__facts dt {
+  margin: 0;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.updates-banner__facts dd {
+  margin: 0 0 var(--md-space-1) 0;
+  overflow-wrap: anywhere;
+}
+
+.updates-banner__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-space-2);
+}
+
+/* -------------------------------------------------------------------- */
+/* The settings-surface status readout                                   */
+/* -------------------------------------------------------------------- */
+
+.updates-setting-status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--md-space-3);
+}
+
+.updates-setting-status__text {
+  margin: 0;
+  color: var(--md-sys-color-on-surface-variant);
+}

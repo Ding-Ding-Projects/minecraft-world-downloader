@@ -90,8 +90,16 @@ for (const line of raw.split(/\r\n|\n|\r/)) {
   if (!section) continue
 
   // Only the feature tables carry a dotted id in the first column.
+  //
+  // The trailing letter is not decoration. A row inserted between two shipped rows takes an id
+  // like `13.2a` rather than renumbering everything after it, because these ids are referenced
+  // from commit messages, issue comments and agent briefs — renumbering silently repoints them.
+  // An earlier version of this pattern required `\d+\.\d+` exactly and therefore skipped every
+  // such row without a word: the guard reported 113 rows against a file holding 114, and the
+  // missing one was simply never checked. A guard that quietly drops a row is the precise failure
+  // this whole file exists to catch, so it is worth stating why the letter is here.
   const id = cells[0]
-  if (!/^\d+\.\d+$/.test(id)) continue
+  if (!/^\d+\.\d+[a-z]?$/.test(id)) continue
 
   rows.push({
     id,
