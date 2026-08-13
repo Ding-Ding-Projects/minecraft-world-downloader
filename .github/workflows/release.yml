@@ -154,14 +154,37 @@ jobs:
         id: collect
         run: |
           set -euo pipefail
-          staging="${GITHUB_WORKSPACE}/staging"
+          # Deliberately relative. On a Windows runner GITHUB_WORKSPACE is a backslash path
+          # (D:\a\repo\repo), and `find` under Git Bash reads those backslashes as escapes; the step
+          # already runs in the workspace root, so a relative path is both simpler and correct. The
+          # PowerShell step below is the one place a native Windows path is right.
+          staging="staging"
           rm -rf "${staging}"
           mkdir -p "${staging}"
 
           # electron-builder writes the Squirrel output into a `squirrel-windows` subdirectory of
           # the configured output directory, so a collector that only looks at the output root
-          # reports a missing installer even though packaging succeeded. Search the whole tree.
-          find app/release -type f \( -name '*.exe' -o -name 'RELEASES' -o -name '*.nupkg' \) > collected.txt 2>/dev/null || true
+          # reports a missing installer even though packaging succeeded.
+          #
+          # Search that subdirectory and NOT the whole tree. A `*.exe` sweep across app/release
+          # also matches app/release/win-unpacked/<product>.exe — the raw unpacked application,
+          # which on this project is 211 MB — plus its ExecutionStub and Squirrel's own bundled
+          # Squirrel.exe. All three shipped as release assets on app-v1.0.64 before this was
+          # narrowed. Nothing failed: the release just carried four files a person would never
+          # download, next to the one they should, with no way to tell which was which.
+          squirrel_dir="app/release/squirrel-windows"
+          if [ ! -d "${squirrel_dir}" ]; then
+            echo "::error title=No Squirrel output::${squirrel_dir} does not exist. Packaging did not produce a Squirrel target."
+            exit 1
+          fi
+
+          # Named exactly, so a future artifact appearing in that directory is not swept in by
+          # accident. Squirrel.exe is the updater stub Squirrel copies in for its own use; it is
+          # not something a user installs.
+          find "${squirrel_dir}" -maxdepth 1 -type f \
+            \( -name '*Setup*.exe' -o -name 'RELEASES' -o -name '*.nupkg' \) \
+            ! -name 'Squirrel.exe' ! -name '*ExecutionStub*' > collected.txt 2>/dev/null || true
+
           found=0
           while IFS= read -r file; do
             [ -n "${file}" ] || continue
@@ -172,7 +195,7 @@ jobs:
           echo "Collected ${found} packaging outputs into staging/"
           ls -la "${staging}"
 
-          setup_count=$(find "${staging}" -maxdepth 1 -type f -name '*.exe' | wc -l | tr -d '[:space:]')
+          setup_count=$(find "${staging}" -maxdepth 1 -type f -name '*Setup*.exe' | wc -l | tr -d '[:space:]')
           releases_count=$(find "${staging}" -maxdepth 1 -type f -name 'RELEASES' | wc -l | tr -d '[:space:]')
           full_count=$(find "${staging}" -maxdepth 1 -type f -name '*-full.nupkg' | wc -l | tr -d '[:space:]')
           delta_count=$(find "${staging}" -maxdepth 1 -type f -name '*-delta.nupkg' | wc -l | tr -d '[:space:]')
