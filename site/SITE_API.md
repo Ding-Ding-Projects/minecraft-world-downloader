@@ -63,6 +63,15 @@ These are not style preferences. Each one is a contract the site is checked agai
   genuinely illustrative, label it as a static preview and do not style it like a live control.
 - **Register everything on the palette.** Every page, every article, every setting, every appearance
   control. A feature nobody can find by name is a feature that is not palette-complete.
+- **Below 899px, the header collapses to two menu buttons instead of shrinking the text nav.** Six
+  of the seven pages ship a real static `<nav class="site-nav">` full of plain `<a href>` links,
+  hidden below 899px in favour of `.site-nav-toggle` (see `initSiteNav` in `assets/site.js`), and
+  the action icons past the first one fold into a `[data-overflow-more]` "More" button (see
+  `initActionOverflow`). Before this existed, the seven-link nav grew to a **580px-tall** column
+  below 899px and clipped the page title off the edge; the collapsed header is now **57px**.
+  Verified at 320, 360, 390 and 768px — see the phone captures under
+  [`../docs/images/site/`](../docs/images/site/) and the measured before/after touch-target counts
+  in the repository [`README.md`](../README.md#documentation-site).
 
 ---
 

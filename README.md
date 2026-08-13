@@ -132,6 +132,30 @@ release — produced end-to-end through the dockerized downloader. See
 [`docs/testing/goal-3pass-report.md`](docs/testing/goal-3pass-report.md) for the full 3-pass Docker
 feature test (all features + combinations, world load-back, BlueMap, upgrade-playability).
 
+### The desktop app opens straight into the world downloader
+
+The world downloader is the default, permanent, top destination — not one tile among many. On a
+fresh install the desktop app opens quiet: the world downloader active, and the other 35 features
+tucked away behind five collapsible groups (**Bot control**, **Tools**, **Personalisation**,
+**Records**, **Security**) that start collapsed, so the tab strip doesn't greet you with a wall of
+tabs.
+
+<img src="docs/images/captures/00-main-window.png" width="80%" alt="World Downloader Studio's default view on a fresh profile: the World downloader tab active, the sidebar showing only the top-level destinations with all five feature groups collapsed, and a first-launch tip about the humour-level setting anchored bottom-left.">
+
+Expand any group and nothing is missing — all 35 features are exactly where their group says:
+
+<img src="docs/images/captures/20-tab-groups-expanded.png" width="30%" alt="The tab strip with all five groups expanded, showing every one of the 35 grouped features: Bot control (Bot chat, Pattern rules, Server text, Bots, Bot events, The world, Bot movement, Inventory, Containers, Crafting, Workstations, Villager trading), Tools (Authenticator, Verification, Convert some files, Downloads, Format catalog, PDF toolbox, External editor, App updates, Local models, Model store, Model chat, Harness profiles), Personalisation (Appearance, Language, School mode, Narrator, Schedule, Application logo, Personal vocabulary, About this application), Records (Documentation, Export, Version history, Protected mutation log, Status, Changelog), and the start of Security (Locks, Support Tickets).">
+
+A status bar now runs along the bottom of the window with live session state — which destination
+is showing, what's running in the background, and how long the app has been up:
+
+<img src="docs/images/captures/21-status-bar.png" width="70%" alt="Close-up of the status bar along the bottom of the window: Viewing: World downloader, No background processes running, Chunks saved: not counted yet, and Up 49m 09s on the right.">
+
+The top toolbar is compact icon buttons instead of padded hero cards — command palette, notifications,
+settings, and the frameless window's own minimize/maximize/close controls:
+
+<img src="docs/images/captures/22-toolbar-closeup.png" width="50%" alt="Close-up of the top toolbar's compact icon buttons: a search icon that opens the command palette (Ctrl+Shift+F), a notifications bell, a settings gear, and the minimize, maximize and close window controls.">
+
 ### Basic usage
 [Download](https://github.com/cafepromenade/minecraft-world-downloader/releases/latest/download/WorldDownloaderManager-Setup.exe) the Windows desktop application and run it. Enter the server address in the address field and press start.
 
@@ -152,7 +176,7 @@ If you run into any problems, check the [FAQ](https://github.com/cafepromenade/m
 <img src="docs/images/captures/readme-live-map.png" width="80%" alt="The Live map tab of World Downloader Studio, showing its marker/grid/crosshair toggles and position panel. This capture was taken with no world downloaded yet in this environment, so the map canvas itself is empty; once chunks are saved they render here as an explorable, pannable/zoomable overview.">
 
 <details>
-<summary><strong>More screenshots</strong> — Overview, World downloader, supported versions, appearance, command palette, bots, local models</summary>
+<summary><strong>More screenshots</strong> — every destination: Overview, World downloader, supported versions, appearance, command palette, bots, local models, console, live map, Worldlens, containers, changelog, settings, version history, notifications, destructive gate, both themes, narrow layout, error state, empty state</summary>
 
 Real captures of the built application (`app/`), taken at the commit this README documents. No mockups, no design files.
 
@@ -160,61 +184,144 @@ Real captures of the built application (`app/`), taken at the commit this README
 |---|---|
 | ![Overview page listing the build's version, Electron/Chromium/Node versions, the 36 installed feature modules, and the bundled documentation count.](docs/images/captures/readme-overview.png) | ![The World downloader tab: Java runtime detection, the jar picker, session status, and the generated command line.](docs/images/captures/readme-world-downloader.png) |
 | Overview — build info, installed modules, docs | World downloader — Java/jar setup, session, command line |
-| ![The World downloader tab scrolled to Live status and the searchable Supported game versions table listing protocol and data versions from 1.8 through 26.x.](docs/images/captures/readme-supported-versions.png) | ![The Appearance tab showing Material Design 3 colour tokens (primary, secondary, tertiary, surface, outline, etc.) with their hex values, plus colour scheme, accent colour, contrast and density controls.](docs/images/captures/readme-appearance.png) |
-| World downloader — live status & supported versions | Appearance — M3 colour tokens and theme controls |
-| ![The command palette open over the Overview page, searching every command, setting and destination; the result count reads 1293 of 1293 shown.](docs/images/captures/readme-command-palette.png) | ![The Bots tab: start-runtime control, a searchable list of saved profiles and live bots, and New profile / Quick connect / Delete / Export actions, in its honest empty state.](docs/images/captures/05-mineflayer-bots.png) |
+| ![The World downloader tab scrolled to the searchable Supported game versions table listing protocol and data versions from 1.8 through 26.x.](docs/images/captures/readme-supported-versions.png) | ![The Appearance tab showing Material Design 3 colour tokens (primary, secondary, tertiary, surface, outline, etc.) with their hex values, plus colour scheme, accent colour, contrast and density controls.](docs/images/captures/readme-appearance.png) |
+| World downloader — supported versions table | Appearance — M3 colour tokens and theme controls |
+| ![The command palette open over the Overview page, searching every command, setting and destination; the result count reads 1325 of 1325 shown.](docs/images/captures/readme-command-palette.png) | ![The Bots tab: start-runtime control, a searchable list of saved profiles and live bots, and New profile / Quick connect / Delete / Export actions, in its honest empty state.](docs/images/captures/05-mineflayer-bots.png) |
 | Command palette — `Ctrl+Shift+F`, searches everything | Bots — mineflayer profiles and live connections |
-| ![The command palette filtered to "Local models", listing matching settings destinations such as Model runtime address, Request timeout, and Catalog source.](docs/images/captures/06-models.png) | ![The Console tab's live Connection card, showing Server address, Proxy port and a Disable SRV lookup toggle with explanatory text.](docs/images/captures/readme-console-connection.png) |
-| Local models — settings reachable from the palette | Console — connection settings, scrolled |
-| ![The Live map tab: no world folder chosen yet, with the Layers panel (render mode, follow player, markers, region grid) and Position panel on the right.](docs/images/captures/readme-live-map.png) | ![The Worldlens destination: the detected Worldlens desktop application, its headless renderer status, and the downloaded-worlds picker.](docs/images/captures/03-worldlens.png) |
-| Live map — tile viewer, layers, position | Worldlens — the companion renderer app |
-| ![The Server tab mid-check: "Checking whether Docker is here", running `docker version` to find the daemon, with the container filters and bulk-action row beneath it.](docs/images/captures/02-server.png) | ![The Console tab's own panel: Service status Not configured with net::ERR_CONNECTION_REFUSED, and the Configuration section with its search field.](docs/images/captures/04-console.png) |
-| Server — Docker container management | Console — service status and configuration |
-| ![The Changelog viewer: 142 versions and 1323 commits, category filters (Added, Changed, Fixed, Security, …), a release date-range picker, and the Unreleased entry with its commit hash.](docs/images/captures/08-changelog.png) | ![The Settings surface: language, per-language humour-level sliders, and the row of settings-category icons above the search field.](docs/images/captures/09-settings.png) |
-| Changelog — every release, linked to its commit | Settings — language, humour levels, categories |
-| ![The Version history panel: a local Git-backed log of real settings changes from this capture session, with action-type filters and a date-range picker.](docs/images/captures/10-history.png) | ![The Notifications centre: severity and source filters, an All / Still showing / Dismissed toggle, and session statistics for the one real toast raised.](docs/images/captures/11-notifications.png) |
-| Version history — local, Git-backed, filterable | Notification centre — filters and statistics |
-| ![The Appearance Studio's Theme tab: colour-role swatches with hex values, and the Light / Dark / Follow the system segmented control.](docs/images/captures/12-appearance-studio.png) | ![The destructive-confirmation gate for "Reset every setting": the affected-keys list, the irreversible-action sentence, two independent keys, and the confirmation slider.](docs/images/captures/17-destructive-gate.png) |
-| Appearance editor — theme tokens and controls | Destructive-action super-confirmation gate |
-| ![The World downloader tab rendered in the light colour scheme.](docs/images/captures/13-theme-light.png) | ![The same World downloader tab rendered in the dark colour scheme.](docs/images/captures/14-theme-dark.png) |
-| Light theme | Dark theme |
-| ![The Overview page at a 400×900 viewport: the navigation rail has collapsed to icons only and the info cards keep their own horizontal scroll.](docs/images/captures/15-narrow-layout.png) | ![A non-blocking error notification anchored bottom-left, raised through the application's real `window.onerror` handler, with its message and a Dismiss action.](docs/images/captures/18-error-state.png) |
-| Narrow layout — collapsed navigation rail | Error state — real error-handling path, not a mock |
-| ![The Authenticator destination with no accounts registered: "Nothing in here yet — there is no sample data: an empty list means the list really is empty," beside a disabled bulk-action row.](docs/images/captures/19-empty-state.png) | |
-| Authenticator — a second honest empty state | |
+| ![The command palette filtered to "Local models", listing matching settings destinations such as Model runtime address, Request timeout, and Catalog source.](docs/images/captures/16-settings-search.png) | ![The Local model runtime tab: a live Ollama runtime answering at 127.0.0.1:11434 and two installed models (gemma4, qwen3.6) with size, parameters, quantization and hardware-fit columns.](docs/images/captures/06-models.png) |
+| Command palette — filtered results stay live controls | Local models — a real, running Ollama detected |
+| ![The Console tab's live Connection card, showing Server address, Proxy port and a Disable SRV lookup toggle with explanatory text.](docs/images/captures/readme-console-connection.png) | ![The Live map tab: no world folder chosen yet, with the Layers panel (render mode, follow player, markers, region grid) and Position panel on the right.](docs/images/captures/readme-live-map.png) |
+| Console — connection settings, scrolled | Live map — tile viewer, layers, position |
+| ![The Worldlens destination: the detected Worldlens desktop application, its headless renderer status, and the downloaded-worlds picker.](docs/images/captures/03-worldlens.png) | ![The Containers tab mid-check: "Checking whether Docker is here", running `docker version` to find the daemon, with the state filters and bulk-action row beneath it.](docs/images/captures/02-server.png) |
+| Worldlens — the companion renderer app | Containers — Docker container management |
+| ![The Console tab's own panel: Service status Not configured with net::ERR_CONNECTION_REFUSED, and the Configuration section with its search field.](docs/images/captures/04-console.png) | ![The Changelog viewer: 142 versions and 1323 commits, category filters (Added, Changed, Fixed, Security, …), a release date-range picker, and the Unreleased entry with its commit hash.](docs/images/captures/08-changelog.png) |
+| Console — service status and configuration | Changelog — every release, linked to its commit |
+| ![The Settings surface: language, per-language humour-level sliders, and the nested settings-tab list including a still-unfixed literal `{name}` label.](docs/images/captures/09-settings.png) | ![The Version history panel: a local Git-backed log of real settings changes from this capture session, with action-type filter chips and a date-range picker.](docs/images/captures/10-history.png) |
+| Settings — language, humour levels, categories | Version history — local, Git-backed, filterable |
+| ![The Notifications centre: severity and source filters, an All / Still showing / Dismissed toggle, and session statistics for the nine real warnings raised this session.](docs/images/captures/11-notifications.png) | ![The Appearance Studio's Theme tab: colour-role swatches with hex values, and the Light / Dark / Follow the system segmented control.](docs/images/captures/12-appearance-studio.png) |
+| Notification centre — filters and statistics | Appearance editor — theme tokens and controls |
+| ![The destructive-confirmation gate for "Reset every setting": the affected-keys list, the irreversible-action sentence, two independent keys, and the confirmation slider, anchored beside the button that opened it.](docs/images/captures/17-destructive-gate.png) | ![The World downloader tab rendered in the light colour scheme.](docs/images/captures/13-theme-light.png) |
+| Destructive-action super-confirmation gate | Light theme |
+| ![The same World downloader tab rendered in the dark colour scheme.](docs/images/captures/14-theme-dark.png) | ![The Overview page at a 400×900 viewport: the tab strip has collapsed to icons only and the info cards keep their own horizontal scroll.](docs/images/captures/15-narrow-layout.png) |
+| Dark theme | Narrow layout — collapsed tab strip |
+| ![A non-blocking error notification anchored bottom-left, raised through the application's real global error handler, with its message and a Dismiss action.](docs/images/captures/18-error-state.png) | ![The Authenticator destination with no accounts registered: "Nothing in here yet — there is no sample data: an empty list means the list really is empty," beside a disabled bulk-action row.](docs/images/captures/19-empty-state.png) |
+| Error state — real error-handling path, not a mock | Authenticator — a second honest empty state |
 
 </details>
 
 <details>
 <summary><strong>Capture method and commit</strong></summary>
 
-Every image above is a real screenshot of the packaged desktop application (`electron-builder --win --dir`),
+Every image above is a real screenshot of the packaged desktop application
+(`npm run build && npx electron-builder --win --dir --config electron-builder.yml`, both exit `0`),
 launched on an off-screen Windows desktop and driven over the Chrome DevTools Protocol — no mockups, no
 design-system pages, no hand-edited pixels. The build was made from commit
-[`d5b9501`](https://github.com/cafepromenade/minecraft-world-downloader/commit/d5b9501ae7ae8682663f439bb63b6fde2478595)
-plus the `core/coreFeature.ts` edit that was already in the working tree at build time (since landed on the
-branch); the packaged executable's timestamp is `2026-08-13 12:36:37 -0400`. Several unrelated commits from
-other lanes have landed on this branch after that build finished; this capture matrix does not reflect them,
-and a later capture pass should refresh it against the branch's current tip.
+[`f0d1e71`](https://github.com/cafepromenade/minecraft-world-downloader/commit/f0d1e71c6a553ed3975c4098d6cb7c1a610ff179),
+the tip of `main` at capture time, working tree clean.
 
-The first launch of a fresh `electron-builder --dir` package failed immediately with
-`ERROR:base\i18n\icu_util.cc:223] Invalid file descriptor to ICU data received.` (exit `-2147483645`) on
-every subsequent attempt: the packaged `release/win-unpacked/` directory was missing `icudtl.dat`,
-`locales/`, `chrome_100_percent.pak`, `chrome_200_percent.pak`, `resources.pak`, `snapshot_blob.bin`,
-`version`, `vk_swiftshader_icd.json`, `vulkan-1.dll`, `LICENSE` and `LICENSES.chromium.html` — normal
-Electron `dist/` resource files that a `--dir` package should always carry. Copying them from
-`node_modules/electron/dist/` into `release/win-unpacked/` made the packaged app launch reliably. This
-looked like packaging-cache or antivirus interference rather than a source defect (the very first launch,
-before the userData reset in this session, did succeed against the same directory), but the missing-files
-symptom and the fix are recorded here in case a future packaging run hits it again.
+The full 35-feature, five-group tab strip was reached by clicking every group's expand chevron and
+capturing the sidebar at an emulated 3300px-tall viewport so nothing had to be cropped out; the default
+fresh-profile hero shot (`00-main-window.png`) came from a genuinely empty profile — the real
+`%APPDATA%\world-downloader-studio` directory was moved aside, the app was launched cold, and the
+directory was moved back afterward once every capture was done, so no throwaway profile data was left
+behind.
 
-Two small existing UI defects surfaced incidentally while driving the app for these captures, unrelated to
-the capture work itself: the Changelog destination's palette subtitle renders the literal untranslated key
-`changelog.subtitle` instead of real copy (visible in the command-palette search results for "Changelog"),
-and one settings row in the desktop app's own Settings surface renders `{name}` as both its label and its
-description instead of the school-mode display-name copy (visible behind the destructive-confirmation gate
-capture and in the error-state capture). Neither was fixed here — this is the captures lane, not the i18n
-lane — but they are real, reproducible, and worth a follow-up fix.
+**A real, reproducible tab-switching bug was found while driving the app for these captures.** Clicking
+through the sidebar in a live session can leave a *previous* destination's content pane still mounted and
+visible (`offsetParent !== null`) underneath or alongside the newly selected one — observed with three
+different destinations simultaneously rendered as "visible" at once — even though the sidebar highlight
+and the status bar's "Viewing: …" label both update correctly to the new destination. A full page reload
+after navigating reliably shows the single correct panel, which is the workaround this capture pass used
+throughout (click, wait, reload, verify the exactly-one visible heading, then screenshot) rather than
+trusting an in-session click alone. This was not fixed here — this is the captures lane, not the
+navigation-router lane — but it is real, it reproduces on demand, and it is worth a follow-up fix; a user
+clicking quickly between tabs could genuinely see stale content.
+
+One small existing UI defect also surfaced incidentally, unrelated to the capture work itself: one settings
+row in the desktop app's own Settings surface still renders the literal `{name}` as both its label and its
+description instead of the school-mode display-name copy (visible in the nested settings-tab list in
+`09-settings.png`). The previously-noted `changelog.subtitle` literal-key defect has since been fixed — the
+Changelog destination now shows real copy in the command-palette results. Neither item was touched here.
+
+</details>
+
+### Documentation site
+The [documentation site](https://ding-ding-projects.github.io/minecraft-world-downloader/) (`site/`
+in this repository) is a separate, self-contained Material Design 3 web app: seven pages, no
+framework, no CDN, no network request. It carries its own responsive contract — checked at 320,
+360, 390 and 768&nbsp;px — and its header was recently rebuilt because, below 899&nbsp;px, the old
+seven-link text navigation no longer fit beside the brand and the action icons on one row: it
+collapsed into a column that grew to **580&nbsp;px tall** and clipped the page title
+("Documentation") right off the edge. The fix folds that navigation behind one menu button and
+folds the action icons behind a second, bringing the same header down to **57&nbsp;px**.
+
+<img src="docs/images/site/phone-360-docs-01-header.png" width="30%" alt="The documentation site's Documentation page at 360px wide: a slim, single-row header — brand mark, a shortened title, a menu button, a search button and a more-actions button — with the full page title readable beneath it."> <img src="docs/images/site/phone-360-docs-02-nav-open.png" width="30%" alt="The same page with the site-navigation menu open: a filterable, keyboard-operable list of all seven pages (Home, Documentation, Downloads, Converter, Local models, Changelog, Settings), with Documentation checked as the current page."> <img src="docs/images/site/phone-360-docs-03-overflow-open.png" width="30%" alt="The same page with the action-overflow \"More\" menu open, listing the icon actions that no longer fit in the header row: Language, Theme, Notifications, Command palette, More actions.">
+
+<img src="docs/images/site/desktop-1440-docs.png" width="90%" alt="The Documentation page at 1440px wide: the full seven-link text navigation and every action icon fit directly in the header, so neither the menu button nor the overflow button render at this width.">
+
+<details>
+<summary><strong>Every page, phone and desktop</strong> — index, docs, settings, downloads, changelog, converter, models</summary>
+
+| Phone (360px) — header | Phone (360px) — nav menu | Phone (360px) — action overflow | Desktop (1440px) |
+|---|---|---|---|
+| ![The landing page at 360px: brand mark, shortened title, and (since the landing page has always had its own compact action set rather than the shared site-nav toggle) search, notifications, theme and more-actions icons directly in the header row.](docs/images/site/phone-360-index-01-header.png) | *(no separate nav toggle — see the More actions menu)* | ![The landing page's own "More actions" menu open, listing Documentation, Downloads, Converter, Local models, Changelog, Local history, Locks, Authenticator, Support Tickets, Command palette and both Settings destinations — 12 of 12 shown.](docs/images/site/phone-360-index-03-overflow-open.png) | ![The landing page at 1440px: hero, download card and feature tab host, with the search bar and its results panel in the header.](docs/images/site/desktop-1440-index.png) |
+| ![The Documentation page's collapsed 57px header at 360px.](docs/images/site/phone-360-docs-01-header.png) | ![The Documentation page's site-navigation menu open, 7 of 7 links shown.](docs/images/site/phone-360-docs-02-nav-open.png) | ![The Documentation page's action-overflow menu open, 5 of 5 actions shown.](docs/images/site/phone-360-docs-03-overflow-open.png) | ![The Documentation page at 1440px, full nav strip and article reader visible.](docs/images/site/desktop-1440-docs.png) |
+| ![The Settings page's collapsed header at 360px.](docs/images/site/phone-360-settings-01-header.png) | ![The Settings page's site-navigation menu open.](docs/images/site/phone-360-settings-02-nav-open.png) | ![The Settings page's action-overflow menu open.](docs/images/site/phone-360-settings-03-overflow-open.png) | ![The Settings page at 1440px.](docs/images/site/desktop-1440-settings.png) |
+| ![The Downloads page's collapsed header at 360px.](docs/images/site/phone-360-downloads-01-header.png) | ![The Downloads page's site-navigation menu open.](docs/images/site/phone-360-downloads-02-nav-open.png) | ![The Downloads page's action-overflow menu open.](docs/images/site/phone-360-downloads-03-overflow-open.png) | ![The Downloads page at 1440px.](docs/images/site/desktop-1440-downloads.png) |
+| ![The Changelog page's collapsed header at 360px.](docs/images/site/phone-360-changelog-01-header.png) | ![The Changelog page's site-navigation menu open.](docs/images/site/phone-360-changelog-02-nav-open.png) | ![The Changelog page's action-overflow menu open.](docs/images/site/phone-360-changelog-03-overflow-open.png) | ![The Changelog page at 1440px.](docs/images/site/desktop-1440-changelog.png) |
+| ![The Converter page's collapsed header at 360px.](docs/images/site/phone-360-converter-01-header.png) | ![The Converter page's site-navigation menu open.](docs/images/site/phone-360-converter-02-nav-open.png) | ![The Converter page's action-overflow menu open.](docs/images/site/phone-360-converter-03-overflow-open.png) | ![The Converter page at 1440px.](docs/images/site/desktop-1440-converter.png) |
+| ![The Local models page's collapsed header at 360px.](docs/images/site/phone-360-models-01-header.png) | ![The Local models page's site-navigation menu open.](docs/images/site/phone-360-models-02-nav-open.png) | ![The Local models page's action-overflow menu open.](docs/images/site/phone-360-models-03-overflow-open.png) | ![The Local models page at 1440px.](docs/images/site/desktop-1440-models.png) |
+
+</details>
+
+<details>
+<summary><strong>Mobile contract, measured before and after</strong> — horizontal overflow and touch-target size</summary>
+
+Horizontal page overflow at 320 / 360 / 390 / 768&nbsp;px stayed at **0px on every page at every
+width**, both before this header fix and after it — the header rebuild did not introduce any
+sideways scroll, and none existed beforehand either.
+
+Interactive elements smaller than the 44×44px touch minimum, measured at 360px, dropped sharply
+once the collapsed header stopped squeezing the row beside it:
+
+| Page | Before | After | What is left |
+|---|---:|---:|---|
+| index.html | 16 | **0** | — |
+| docs.html | 18 | **1** | One `Home` breadcrumb link at 40×44px (2px short on width only) |
+| settings.html | 23 | **1** | Same `Home` breadcrumb link |
+| downloads.html | 22 | **1** | Same `Home` breadcrumb link |
+| changelog.html | 51 | **27** | Inline commit-hash and tag links in the changelog body text, each ~36px tall; a real remaining gap, not fixed by the header change and not in scope for this capture pass |
+| converter.html | *(not previously measured)* | 2 | The `Home` breadcrumb link, plus one intentionally `visually-hidden` 1×1px native file input (the real file button beside it is full-size — this is a false positive from measuring a deliberately invisible element) |
+| models.html | *(not previously measured)* | 1 | Same `Home` breadcrumb link |
+
+The remaining `Home` breadcrumb link and the changelog's commit-hash links were not touched by the
+header fix and are real, reproducible gaps against the 44px touch-target rule — left here rather
+than silently fixed as part of a captures-only pass.
+
+</details>
+
+<details>
+<summary><strong>Capture method and commit</strong></summary>
+
+Every image above is a real screenshot of the documentation site's own source (`site/`), served
+locally with `python -m http.server` from commit
+[`f0d1e71`](https://github.com/cafepromenade/minecraft-world-downloader/commit/f0d1e71c6a553ed3975c4098d6cb7c1a610ff179)
+— the commit titled "Make the site usable on a phone: the header was eating the whole first
+screen", the fix these captures exist to verify — and driven over the Chrome DevTools Protocol
+from an Edge instance launched on an off-screen Windows desktop with an isolated profile (`--guest
+--disable-sync --disable-extensions`, verified to expose exactly one page target before anything
+was touched). Phone captures used `Emulation.setDeviceMetricsOverride` at 360×780 with touch
+emulation enabled and a 2x device scale factor; desktop captures used 1440×900 with no device
+scale. No mockups, no design-system pages, no hand-edited pixels.
+
+The site-navigation menu was opened by clicking `.site-nav-toggle`; the action-overflow menu was
+opened by clicking the folded `[data-overflow-more]` button (or, on the landing page, its own
+always-present "More actions" button — the landing page never ships a `.site-nav-toggle` at all,
+by design, per the comments in `site/assets/site.js`). Each menu was closed between captures by
+dispatching a `pointerdown` on the overlay's own backdrop element, matching exactly how the site's
+overlay system defines "click outside" — a plain `Escape` `KeyboardEvent` dispatched from outside
+the page does not reach the menu's own `keydown` listener, since that listener is bound to the menu
+element itself rather than `document`.
 
 </details>
 
