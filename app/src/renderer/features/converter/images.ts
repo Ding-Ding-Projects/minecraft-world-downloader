@@ -296,7 +296,11 @@ export async function decodeRaster(
     );
   }
   deadline.check();
-  const blob = new Blob([bytes], { type: mimeType });
+  // `Blob` wants an `ArrayBuffer`-backed view, not the wider `ArrayBufferLike`
+  // (which also covers `SharedArrayBuffer`) that `Uint8Array`'s own type now
+  // allows; copying through the `Uint8Array` constructor guarantees a plain
+  // `ArrayBuffer` underneath, which is also what every caller here already has.
+  const blob = new Blob([new Uint8Array(bytes)], { type: mimeType });
   let bitmap: ImageBitmap;
   try {
     bitmap = await createImageBitmap(blob);

@@ -447,6 +447,9 @@ export const MODELS_STRINGS: Catalogue = {
   ),
   'models.chat.attachmentAdded': entry(ladder('{name} attached, {size}.'), ladder('已附加 {name}，{size}。')),
   'models.chat.exported': entry(ladder('The session was written to {path}.'), ladder('對話已經寫入 {path}。')),
+  'models.chat.role.user': entry(ladder('You'), ladder('你')),
+  'models.chat.role.assistant': entry(ladder('Model'), ladder('模型')),
+  'models.chat.role.system': entry(ladder('System prompt'), ladder('系統提示')),
 
   /* ---------------- harness ---------------- */
 

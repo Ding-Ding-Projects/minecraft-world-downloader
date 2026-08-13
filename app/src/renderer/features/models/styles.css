@@ -212,10 +212,6 @@
   border: 1px solid var(--md-sys-color-error);
 }
 
-.models-chat-log {
-  display: flex;
-}
-
 .models-chat-stats {
   margin-block-start: var(--md-space-1);
   color: var(--md-sys-color-on-surface-variant);

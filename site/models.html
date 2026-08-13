@@ -1,0 +1,1207 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Local models · World Downloader Studio</title>
+<meta name="description" content="Manage a local Ollama-compatible model runtime from this browser: an installed-model catalog, conservative hardware fit, a batch pull queue, and a local chat surface. No account, no price, no cloud model service.">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='112' fill='%230D8F4E'/%3E%3Cpolygon points='256,52 440,156 256,260 72,156' fill='%23B6FFCE'/%3E%3Cpolygon points='72,156 256,260 256,460 72,356' fill='%2362DE89'/%3E%3Cpolygon points='256,260 440,156 440,356 256,460' fill='%2322A85F'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/tokens.css">
+<link rel="stylesheet" href="assets/material.css">
+<link rel="stylesheet" href="assets/site.css">
+<script defer src="assets/site.js"></script>
+<script defer src="assets/models.js"></script>
+<style>
+/* Page-scoped layout only. Nothing here restyles a .wds- runtime class,
+   and every colour comes from a token. */
+.mdl-host {
+  display: flex; min-height: 68vh; min-width: 0;
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-corner-large);
+  overflow: hidden;
+  background: var(--md-sys-color-surface);
+}
+.mdl-panel { padding: 20px; display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+.mdl-panel > h2:first-child { margin: 0; }
+.mdl-card {
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: var(--md-sys-color-surface-container-low);
+  padding: 16px; display: flex; flex-direction: column; gap: 10px; min-width: 0;
+}
+.mdl-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; min-width: 0; }
+.mdl-fields { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); min-width: 0; }
+.mdl-native {
+  min-height: var(--wds-target-min); width: 100%;
+  padding: 8px 12px; font: inherit; color: var(--md-sys-color-on-surface);
+  background: var(--md-sys-color-surface-container-highest);
+  border: 1px solid var(--md-sys-color-outline);
+  border-radius: var(--md-sys-shape-corner-extra-small);
+}
+.mdl-native:focus-visible { outline: var(--wds-focus-width) solid var(--md-sys-color-secondary); outline-offset: var(--wds-focus-offset); }
+.mdl-dot { width: 10px; height: 10px; border-radius: 999px; flex: none; background: var(--md-sys-color-outline); }
+.mdl-dot--ok { background: var(--md-sys-color-primary); }
+.mdl-dot--warn { background: #B08300; }
+.mdl-dot--err { background: var(--md-sys-color-error); }
+.mdl-list { display: flex; flex-direction: column; gap: 10px; list-style: none; margin: 0; padding: 0; min-width: 0; }
+.mdl-item {
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-corner-medium);
+  padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; min-width: 0;
+  background: var(--md-sys-color-surface);
+}
+.mdl-item__top { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; min-width: 0; }
+.mdl-item__name { font: var(--md-sys-typescale-title-small-weight) var(--md-sys-typescale-title-small-size)/1.3 var(--md-sys-typeface-plain); word-break: break-word; }
+.mdl-item__meta { display: flex; flex-wrap: wrap; gap: 6px; color: var(--md-sys-color-on-surface-variant); font-size: var(--md-sys-typescale-body-small-size); }
+.mdl-item__actions { display: flex; flex-wrap: wrap; gap: 8px; margin-left: auto; }
+.mdl-chat { display: grid; grid-template-columns: minmax(180px, 260px) 1fr; gap: 16px; min-width: 0; min-height: 480px; }
+.mdl-chat__sessions { display: flex; flex-direction: column; gap: 10px; min-width: 0; border-right: 1px solid var(--md-sys-color-outline-variant); padding-right: 16px; }
+.mdl-chat__main { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.mdl-thread { display: flex; flex-direction: column; gap: 10px; min-height: 220px; max-height: 46vh; overflow-y: auto; padding: 4px; }
+.mdl-msg { border-radius: var(--md-sys-shape-corner-medium); padding: 10px 12px; max-width: 88%; white-space: pre-wrap; overflow-wrap: anywhere; }
+.mdl-msg--user { align-self: flex-end; background: var(--md-sys-color-secondary-container); color: var(--md-sys-color-on-secondary-container); }
+.mdl-msg--assistant { align-self: flex-start; background: var(--md-sys-color-surface-container-high); color: var(--md-sys-color-on-surface); }
+.mdl-msg--system { align-self: center; background: transparent; border: 1px dashed var(--md-sys-color-outline-variant); color: var(--md-sys-color-on-surface-variant); font-size: var(--md-sys-typescale-body-small-size); }
+.mdl-compose { display: flex; gap: 8px; align-items: flex-end; }
+.mdl-compose textarea { flex: 1; min-height: 56px; resize: vertical; }
+@media (max-width: 760px) {
+  .mdl-host { min-height: 0; border-radius: var(--md-sys-shape-corner-medium); }
+  .mdl-panel { padding: 16px 12px; gap: 16px; }
+  .mdl-chat { grid-template-columns: 1fr; }
+  .mdl-chat__sessions { border-right: 0; border-bottom: 1px solid var(--md-sys-color-outline-variant); padding-right: 0; padding-bottom: 12px; }
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to the content</a>
+
+<header class="site-appbar">
+  <div class="appbar">
+    <a class="site-brand" href="index.html">
+      <svg class="site-brand__mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none"
+           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 4L3 7v13l6-3 6 3 6-3V4l-6 3z"></path><path d="M9 4v13M15 7v13"></path>
+      </svg>
+      <span class="site-brand__name">World Downloader Studio</span>
+    </a>
+    <nav class="row" aria-label="Site" style="gap:2px;flex:1;min-width:0">
+      <a class="btn btn--text" href="index.html">Home</a>
+      <a class="btn btn--text" href="docs/index.html">Documentation</a>
+      <a class="btn btn--text" href="models.html" aria-current="page">Local models</a>
+      <a class="btn btn--text" href="changelog.html">Changelog</a>
+      <a class="btn btn--text" href="settings.html">Settings</a>
+    </nav>
+    <div class="appbar__actions" id="appbar-actions"></div>
+  </div>
+</header>
+
+<main id="main" class="wrap wrap--wide">
+  <h1 id="page-title">Local models</h1>
+  <p class="lede" id="page-lede"></p>
+
+  <div class="note" id="storage-note"></div>
+
+  <div id="search-host"></div>
+  <div class="mdl-panel" id="search-results" role="region" aria-label="Model search results" hidden style="padding:0"></div>
+
+  <div class="mdl-host" id="tabs-host"></div>
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer__inner">
+    <div>
+      <p><strong>World Downloader Studio</strong></p>
+      <p>Free, for everyone, with no purchase of any kind.</p>
+    </div>
+    <div>
+      <p><a href="index.html">Home</a> · <a href="docs/index.html">Documentation</a> · <a href="settings.html">Settings</a></p>
+      <p id="footer-privacy"></p>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* This page's own inline script must not run until "Studio" (from the
+   deferred assets/site.js) genuinely exists. A <script defer> executes
+   only once the WHOLE document has finished parsing -- which is AFTER
+   an ordinary, non-deferred inline <script> like this one, wherever it
+   sits in the document. Calling Studio.ready(...) directly here throws
+   "Studio is not defined", because at that point in real parsing order
+   the deferred script has not run yet. Waiting for DOMContentLoaded
+   (which fires only after every deferred script has already run) is
+   what makes this safe; see this page's report for the reproduction
+   and why every other page on this site currently has the same defect. */
+window.addEventListener('DOMContentLoaded', function () {
+Studio.ready(function (S) {
+  'use strict';
+
+  var el = S.el, icon = S.icon, t = S.t, clear = S.clear, M = window.WDSModels;
+
+  /* ================================================================
+   * 1. Copy. Five variants per language, lowest funny level first.
+   * Labels and action words stay near-constant; messages, explanations
+   * and empty states carry the humour. The facts inside a message --
+   * which model, which byte count, which limit -- are identical at
+   * every level.
+   * ================================================================ */
+  function same(en, zh) { return { en: [en, en, en, en, en], zh: [zh, zh, zh, zh, zh] }; }
+
+  S.i18n.define({
+    'models.title': same('Local models', '本機模型'),
+    'models.lede': {
+      en: [
+        'Manage a local model runtime from this browser.',
+        'Manage a local model runtime from this browser.',
+        'Talk to a model running on this machine, straight from this browser tab.',
+        'Talk to a model running on this machine, straight from this browser tab. No account, no cloud, no price.',
+        'Talk to a model running right here on this machine, straight from this browser tab -- no account, no cloud, no price, no catch.'
+      ],
+      zh: [
+        '喺呢個瀏覽器管理本機模型運行環境。',
+        '喺呢個瀏覽器管理本機模型運行環境。',
+        '同呢部機度嘅模型傾偈，直接喺個瀏覽器分頁度做。',
+        '同呢部機度嘅模型傾偈，直接喺個瀏覽器分頁度做。冇帳戶、冇雲端、唔使錢。',
+        '同呢部機自己嘅模型傾偈，直接喺瀏覽器分頁度搞掂 -- 冇帳戶、冇雲端、唔使錢、冇陰謀。'
+      ]
+    },
+    'models.storageNote': same(
+      'Everything here lives in this browser: the runtime address, the catalog snapshot, the pull queue and every chat session. Clearing this site\'s storage resets all of it.',
+      '呢度所有嘢都存喺呢個瀏覽器入面：運行位址、目錄快照、下載隊列同埋每個對話。清咗呢個網站嘅儲存就全部歸零。'
+    ),
+
+    'models.tab.overview': same('Connection', '連接'),
+    'models.tab.catalog': same('Catalog', '目錄'),
+    'models.tab.pull': same('Pull queue', '下載隊列'),
+    'models.tab.chat': same('Chat', '對話'),
+    'models.tab.harness': same('Harness launch', '啟動器'),
+
+    'models.scope.title': same('What this page can see', '呢頁睇到啲乜'),
+    'models.scope.note': {
+      en: [
+        'This page only reaches your local model runtime, at the address below. It cannot browse a remote model library, because this site makes no other network request of any kind.',
+        'This page only reaches your local model runtime, at the address below. It cannot browse a remote model library, because this site makes no other network request of any kind.',
+        'This page only ever talks to your local model runtime, at the address below. It has no way to browse a remote model library, because this site is not allowed to make any other network request.',
+        'This page only ever talks to your local model runtime, at the address below, and nowhere else. It genuinely cannot browse a remote model library, because this site is not allowed to make any other network request of any kind -- that full library browse is a desktop application job.',
+        'This page keeps strictly to your local model runtime, at the address below, full stop. It cannot browse a remote model library even if it wanted to, because this site is banned from making any other network request -- browsing the whole library is a job for the desktop application, which does not live inside a browser\'s sandbox.'
+      ],
+      zh: [
+        '呢頁淨係去到你部機嘅本機模型運行環境，即係下面嗰個位址。佢冇辦法瀏覽遠端模型庫，因為呢個網站唔會發任何其他網絡請求。',
+        '呢頁淨係去到你部機嘅本機模型運行環境，即係下面嗰個位址。佢冇辦法瀏覽遠端模型庫，因為呢個網站唔會發任何其他網絡請求。',
+        '呢頁淨係識傾你部機嘅本機模型運行環境，下面嗰個位址。佢真係冇得瀏覽遠端模型庫，因為呢個網站冇得發第二個網絡請求。',
+        '呢頁死死氣淨係識傾你部機嘅本機模型運行環境，下面嗰個位址，第二樣都唔識。佢真係冇得瀏覽遠端模型庫，因為呢個網站唔准發任何其他網絡請求 -- 瀏覽成個庫嗰份工係桌面應用程式嘅事。',
+        '呢頁死忠淨係識傾本機模型運行環境，下面嗰個位址，句號。就算想瀏覽遠端模型庫都冇得瀏覽，因為呢個網站畀人禁咗發任何其他網絡請求 -- 瀏覽成個庫嗰份工留返畀桌面應用程式，佢冇困喺瀏覽器個沙盒入面。'
+      ]
+    },
+
+    'models.baseUrl.label': same('Runtime address', '運行環境位址'),
+    'models.baseUrl.explain': same(
+      'The loopback address this page sends every request to. Change it if your runtime listens on a different port. This is not stored anywhere but this browser.',
+      '呢頁發送所有請求嗰個本機位址。如果你嘅運行環境用緊第二個埠，可以喺呢度改。呢個設定淨係存喺呢個瀏覽器度。'
+    ),
+    'models.probe': same('Check connection', '檢查連接'),
+    'models.probe.checking': same('Checking…', '檢查緊…'),
+
+    'models.state.reachable': {
+      en: ['Connected.', 'Connected.', 'Connected -- the runtime answered.',
+        'Connected. The runtime answered right there, no fuss.',
+        'Connected! The runtime picked up straight away, no drama at all.'],
+      zh: ['已連接。', '已連接。', '已連接 -- 運行環境有回應。',
+        '已連接。運行環境即刻應咗聲，冇拖拖拉拉。',
+        '接通咗！運行環境一叫就應，一啲戲都冇做。']
+    },
+    'models.state.corsBlocked': {
+      en: ['Blocked by the runtime\'s CORS setting.', 'Blocked by the runtime\'s CORS setting.',
+        'Something answered, but this page\'s origin is not on the allowed list.',
+        'Something answered at that address, but the runtime has not been told this page\'s origin is allowed to read the response.',
+        'Something is definitely listening there, but the runtime is politely refusing to let this exact page read the answer -- that is a permissions setting, not a dead runtime.'],
+      zh: ['俾運行環境嘅 CORS 設定擋咗。', '俾運行環境嘅 CORS 設定擋咗。',
+        '有嘢應咗聲，但係呢頁嘅來源唔喺俾准許嘅名單度。',
+        '嗰個位址有嘢應緊聲，但運行環境未俾准許呢頁嘅來源讀個回應。',
+        '嗰度實在有嘢喺聽緊，但運行環境好客氣噉唔俾呢頁讀個答案 -- 呢個係權限設定嘅事，唔係運行環境死咗。']
+    },
+    'models.state.unreachable': {
+      en: ['Nothing answered.', 'Nothing answered.', 'Nothing answered at that address.',
+        'Nothing answered at that address. It is probably not running, or it is on a different port.',
+        'Total silence at that address. Either it is not running right now, or it has moved to a different port and nobody told this page.'],
+      zh: ['完全冇回應。', '完全冇回應。', '嗰個位址完全冇回應。',
+        '嗰個位址完全冇回應。可能未運行緊，或者用緊第二個埠。',
+        '嗰個位址靜到一嚿雲噉。要嘛未運行緊，要嘛搬咗去第二個埠，冇同呢頁講過一聲。']
+    },
+    'models.state.unsupported': same(
+      'This browser cannot make this kind of request at all.',
+      '呢個瀏覽器根本做唔到呢種請求。'
+    ),
+    'models.state.unknown': same('Not checked yet.', '仲未檢查過。'),
+
+    'models.catalog.title': same('Installed model catalog', '已安裝模型目錄'),
+    'models.catalog.refresh': same('Refresh catalog', '重新整理目錄'),
+    'models.catalog.empty': {
+      en: ['No models are installed.', 'No models are installed.',
+        'Nothing installed yet on this runtime.',
+        'This runtime has nothing installed yet -- add one below once it is connected.',
+        'Zero models installed so far. Very tidy, very empty -- add one below once this is connected.'],
+      zh: ['未安裝任何模型。', '未安裝任何模型。',
+        '呢個運行環境仲未裝任何嘢。',
+        '呢個運行環境一個模型都未裝 -- 接通咗之後喺下面加一個啦。',
+        '一個模型都未裝，靚仔咁乾淨 -- 接通咗就喺下面加返一個。']
+    },
+    'models.catalog.stale': same('Last refreshed', '上次重新整理'),
+    'models.catalog.disconnected': {
+      en: ['Not connected right now.', 'Not connected right now.',
+        'Showing the last verified state -- not connected right now.',
+        'Showing the last verified state, because this page is not connected right now. Nothing here is guessed.',
+        'This is only the last verified state, on record -- this page is not connected right now, and it will not make up a new entry to fill the gap.'],
+      zh: ['而家未接通。', '而家未接通。',
+        '顯示緊最後一次核實嘅狀態 -- 而家未接通。',
+        '顯示緊最後一次核實嘅狀態，因為而家未接通。呢度冇一樣係估嘅。',
+        '呢度得返最後一次核實嘅狀態 -- 而家未接通，佢唔會亂噏一個新嘅嚟填空。']
+    },
+    'models.fit.title': same('Hardware fit', '硬件配合度'),
+    'models.fit.disclaimer': {
+      en: [
+        'A browser cannot see a graphics card, its memory, or free disk space, so this is a conservative estimate at best.',
+        'A browser cannot see a graphics card, its memory, or free disk space, so this is a conservative estimate at best.',
+        'A browser cannot see a graphics card, its memory or free disk space, so treat every verdict here as a conservative guess, not a promise.',
+        'A browser genuinely cannot see a graphics card, its VRAM or free disk space, so every verdict here is a conservative guess at best -- the desktop application can see the real hardware and give a real answer.',
+        'A browser is stuck guessing: no graphics card, no VRAM, no free disk space in sight, so every verdict here is conservative at best and should not be trusted as a promise -- for a real answer, ask the desktop application, which can actually see the hardware.'
+      ],
+      zh: [
+        '瀏覽器睇唔到顯示卡、佢嘅記憶體或者剩返幾多磁碟空間，所以呢度最多都係一個保守估計。',
+        '瀏覽器睇唔到顯示卡、佢嘅記憶體或者剩返幾多磁碟空間，所以呢度最多都係一個保守估計。',
+        '瀏覽器真係睇唔到顯示卡、VRAM 或者剩返嘅磁碟空間，所以呢度每個判斷都係保守猜測，唔係承諾。',
+        '瀏覽器真係乜都睇唔到 -- 冇顯示卡、冇 VRAM、冇磁碟空間 -- 所以呢度每個判斷都只係保守猜測，唔好當佢係承諾。想要真答案，問桌面應用程式，佢真係睇到啲硬件。',
+        '瀏覽器窒喺度：冇顯示卡、冇 VRAM、連幾多磁碟空間都睇唔到，所以呢度每個判斷都係保守到不能再保守，唔好當真。想要靠譜答案，搵桌面應用程式，佢至係真係睇到硬件嗰個。'
+      ]
+    },
+    'models.pull.title': same('Pull queue', '下載隊列'),
+    'models.pull.empty': {
+      en: ['Nothing queued.', 'Nothing queued.', 'The queue is empty right now.',
+        'The queue is empty right now -- add a model from the Catalog tab to start one.',
+        'Empty queue, nothing to see -- pop over to the Catalog tab and queue something up.'],
+      zh: ['隊列冇嘢。', '隊列冇嘢。', '而家隊列係空嘅。',
+        '而家隊列係空嘅 -- 去「目錄」分頁加個模型啦。',
+        '隊列空空如也 -- 去返「目錄」分頁度排隊加一個先。']
+    },
+    'models.pull.name.label': same('Model name to pull', '要下載嘅模型名稱'),
+    'models.pull.name.help': same(
+      'Type the exact name you already know, family[:tag] (for example llama3.2:3b). Suggestions below are drawn from what is already installed, plus a bundled list of common family names -- neither is a live catalog.',
+      '輸入你已經知道嘅確切名稱，格式係 family[:tag]（例如 llama3.2:3b）。下面嘅建議嚟自已安裝嘅同一份內置嘅常見系列名單 -- 兩者都唔係即時目錄。'
+    ),
+    'models.pull.add': same('Add to pull queue', '加入下載隊列'),
+    'models.pull.cancel': same('Cancel', '取消'),
+    'models.pull.retry': same('Retry', '重試'),
+    'models.pull.remove': same('Remove', '移除'),
+    'models.pull.clearFinished': same('Clear finished', '清除已完成'),
+
+    'models.chat.title': same('Local chat', '本機對話'),
+    'models.chat.new': same('New chat', '新對話'),
+    'models.chat.empty': {
+      en: ['No chats yet.', 'No chats yet.', 'No chat sessions yet.',
+        'No chat sessions yet -- start one once a model is installed.',
+        'Zero chats so far -- once a model is installed, start one and say something.'],
+      zh: ['仲未有對話。', '仲未有對話。', '仲未有對話記錄。',
+        '仲未有對話記錄 -- 裝咗個模型之後開一個啦。',
+        '一個對話都未開 -- 裝咗模型之後就開一個，講句嘢先。']
+    },
+    'models.chat.needModel': same('Choose an installed model to start chatting.', '揀一個已安裝嘅模型先可以開始傾偈。'),
+    'models.chat.systemPrompt': same('System prompt', '系統提示'),
+    'models.chat.params': same('Parameters', '參數'),
+    'models.chat.send': same('Send', '發送'),
+    'models.chat.stop': same('Stop', '停止'),
+    'models.chat.regenerate': same('Regenerate', '重新生成'),
+    'models.chat.attach.disabled': same(
+      'Attachments are off for this model.',
+      '呢個模型冇開附件功能。'
+    ),
+
+    'models.harness.title': same('Harness launch', '啟動器啟動'),
+    'models.harness.note': {
+      en: [
+        'This is a desktop capability, listed here for completeness and disabled.',
+        'This is a desktop capability, listed here for completeness and disabled.',
+        'Every entry below is a desktop capability. This page lists them so they are not simply missing, and disables every one with the exact reason.',
+        'Every entry below belongs to the desktop application, not to a page in a browser. They are listed here so nothing looks quietly missing, and each one is disabled with the exact reason a browser cannot do it.',
+        'Every single entry below is strictly a desktop-application trick, not something a browser page can pull off. They stay listed so nothing goes quietly missing, each one firmly disabled with the exact reason a browser sandbox says no.'
+      ],
+      zh: [
+        '呢個係桌面版先有嘅功能，喺呢度列出嚟保持完整，但停用咗。',
+        '呢個係桌面版先有嘅功能，喺呢度列出嚟保持完整，但停用咗。',
+        '下面每一項都係桌面版嘅功能。呢頁列出嚟係唔想佢靜靜哋唔見咗，並且逐項寫明停用嘅原因。',
+        '下面每一項都係屬於桌面應用程式，唔係瀏覽器入面嘅頁面。喺呢度列出嚟係想確保冇嘢靜靜哋唔見咗，每項都寫清楚點解瀏覽器做唔到。',
+        '下面每一項死死地氣都係桌面應用程式先有嘅絕活，瀏覽器頁面完全做唔到。照樣列出嚟，唔想有嘢靜靜哋消失，逐項寫實瀏覽器沙盒點解話唔得。'
+      ]
+    }
+  });
+
+  /* ================================================================
+   * 2. Page chrome
+   * ================================================================ */
+  function paintPageCopy() {
+    S.label(document.getElementById('page-title'), 'models.title', 'Local models');
+    S.label(document.getElementById('page-lede'), 'models.lede', '');
+    document.title = S.tBoth('models.title', 'Local models') + ' · World Downloader Studio';
+
+    var note = document.getElementById('storage-note');
+    clear(note);
+    note.appendChild(el('p', { text: t('models.storageNote', '') }));
+    note.appendChild(el('p', { class: 'set-code muted', text: S.privacy.origin }));
+
+    var fp = document.getElementById('footer-privacy');
+    clear(fp);
+    fp.appendChild(document.createTextNode(S.privacy.note));
+  }
+
+  function buildAppbarActions() {
+    var host = document.getElementById('appbar-actions');
+    clear(host);
+    host.appendChild(el('button', {
+      class: 'btn btn--icon', type: 'button',
+      'aria-label': 'Search this page', title: 'Search this page',
+      onclick: function () { search.focus(); search.el.scrollIntoView({ block: 'center' }); }
+    }, icon('search')));
+    var bellBtn = el('button', {
+      class: 'btn btn--icon', type: 'button',
+      'aria-label': t('notify.centre', 'Notifications'), title: t('notify.centre', 'Notifications'),
+      onclick: function () { S.notifications.open(bellBtn); }
+    }, icon('bell'));
+    host.appendChild(bellBtn);
+    var palBtn = el('button', {
+      class: 'btn btn--icon', type: 'button',
+      'aria-label': t('palette.title', 'Command palette'),
+      title: t('palette.title', 'Command palette') + ' (' + S.palette.shortcut + ')',
+      'aria-keyshortcuts': 'Control+Shift+F',
+      onclick: function () { S.palette.open(); }
+    }, icon('grid'));
+    host.appendChild(palBtn);
+  }
+
+  /* ================================================================
+   * 3. Tabs
+   * ================================================================ */
+  var TAB_LABELS = {};
+  var TABS = [
+    { id: 'overview', labelKey: 'models.tab.overview', icon: 'globe', keywords: 'connection runtime address cors probe loopback ollama' },
+    { id: 'catalog', labelKey: 'models.tab.catalog', icon: 'grid', keywords: 'installed models family quantization parameters hardware fit' },
+    { id: 'pull', labelKey: 'models.tab.pull', icon: 'download', keywords: 'queue pull download progress cancel retry' },
+    { id: 'chat', labelKey: 'models.tab.chat', icon: 'doc', keywords: 'chat session stream system prompt parameters history export' },
+    { id: 'harness', labelKey: 'models.tab.harness', icon: 'play', keywords: 'harness launch desktop editor automation' }
+  ];
+  var panels = {};
+  TABS.forEach(function (tb) { panels[tb.id] = el('div', { class: 'mdl-panel' }); TAB_LABELS[tb.id] = t(tb.labelKey, tb.id); });
+
+  var strip = S.tabs.create(document.getElementById('tabs-host'), {
+    id: 'models', dock: 'left',
+    tabs: TABS.map(function (tb) { return { id: tb.id, labelKey: tb.labelKey, icon: tb.icon, panel: panels[tb.id], closable: true, keywords: tb.keywords }; })
+  });
+
+  /* ================================================================
+   * 4. Small building blocks
+   * ================================================================ */
+  function block(titleText, children) {
+    var node = el('div', { class: 'stack', style: { gap: '14px' } }, [el('h2', { text: titleText })]);
+    (children || []).forEach(function (c) { if (c) node.appendChild(c); });
+    return node;
+  }
+  function card(children) { return el('div', { class: 'mdl-card' }, children); }
+  function chip(text, cls) { return el('span', { class: 'chip' + (cls ? ' ' + cls : ''), text: text }); }
+  function progressBar(fraction, indeterminate) {
+    var bar = el('div', { class: 'prog' + (indeterminate ? ' prog--indeterminate' : ''), role: 'progressbar',
+      'aria-valuemin': '0', 'aria-valuemax': '100',
+      'aria-valuenow': indeterminate ? null : String(Math.round((fraction || 0) * 100)) });
+    var fill = el('div', { class: 'prog__bar', style: { width: indeterminate ? '40%' : (Math.round((fraction || 0) * 100) + '%') } });
+    bar.appendChild(fill);
+    return bar;
+  }
+
+  /* ================================================================
+   * 5. Overview / connection
+   * ================================================================ */
+  var lastProbe = { state: 'unknown', detail: '', version: null };
+  var overviewRefs = {};
+
+  function renderOverview(panel) {
+    clear(panel);
+    panel.appendChild(el('h2', { 'data-i18n': 'models.tab.overview' }));
+    panel.appendChild(el('p', { class: 'lede', 'data-i18n': 'models.lede' }));
+
+    var scopeCard = card([
+      el('h3', { 'data-i18n': 'models.scope.title' }),
+      el('p', { class: 'muted', 'data-i18n': 'models.scope.note' })
+    ]);
+    panel.appendChild(scopeCard);
+
+    var urlInput = el('input', { class: 'mdl-native', type: 'text', id: 'models-base-url', value: M.getBaseUrl(),
+      'aria-label': t('models.baseUrl.label', 'Runtime address'), autocomplete: 'off', spellcheck: 'false' });
+    var statusDot = el('span', { class: 'mdl-dot' });
+    var statusText = el('span', { text: t('models.state.unknown', 'Not checked yet.') });
+    var probeBtn = el('button', { class: 'btn btn--filled', type: 'button', text: t('models.probe', 'Check connection') });
+    var connCard = card([
+      el('div', { class: 'mdl-fields' }, [
+        el('label', { class: 'field field--outlined' }, [
+          el('span', { class: 'field__label', text: t('models.baseUrl.label', 'Runtime address') }),
+          urlInput
+        ])
+      ]),
+      el('p', { class: 'muted t-body-small', text: t('models.baseUrl.explain', '') }),
+      el('div', { class: 'mdl-row' }, [probeBtn, el('span', { class: 'row', style: { gap: '8px', 'align-items': 'center' } }, [statusDot, statusText])])
+    ]);
+    panel.appendChild(connCard);
+    overviewRefs = { statusDot: statusDot, statusText: statusText };
+
+    function applyProbeResult(result) {
+      lastProbe = result;
+      statusDot.className = 'mdl-dot' +
+        (result.state === 'reachable' ? ' mdl-dot--ok' : (result.state === 'cors-blocked' ? ' mdl-dot--warn' : (result.state === 'unreachable' || result.state === 'unsupported' ? ' mdl-dot--err' : '')));
+      var key = result.state === 'reachable' ? 'models.state.reachable'
+        : result.state === 'cors-blocked' ? 'models.state.corsBlocked'
+        : result.state === 'unreachable' ? 'models.state.unreachable'
+        : result.state === 'unsupported' ? 'models.state.unsupported'
+        : 'models.state.unknown';
+      statusText.textContent = t(key, result.state);
+      var detailNode = document.getElementById('models-probe-detail');
+      if (detailNode) detailNode.textContent = result.detail || (result.version ? ('Runtime version ' + result.version + '.') : '');
+    }
+
+    connCard.appendChild(el('p', { class: 'muted t-body-small', id: 'models-probe-detail' }));
+
+    urlInput.addEventListener('change', function () {
+      M.setBaseUrl(urlInput.value);
+      urlInput.value = M.getBaseUrl();
+      S.history.record('models', 'Runtime address changed', { baseUrl: M.getBaseUrl() });
+    });
+    probeBtn.addEventListener('click', function () {
+      probeBtn.disabled = true;
+      statusText.textContent = t('models.probe.checking', 'Checking…');
+      statusDot.className = 'mdl-dot';
+      M.probe(M.getBaseUrl()).then(function (result) {
+        probeBtn.disabled = false;
+        applyProbeResult(result);
+        if (result.state === 'reachable') S.notify.success(t('models.state.reachable', 'Connected.'));
+        else S.notify.warn(statusTextFor(result));
+      });
+    });
+    function statusTextFor(result) {
+      var key = result.state === 'cors-blocked' ? 'models.state.corsBlocked'
+        : result.state === 'unreachable' ? 'models.state.unreachable'
+        : 'models.state.unsupported';
+      return t(key, result.state) + (result.detail ? (' ' + result.detail) : '');
+    }
+
+    var boundsCard = card([
+      el('h3', { text: 'Boundaries, stated plainly' }),
+      el('ul', { class: 'stack', style: { gap: '6px', 'padding-left': '18px', margin: '0' } }, [
+        el('li', { text: 'A browser cannot tell "nothing is listening" apart from "something is listening but refused this page\'s origin" without asking twice. This page asks twice, and reports which one actually happened.' }),
+        el('li', { text: 'Loopback addresses (127.0.0.1 and localhost) are treated as secure by every current browser, so reaching them from this page (served over https) is not blocked as mixed content the way a real remote http address would be.' }),
+        el('li', { text: 'If the runtime is reachable but refuses this page\'s origin, its CORS allow-list needs this page\'s exact origin added and the runtime restarted -- this page cannot change that setting for you.' })
+      ])
+    ]);
+    panel.appendChild(boundsCard);
+
+    S.i18n.apply(panel);
+    applyProbeResult(lastProbe);
+  }
+
+  /* ================================================================
+   * 6. Catalog
+   * ================================================================ */
+  var catalogFilterState = { family: 'all', quant: 'all', runningOnly: false, sort: 'name', group: false };
+  var catalogSearch = null;
+  var COMMON_FAMILIES = [
+    { name: 'llama3.2', example: 'llama3.2:3b' },
+    { name: 'llama3.1', example: 'llama3.1:8b' },
+    { name: 'qwen2.5', example: 'qwen2.5:7b' },
+    { name: 'mistral', example: 'mistral:7b' },
+    { name: 'gemma2', example: 'gemma2:9b' },
+    { name: 'phi3', example: 'phi3:mini' },
+    { name: 'codellama', example: 'codellama:7b' },
+    { name: 'deepseek-coder-v2', example: 'deepseek-coder-v2:16b' }
+  ];
+
+  function renderCatalog(panel) {
+    clear(panel);
+    panel.appendChild(el('h2', { 'data-i18n': 'models.tab.catalog' }));
+    panel.appendChild(el('div', { class: 'note note--warn' }, [
+      el('strong', { text: t('models.scope.title', 'What this page can see') + ': ' }),
+      el('span', { 'data-i18n': 'models.scope.note' })
+    ]));
+
+    var refreshBtn = el('button', { class: 'btn btn--filled', type: 'button', text: t('models.catalog.refresh', 'Refresh catalog') });
+    var statusLine = el('p', { class: 'muted t-body-small', role: 'status', 'aria-live': 'polite' });
+    panel.appendChild(el('div', { class: 'mdl-row' }, [refreshBtn, statusLine]));
+
+    catalogSearch = S.createSearchBar({
+      ariaLabel: 'Search the installed model catalog', placeholder: 'Search name, family, quantization',
+      storageKey: 'models-catalog', help: 'Searches the model name, its family and its quantization level.',
+      sampleProvider: function () { return catalogEntries().map(function (e) { return e.name + ' ' + (e.family || '') + ' ' + (e.quantization || ''); }).join('\n'); },
+      onChange: function () { paintCatalogList(); }
+    });
+    panel.appendChild(catalogSearch.el);
+
+    var familySelect = S.createSelect({ ariaLabel: 'Filter by family', storageKey: 'models-catalog-family', value: 'all', options: [{ value: 'all', label: 'Every family' }], onChange: function (v) { catalogFilterState.family = v; paintCatalogList(); } });
+    var quantSelect = S.createSelect({ ariaLabel: 'Filter by quantization', storageKey: 'models-catalog-quant', value: 'all', options: [{ value: 'all', label: 'Every quantization' }], onChange: function (v) { catalogFilterState.quant = v; paintCatalogList(); } });
+    var sortSelect = S.createSelect({
+      ariaLabel: 'Sort by', storageKey: 'models-catalog-sort', value: 'name',
+      options: [
+        { value: 'name', label: 'Name' }, { value: 'size-desc', label: 'Size, largest first' },
+        { value: 'size-asc', label: 'Size, smallest first' }, { value: 'modified', label: 'Most recently modified' }
+      ],
+      onChange: function (v) { catalogFilterState.sort = v; paintCatalogList(); }
+    });
+    var runningSwitch = S.makeSwitch({ checked: false, ariaLabel: 'Running models only', onChange: function (v) { catalogFilterState.runningOnly = v; paintCatalogList(); } });
+    var groupSwitch = S.makeSwitch({ checked: false, ariaLabel: 'Group by family', onChange: function (v) { catalogFilterState.group = v; paintCatalogList(); } });
+
+    var filterHost = el('div', { class: 'mdl-fields' }, [
+      el('label', { class: 'stack', style: { gap: '4px' } }, [el('span', { class: 't-label-small', text: 'Family' }), familySelect.el]),
+      el('label', { class: 'stack', style: { gap: '4px' } }, [el('span', { class: 't-label-small', text: 'Quantization' }), quantSelect.el]),
+      el('label', { class: 'stack', style: { gap: '4px' } }, [el('span', { class: 't-label-small', text: 'Sort by' }), sortSelect.el]),
+      el('div', { class: 'row', style: { gap: '10px', 'align-items': 'center' } }, [runningSwitch, el('span', { text: 'Running only' })]),
+      el('div', { class: 'row', style: { gap: '10px', 'align-items': 'center' } }, [groupSwitch, el('span', { text: 'Group by family' })])
+    ]);
+    var filterWrap = el('div'); filterWrap.appendChild(filterHost);
+    panel.appendChild(filterWrap);
+    var filterBox = S.collapse.attach(filterWrap, { title: 'Filters and sorting', descriptive: true, storageKey: 'models-catalog-filters' });
+
+    var listNode = el('ul', { class: 'mdl-list', role: 'listbox', 'aria-label': 'Installed models', 'aria-multiselectable': 'true' });
+    panel.appendChild(listNode);
+
+    var bulkCtl = S.bulk.attach(listNode, {
+      itemSelector: '[data-bulk-item]',
+      getLabel: function (id) { var e = findEntry(id); return e ? e.name : id; },
+      allMatchingCount: function () { return catalogRows().length; },
+      allMatchingIds: function () { return catalogRows().map(function (e) { return e.name; }); },
+      actions: [
+        { id: 'export', label: t('act.export', 'Export'), run: function (ids) {
+          var rows = catalogRows().filter(function (e) { return ids.indexOf(e.name) >= 0; });
+          S.exportDialog(rows, { name: 'installed-models', anchor: listNode, omitted: 'Nothing is left out: every field this runtime reported is present.' });
+          return { done: rows.length, skipped: 0 };
+        } },
+        { id: 'copy-name', label: 'Copy names', run: function (ids) {
+          return S.copy(ids.join('\n')).then(function () { return { done: ids.length, skipped: 0 }; });
+        } },
+        { id: 'delete', label: t('act.remove', 'Delete'), danger: true, destructive: true, run: function (ids) {
+          if (lastCatalogState !== 'reachable') return { done: 0, skipped: ids.length, reason: 'Not connected to the runtime right now, so nothing could actually be deleted.' };
+          var results = ids.map(function (name) {
+            return M.deleteModel(name).then(function () { return { name: name, ok: true }; }, function (err) { return { name: name, ok: false, error: err && err.message }; });
+          });
+          return Promise.all(results).then(function (outcomes) {
+            var done = outcomes.filter(function (o) { return o.ok; }).length;
+            var failed = outcomes.filter(function (o) { return !o.ok; });
+            return doRefresh().then(function () {
+              return { done: done, skipped: failed.length, reason: failed.length ? ('Failed: ' + failed.map(function (f) { return f.name + ' (' + f.error + ')'; }).join('; ')) : undefined };
+            });
+          });
+        } }
+      ]
+    });
+
+    function findEntry(name) { return catalogRows().filter(function (e) { return e.name === name; })[0] || null; }
+
+    function catalogRows() {
+      var snap = M.lastSnapshot();
+      return (snap && snap.entries) || [];
+    }
+    function catalogEntries() { return catalogRows(); }
+
+    function refreshFilterOptions() {
+      var families = {}, quants = {};
+      catalogRows().forEach(function (e) { if (e.family) families[e.family] = true; if (e.quantization) quants[e.quantization] = true; });
+      familySelect.setOptions([{ value: 'all', label: 'Every family' }].concat(Object.keys(families).sort().map(function (f) { return { value: f, label: f }; })));
+      quantSelect.setOptions([{ value: 'all', label: 'Every quantization' }].concat(Object.keys(quants).sort().map(function (q) { return { value: q, label: q }; })));
+    }
+
+    function filteredSortedRows() {
+      var rows = catalogRows().slice();
+      if (catalogSearch && catalogSearch.value()) {
+        var m = catalogSearch.matcher();
+        rows = rows.filter(function (e) { return m(e.name + ' ' + (e.family || '') + ' ' + (e.quantization || '')); });
+      }
+      if (catalogFilterState.family !== 'all') rows = rows.filter(function (e) { return e.family === catalogFilterState.family; });
+      if (catalogFilterState.quant !== 'all') rows = rows.filter(function (e) { return e.quantization === catalogFilterState.quant; });
+      if (catalogFilterState.runningOnly) rows = rows.filter(function (e) { return e.running; });
+      rows.sort(function (a, b) {
+        if (catalogFilterState.sort === 'size-desc') return (b.sizeBytes || 0) - (a.sizeBytes || 0);
+        if (catalogFilterState.sort === 'size-asc') return (a.sizeBytes || 0) - (b.sizeBytes || 0);
+        if (catalogFilterState.sort === 'modified') return String(b.modifiedAt || '').localeCompare(String(a.modifiedAt || ''));
+        return a.name.localeCompare(b.name);
+      });
+      return rows;
+    }
+
+    function fitBadge(entry) {
+      var v = M.hardwareVerdict(entry);
+      var cls = v.verdict === 'Runs well' ? 'status--ok' : v.verdict === 'Unlikely' ? 'status--error' : v.verdict === 'Runs with limits' ? 'status--warn' : '';
+      var badge = el('button', { class: 'status ' + cls, type: 'button', title: 'Why: ' + v.reasons.join(' '), text: v.verdict });
+      badge.addEventListener('click', function () {
+        S.overlay.open({
+          anchor: badge, title: t('models.fit.title', 'Hardware fit') + ': ' + entry.name,
+          content: [
+            el('p', { class: 'muted', 'data-i18n': 'models.fit.disclaimer' }),
+            el('p', { text: 'Verdict: ' + v.verdict }),
+            el('ul', { style: { 'padding-left': '18px', margin: '8px 0 0' } }, v.reasons.map(function (r) { return el('li', { text: r }); }))
+          ]
+        });
+      });
+      return badge;
+    }
+
+    function paintCatalogList() {
+      refreshFilterOptions();
+      clear(listNode);
+      var rows = filteredSortedRows();
+      var groups = catalogFilterState.group
+        ? rows.reduce(function (acc, e) { var k = e.family || 'Other'; (acc[k] = acc[k] || []).push(e); return acc; }, {})
+        : { '': rows };
+      var groupKeys = Object.keys(groups).sort();
+      if (!rows.length) {
+        var emptyMsg = catalogRows().length ? t('msg.noMatch', 'No matches.') : t('models.catalog.empty', '');
+        listNode.appendChild(el('li', { class: 'note', text: emptyMsg }));
+      } else {
+        groupKeys.forEach(function (gk) {
+          if (catalogFilterState.group && gk) listNode.appendChild(el('li', { class: 't-label-large muted', style: { padding: '4px 0' }, text: gk, role: 'presentation' }));
+          groups[gk].forEach(function (e) {
+            var checkbox = el('span', { class: 'cbx', 'data-bulk-check': '', role: 'checkbox', 'aria-checked': 'false', 'aria-label': 'Select ' + e.name });
+            var item = el('li', { class: 'mdl-item', 'data-bulk-item': '', 'data-id': e.name, tabindex: '0', role: 'option', 'aria-selected': 'false' }, [
+              el('div', { class: 'mdl-item__top' }, [
+                checkbox,
+                el('span', { class: 'mdl-item__name', text: e.name }),
+                e.running ? chip('Running', 'status--ok') : null,
+                fitBadge(e)
+              ]),
+              el('div', { class: 'mdl-item__meta' }, [
+                e.family ? el('span', { text: 'Family: ' + e.family }) : null,
+                e.parameterSize ? el('span', { text: 'Parameters: ' + e.parameterSize }) : null,
+                e.quantization ? el('span', { text: 'Quantization: ' + e.quantization }) : null,
+                el('span', { text: 'Size: ' + M.fmtBytes(e.sizeBytes) }),
+                e.modifiedAt ? el('span', { text: 'Modified: ' + new Date(e.modifiedAt).toLocaleString() }) : null
+              ]),
+              el('div', { class: 'mdl-item__actions' }, [
+                el('button', { class: 'btn btn--text', type: 'button', text: 'Details', onclick: function (ev) { openDetails(e, ev.currentTarget); } }),
+                el('button', { class: 'btn btn--text', type: 'button', text: 'Queue re-pull', onclick: function () { enqueueName(e.name); } }),
+                el('button', { class: 'btn btn--text', type: 'button', text: 'Copy as…', onclick: function (ev) { openCopyPrompt(e.name, ev.currentTarget); } })
+              ])
+            ]);
+            listNode.appendChild(item);
+          });
+        });
+      }
+      S.i18n.apply(listNode);
+      if (bulkCtl && bulkCtl.refresh) bulkCtl.refresh();
+    }
+
+    function openDetails(entry, anchor) {
+      var body = [el('p', { class: 'muted', text: 'Loading details from /api/show…' })];
+      var panelOverlay = S.overlay.open({ anchor: anchor, title: entry.name, content: body });
+      M.showModel(entry.name).then(function (resp) {
+        var caps = M.modelCapabilities(resp);
+        clear(panelOverlay.body);
+        S.append(panelOverlay.body, [
+          el('p', { text: 'Digest: ' + (entry.digest || 'unknown') }),
+          el('p', { text: 'Size on disk: ' + M.fmtBytes(entry.sizeBytes) }),
+          el('p', { text: 'Capabilities: ' + caps.note }),
+          resp && resp.parameters ? el('div', { class: 'scrollx' }, el('pre', {}, el('code', { text: String(resp.parameters) }))) : null
+        ]);
+      }, function (err) {
+        clear(panelOverlay.body);
+        panelOverlay.body.appendChild(el('p', { class: 'note--warn', text: 'Could not load details: ' + ((err && err.message) || String(err)) }));
+      });
+    }
+
+    function openCopyPrompt(sourceName, anchor) {
+      var input = el('input', { class: 'mdl-native', type: 'text', value: sourceName + '-copy', 'aria-label': 'New name for the copy' });
+      var goBtn = el('button', { class: 'btn btn--filled', type: 'button', text: 'Copy' });
+      var p = S.overlay.open({ anchor: anchor, title: 'Copy ' + sourceName, content: [
+        el('div', { class: 'field field--outlined' }, [el('span', { class: 'field__label', text: 'New name' }), input]),
+        goBtn
+      ] });
+      goBtn.addEventListener('click', function () {
+        var v = M.validateModelName(input.value);
+        if (!v.ok) { S.notify.error('That name is not valid: ' + v.reason + '.'); return; }
+        M.copyModel(sourceName, v.value).then(function () {
+          S.notify.success('Copied to ' + v.value + '.');
+          p.close('done');
+          doRefresh();
+        }, function (err) { S.notify.error('Copy failed: ' + ((err && err.message) || String(err))); });
+      });
+    }
+
+    /* -- guided "add a new pull" form -------------------------------- */
+    var nameInput = el('input', { class: 'mdl-native', type: 'text', placeholder: 'family:tag', list: 'models-name-suggestions',
+      'aria-label': t('models.pull.name.label', 'Model name to pull'), autocomplete: 'off', spellcheck: 'false' });
+    var suggestionList = el('datalist', { id: 'models-name-suggestions' });
+    var addBtn = el('button', { class: 'btn btn--filled', type: 'button', text: t('models.pull.add', 'Add to pull queue') });
+    var nameValidity = el('p', { class: 'muted t-body-small', 'aria-live': 'polite' });
+
+    function refreshSuggestions() {
+      clear(suggestionList);
+      catalogRows().forEach(function (e) { suggestionList.appendChild(el('option', { value: e.name })); });
+      COMMON_FAMILIES.forEach(function (f) { suggestionList.appendChild(el('option', { value: f.example })); });
+    }
+    function enqueueName(name) {
+      var result = M.enqueuePull(name);
+      if (!result.ok) { S.notify.error('"' + name + '" is not a valid model name (' + result.reason + ').'); return; }
+      S.notify.success('Queued ' + name + '.');
+      S.history.record('models', 'Queued a pull: ' + name, { name: name });
+      strip.select('pull');
+    }
+    nameInput.addEventListener('input', function () {
+      var v = M.validateModelName(nameInput.value);
+      nameValidity.textContent = nameInput.value.trim() === '' ? '' : (v.ok ? 'Looks like a valid name.' : ('Not a valid name yet (' + v.reason + ').'));
+    });
+    addBtn.addEventListener('click', function () { enqueueName(nameInput.value); nameInput.value = ''; nameValidity.textContent = ''; });
+
+    var addCard = card([
+      el('h3', { text: t('models.pull.add', 'Add to pull queue') }),
+      el('p', { class: 'muted t-body-small', 'data-i18n': 'models.pull.name.help' }),
+      el('div', { class: 'note note--warn' }, [
+        el('strong', { text: 'Not verified: ' }),
+        el('span', { text: 'the suggestions below are either models already installed on this runtime (real), or a small bundled list of common family names (' +
+          COMMON_FAMILIES.map(function (f) { return f.name; }).join(', ') + ') that ships with this page and is not checked against anything live. Typing a name that does not exist will simply fail when queued -- this page has no way to confirm one exists before trying.' })
+      ]),
+      el('div', { class: 'mdl-row' }, [
+        el('div', { class: 'field field--outlined', style: { flex: '1', 'min-width': '220px' } }, [
+          el('span', { class: 'field__label', text: t('models.pull.name.label', 'Model name to pull') }), nameInput
+        ]),
+        addBtn
+      ]),
+      nameValidity,
+      suggestionList
+    ]);
+    panel.appendChild(addCard);
+
+    var lastCatalogState = 'unknown';
+    function doRefresh() {
+      refreshBtn.disabled = true;
+      statusLine.textContent = t('models.probe.checking', 'Checking…');
+      return M.refreshCatalog().then(function (snap) {
+        refreshBtn.disabled = false;
+        lastCatalogState = snap.state;
+        refreshSuggestions();
+        paintCatalogList();
+        if (snap.ok) {
+          statusLine.textContent = t('models.catalog.stale', 'Last refreshed') + ': ' + new Date(snap.refreshedAt).toLocaleTimeString() +
+            ' · ' + snap.entries.length + ' installed · pages read: ' + snap.pageCount + ' · ' + snap.completenessNote;
+          S.notify.success('Catalog refreshed: ' + snap.entries.length + ' installed model(s).');
+        } else {
+          var prior = M.lastSnapshot();
+          statusLine.textContent = t('models.catalog.disconnected', '') + (prior ? (' (' + t('models.catalog.stale', 'Last refreshed') + ' ' + new Date(prior.refreshedAt).toLocaleTimeString() + ')') : '') + ' — ' + snap.detail;
+          S.notify.warn(t('models.catalog.disconnected', '') + ' ' + snap.detail);
+        }
+        return snap;
+      });
+    }
+    refreshBtn.addEventListener('click', doRefresh);
+
+    /* Paint whatever is already known (offline-safe: last verified
+       state, never a guessed new entry) before the first live refresh
+       completes. */
+    var existing = M.lastSnapshot();
+    if (existing) {
+      lastCatalogState = existing.state;
+      refreshSuggestions();
+      paintCatalogList();
+      var age = M.snapshotAgeMs(existing);
+      statusLine.textContent = t('models.catalog.stale', 'Last refreshed') + ': ' + new Date(existing.refreshedAt).toLocaleTimeString() +
+        (age !== null ? (' (' + M.fmtDuration(age) + ' ago)') : '');
+    } else {
+      refreshSuggestions();
+      paintCatalogList();
+      statusLine.textContent = t('models.state.unknown', 'Not checked yet.');
+    }
+
+    S.i18n.apply(panel);
+  }
+
+  /* ================================================================
+   * 7. Pull queue
+   * ================================================================ */
+  var pullListNode = null;
+  function renderPull(panel) {
+    clear(panel);
+    panel.appendChild(el('h2', { 'data-i18n': 'models.tab.pull' }));
+    panel.appendChild(el('p', { class: 'muted', text: 'Progress is byte-accurate whenever the runtime reports totals. A failed item stays failed on its own row -- it never turns the rest of the batch green.' }));
+
+    var clearBtn = el('button', { class: 'btn btn--outlined', type: 'button', text: t('models.pull.clearFinished', 'Clear finished') });
+    clearBtn.addEventListener('click', function () { var n = M.clearFinishedPulls(); S.notify.success('Cleared ' + n + ' finished item(s).'); paintPull(); });
+    panel.appendChild(el('div', { class: 'mdl-row' }, [clearBtn]));
+
+    pullListNode = el('ul', { class: 'mdl-list', role: 'listbox', 'aria-label': 'Pull queue', 'aria-multiselectable': 'true' });
+    panel.appendChild(pullListNode);
+
+    S.bulk.attach(pullListNode, {
+      itemSelector: '[data-bulk-item]',
+      getLabel: function (id) { var it = M.pullItems().filter(function (i) { return i.id === id; })[0]; return it ? it.name : id; },
+      allMatchingCount: function () { return M.pullItems().length; },
+      allMatchingIds: function () { return M.pullItems().map(function (i) { return i.id; }); },
+      actions: [
+        { id: 'cancel', label: t('models.pull.cancel', 'Cancel'), run: function (ids) {
+          var done = 0, skipped = 0;
+          ids.forEach(function (id) { var r = M.cancelPull(id); if (r.ok) done++; else skipped++; });
+          return { done: done, skipped: skipped, reason: skipped ? 'Some items were not active or queued, so there was nothing to cancel.' : undefined };
+        } },
+        { id: 'retry', label: t('models.pull.retry', 'Retry'), run: function (ids) {
+          var done = 0, skipped = 0;
+          ids.forEach(function (id) { var r = M.retryPull(id); if (r.ok) done++; else skipped++; });
+          return { done: done, skipped: skipped };
+        } },
+        { id: 'remove', label: t('models.pull.remove', 'Remove'), destructive: true, run: function (ids) {
+          var done = 0, skipped = 0;
+          ids.forEach(function (id) { var r = M.removePullItem(id); if (r.ok) done++; else skipped++; });
+          return { done: done, skipped: skipped, reason: skipped ? 'Active or queued items cannot be removed -- cancel them first.' : undefined };
+        } }
+      ]
+    });
+
+    function paintPull() {
+      clear(pullListNode);
+      var items = M.pullItems();
+      if (!items.length) { pullListNode.appendChild(el('li', { class: 'note', text: t('models.pull.empty', '') })); S.i18n.apply(pullListNode); return; }
+      items.forEach(function (it) {
+        var fraction = it.totalBytes ? clampFraction(it.completedBytes / it.totalBytes) : 0;
+        var checkbox = el('span', { class: 'cbx', 'data-bulk-check': '', role: 'checkbox', 'aria-checked': 'false', 'aria-label': 'Select ' + it.name });
+        var statusCls = it.status === 'done' ? 'status--ok' : (it.status === 'failed' ? 'status--error' : (it.status === 'active' ? 'status--warn' : ''));
+        var row = el('li', { class: 'mdl-item', 'data-bulk-item': '', 'data-id': it.id, tabindex: '0', role: 'option', 'aria-selected': 'false' }, [
+          el('div', { class: 'mdl-item__top' }, [
+            checkbox, el('span', { class: 'mdl-item__name', text: it.name }),
+            el('span', { class: 'status ' + statusCls, text: it.statusText || it.status })
+          ]),
+          (it.status === 'active') ? progressBar(fraction, !it.totalBytes) : null,
+          el('div', { class: 'mdl-item__meta' }, [
+            el('span', { text: M.fmtBytes(it.completedBytes) + (it.totalBytes ? (' of ' + M.fmtBytes(it.totalBytes)) : '') }),
+            el('span', { text: 'Attempts: ' + it.attempts })
+          ]),
+          it.error ? el('p', { class: 'note note--warn', text: 'Error: ' + it.error }) : null,
+          it.note ? el('p', { class: 'note', text: it.note }) : null,
+          el('div', { class: 'mdl-item__actions' }, [
+            (it.status === 'active' || it.status === 'queued') ? el('button', { class: 'btn btn--text', type: 'button', text: t('models.pull.cancel', 'Cancel'), onclick: function () { M.cancelPull(it.id); } }) : null,
+            (it.status === 'failed' || it.status === 'cancelled' || it.status === 'interrupted') ? el('button', { class: 'btn btn--text', type: 'button', text: t('models.pull.retry', 'Retry'), onclick: function () { M.retryPull(it.id); } }) : null,
+            (it.status !== 'active' && it.status !== 'queued') ? el('button', { class: 'btn btn--text', type: 'button', text: t('models.pull.remove', 'Remove'), onclick: function () { M.removePullItem(it.id); } }) : null
+          ])
+        ]);
+        pullListNode.appendChild(row);
+      });
+      S.i18n.apply(pullListNode);
+    }
+    function clampFraction(n) { return isNaN(n) ? 0 : Math.max(0, Math.min(1, n)); }
+
+    M.loadPullQueue();
+    paintPull();
+    M.onPullChange(function () { if (strip.selected() === 'pull' || pullListNode.isConnected) paintPull(); });
+  }
+
+  /* ================================================================
+   * 8. Chat
+   * ================================================================ */
+  var chatRefs = { activeId: null };
+  function renderChat(panel) {
+    clear(panel);
+    panel.appendChild(el('h2', { 'data-i18n': 'models.tab.chat' }));
+
+    var sessionSearch = S.createSearchBar({
+      ariaLabel: 'Search chat sessions', placeholder: 'Search chats', storageKey: 'models-chat-search',
+      help: 'Searches chat titles.',
+      sampleProvider: function () { return M.listChatSessions().map(function (s) { return s.title; }).join('\n'); },
+      onChange: function () { paintSessions(); }
+    });
+
+    var newBtn = el('button', { class: 'btn btn--filled', type: 'button', text: t('models.chat.new', 'New chat') });
+    var sessionsList = el('ul', { class: 'mdl-list', role: 'listbox', 'aria-label': 'Chat sessions', 'aria-multiselectable': 'true' });
+    var sessionsCol = el('div', { class: 'mdl-chat__sessions' }, [newBtn, sessionSearch.el, sessionsList]);
+    var mainCol = el('div', { class: 'mdl-chat__main' });
+    var grid = el('div', { class: 'mdl-chat' }, [sessionsCol, mainCol]);
+    panel.appendChild(grid);
+
+    S.bulk.attach(sessionsList, {
+      itemSelector: '[data-bulk-item]',
+      getLabel: function (id) { var s = M.getChatSession(id); return s ? s.title : id; },
+      allMatchingCount: function () { return M.listChatSessions().length; },
+      allMatchingIds: function () { return M.listChatSessions().map(function (s) { return s.id; }); },
+      actions: [
+        { id: 'export', label: t('act.export', 'Export'), run: function (ids) {
+          var rows = M.listChatSessions().filter(function (s) { return ids.indexOf(s.id) >= 0; }).map(function (s) {
+            return { id: s.id, title: s.title, model: s.model, messageCount: s.messages.length, updatedAt: s.updatedAt,
+              transcript: s.messages.map(function (m) { return m.role + ': ' + m.content; }).join('\n---\n') };
+          });
+          S.exportDialog(rows, { name: 'chat-sessions', anchor: sessionsList, omitted: 'Nothing is redacted from this export; it is entirely local already.' });
+          return { done: rows.length, skipped: 0 };
+        } },
+        { id: 'delete', label: t('act.remove', 'Delete'), danger: true, destructive: true, run: function (ids) {
+          ids.forEach(function (id) { M.deleteChatSession(id); if (chatRefs.activeId === id) chatRefs.activeId = null; });
+          paintSessions(); renderActiveSession();
+          return { done: ids.length, skipped: 0 };
+        } }
+      ]
+    });
+
+    function paintSessions() {
+      clear(sessionsList);
+      var sessions = M.listChatSessions();
+      var list = sessionSearch.value() ? sessions.filter(function (s) { return sessionSearch.matcher()(s.title); }) : sessions;
+      if (!list.length) { sessionsList.appendChild(el('li', { class: 'note', text: t('models.chat.empty', '') })); return; }
+      list.forEach(function (s) {
+        var checkbox = el('span', { class: 'cbx', 'data-bulk-check': '', role: 'checkbox', 'aria-checked': 'false', 'aria-label': 'Select ' + s.title });
+        var row = el('li', {
+          class: 'li li--action', 'data-bulk-item': '', 'data-id': s.id, tabindex: '0', role: 'option',
+          'aria-selected': String(chatRefs.activeId === s.id), onclick: function () { chatRefs.activeId = s.id; renderActiveSession(); paintSessions(); }
+        }, [
+          checkbox,
+          el('div', { class: 'li__t' }, [
+            el('div', { class: 'li__h', text: s.title }),
+            el('div', { class: 'li__s', text: (s.model || 'no model') + ' · ' + s.messages.length + ' message(s)' })
+          ])
+        ]);
+        if (chatRefs.activeId === s.id) row.classList.add('is-sel');
+        sessionsList.appendChild(row);
+      });
+    }
+
+    newBtn.addEventListener('click', function () {
+      var installed = catalogNames();
+      var s = M.newChatSession(installed[0] || null);
+      chatRefs.activeId = s.id;
+      paintSessions(); renderActiveSession();
+    });
+
+    function catalogNames() {
+      var snap = M.lastSnapshot();
+      return ((snap && snap.entries) || []).map(function (e) { return e.name; });
+    }
+
+    var stopFn = null;
+    function renderActiveSession() {
+      clear(mainCol);
+      var s = chatRefs.activeId ? M.getChatSession(chatRefs.activeId) : null;
+      if (!s) { mainCol.appendChild(el('p', { class: 'note', text: t('models.chat.empty', '') })); return; }
+
+      var names = catalogNames();
+      var modelSelect = S.createSelect({
+        ariaLabel: 'Model for this chat', storageKey: null, value: s.model || (names[0] || ''),
+        options: names.length ? names.map(function (n) { return { value: n, label: n }; }) : [{ value: '', label: 'No installed models' }],
+        onChange: function (v) { M.updateChatSession(s.id, { model: v }); refreshAttachState(); }
+      });
+
+      var systemPromptBox = el('textarea', { class: 'mdl-native', rows: '2', 'aria-label': t('models.chat.systemPrompt', 'System prompt'), value: s.systemPrompt || '' });
+      systemPromptBox.addEventListener('change', function () { M.updateChatSession(s.id, { systemPrompt: systemPromptBox.value }); });
+
+      var paramsHost = el('div', { class: 'mdl-fields' });
+      var params = M.clampParams(s.params);
+      Object.keys(M.PARAM_BOUNDS).forEach(function (key) {
+        var b = M.PARAM_BOUNDS[key];
+        var slider = S.makeSlider({
+          min: b.min, max: b.max, step: b.step, value: params[key], ariaLabel: key,
+          format: function (v) { return String(v); },
+          onChange: function (v) { var p = M.clampParams(s.params); p[key] = v; M.updateChatSession(s.id, { params: p }); }
+        });
+        paramsHost.appendChild(el('label', { class: 'stack', style: { gap: '4px' } }, [el('span', { class: 't-label-small', text: key }), slider]));
+      });
+      var paramsWrap = el('div'); paramsWrap.appendChild(paramsHost);
+      var paramsBox = S.collapse.attach(paramsWrap, { title: t('models.chat.params', 'Parameters'), descriptive: true, storageKey: 'models-chat-params-' + s.id.slice(0, 8) });
+
+      var thread = el('div', { class: 'mdl-thread', role: 'log', 'aria-live': 'polite', 'aria-label': 'Conversation' });
+      function paintThread(pendingAssistant) {
+        clear(thread);
+        s.messages.forEach(function (m) {
+          thread.appendChild(el('div', { class: 'mdl-msg mdl-msg--' + (m.role === 'user' ? 'user' : m.role === 'assistant' ? 'assistant' : 'system'), text: m.content }));
+        });
+        if (pendingAssistant !== undefined) thread.appendChild(el('div', { class: 'mdl-msg mdl-msg--assistant', text: pendingAssistant || '…' }));
+        thread.scrollTop = thread.scrollHeight;
+      }
+      paintThread();
+
+      var attachBtn = el('button', { class: 'btn btn--icon', type: 'button', 'aria-label': 'Attach an image' }, icon('upload'));
+      var attachInput = el('input', { type: 'file', accept: 'image/*', class: 'visually-hidden', 'aria-hidden': 'true' });
+      var attachNote = el('span', { class: 'muted t-body-small' });
+      var pendingImage = null;
+      function refreshAttachState() {
+        M.showModel(modelSelect.value()).then(function (resp) {
+          var caps = M.modelCapabilities(resp);
+          attachBtn.disabled = !caps.vision;
+          attachBtn.title = caps.vision ? 'Attach an image' : (t('models.chat.attach.disabled', '') + ' ' + caps.note);
+        }, function () {
+          attachBtn.disabled = true;
+          attachBtn.title = t('models.chat.attach.disabled', '') + ' Could not confirm capabilities right now.';
+        });
+      }
+      attachBtn.addEventListener('click', function () { attachInput.click(); });
+      attachInput.addEventListener('change', function () {
+        var file = attachInput.files && attachInput.files[0];
+        if (!file) return;
+        var reader = new FileReader();
+        reader.onload = function () { pendingImage = String(reader.result).split(',')[1]; attachNote.textContent = 'Attached: ' + file.name; };
+        reader.readAsDataURL(file);
+      });
+
+      var textarea = el('textarea', { class: 'mdl-native', 'aria-label': 'Message', placeholder: 'Message' });
+      var sendBtn = el('button', { class: 'btn btn--filled', type: 'button', text: t('models.chat.send', 'Send') });
+      var stopBtn = el('button', { class: 'btn btn--outlined', type: 'button', text: t('models.chat.stop', 'Stop'), disabled: true });
+      var regenBtn = el('button', { class: 'btn btn--text', type: 'button', text: t('models.chat.regenerate', 'Regenerate') });
+
+      function setBusy(busy) {
+        sendBtn.disabled = busy; textarea.disabled = busy; stopBtn.disabled = !busy; regenBtn.disabled = busy || !s.messages.length;
+      }
+
+      function doSend(text) {
+        if (!text || !text.trim()) return;
+        if (!modelSelect.value()) { S.notify.error(t('models.chat.needModel', '')); return; }
+        setBusy(true);
+        var images = pendingImage ? [pendingImage] : undefined;
+        pendingImage = null; attachNote.textContent = '';
+        stopFn = M.sendChatMessage(s.id, text, images,
+          function onDelta(acc) { paintThread(acc); },
+          function onDone() { setBusy(false); stopFn = null; s = M.getChatSession(s.id); paintThread(); },
+          function onError(err) { setBusy(false); stopFn = null; S.notify.error((err && err.message) || String(err)); s = M.getChatSession(s.id); paintThread(); }
+        );
+      }
+      sendBtn.addEventListener('click', function () { var v = textarea.value; textarea.value = ''; doSend(v); });
+      textarea.addEventListener('keydown', function (e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendBtn.click(); } });
+      stopBtn.addEventListener('click', function () { if (stopFn) stopFn(); });
+      regenBtn.addEventListener('click', function () {
+        var msgs = s.messages.slice();
+        var lastUser = null;
+        while (msgs.length && msgs[msgs.length - 1].role !== 'user') msgs.pop();
+        if (!msgs.length) return;
+        lastUser = msgs[msgs.length - 1];
+        M.updateChatSession(s.id, { messages: msgs.slice(0, -1) });
+        s = M.getChatSession(s.id);
+        doSend(lastUser.content);
+      });
+
+      var titleInput = el('input', { class: 'mdl-native', type: 'text', value: s.title, 'aria-label': 'Chat title' });
+      titleInput.addEventListener('change', function () { M.updateChatSession(s.id, { title: titleInput.value || 'Untitled' }); paintSessions(); });
+
+      S.append(mainCol, [
+        el('div', { class: 'mdl-row' }, [titleInput, modelSelect.el]),
+        !names.length ? el('p', { class: 'note note--warn', text: t('models.chat.needModel', '') }) : null,
+        el('label', { class: 'stack', style: { gap: '4px' } }, [el('span', { class: 't-label-small', text: t('models.chat.systemPrompt', 'System prompt') }), systemPromptBox]),
+        paramsWrap,
+        thread,
+        el('div', { class: 'mdl-compose' }, [
+          attachBtn, attachInput, textarea, sendBtn, stopBtn, regenBtn
+        ]),
+        attachNote
+      ]);
+      refreshAttachState();
+    }
+
+    paintSessions();
+    renderActiveSession();
+  }
+
+  /* ================================================================
+   * 9. Harness (desktop-only, listed and disabled)
+   * ================================================================ */
+  function renderHarness(panel) {
+    clear(panel);
+    panel.appendChild(el('h2', { 'data-i18n': 'models.tab.harness' }));
+    panel.appendChild(el('p', { class: 'muted', 'data-i18n': 'models.harness.note' }));
+    var list = el('ul', { class: 'mdl-list' });
+    M.harnessProfiles().forEach(function (p) {
+      list.appendChild(el('li', { class: 'mdl-item' }, [
+        el('div', { class: 'mdl-item__top' }, [
+          el('span', { class: 'mdl-item__name', text: p.label }),
+          chip('Desktop only', 'status--warn')
+        ]),
+        el('button', { class: 'btn btn--filled', type: 'button', text: 'Launch', disabled: true, title: p.disabledReason }),
+        el('p', { class: 'muted t-body-small', text: p.disabledReason })
+      ]));
+    });
+    panel.appendChild(list);
+    panel.appendChild(el('p', { class: 'muted' }, [
+      el('span', { text: 'This capability lives in ' }),
+      el('a', { href: 'index.html', text: 'the desktop application' }),
+      el('span', { text: '.' })
+    ]));
+  }
+
+  /* ================================================================
+   * 10. Page-level search bar (search everything on this page)
+   * ================================================================ */
+  var searchIndex = [
+    { id: 'models.search.overview', tabId: 'overview', label: 'Connection and runtime address' },
+    { id: 'models.search.catalog', tabId: 'catalog', label: 'Installed model catalog' },
+    { id: 'models.search.pull', tabId: 'pull', label: 'Pull queue' },
+    { id: 'models.search.chat', tabId: 'chat', label: 'Local chat' },
+    { id: 'models.search.harness', tabId: 'harness', label: 'Harness launch' }
+  ];
+  var search;
+  function buildSearch() {
+    var host = document.getElementById('search-host');
+    var results = document.getElementById('search-results');
+    search = S.createSearchBar({
+      ariaLabel: 'Search this page', placeholder: 'Search connection, catalog, pull queue, chat, harness',
+      storageKey: 'models-page', help: 'Searches the section names on this page and reports which tab a match sits on.',
+      sampleProvider: function () { return searchIndex.map(function (r) { return r.label; }).join('\n'); },
+      onChange: function () { paintSearchResults(); }
+    });
+    host.appendChild(search.el);
+    function paintSearchResults() {
+      var q = search.value();
+      if (!q) { results.hidden = true; clear(results); return; }
+      var m = search.matcher();
+      var hits = searchIndex.filter(function (r) { return m(r.label); });
+      clear(results); results.hidden = false;
+      if (!hits.length) { results.appendChild(el('p', { class: 'note', text: t('msg.noMatch', 'No matches.') })); return; }
+      hits.forEach(function (r) {
+        results.appendChild(el('button', {
+          class: 'btn btn--outlined', type: 'button', style: { margin: '4px 6px 4px 0' },
+          text: r.label + ' (' + TAB_LABELS[r.tabId] + ')',
+          onclick: function () { strip.select(r.tabId); results.hidden = true; search.setValue(''); }
+        }));
+      });
+    }
+  }
+
+  /* ================================================================
+   * 11. Command palette registration
+   * ================================================================ */
+  function registerPalette() {
+    var items = [
+      { id: 'page.models', title: t('models.title', 'Local models'), kind: 'page', keywords: 'ollama model runtime catalog pull chat harness', page: 'models.html' }
+    ];
+    TABS.forEach(function (tb) {
+      items.push({ id: 'models.tab.' + tb.id, title: TAB_LABELS[tb.id], kind: 'destination', keywords: tb.keywords, page: 'models.html', tabStrip: 'models', tabId: tb.id });
+    });
+    items.push({
+      id: 'models.setting.baseUrl', title: t('models.baseUrl.label', 'Runtime address'), subtitle: t('models.title', 'Local models'), kind: 'setting',
+      target: '#models-base-url', page: 'models.html',
+      control: function () {
+        var input = el('input', { class: 'mdl-native', type: 'text', value: M.getBaseUrl(), 'aria-label': t('models.baseUrl.label', 'Runtime address') });
+        input.addEventListener('change', function () { M.setBaseUrl(input.value); });
+        return input;
+      }
+    });
+    S.palette.register(items);
+  }
+
+  /* ================================================================
+   * 12. Boot
+   * ================================================================ */
+  paintPageCopy();
+  buildAppbarActions();
+  buildSearch();
+  renderOverview(panels.overview);
+  renderCatalog(panels.catalog);
+  renderPull(panels.pull);
+  renderChat(panels.chat);
+  renderHarness(panels.harness);
+  registerPalette();
+
+  S.on('i18n', function () {
+    paintPageCopy(); buildAppbarActions();
+    TABS.forEach(function (tb) { TAB_LABELS[tb.id] = t(tb.labelKey, tb.id); });
+  });
+
+  S.appearance.enable(document.getElementById('page-title'), 'models:title', 'The local models page heading');
+  S.contextMenu(document.getElementById('page-title'), function () {
+    return [
+      { label: t('act.openEditor', 'Edit appearance') + '…', icon: 'palette', shortcut: 'Shift+Right click',
+        run: function () { S.appearance.openEditor(document.getElementById('page-title'), 'models:title', 'The local models page heading'); } },
+      { label: t('locks.lockThis', 'Lock this element') + '…', icon: 'lock',
+        run: function () { S.locks.wizard(document.getElementById('page-title'), 'models:title', 'The local models page heading'); } }
+    ];
+  }, { ariaLabel: 'Page heading menu' });
+});
+});
+</script>
+</body>
+</html>

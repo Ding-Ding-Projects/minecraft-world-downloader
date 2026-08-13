@@ -46,6 +46,15 @@ export interface RuntimeInfo {
 export type HostListener = (message: HostMessage) => void;
 type Unsubscribe = () => void;
 
+/**
+ * `Omit<HostCommand, 'id'>` is not what it looks like: for a union type,
+ * `keyof HostCommand` is only the keys every member shares, so plain `Omit`
+ * collapses the whole discriminated union to a near-empty type. Distributing
+ * over the union first, then omitting from each member, keeps every command's
+ * own fields intact.
+ */
+type DistributiveOmit<T, K extends keyof T> = T extends unknown ? Omit<T, K> : never;
+
 interface Pending {
   resolve(value: unknown): void;
   reject(error: Error & { code?: string }): void;
@@ -318,7 +327,7 @@ export class BotRuntimeClient {
     this.pending.clear();
   }
 
-  private async send<T>(command: Omit<HostCommand, 'id'>): Promise<T> {
+  private async send<T>(command: DistributiveOmit<HostCommand, 'id'>): Promise<T> {
     if (!this.handleId) throw new Error(this.ctx.t('mineflayer.runtime.notStarted', 'The bot runtime has not started.'));
     const id = this.nextCommandId;
     this.nextCommandId += 1;

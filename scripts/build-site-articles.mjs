@@ -75,19 +75,31 @@ const CATEGORIES = [
 ]
 
 const CATEGORY_OF = {
+  // The file converter sits under portability rather than settings: what it is for is getting a
+  // record out of one shape and into another, which is the same job the exporters do next to it.
+  'converter': 'records',
+  // The bot control surface is the library's whole API rendered as an interface. Its four sibling
+  // articles are already under automation, and splitting the entry point away from them would put
+  // the one article a reader starts at in a different group from everything it links to.
+  'mineflayer': 'automation',
+  'downloader': 'downloading',
   'world-download': 'downloading',
   'protocol-versions': 'downloading',
   'extended-render-distance': 'downloading',
   'disconnect-diagnostics': 'downloading',
   'auto-open-containers': 'downloading',
+  'downloads': 'downloading',
 
   'live-map': 'maps',
   'map': 'maps',
   'bluemap': 'maps',
   'ported-features': 'maps',
+  'worldlens': 'maps',
 
   'scraper-bot': 'automation',
+  'bot': 'automation',
   'chat-auto-reply': 'automation',
+  'mineflayer-chat': 'automation',
   'mineflayer-movement': 'automation',
 
   'web-console': 'servers',
@@ -95,6 +107,7 @@ const CATEGORY_OF = {
   'deployment-ci': 'servers',
   'console': 'servers',
   'server': 'servers',
+  'models': 'servers',
 
   'language': 'language',
   'vocabulary': 'language',
@@ -108,6 +121,7 @@ const CATEGORY_OF = {
 
   'settings': 'settings',
   'scheduled-settings': 'settings',
+  'site-scheduled-settings': 'settings',
 
   'history': 'records',
   'export': 'records',
@@ -117,6 +131,7 @@ const CATEGORY_OF = {
 
   'locks': 'locks',
   'support-tickets': 'locks',
+  'site-support-tickets': 'locks',
   'authenticator': 'locks',
   'external-editor': 'records',
   'updates': 'records',
@@ -128,6 +143,7 @@ const CATEGORY_OF = {
  * per article, but between these and the derived related list every article
  * ends with somewhere to go: a reader is never dropped at a dead end. */
 const PREREQ_OF = {
+  'world-download': 'downloader',
   'protocol-versions': 'world-download',
   'extended-render-distance': 'world-download',
   'auto-open-containers': 'world-download',
@@ -135,11 +151,14 @@ const PREREQ_OF = {
   'map': 'live-map',
   'bluemap': 'live-map',
   'ported-features': 'live-map',
+  'worldlens': 'live-map',
   'chat-auto-reply': 'scraper-bot',
-  'mineflayer-movement': 'scraper-bot',
+  'bot': 'scraper-bot',
+  'mineflayer-movement': 'mineflayer-chat',
   'console': 'web-console',
   'server': 'deployment-ci',
   'scheduled-settings': 'settings',
+  'site-scheduled-settings': 'scheduled-settings',
   'vocabulary': 'language',
   'school-mode': 'language',
   'narrator': 'language',
@@ -147,6 +166,7 @@ const PREREQ_OF = {
   'app-logo': 'appearance',
   'accessibility-themes': 'appearance',
   'support-tickets': 'locks',
+  'site-support-tickets': 'support-tickets',
   'changelog': 'history',
   'export': 'history',
   'notification-centre': 'settings',
@@ -157,6 +177,7 @@ const PREREQ_OF = {
 }
 
 const NEXT_OF = {
+  'downloader': 'world-download',
   'world-download': 'protocol-versions',
   'protocol-versions': 'extended-render-distance',
   'extended-render-distance': 'live-map',
@@ -165,9 +186,12 @@ const NEXT_OF = {
   'live-map': 'map',
   'map': 'bluemap',
   'bluemap': 'ported-features',
-  'ported-features': 'web-console',
-  'scraper-bot': 'chat-auto-reply',
-  'chat-auto-reply': 'mineflayer-movement',
+  'ported-features': 'worldlens',
+  'worldlens': 'web-console',
+  'scraper-bot': 'bot',
+  'bot': 'chat-auto-reply',
+  'chat-auto-reply': 'mineflayer-chat',
+  'mineflayer-chat': 'mineflayer-movement',
   'mineflayer-movement': 'web-console',
   'web-console': 'console',
   'console': 'server',
@@ -175,6 +199,7 @@ const NEXT_OF = {
   'desktop-manager': 'settings',
   'deployment-ci': 'changelog',
   'updates': 'changelog',
+  'downloads': 'updates',
   'language': 'vocabulary',
   'vocabulary': 'school-mode',
   'school-mode': 'narrator',
@@ -184,7 +209,8 @@ const NEXT_OF = {
   'app-logo': 'accessibility-themes',
   'accessibility-themes': 'settings',
   'settings': 'scheduled-settings',
-  'scheduled-settings': 'history',
+  'scheduled-settings': 'site-scheduled-settings',
+  'site-scheduled-settings': 'history',
   'history': 'export',
   'export': 'changelog',
   'changelog': 'docs-browser',

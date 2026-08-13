@@ -14,12 +14,22 @@
   /* This page has exactly one job: forward to ../docs.html, keeping
      whatever query string or #hash the visitor arrived with (an
      article deep link, a teleport from the command palette, an
-     inventory-row link from the landing page). It exists only because
-     a couple of the site's other pages still link to "docs/index.html"
-     from before the reader settled at "docs.html"; nothing here is a
-     second copy of the documentation. Every colour is a token, so this
-     redirect still looks correct in whichever theme fires before the
-     navigation completes. */
+     inventory-row link from the landing page). Every other page's
+     "Documentation" link points here on purpose, so those links stay
+     stable at "docs/" while the real reader lives at "docs.html";
+     nothing here is a second copy of the documentation. Every colour
+     is a token, so this redirect still looks correct in whichever
+     theme fires before the navigation completes.
+
+     Deliberately exempt from the site's usual chrome and from
+     assets/site.js: a visitor with scripting enabled never sees this
+     page long enough for a tab strip, search bar, palette or
+     notification host to be worth rendering -- the redirect above
+     fires before first paint in practice -- and a visitor without
+     scripting gets the noscript fallback link below, where none of
+     that chrome could function anyway, since it is all JS-driven.
+     Loading site.js here would only cost a script evaluation for a
+     page that is never actually used. */
   body {
     background: var(--md-sys-color-surface);
     color: var(--md-sys-color-on-surface);

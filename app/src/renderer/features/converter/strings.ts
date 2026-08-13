@@ -871,6 +871,13 @@ const CHROME: Catalogue = {
     ladder('Remove from queue', 'Remove from queue', 'Take it off the queue', 'Kick it off the queue', 'Kick it off the queue'),
     ladder('由佇列移除', '由佇列移除', '喺佇列度攞走', '踢佢出佇列', '踢佢出佇列')
   ),
+  'converter.convert.invertSelection': entry(
+    ladder('Invert selection', 'Invert selection', 'Flip the selection', 'Swap picked for unpicked', 'Swap picked for unpicked'),
+    ladder('反轉選取', '反轉選取', '反轉揀選', '揀同冇揀對調', '揀同冇揀對調')
+  ),
+  'converter.convert.selection.none': fact('Select at least one row first.', '先揀最少一行。'),
+  'converter.convert.cancelAll.disabledReason': fact('Nothing pending to cancel.', '冇未開始嘅項目可以取消。'),
+  'converter.convert.clearFinished.disabledReason': fact('Nothing finished to clear yet.', '仲未有已完成嘅項目可以清除。'),
   'converter.convert.column.source': fact('Source', '來源'),
   'converter.convert.column.detected': fact('Detected type', '偵測類型'),
   'converter.convert.column.route': fact('Route', '路線'),
@@ -910,6 +917,11 @@ const CHROME: Catalogue = {
   'converter.convert.disclosure.confirm': entry(
     ladder('Convert anyway', 'Convert anyway', 'Go ahead and convert', 'Fine, do it', 'Fine, do it'),
     ladder('照樣轉換', '照樣轉換', '照轉可以喇', '好喇好喇，轉啦', '好喇好喇，轉啦')
+  ),
+  'converter.convert.overwrite.action': fact('Overwrite {count} existing file(s)', '覆寫 {count} 個已存在嘅檔案'),
+  'converter.convert.overwrite.irreversible': fact(
+    'Their current contents are replaced by the conversion output and cannot be recovered.',
+    '佢哋而家嘅內容會被轉換結果取代，冇得復原。'
   ),
   'converter.convert.preflight.destinationMissing': entry(
     ladder(
@@ -1026,6 +1038,8 @@ const CHROME: Catalogue = {
   ),
   'converter.pdftools.merge.moveUp': entry(ladder('Move up', 'Move up', 'Move up', 'Bump it up', 'Bump it up'), ladder('上移', '上移', '上移', '踢佢上去啲', '踢佢上去啲')),
   'converter.pdftools.merge.moveDown': entry(ladder('Move down', 'Move down', 'Move down', 'Nudge it down', 'Nudge it down'), ladder('下移', '下移', '下移', '推佢落去啲', '推佢落去啲')),
+  'converter.pdftools.merge.disabledReason.first': fact('This file is already first.', '呢個檔案已經排第一。'),
+  'converter.pdftools.merge.disabledReason.last': fact('This file is already last.', '呢個檔案已經排最尾。'),
   'converter.pdftools.merge.run': entry(
     ladder('Merge into one file…', 'Merge into one file…', 'Merge into one PDF…', 'Glue them into one file…', 'Glue them into one file…'),
     ladder('合併做一個檔案…', '合併做一個檔案…', '合併做一份 PDF…', '黐做一個檔案…', '黐做一個檔案…')

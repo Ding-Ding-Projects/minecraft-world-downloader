@@ -1,0 +1,4 @@
+[5660:49664:0813/114459.309:WARNING:chrome\browser\extensions\activity_log\activity_log_policy.cc:71] Scheduling init
+[5660:49664:0813/114459.309:WARNING:chrome\browser\extensions\activity_log\activity_log_policy.cc:71] Scheduling init
+[5660:49664:0813/114459.407:WARNING:chrome\browser\extensions\external_registry_loader_win.cc:283] Error observing HKLM: 5
+[5660:49664:0813/114459.636:INFO:CONSOLE:4649] "[ProtocolLaunch] handler constructed; wiring port events.", source: chrome-extension://ndcpkimcihhghdcddljkfmmjccdmcmof/background.rollup.js (4649)

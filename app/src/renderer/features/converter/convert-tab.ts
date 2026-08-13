@@ -6,7 +6,7 @@
 
 import { ADAPTERS, adapterById, availabilityOf, routeLabel, type AdapterSpec } from './adapters';
 import { discoverFiles } from './discovery';
-import { DEFAULTS, DESTINATION_ID } from './limits';
+import { DEFAULTS, DESTINATION_ID, OVERWRITE_ID } from './limits';
 import { queueEngine, summarize, type QueueItem, type QueueStatus } from './queue';
 import { defaultAdapterOptions, renderAdapterOption } from './runtime';
 import { el } from '../../core/a11y';
@@ -41,7 +41,6 @@ export function mountConvertTab(host: HTMLElement, ctx: TabContext): void {
 
   let selectedAdapterId = routes[0]?.id ?? '';
   let optionValues: Record<string, string> = selectedAdapterId ? defaultAdapterOptions(routes.find((a) => a.id === selectedAdapterId)!) : {};
-  let pickedFiles: string[] = [];
   let query: SearchQuery | null = null;
   let scheduled = false;
 
@@ -80,16 +79,11 @@ export function mountConvertTab(host: HTMLElement, ctx: TabContext): void {
         'converter.convert.discovering',
         ctx.t('converter.convert.discovering', 'Scanning {count} folder(s) for files…', { values: { count: result.value.length } })
       );
-      let total = 0;
-      const cancelled = { flag: false };
       const discovery = await discoverFiles(
         ctx,
         result.value,
-        (batch) => {
-          total += batch.length;
-          queueSelected(batch);
-        },
-        () => cancelled.flag
+        (batch) => queueSelected(batch),
+        () => false
       );
       ctx.notify.dismiss(banner.id);
       ctx.notify.success(
@@ -163,14 +157,39 @@ export function mountConvertTab(host: HTMLElement, ctx: TabContext): void {
 
   /* ---------------- destination + overwrite (reads the settings this feature registers) ---------------- */
 
+  const destinationStatus = el('p', { className: 'converter-route-panel__description md-typescale-body-small' });
+
+  async function checkDestination(path: string): Promise<void> {
+    destinationStatus.textContent = '';
+    if (path.trim().length === 0) return;
+    const stat = await ctx.studio.fs.stat(path);
+    if (stat.ok && stat.value.exists && !stat.value.isDirectory) {
+      destinationStatus.textContent = ctx.t(
+        'converter.convert.preflight.destinationNotWritable',
+        'The destination path exists but is not a folder, so nothing can be written there.'
+      );
+      destinationStatus.classList.add('is-error');
+    } else if (!stat.ok || !stat.value.exists) {
+      destinationStatus.textContent = ctx.t(
+        'converter.convert.preflight.destinationMissing',
+        'The destination folder does not exist yet. It will be created before writing starts.'
+      );
+      destinationStatus.classList.remove('is-error');
+    }
+  }
+
   const destinationField = ctx.components.textField({
     label: 'converter.queue.destination',
     value: String(ctx.settings.get(DESTINATION_ID, DEFAULTS.destination)),
     browse: 'folder',
     supportingText: ctx.t('converter.queue.destination.description', ''),
-    onCommit: (value) => ctx.settings.set(DESTINATION_ID, value)
+    onCommit: (value) => {
+      ctx.settings.set(DESTINATION_ID, value);
+      void checkDestination(value);
+    }
   });
-  host.append(destinationField.root);
+  host.append(destinationField.root, destinationStatus);
+  void checkDestination(destinationField.get());
 
   function queueSelected(paths: string[]): void {
     if (!selectedAdapterId) return;
@@ -183,7 +202,57 @@ export function mountConvertTab(host: HTMLElement, ctx: TabContext): void {
   /* ---------------- controls ---------------- */
 
   const controls = el('div', { className: 'converter-queue-controls' });
-  const startButton = ctx.components.button({ label: 'converter.convert.start', variant: 'filled', icon: 'play', onClick: () => engine.start() });
+  const startButton = ctx.components.button({
+    label: 'converter.convert.start',
+    variant: 'filled',
+    icon: 'play',
+    onClick: async (event) => {
+      await preflightExistingDestinations(event.currentTarget as HTMLElement);
+      engine.start();
+    }
+  });
+
+  /**
+   * Resolves every pending item's destination and, for anything that already
+   * exists there, applies the current overwrite setting: "skip" skips them
+   * outright, "overwrite" leaves them alone to be overwritten, and "confirm"
+   * asks once for the whole colliding set before the queue starts — there is
+   * no per-file dialog once files are converting unattended.
+   */
+  async function preflightExistingDestinations(anchor: HTMLElement): Promise<void> {
+    const destinationFolder = String(ctx.settings.get(DESTINATION_ID, DEFAULTS.destination));
+    const plan = engine.planOutputs(destinationFolder);
+    if (plan.size === 0) return;
+
+    const collisions = new Map<string, string>();
+    for (const [id, info] of plan) {
+      const stat = await ctx.studio.fs.stat(info.destination);
+      if (stat.ok && stat.value.exists) collisions.set(id, info.destination);
+    }
+    if (collisions.size === 0) return;
+
+    const overwrite = String(ctx.settings.get(OVERWRITE_ID, DEFAULTS.overwrite));
+    if (overwrite === 'skip') {
+      engine.applyExistingDestinationPolicy(collisions);
+      return;
+    }
+    if (overwrite === 'overwrite') {
+      engine.markApprovedOverwrite(collisions);
+      return;
+    }
+
+    const approved = await ctx.confirm.request({
+      action: ctx.t('converter.convert.overwrite.action', 'Overwrite {count} existing file(s)', { values: { count: collisions.size } }),
+      affected: [...collisions.values()],
+      irreversible: ctx.t(
+        'converter.convert.overwrite.irreversible',
+        'Their current contents are replaced by the conversion output and cannot be recovered.'
+      ),
+      anchor
+    });
+    if (approved) engine.markApprovedOverwrite(collisions);
+    else engine.applyExistingDestinationPolicy(collisions);
+  }
   const pauseButton = ctx.components.button({ label: 'converter.convert.pause', variant: 'outlined', icon: 'pause', onClick: () => engine.setPaused(true) });
   const resumeButton = ctx.components.button({ label: 'converter.convert.resume', variant: 'outlined', icon: 'play', onClick: () => engine.setPaused(false) });
   const cancelAllButton = ctx.components.button({

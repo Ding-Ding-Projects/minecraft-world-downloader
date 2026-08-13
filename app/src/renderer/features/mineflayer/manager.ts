@@ -216,6 +216,15 @@ export class BotManager {
     this.emitChange();
   }
 
+  /** Clears one bot's retained event log without touching its connection. */
+  clearEvents(botId: string): void {
+    const session = this.sessions.get(botId);
+    if (!session) return;
+    session.events = [];
+    session.droppedTotal = 0;
+    this.emitChange();
+  }
+
   async setEventSubscription(botId: string, events: string[]): Promise<void> {
     await this.runtime.subscribe(botId, events);
     const session = this.sessions.get(botId);

@@ -6,6 +6,7 @@ import { mountChatPanel } from './chatpanel';
 import { MODELS_DOCS } from './docs';
 import { mountHarnessPanel } from './harnesspanel';
 import { mountOverviewPanel } from './overviewpanel';
+import { refreshCatalog } from './refresh';
 import type { Runtime } from './runtime';
 import { PullQueue } from './queue';
 import {
@@ -275,6 +276,28 @@ function settingsSection(): SettingsSection {
           const current = requireRuntime();
           if (!current) return;
           settingCtx.tabs.teleport(STORE_TAB, 'models-store-inventory');
+          await current.ensureHostsAllowed();
+          const outcome = await refreshCatalog(current.models, { cancelled: false }, () => undefined);
+          if (outcome.ok) {
+            settingCtx.notify.success(
+              settingCtx.t('models.store.refresh', 'Refresh the catalog'),
+              settingCtx.t('models.notice.refreshed', '{variants} variants across {repositories} repositories, {pages} pages followed. {verdict}', {
+                values: {
+                  variants: outcome.variantCount,
+                  repositories: outcome.repositoryCount,
+                  pages: outcome.pageCount,
+                  verdict: outcome.complete
+                    ? settingCtx.t('models.store.completeVerdict', 'Complete')
+                    : settingCtx.t('models.store.incompleteVerdict', 'Incomplete')
+                }
+              })
+            );
+          } else {
+            settingCtx.notify.warn(
+              settingCtx.t('models.store.refresh', 'Refresh the catalog'),
+              settingCtx.t('models.notice.refreshFailed', 'The catalog refresh did not complete. {reason}', { values: { reason: outcome.error ?? outcome.note } })
+            );
+          }
         }
       }
     ]
@@ -425,7 +448,6 @@ function buildRuntime(ctx: AppContext): Runtime {
       }
     }
   };
-  void isLoopbackHost; // referenced for parity with util.ts's documented boundary rule; kept for readers tracing the http.allow contract
   return rt;
 }
 

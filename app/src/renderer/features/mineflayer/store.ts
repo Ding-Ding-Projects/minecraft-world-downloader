@@ -11,7 +11,7 @@
  */
 
 import type { AppContext } from '../../core/registry';
-import type { AuthMode, ChatLevel, ConnectionOptions, MainHand, ReconnectPolicy, ViewDistanceName } from './protocol';
+import type { AuthMode, ChatLevel, ConnectionOptions, MainHand, ViewDistanceName } from './protocol';
 
 export const PROFILES_SETTING_ID = 'mineflayer.profiles';
 
@@ -37,10 +37,11 @@ export interface BotProfile {
 
 /** Fields a stored profile might be missing after an older schema version. Every read repairs them. */
 function coerceOptions(raw: unknown): ConnectionOptions {
-  const source = (raw && typeof raw === 'object' ? raw : {}) as Partial<ConnectionOptions> & {
-    reconnect?: Partial<ReconnectPolicy>;
-  };
-  const reconnectSource = source.reconnect ?? {};
+  const source = (raw && typeof raw === 'object' ? raw : {}) as Record<string, unknown>;
+  const reconnectSource = (source.reconnect && typeof source.reconnect === 'object' ? source.reconnect : {}) as Record<
+    string,
+    unknown
+  >;
   return {
     host: typeof source.host === 'string' ? source.host : '',
     port: typeof source.port === 'number' && Number.isFinite(source.port) ? source.port : 25565,

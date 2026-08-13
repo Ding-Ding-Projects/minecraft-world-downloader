@@ -410,7 +410,7 @@ export function mountOverviewPanel(host: HTMLElement, ctx: TabContext, rt: Runti
     });
     ctx.notify.success(
       ctx.t('models.hardware.probeDone', 'The machine was measured.'),
-      `${formatBytes(result.value.totalMemory)} total memory, ${formatBytes(result.value.freeDisk)} free at ${result.value.diskPath ?? destination || '~'}.`
+      `${formatBytes(result.value.totalMemory)} total memory, ${formatBytes(result.value.freeDisk)} free at ${result.value.diskPath ?? (destination || '~')}.`
     );
   }
 

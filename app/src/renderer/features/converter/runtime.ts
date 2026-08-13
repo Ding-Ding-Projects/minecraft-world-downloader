@@ -9,7 +9,7 @@ import type { AdapterInput, AdapterOption, AdapterOutput, AdapterSpec } from './
 import { base64ToBytes } from './bytes';
 import { detectFromBytes, TAIL_BYTES, type Detection } from './detect';
 import { directoryOf, joinPath, stemOf } from './formats';
-import { ConverterBoundary, Deadline, DEFAULTS, HEAD_BYTES_ID, readLimits } from './limits';
+import { ConverterBoundary, Deadline, DEFAULTS, HEAD_BYTES_ID, readLimits, type ResourceLimits } from './limits';
 import type { AppContext } from '../../core/registry';
 
 /** The application name and version, written into a produced document's producer line. */
