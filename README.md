@@ -232,6 +232,95 @@ launches the container and opens the console in your browser. Download the **NSI
 `ghcr.io/cafepromenade/minecraft-world-downloader-web`. Requires [Docker Desktop](https://www.docker.com/products/docker-desktop/).
 
 ### Building from source
+
+**One click, from a checkout with nothing installed.** `build.bat` at the repository root takes a
+fresh Windows machine — no Node.js, no npm, no package manager, no SDK — obtains every dependency
+itself, builds the desktop application, and then offers to run it. `build-installer.bat` does the
+same and produces the Squirrel.Windows installer instead. Neither one asks you to go and install
+something by hand, and neither needs administrator rights.
+
+```
+build.bat                 install every dependency, build, then offer to run it
+build.bat /s              silent: no prompt, no pause, non-zero exit on first failure
+build-installer.bat       build and package the installer, then verify the artifact
+build-installer.bat /s    the same, silently
+```
+
+`./build.sh` and `./build-installer.sh` are the equivalents for a POSIX host, with the same flags
+and the same phases. `SILENT=1` in the environment has the same effect as `/s` or `-s` everywhere.
+
+<details>
+  <summary>What the one-click scripts actually do</summary>
+
+  Each script reports every phase as it runs — what it found already installed, what it installed
+  and where, and how long each phase took — and a failure names the exact dependency, the version
+  constraint, the source that was tried, and the blocking error rather than a bare "build failed".
+
+  1. **Preflight** — repository, mode, host, and the source commit.
+  2. **Node.js runtime** — reuses any Node.js ≥ 20.19.0 already on the machine. Otherwise a
+     user-scoped `winget` install is tried first, and a portable runtime is extracted into
+     `%LOCALAPPDATA%\world-downloader-studio\toolchain` if that is unavailable or refuses. The
+     portable archive is verified against the official published SHA-256 before it is extracted.
+     The current process's `PATH` is rebuilt from the registry after an install, because a package
+     manager writes `PATH` for *future* shells and the very next command would otherwise still not
+     find what was just installed.
+  3. **npm** — the one that ships inside that Node.js distribution.
+  4. **Application dependencies** — skipped when what is installed already matches `package.json`
+     and `package-lock.json` (`scripts/deps-in-sync.mjs` decides, by comparing declared against
+     resolved against installed, not by comparing modification times). Otherwise `npm ci`, falling
+     back to `npm install` when the lockfile and manifest are out of step.
+  5. **Electron runtime binary** — verified present, and extracted from the already-downloaded
+     package cache when an install script left it missing.
+  6. **Build** — `npm run build` (`electron-vite build`) for the application, or `npm run dist`
+     (`electron-vite build && electron-builder --win squirrel`) for the installer. That is the same
+     command the release workflow runs, on the same version.
+  7. **Verify** — the build output for the application; for the installer, that the setup
+     executable, the `RELEASES` index and the `.nupkg` all exist, that the setup is a plausible
+     size, and its SHA-256, version and source commit.
+  8. **Run** — the application script offers to launch it. This is the last thing it does, so a
+     failed build never gets as far as offering to run nothing.
+
+  Re-running is cheap and safe: each phase checks before it acts, and an interrupted download or
+  extraction leaves nothing the next run cannot recover from.
+</details>
+
+<details>
+  <summary>Code signing, and what the installer build will not do</summary>
+
+  **Code signing is permanently out of scope for this project.** No script here requests, generates,
+  discovers, stores or uses a certificate, signing key or timestamp credential, and no signer is
+  ever invoked. `build-installer.bat` asserts that the setup executable it produced reports
+  `NotSigned` and fails if anything managed to sign it, and it states in its own output that the
+  artifact is unsigned — Windows will show an unknown-publisher or SmartScreen warning, which is
+  expected and permanent. Nothing claims authenticity and no signature can be verified.
+
+  `build-installer.bat` never publishes, tags, pushes or creates a release. Building an installer
+  and shipping one are different actions with different authority, and a local build script has the
+  first and not the second.
+</details>
+
+<details>
+  <summary>Counting the project's lines</summary>
+
+  `scripts/count-lines.mjs` prints the exact table each release publishes. Do not count by hand:
+  an ad-hoc sweep costs far more and silently drops every file that matches no pattern.
+
+  ```
+  node scripts/count-lines.mjs                 plain text table
+  node scripts/count-lines.mjs --markdown      release-notes table
+  node scripts/count-lines.mjs --rev v1.2.3    count a specific revision
+  ```
+
+  It reads a single revision from the git object store rather than the working tree, breaks the
+  count down by category and by language with both total and non-blank lines, separates generated
+  files from hand-written ones, shows every excluded row (vendored source, dependency directories,
+  build output, lockfiles, binaries) beside a project total and a grand total, and has a catch-all
+  row so no file can escape being counted. Agent and human shares are attributed per **surviving**
+  line with `git blame` — never by summing added lines from the log, because churn is not
+  authorship. If its attribution total and its line total ever disagree it exits non-zero and says
+  so, rather than publishing two numbers that do not add up.
+</details>
+
 <details>
   <summary>Dependencies on linux</summary>
   

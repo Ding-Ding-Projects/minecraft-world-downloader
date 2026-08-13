@@ -1,0 +1,2118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>World Downloader Studio</title>
+<meta name="description" content="A Windows application that saves a Minecraft world to your own disk while you play it, with a live map viewer, a container manager and a chat capture bot runner.">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='112' fill='%230D8F4E'/%3E%3Cpolygon points='256,52 440,156 256,260 72,156' fill='%23B6FFCE'/%3E%3Cpolygon points='72,156 256,260 256,460 72,356' fill='%2362DE89'/%3E%3Cpolygon points='256,260 440,156 440,356 256,460' fill='%2322A85F'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/tokens.css">
+<link rel="stylesheet" href="assets/material.css">
+<link rel="stylesheet" href="assets/site.css">
+<script defer src="assets/site.js"></script>
+<style>
+/* ==================================================================
+ * Landing-page-local styles.
+ *
+ * Everything here is prefixed .lp- so it cannot collide with the
+ * runtime's own .wds- classes, which pages must not restyle. Every
+ * colour comes from a token in tokens.css; there is not one literal
+ * colour value in this block, so both themes and a visitor-chosen
+ * seed colour reach it without a second definition.
+ * ================================================================== */
+
+/* ---- hero ------------------------------------------------------- */
+.lp-hero {
+  border-bottom: 1px solid var(--md-sys-color-outline-variant);
+  background:
+    radial-gradient(120% 130% at 12% -20%,
+      color-mix(in srgb, var(--md-sys-color-primary) 20%, transparent) 0%,
+      transparent 62%),
+    var(--md-sys-color-surface-container-low);
+}
+.lp-hero__inner {
+  max-width: var(--wds-site-max-wide);
+  margin: 0 auto;
+  padding: 40px var(--wds-site-gutter) 36px;
+  display: grid;
+  gap: 28px;
+  grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr));
+  align-items: start;
+}
+.lp-hero__mark {
+  width: 84px; height: 84px; flex: none; display: block;
+  border-radius: var(--md-sys-shape-corner-large);
+  box-shadow: var(--md-sys-elevation-level2);
+  margin-bottom: 16px;
+}
+.lp-hero h1 {
+  font: 400 var(--md-sys-typescale-display-small-size)/var(--md-sys-typescale-display-small-line-height) var(--md-sys-typeface-brand);
+  letter-spacing: var(--md-sys-typescale-display-small-tracking);
+  margin: 0 0 8px;
+}
+.lp-hero__tagline {
+  font: 400 var(--md-sys-typescale-headline-small-size)/var(--md-sys-typescale-headline-small-line-height) var(--md-sys-typeface-brand);
+  color: var(--md-sys-color-primary);
+  margin: 0 0 12px;
+}
+.lp-hero__lede {
+  font-size: var(--md-sys-typescale-body-large-size);
+  line-height: var(--md-sys-typescale-body-large-line-height);
+  color: var(--md-sys-color-on-surface-variant);
+  max-width: 62ch; margin: 0 0 16px;
+}
+
+/* ---- download ---------------------------------------------------- */
+.lp-dl {
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-corner-large);
+  background: var(--md-sys-color-surface);
+  box-shadow: var(--md-sys-elevation-level1);
+  padding: 20px;
+  display: flex; flex-direction: column; gap: 12px;
+  min-width: 0;
+}
+.lp-dl__title {
+  font: var(--md-sys-typescale-title-medium-weight) var(--md-sys-typescale-title-medium-size)/var(--md-sys-typescale-title-medium-line-height) var(--md-sys-typeface-plain);
+  margin: 0;
+}
+.lp-dl__btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  min-height: 56px; padding: 0 28px; width: 100%;
+  border-radius: var(--md-sys-shape-corner-full);
+  background: var(--md-sys-color-primary); color: var(--md-sys-color-on-primary);
+  font: var(--md-sys-typescale-title-medium-weight) var(--md-sys-typescale-title-medium-size)/1 var(--md-sys-typeface-plain);
+  text-decoration: none; text-align: center; position: relative; overflow: hidden;
+}
+.lp-dl__btn::after {
+  content: ""; position: absolute; inset: 0; background: currentColor; opacity: 0;
+  transition: opacity var(--md-sys-motion-duration-short2) var(--md-sys-motion-easing-standard);
+}
+.lp-dl__btn:hover::after { opacity: var(--md-sys-state-hover-opacity); }
+.lp-dl__btn:active::after { opacity: var(--md-sys-state-pressed-opacity); }
+.lp-dl__btn:focus-visible {
+  outline: var(--wds-focus-width) solid var(--md-sys-color-secondary);
+  outline-offset: var(--wds-focus-offset);
+}
+.lp-dl__meta {
+  font-size: var(--md-sys-typescale-body-small-size);
+  line-height: 1.6;
+  color: var(--md-sys-color-on-surface-variant);
+  overflow-wrap: anywhere;
+}
+.lp-dl__meta dl { display: grid; grid-template-columns: auto 1fr; gap: 2px 12px; margin: 8px 0 0; }
+.lp-dl__meta dt { color: var(--md-sys-color-on-surface); font-weight: 600; }
+.lp-dl__meta dd { margin: 0; overflow-wrap: anywhere; }
+.lp-dl__meta code { font-family: var(--md-sys-typeface-mono); font-size: 0.94em; }
+.lp-dl__unsigned {
+  display: flex; gap: 8px; align-items: flex-start;
+  padding: 10px 12px; border-radius: var(--md-sys-shape-corner-medium);
+  background: var(--md-sys-color-tertiary-container);
+  color: var(--md-sys-color-on-tertiary-container);
+  font-size: var(--md-sys-typescale-body-small-size);
+}
+.lp-dl__none {
+  border: 1px dashed var(--md-sys-color-outline);
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: var(--md-sys-color-surface-container-high);
+  padding: 16px;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.lp-dl__none h3 { margin: 0; text-transform: none; letter-spacing: 0; color: var(--md-sys-color-on-surface); font-size: var(--md-sys-typescale-title-small-size); }
+.lp-dl__none p { margin: 0; font-size: var(--md-sys-typescale-body-small-size); color: var(--md-sys-color-on-surface-variant); }
+.lp-dl__why {
+  font-family: var(--md-sys-typeface-mono);
+  font-size: var(--md-sys-typescale-body-small-size);
+  background: var(--md-sys-color-surface-container-highest);
+  border-radius: var(--md-sys-shape-corner-small);
+  padding: 8px 10px; overflow-wrap: anywhere;
+}
+
+/* ---- appbar search results -------------------------------------- */
+.lp-results {
+  max-width: var(--wds-site-max-wide); margin: 0 auto; width: 100%;
+  padding: 0 8px 8px;
+}
+.lp-results__box {
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: var(--md-sys-color-surface-container-high);
+  max-height: min(46vh, 420px); overflow-y: auto; padding: 6px;
+}
+.lp-results__row {
+  display: flex; gap: 10px; align-items: center; width: 100%;
+  min-height: var(--wds-target-min); padding: 8px 12px; text-align: start;
+  border: 0; border-radius: var(--md-sys-shape-corner-small);
+  background: transparent; color: inherit; cursor: pointer; font: inherit;
+}
+.lp-results__row:hover { background: var(--md-sys-color-surface-container-highest); }
+.lp-results__row:focus-visible {
+  outline: var(--wds-focus-width) solid var(--md-sys-color-secondary);
+  outline-offset: calc(var(--wds-focus-offset) * -1);
+}
+.lp-results__row b { font-weight: 600; }
+.lp-results__row small { color: var(--md-sys-color-on-surface-variant); }
+
+/* ---- tab host ---------------------------------------------------- */
+.lp-tabhost { display: flex; min-height: 64vh; align-items: stretch; padding-top: 16px; }
+.lp-subtabs { display: flex; min-height: 520px; align-items: stretch; }
+.lp-panel { padding: 4px 20px 32px; min-width: 0; }
+.lp-panel h2:first-of-type { margin-top: 0; }
+
+/* ---- feature grid ------------------------------------------------ */
+.lp-fgrid {
+  display: grid; gap: 12px; margin: 0; padding: 0; list-style: none;
+  grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr));
+}
+.lp-fcard {
+  display: flex; gap: 12px; min-width: 0; padding: 14px;
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: var(--md-sys-color-surface-container-low);
+}
+.lp-fcard:focus-visible {
+  outline: var(--wds-focus-width) solid var(--md-sys-color-secondary);
+  outline-offset: var(--wds-focus-offset);
+}
+.lp-fcard.is-sel {
+  border-color: var(--md-sys-color-primary);
+  background: var(--md-sys-color-primary-container);
+  color: var(--md-sys-color-on-primary-container);
+}
+.lp-fcard__ico {
+  width: 40px; height: 40px; flex: none; display: grid; place-items: center;
+  border-radius: var(--md-sys-shape-corner-small);
+  background: var(--md-sys-color-secondary-container);
+  color: var(--md-sys-color-on-secondary-container);
+}
+.lp-fcard__body { min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.lp-fcard__id {
+  font-family: var(--md-sys-typeface-mono);
+  font-size: var(--md-sys-typescale-label-small-size);
+  color: var(--md-sys-color-on-surface-variant);
+}
+.lp-fcard__t {
+  font: var(--md-sys-typescale-title-small-weight) var(--md-sys-typescale-title-small-size)/var(--md-sys-typescale-title-small-line-height) var(--md-sys-typeface-plain);
+  text-transform: none; letter-spacing: 0; color: inherit; margin: 0;
+}
+.lp-fcard__d {
+  font-size: var(--md-sys-typescale-body-small-size);
+  line-height: 1.55;
+  color: var(--md-sys-color-on-surface-variant);
+  margin: 0;
+}
+.lp-fcard.is-sel .lp-fcard__d, .lp-fcard.is-sel .lp-fcard__id { color: inherit; }
+.lp-fcard__foot { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 2px; }
+.lp-cathead {
+  display: flex; flex-wrap: wrap; gap: 8px; align-items: baseline;
+  margin: 28px 0 10px; padding-top: 8px;
+  border-top: 1px solid var(--md-sys-color-outline-variant);
+}
+.lp-cathead h3 { margin: 0; }
+.lp-cathead .lp-count { color: var(--md-sys-color-on-surface-variant); font-size: var(--md-sys-typescale-body-small-size); }
+
+/* ---- capture gallery --------------------------------------------- */
+.lp-ggrid {
+  display: grid; gap: 14px; margin: 0; padding: 0; list-style: none;
+  grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr));
+}
+.lp-shot {
+  border: 1px dashed var(--md-sys-color-outline);
+  border-radius: var(--md-sys-shape-corner-medium);
+  overflow: hidden; background: var(--md-sys-color-surface-container-low);
+}
+.lp-shot__slot {
+  aspect-ratio: 16 / 10; display: grid; place-items: center; text-align: center;
+  padding: 16px; gap: 6px;
+  background: repeating-linear-gradient(
+    45deg,
+    var(--md-sys-color-surface-container-highest) 0 10px,
+    var(--md-sys-color-surface-container) 10px 20px);
+  color: var(--md-sys-color-on-surface-variant);
+  font-size: var(--md-sys-typescale-label-medium-size);
+}
+.lp-shot__cap { padding: 10px 12px; border-top: 1px solid var(--md-sys-color-outline-variant); }
+.lp-shot__cap b { display: block; font-weight: 600; }
+.lp-shot__cap span { font-size: var(--md-sys-typescale-body-small-size); color: var(--md-sys-color-on-surface-variant); }
+.lp-tag {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2px 8px; border-radius: var(--md-sys-shape-corner-full);
+  font-size: var(--md-sys-typescale-label-small-size);
+  background: var(--md-sys-color-surface-container-highest);
+  color: var(--md-sys-color-on-surface-variant);
+  border: 1px solid var(--md-sys-color-outline-variant);
+}
+.lp-tag--app { background: var(--md-sys-color-secondary-container); color: var(--md-sys-color-on-secondary-container); border-color: transparent; }
+.lp-tag--both { background: var(--md-sys-color-primary-container); color: var(--md-sys-color-on-primary-container); border-color: transparent; }
+
+/* ---- misc -------------------------------------------------------- */
+.lp-callout {
+  display: flex; gap: 12px; align-items: flex-start;
+  padding: 16px 18px; border-radius: var(--md-sys-shape-corner-large);
+  background: var(--md-sys-color-primary-container);
+  color: var(--md-sys-color-on-primary-container);
+}
+.lp-callout b { display: block; margin-bottom: 4px; }
+.lp-stat {
+  display: flex; flex-wrap: wrap; gap: 20px; margin: 0; padding: 0;
+}
+.lp-stat div { min-width: 0; }
+.lp-stat dt { font-size: var(--md-sys-typescale-label-medium-size); color: var(--md-sys-color-on-surface-variant); }
+.lp-stat dd {
+  margin: 0;
+  font: 400 var(--md-sys-typescale-headline-small-size)/1.2 var(--md-sys-typeface-brand);
+  color: var(--md-sys-color-on-surface);
+}
+.lp-setting-list { display: flex; flex-direction: column; gap: 4px; }
+.lp-setting-list > * {
+  padding: 12px; border-radius: var(--md-sys-shape-corner-medium);
+  background: var(--md-sys-color-surface-container-low);
+}
+.lp-crosstab {
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-left: 3px solid var(--md-sys-color-tertiary);
+  border-radius: var(--md-sys-shape-corner-small);
+  padding: 10px 12px; font-size: var(--md-sys-typescale-body-small-size);
+}
+.lp-crosstab ul { margin: 6px 0 0; }
+
+@media (max-width: 720px) {
+  .lp-hero__inner { padding: 28px var(--wds-site-gutter-narrow) 28px; gap: 20px; }
+  .lp-hero h1 { font-size: var(--md-sys-typescale-headline-large-size); line-height: var(--md-sys-typescale-headline-large-line-height); }
+  .lp-tabhost { min-height: 0; padding-top: 8px; }
+  .lp-panel { padding: 4px 0 24px; }
+  .lp-subtabs { min-height: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lp-dl__btn::after { transition: none; }
+}
+:root[data-motion="reduced"] .lp-dl__btn::after { transition: none; }
+</style>
+</head>
+<body>
+
+<a class="skip" href="#main">Skip to the content</a>
+
+<header class="site-appbar">
+  <div class="appbar">
+    <a class="site-brand" href="index.html" aria-current="page">
+      <svg class="site-brand__mark" viewBox="0 0 512 512" aria-hidden="true" focusable="false"><use href="#wds-logo"></use></svg>
+      <span class="site-brand__name">World Downloader Studio</span>
+    </a>
+    <div class="site-appbar__search" id="appbar-search"></div>
+    <div class="appbar__actions" id="appbar-actions"></div>
+  </div>
+  <div class="lp-results" id="appbar-results" hidden></div>
+</header>
+
+<main id="main">
+
+  <section class="lp-hero" aria-labelledby="lp-h1">
+    <div class="lp-hero__inner">
+      <div>
+        <svg class="lp-hero__mark" viewBox="0 0 512 512" role="img" aria-label="The World Downloader Studio application mark: an isometric world chunk with a download arrow cut through it."><use href="#wds-logo"></use></svg>
+        <h1 id="lp-h1">World Downloader Studio</h1>
+        <p class="lp-hero__tagline" data-i18n="lp.tagline"></p>
+        <p class="lp-hero__lede" data-i18n="lp.lede"></p>
+        <dl class="lp-stat">
+          <div><dt>Platform</dt><dd>Windows</dd></div>
+          <div><dt>Price</dt><dd>Nothing</dd></div>
+          <div><dt>Accounts</dt><dd>None</dd></div>
+          <div><dt>Telemetry</dt><dd>None</dd></div>
+        </dl>
+      </div>
+      <div class="lp-dl" id="download" data-wds-akey="landing:download">
+        <h2 class="lp-dl__title" data-i18n="lp.dlTitle"></h2>
+        <div id="download-state" role="status" aria-live="polite"></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="wrap wrap--wide wrap--flush lp-tabhost" id="tabhost"></div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer__inner">
+    <div>
+      <strong>World Downloader Studio</strong><br>
+      Free for everyone, with nothing held back behind a price.
+    </div>
+    <div>
+      <strong>This site</strong><br>
+      No analytics. No tracking. No third-party request.<br>
+      Your settings live in this browser only.
+    </div>
+    <div>
+      <strong>Documentation</strong><br>
+      <a href="docs/index.html">Every feature, one article each</a><br>
+      <a href="changelog.html">Changelog</a>
+    </div>
+  </div>
+</footer>
+
+<!-- The application mark, defined once and referenced twice. Original
+     artwork for this project, identical to app/build/icon.svg: an
+     isometric world chunk with a download arrow cut through it. It is
+     inlined rather than linked so the page makes no request for it. -->
+<svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <linearGradient id="wds-backdrop" x1="0" y1="0" x2="0" y2="512" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0D8F4E"></stop>
+      <stop offset="1" stop-color="#00382C"></stop>
+    </linearGradient>
+    <clipPath id="wds-topface"><polygon points="256,52 440,156 256,260 72,156"></polygon></clipPath>
+    <symbol id="wds-logo" viewBox="0 0 512 512">
+      <rect x="0" y="0" width="512" height="512" rx="112" ry="112" fill="url(#wds-backdrop)"></rect>
+      <polygon points="256,52 440,156 256,260 72,156" fill="#B6FFCE"></polygon>
+      <polygon points="72,156 256,260 256,460 72,356" fill="#62DE89"></polygon>
+      <polygon points="256,260 440,156 440,356 256,460" fill="#22A85F"></polygon>
+      <g clip-path="url(#wds-topface)" fill="#0D8F4E" fill-opacity="0.3">
+        <polygon points="346.28,100.95 162.28,204.95 165.72,211.05 349.72,107.05"></polygon>
+        <polygon points="162.28,107.05 346.28,211.05 349.72,204.95 165.72,100.95"></polygon>
+      </g>
+      <polygon points="212,104 300,104 300,268 350,268 256,394 162,268 212,268" fill="url(#wds-backdrop)"></polygon>
+    </symbol>
+  </defs>
+</svg>
+
+<script>
+Studio.ready(function (S) {
+  'use strict';
+
+  /* ================================================================
+   * 1. Copy.
+   *
+   * Five variants per language, lowest funny level first, exactly as
+   * the runtime requires -- an entry with fewer is a slider that
+   * visibly does nothing. The FACTS are identical at every level:
+   * what the product is, what it does, what it costs, what state a
+   * release is in. Only the voice moves.
+   * ================================================================ */
+  S.i18n.define({
+    'lp.tagline': {
+      en: [
+        'Save a Minecraft world to your own disk while you play it.',
+        'Save a Minecraft world to your own disk while you play it.',
+        'Save a Minecraft world to your own disk, while you are still walking around in it.',
+        'Save a Minecraft world to your own disk while you are still walking around in it, one chunk at a time.',
+        'You walk. It writes the ground down behind you, chunk by chunk, onto your own disk.'
+      ],
+      zh: [
+        '一邊玩，一邊將 Minecraft 世界儲存到你自己部機。',
+        '一邊玩，一邊將個 Minecraft 世界儲落你自己部機。',
+        '你仲喺度行緊，佢已經幫你將個世界儲落自己部機。',
+        '你仲喺度周圍行，佢就一格一格咁將個世界儲落你自己部機。',
+        '你行你嘅，佢喺後面一格一格抄低塊地，全部落你自己部機。'
+      ]
+    },
+    'lp.lede': {
+      en: [
+        'A Windows application combining a world downloader, a live map viewer, a container manager and a chat capture bot runner. It sits between your game client and the server, so it needs no mod and no server plugin.',
+        'One Windows application: a world downloader, a live map viewer, a container manager and a chat capture bot runner. It sits between your game client and the server, so it needs no mod and no server plugin.',
+        'Four tools in one Windows application: world downloader, live map viewer, container manager, chat capture bot runner. It sits between your game client and the server, which is why it needs no mod and no server plugin.',
+        'Four programs that used to be four programs, now one Windows application: world downloader, live map viewer, container manager, chat capture bot runner. It sits in the middle, between your game client and the server, so nothing needs modding and no server plugin is involved.',
+        'Four separate programs walked into one Windows application and never walked back out: world downloader, live map viewer, container manager, chat capture bot runner. It stands quietly in the middle between your game client and the server, which is the whole trick, because that means no mod and no server plugin.'
+      ],
+      zh: [
+        '一個 Windows 應用程式，包含世界下載器、即時地圖、容器管理同聊天捕捉機械人。佢企喺你個遊戲客戶端同伺服器中間，所以唔使 mod，亦唔使裝伺服器 plugin。',
+        '一個 Windows 程式做四樣嘢：世界下載器、即時地圖、容器管理、聊天捕捉機械人。佢企喺客戶端同伺服器中間，所以唔使 mod，唔使裝伺服器 plugin。',
+        '四個工具擠晒入一個 Windows 程式：世界下載器、即時地圖、容器管理、聊天捕捉機械人。佢企喺你個客戶端同伺服器中間，所以唔使 mod，唔使伺服器 plugin。',
+        '以前要開四個窗，而家一個 Windows 程式搞掂：世界下載器、即時地圖、容器管理、聊天捕捉機械人。佢靜靜哋企喺你個客戶端同伺服器中間，所以唔使 mod，亦唔使裝伺服器 plugin。',
+        '四個舊程式一齊搬咗入嚟同居，變成一個 Windows 程式：世界下載器、即時地圖、容器管理、聊天捕捉機械人。佢就企喺你個客戶端同伺服器中間食住花生，所以唔使 mod、唔使伺服器 plugin。'
+      ]
+    },
+    'lp.dlTitle': {
+      en: ['Download', 'Download', 'Get the installer', 'Get the installer', 'Get the installer'],
+      zh: ['下載', '下載', '攞安裝檔', '攞個安裝檔', '攞個安裝檔']
+    },
+    'lp.dlChecking': {
+      en: [
+        'Reading the release manifest.',
+        'Reading the release manifest.',
+        'Reading the release manifest from this site.',
+        'Reading the release manifest from this site, to see whether there is a verified installer to offer.',
+        'Reading the release manifest from this site, to see whether there is a verified installer to offer. It is a small file, so this is quick.'
+      ],
+      zh: [
+        '正在讀取發佈清單。',
+        '正在讀取發佈清單。',
+        '喺度睇緊呢個網站嘅發佈清單。',
+        '喺度睇緊呢個網站嘅發佈清單，睇下有冇一個已核實嘅安裝檔可以俾你。',
+        '喺度睇緊呢個網站嘅發佈清單，睇下有冇一個已核實嘅安裝檔可以俾你。個檔好細，一秒都唔使。'
+      ]
+    },
+    'lp.dlNone': {
+      en: [
+        'No verified release yet',
+        'No verified release yet',
+        'There is no verified release yet',
+        'There is no verified release yet, so there is nothing to hand you',
+        'There is no verified release yet, so there is honestly nothing to hand you'
+      ],
+      zh: [
+        '暫時未有已核實嘅發佈版本',
+        '暫時未有已核實嘅發佈版本',
+        '而家仲未有已核實嘅發佈版本',
+        '而家仲未有已核實嘅發佈版本，所以冇嘢可以俾你',
+        '而家仲未有已核實嘅發佈版本，老實講，冇嘢可以俾你'
+      ]
+    },
+    'lp.dlNoneBody': {
+      en: [
+        'A download button appears here as soon as a release manifest on this site names an installer with an immutable address and a matching digest. Until then this page shows nothing to click, because a button pointing at a guessed address is worse than no button.',
+        'A download button appears here as soon as a release manifest on this site names an installer with an immutable address and a matching digest. Until then there is nothing to click, because a button pointing at a guessed address is worse than no button.',
+        'A download button turns up here the moment a release manifest on this site names an installer with an immutable address and a matching digest. Until then there is nothing to click: a button pointing at an address somebody guessed is worse than no button.',
+        'A download button turns up here the moment a release manifest on this site names an installer with an immutable address and a digest that actually matched. Until then there is deliberately nothing to click, because a button pointing at an address somebody guessed is worse than no button at all.',
+        'A download button turns up here the moment a release manifest on this site names an installer with an immutable address and a digest that actually matched. Until then there is deliberately nothing to click. A button that guesses an address and returns a 404 is worse than no button, and it is worse in the most annoying way: it works right up until you press it.'
+      ],
+      zh: [
+        '一旦呢個網站嘅發佈清單列出一個有固定網址同對得上雜湊值嘅安裝檔，下載掣就會出現喺呢度。喺此之前呢度冇嘢可以㩒，因為一個亂估網址嘅掣，比冇掣仲差。',
+        '一旦呢個網站嘅發佈清單列出一個有固定網址同對得上雜湊值嘅安裝檔，下載掣就會出現。喺此之前呢度冇嘢可以㩒，因為一個亂估網址嘅掣，比冇掣仲差。',
+        '等呢個網站嘅發佈清單列出一個有固定網址同對得上雜湊值嘅安裝檔，下載掣就會即刻出現。喺此之前冇嘢俾你㩒：一個亂估網址嘅掣，比冇掣仲差。',
+        '等呢個網站嘅發佈清單列出一個有固定網址、而且雜湊值真係對得上嘅安裝檔，下載掣就會即刻出現。喺此之前係特登冇嘢俾你㩒，因為一個亂估網址嘅掣，真係比冇掣仲差。',
+        '等呢個網站嘅發佈清單列出一個有固定網址、而且雜湊值真係對得上嘅安裝檔，下載掣就會即刻出現。喺此之前係特登冇嘢俾你㩒。一個亂估網址、㩒落去 404 嘅掣最陰功：佢一路睇落去都好正常，直到你真係㩒佢嗰下。'
+      ]
+    },
+    'lp.featTitle': {
+      en: ['Every feature', 'Every feature', 'Everything it is being built to do', 'Everything it is being built to do', 'Everything it is being built to do'],
+      zh: ['全部功能', '全部功能', '佢要做嘅全部嘢', '佢要做嘅全部嘢', '佢要做嘅全部嘢']
+    },
+    'lp.featNote': {
+      en: [
+        'All of them, not a highlight reel. Each card carries its identifier from the project feature inventory and its real build state, so a feature that has not been built yet says so rather than reading as shipped.',
+        'All of them, not a highlight reel. Each card carries its identifier from the project feature inventory and its real build state, so a feature that has not been built yet says so rather than reading as shipped.',
+        'All of them, not a highlight reel. Each card carries its identifier from the project feature inventory and its real build state, so a feature nobody has built yet says so instead of quietly reading as shipped.',
+        'All of them, not a highlight reel. Each card carries its identifier from the project feature inventory and its real build state, so a feature nobody has built yet says so instead of quietly reading as shipped. A list that only mentions the finished parts is a sales page, not an inventory.',
+        'All of them, not a highlight reel. Each card carries its identifier from the project feature inventory and its real build state, so a feature nobody has built yet says so instead of quietly reading as shipped. A list that only mentions the finished parts is a sales page wearing an inventory as a hat.'
+      ],
+      zh: [
+        '全部功能，唔係精選。每張卡都寫住佢喺功能清單入面嘅編號同真實狀態，所以未做嘅功能會照直講，唔會扮到好似已經出咗貨。',
+        '全部功能，唔係精選。每張卡都寫住佢喺功能清單入面嘅編號同真實狀態，所以未做嘅功能會照直講，唔會扮到好似已經出咗貨。',
+        '全部功能，唔係精選。每張卡都寫住佢喺功能清單嘅編號同真實狀態，所以未做嘅功能會直接講明，唔會靜雞雞扮咗已經出貨。',
+        '全部功能，唔係精選。每張卡都寫住佢喺功能清單嘅編號同真實狀態，所以未做嘅功能會直接講明，唔會靜雞雞扮咗已經出貨。淨係講做好咗嗰啲嘅清單，其實係廣告。',
+        '全部功能，唔係精選。每張卡都寫住佢喺功能清單嘅編號同真實狀態，所以未做嘅功能會直接講明，唔會靜雞雞扮咗已經出貨。淨係講做好咗嗰啲嘅清單，係廣告戴住個清單帽。'
+      ]
+    },
+    'lp.shotTitle': {
+      en: ['Captures', 'Captures', 'What it looks like', 'What it looks like', 'What it looks like']
+    ,
+      zh: ['截圖', '截圖', '佢個樣', '佢個樣係點', '佢個樣係點']
+    },
+    'lp.shotNote': {
+      en: [
+        'Real captures of the built application at a verified commit go here. None exist yet, because no build has been released. Each slot below names the surface it is waiting for.',
+        'Real captures of the built application at a verified commit go here. None exist yet, because no build has been released. Each slot below names the surface it is waiting for.',
+        'Real captures of the built application at a verified commit belong here. None exist yet, because no build has been released. Each slot below names the surface it is waiting for.',
+        'Real captures of the built application at a verified commit belong here, never a mockup and never a design file. None exist yet, because no build has been released, so each slot below names the surface it is waiting for.',
+        'Real captures of the built application at a verified commit belong here, never a mockup, never a design file, never a picture of something that was drawn rather than run. None exist yet, because no build has been released, so each slot below just names the surface it is waiting for and stares at you.'
+      ],
+      zh: [
+        '呢度會放已核實 commit 嘅真實程式截圖。而家一張都未有，因為未出過 build。下面每格寫住佢等緊邊個畫面。',
+        '呢度會放已核實 commit 嘅真實程式截圖。而家一張都未有，因為未出過 build。下面每格寫住佢等緊邊個畫面。',
+        '呢度應該放已核實 commit 嘅真實程式截圖。而家一張都未有，因為未出過 build。下面每格寫住佢等緊邊個畫面。',
+        '呢度應該放已核實 commit 嘅真實程式截圖，唔可以係示意圖或者設計檔。而家一張都未有，因為未出過 build，所以下面每格淨係寫住佢等緊邊個畫面。',
+        '呢度應該放已核實 commit 嘅真實程式截圖，唔可以係示意圖、設計檔、或者畫出嚟扮跑過嘅嘢。而家一張都未有，因為未出過 build，所以下面每格淨係寫住佢等緊邊個畫面望住你。'
+      ]
+    },
+    'lp.freeTitle': {
+      en: [
+        'Nobody ever pays a penny to use this.',
+        'Nobody ever pays a penny to use this.',
+        'Nobody ever pays a penny to use this.',
+        'Nobody ever pays a penny to use this.',
+        'Nobody ever pays a penny to use this.'
+      ],
+      zh: [
+        '用呢個程式，一蚊都唔使俾。',
+        '用呢個程式，一蚊都唔使俾。',
+        '用呢個程式，一蚊都唔使俾。',
+        '用呢個程式，一蚊都唔使俾。',
+        '用呢個程式，一蚊都唔使俾。'
+      ]
+    },
+    'lp.freeBody': {
+      en: [
+        'No purchase, no licence, no subscription, no trial that lapses, no feature held behind an unlock, no tier where the useful version costs money. This page will never ask you for money, and neither will the application.',
+        'No purchase, no licence, no subscription, no trial that lapses, no feature held behind an unlock, no tier where the useful version costs money. This page will never ask you for money, and neither will the application.',
+        'No purchase, no licence, no subscription, no trial that lapses, no feature behind an unlock, no tier where the useful version is the one that costs money. This page will never ask you for money, and neither will the application.',
+        'No purchase, no licence, no subscription, no trial that lapses, no feature behind an unlock, no tier where the useful version happens to be the one that costs money. This page will never ask you for money, and neither will the application, and there is no plan under which that changes later.',
+        'No purchase, no licence, no subscription, no trial that lapses at the worst moment, no feature hiding behind an unlock, no tier where the useful version is mysteriously the paid one. This page will never ask you for money, the application will never ask you for money, and there is no plan filed away under which that changes once enough people are using it.'
+      ],
+      zh: [
+        '唔使買、唔使 licence、唔使訂閱、冇試用期會過期、冇功能鎖住要解鎖、冇話有用嗰個版本要俾錢。呢版唔會問你攞錢，個程式都唔會。',
+        '唔使買、唔使 licence、唔使訂閱、冇試用期會過期、冇功能鎖住要解鎖、冇話有用嗰個版本要俾錢。呢版唔會問你攞錢，個程式都唔會。',
+        '唔使買、唔使 licence、唔使訂閱、冇試用期會過期、冇功能鎖起要解鎖、亦冇話有用嗰個版本先要俾錢。呢版唔會問你攞錢，個程式都唔會。',
+        '唔使買、唔使 licence、唔使訂閱、冇試用期會突然過期、冇功能鎖起要解鎖、亦冇話有用嗰個版本啱啱好就係要俾錢嗰個。呢版唔會問你攞錢，個程式都唔會，亦冇留低一份「之後先收」嘅計劃。',
+        '唔使買、唔使 licence、唔使訂閱、冇試用期會喺最唔啱嘅時候過期、冇功能匿埋等你解鎖、亦冇話有用嗰個版本好神奇咁啱就係要俾錢嗰個。呢版唔會問你攞錢，個程式唔會問你攞錢，抽屜入面亦冇一份「等人多咗先收」嘅計劃。'
+      ]
+    },
+    'lp.siteTitle': {
+      en: ['This site', 'This site', 'This site, and how it behaves', 'This site, and how it behaves', 'This site, and how it behaves'],
+      zh: ['呢個網站', '呢個網站', '呢個網站點運作', '呢個網站點樣運作', '呢個網站點樣運作']
+    },
+    'lp.siteNote': {
+      en: [
+        'The documentation site carries the same contract as the application: language modes, funny levels, tabs, search with its regular-expression builder, the appearance editor, element locks and the command palette. It is not exempt for being documentation.',
+        'The documentation site carries the same contract as the application: language modes, funny levels, tabs, search with its regular-expression builder, the appearance editor, element locks and the command palette. It is not exempt for being documentation.',
+        'This site carries the same contract as the application: language modes, funny levels, tabs, search with its regular-expression builder, the appearance editor, element locks and the command palette. Being documentation is not an exemption.',
+        'This site carries the same contract as the application: language modes, funny levels, tabs, search with its regular-expression builder, the appearance editor, element locks and the command palette. Being documentation is not an exemption, and neither is being small.',
+        'This site carries the same contract as the application: language modes, funny levels, tabs, search with its regular-expression builder, the appearance editor, element locks and the command palette. Being documentation is not an exemption. Neither is being small, being obviously scannable, or nobody ever customising it.'
+      ],
+      zh: [
+        '呢個文件網站同個程式行同一套規矩：語言模式、搞笑程度、分頁、帶正規表達式產生器嘅搜尋、外觀編輯器、元素鎖同指令面板。做文件唔係豁免理由。',
+        '呢個文件網站同個程式行同一套規矩：語言模式、搞笑程度、分頁、帶正規表達式產生器嘅搜尋、外觀編輯器、元素鎖同指令面板。做文件唔係豁免理由。',
+        '呢個網站同個程式行同一套規矩：語言模式、搞笑程度、分頁、帶正規表達式產生器嘅搜尋、外觀編輯器、元素鎖同指令面板。做文件唔算豁免。',
+        '呢個網站同個程式行同一套規矩：語言模式、搞笑程度、分頁、帶正規表達式產生器嘅搜尋、外觀編輯器、元素鎖同指令面板。做文件唔算豁免，細都唔算。',
+        '呢個網站同個程式行同一套規矩：語言模式、搞笑程度、分頁、帶正規表達式產生器嘅搜尋、外觀編輯器、元素鎖同指令面板。做文件唔算豁免，細唔算，「一眼睇晒」唔算，「冇人會改佢」都唔算。'
+      ]
+    },
+    'lp.privTitle': {
+      en: ['Privacy', 'Privacy', 'What this site knows about you', 'What this site knows about you', 'What this site knows about you'],
+      zh: ['私隱', '私隱', '呢個網站知你啲乜', '呢個網站到底知你啲乜', '呢個網站到底知你啲乜']
+    },
+    'lp.buildTitle': {
+      en: ['Build it yourself', 'Build it yourself', 'Build it yourself instead', 'Build it yourself instead', 'Build it yourself instead']
+    ,
+      zh: ['自己 build', '自己 build', '不如自己 build', '不如自己 build 一個', '不如自己 build 一個']
+    }
+  });
+
+  /* ================================================================
+   * 2. The feature inventory, transcribed from FEATURE_INVENTORY.md.
+   *
+   * [id, title, blurb, surface, state, category]
+   *   surface: 'both'       the application and this site both carry it
+   *            'app'        the application only; the site says why
+   *            'documented' the application carries it; the site documents it
+   *   state:   'planned' | 'building' | 'shipped'
+   *
+   * The state is the inventory's real mark, not an aspiration. A card
+   * that reads "planned" is a card for something nobody has built.
+   * ================================================================ */
+  var CATS = [
+    { n: 1,  key: 'lang',    name: 'Language, voice and text',        icon: 'text' },
+    { n: 2,  key: 'appear',  name: 'Appearance and Material Design 3', icon: 'palette' },
+    { n: 3,  key: 'nav',     name: 'Navigation and discovery',        icon: 'grid' },
+    { n: 4,  key: 'search',  name: 'Search and regular expressions',  icon: 'search' },
+    { n: 5,  key: 'safety',  name: 'Messaging, safety and confirmation', icon: 'bell' },
+    { n: 6,  key: 'data',    name: 'Data, history and portability',   icon: 'history' },
+    { n: 7,  key: 'sched',   name: 'Scheduling and external sources', icon: 'calendar' },
+    { n: 8,  key: 'locks',   name: 'Locks, credentials and the authenticator', icon: 'lock' },
+    { n: 9,  key: 'docs',    name: 'Documentation and change records', icon: 'doc' },
+    { n: 10, key: 'forms',   name: 'Forms, controls and layout',      icon: 'settings' },
+    { n: 11, key: 'convert', name: 'Conversion and local model tooling', icon: 'folder' },
+    { n: 12, key: 'updates', name: 'Downloads and updates',           icon: 'download' },
+    { n: 13, key: 'product', name: 'The product itself',              icon: 'globe' },
+    { n: 14, key: 'release', name: 'Release and build',               icon: 'play' },
+    { n: 15, key: 'bot',     name: 'The bot control surface',         icon: 'list' }
+  ];
+
+  var FEATURES = [
+    ['1.1', 'Three language modes', 'English, playful Hong Kong Cantonese, and a bilingual mode that keeps the primary label prominent and the secondary compact. Persisted, and checked at the narrow widths where bilingual labels are longest.', 'both', 'planned', 1],
+    ['1.2', 'Two funny-level sliders', 'One slider per language, 1 to 5, wired to real copy at every level. It applies to every message category including destructive, security and error copy. The voice changes; the facts never do.', 'both', 'planned', 1],
+    ['1.3', 'Funny-level disclosure', 'At first run and in the setting itself, stated plainly: the level styles all messages, warnings and errors included. No category is quietly carved out of it.', 'both', 'planned', 1],
+    ['1.4', 'Emoji switch for dialogs', 'A persisted toggle adding a relevant emoji to dialogs and message boxes. Emoji never appear in a button, an action label, a field label or an accessible name.', 'both', 'planned', 1],
+    ['1.5', 'School mode', 'One shared switch, applied live without a restart, renamable by the user, and unlocked by a locally verified code. It forces English and makes Cantonese, bilingual mode, funny levels, personal vocabulary and every dim sum capability behave as though they were never installed. A user-experience lock, not a security boundary.', 'both', 'planned', 1],
+    ['1.6', 'Personal vocabulary upload', 'A local JSON file that rewrites wording. The control is always visible, even before a file exists. No mappings, samples or templates ship; a rejected file never applies partially; nothing is ever uploaded.', 'both', 'planned', 1],
+    ['1.7', 'Spoken narrator', 'Off by default. English, Cantonese or both in strict sequence, debounced, with a per-category cooldown and one utterance at a time. It yields to an active screen reader.', 'both', 'planned', 1],
+    ['1.8', 'Narrator voice picker', 'One picker per narrated language, listing the voices this machine actually has. The default is "Choose automatically"; no named voice ships as a default. Rate and pitch adjust, and an uninstalled, network-backed or missing voice is reported rather than silently swapped.', 'both', 'planned', 1],
+
+    ['2.1', 'Material Design 3 throughout', 'Tokens, typography, shape, elevation, motion and component anatomy, with no legacy elements left. Functional data colours are exempt, because they encode data rather than chrome.', 'both', 'planned', 2],
+    ['2.2', 'Runtime appearance controls', 'Light and dark theme, density, seed colour and full font customization with a live preview and a CJK-safe fallback. Applied live, not only after a restart.', 'both', 'planned', 2],
+    ['2.3', 'Per-element appearance editor', 'Every element carries "Edit appearance" in its own context menu and a keyboard equivalent. The editor opens non-modally, anchored beside that exact element, and returns focus to it.', 'both', 'planned', 2],
+    ['2.4', 'Infinite colour picker', 'A continuous field and wheel plus numeric entry, with a bidirectional translator across named colours, HEX, HEX8, RGB, RGBA, HSL, HSLA, HSV, HWB, LAB, LCH, OKLab, OKLCH and CMYK. Alpha is preserved, a gamut clip is reported rather than hidden, and contrast is shown.', 'both', 'planned', 2],
+    ['2.5', 'Word-depth typography editor', 'Family, size, variable axes, weight, italic, underline, strikethrough, overline, capitalization, super and subscript, colour, highlight, outline, shadow, spacing, line height, baseline offset, direction and alignment. A property the platform cannot do stays visible with the reason.', 'both', 'planned', 2],
+    ['2.6', 'Presets and exportable themes', 'Named presets and user themes that export and import as a file, so a customized appearance survives a reinstall. Reset per property, per element and globally.', 'both', 'planned', 2],
+    ['2.7', 'Renamable display name', 'The name the application calls itself is yours to change. It changes display only: never the data directory, the package identity, the installer identity or the update feed. Diagnostics keep the shipped name so a reader knows what they are looking at.', 'both', 'planned', 2],
+    ['2.8', 'App-logo customization', 'Shipped presets plus your own local image, with crop, fit, focal point and background, converted locally into every size the interface needs. Nothing is uploaded, and it never rewrites installed identity.', 'both', 'planned', 2],
+
+    ['3.1', 'Dockable browser-style tabs', 'Content is tabbed rather than one long scroll. The strip docks to the left, right, top or bottom, left by default, persisted per surface. Docking is an orientation change, not a rotation: a label is never turned sideways, and the arrow keys follow the axis.', 'both', 'planned', 3],
+    ['3.2', 'Tab overflow surface', 'When tabs exceed the space they have, they move into an overflow surface rather than being silently clipped. On a vertical strip that surface measures height, which is genuinely different arithmetic.', 'both', 'planned', 3],
+    ['3.3', 'Reordering, pinning and groups', 'Drag or keyboard reordering, pinned tabs in a stable dedicated region, and groups with a name, colour, order and collapse. Order, pinned order, groups, group order, collapsed state and membership all survive a restart.', 'both', 'planned', 3],
+    ['3.4', 'All four tab searches', 'The current strip, inside each group, across groups by name, and a master search over every open tab everywhere. Each has its own query, pattern, flags, mode and its own anchored regular-expression builder.', 'both', 'planned', 3],
+    ['3.5', 'Close tabs containing, or not containing, text', 'Both directions, negating the same predicate so flags and casing cannot drift between them. An exact count and a reviewable preview first; pinned tabs excluded unless you say otherwise.', 'both', 'planned', 3],
+    ['3.6', 'Settings surfaces are themselves tabbed', 'Every settings, preferences and properties surface presents its sections as the same browser-style tabs, carrying the whole tab feature set. "It is only settings" is not an exemption.', 'both', 'planned', 3],
+    ['3.7', 'Move-into-group is a picker', 'A context menu never grows one item per group. A single "Move into group" entry opens an anchored picker with the groups, their colours and member counts, a create-new path, an honest empty state and its own search.', 'both', 'planned', 3],
+    ['3.8', 'Command palette on Ctrl+Shift+F', 'Every command, destination, setting, article and appearance control, with rich rows rendering the real live control inline. Selecting a result teleports to the exact element rather than the general area.', 'both', 'planned', 3],
+    ['3.9', 'Shortcuts shown in right-click menus', 'Each menu item that has a keyboard shortcut displays it, taken from the same source that registers the binding, and exposed to assistive technology as a shortcut rather than as decorative text.', 'both', 'planned', 3],
+    ['3.10', 'A filter field in every menu and dropdown', 'Every select, combobox, picker, autocomplete, menu button and context menu opens with a keyboard-focusable filter and its own anchored builder. There is no exemption for a short menu, because a four-item menu becomes a fourteen-item menu without anyone revisiting the decision.', 'both', 'planned', 3],
+
+    ['4.1', 'A full regular-expression builder', 'Guided construction, a raw editor, the flags, sample text, live matches and capture groups, syntax feedback, copy and export. It names the real engine and dialect, and states the bound it actually enforces rather than implying a stronger one.', 'both', 'planned', 4],
+    ['4.2', 'The builder beside every search bar', 'Anchored to the field you are already typing in, never a distant dialog. Plain text stays the default and regular expressions are an explicit opt-in; query, pattern, flags, validation and mode stay in step.', 'both', 'planned', 4],
+    ['4.3', 'A search bar on every settings surface', 'Global settings, per-item settings, every tab within them, every properties panel and every configuration page. It reports when a match sits on a different tab instead of showing nothing.', 'both', 'planned', 4],
+
+    ['5.1', 'Non-blocking notifications', 'Corner-anchored, stacking, with a title, body, actions and links. Errors and warnings persist until dismissed. A modal is reserved for a decision you must make before continuing.', 'both', 'planned', 5],
+    ['5.2', 'A notification centre', 'Dismissed notifications stay reviewable, and the centre is a list, so it carries the whole bulk-action contract: multi-select, an honestly-scoped select-all, inverse selection, bulk dismiss, a gated bulk delete and a filtered export.', 'both', 'planned', 5],
+    ['5.3', 'Destructive-action super confirmation', 'Two independent keys, then a full-range slider that only wakes once both are turned, with a progress animation, a completion animation and an emergency exit that never leaves the screen. The facts stay exact at every language and funny level.', 'both', 'planned', 5],
+    ['5.4', 'Nothing costs money, ever', 'No purchase, licence, subscription, lapsing trial or capability held behind an unlock, and no nagging for donations, sponsorship, reviews or ratings. Any funding link points at an upstream project and says so.', 'both', 'planned', 5],
+    ['5.5', 'Real progress where the work started', 'A long operation reports its actual progress inside the surface that began it, disables the submitting control and refuses re-entry. A bare spinner is indistinguishable from a hang.', 'both', 'planned', 5],
+    ['5.6', 'Recovery offered where the failure appears', 'The route out of a failure sits beside the control that failed, including direct re-authentication when a credential or a permission scope is refused.', 'both', 'planned', 5],
+
+    ['6.1', 'Local version history', 'Every document and record is snapshotted into a local repository kept beside the application data, never a repository inside your own folders. Append-only: a restore is a new revision, so an undo can itself be undone. On this site the same history runs on local browser storage, and says so.', 'both', 'planned', 6],
+    ['6.2', 'History covers every record', 'Not only documents: accounts, connected services, generators, rules and settings. Settings belong in the same snapshot as the records they configure, because restoring one without the other is a subtly wrong state.', 'both', 'planned', 6],
+    ['6.3', 'A history panel worth opening', 'An advanced date picker, filters built from the real recorded actions with their counts, text search with the regular-expression builder, per-entry diffs, restore, labelling, pruning and a redacted export. The filters compose rather than override.', 'both', 'planned', 6],
+    ['6.4', 'Secret and display-name mutation history', 'One commit per add, edit, remove, rename, reset and restore, behind its own credential. No usable secret ever enters a commit in plaintext, and a missing vault fails visibly rather than silently claiming the change was recorded.', 'both', 'planned', 6],
+    ['6.5', 'Export in every format that fits', 'JSON, JSONL, YAML, TOML, XML, CSV, TSV, Markdown, HTML, SQL and language-source forms. Every file states its encoding, line endings and schema version, and a format that would drop a field warns before it runs.', 'both', 'planned', 6],
+    ['6.6', 'ZIP and 7z, with the whole 7z option set', 'LZMA2, LZMA, PPMd, BZip2 and Deflate; store through ultra; dictionary, word and solid-block sizes; threading; split volumes; AES-256 with encrypted headers. An archive is never presented as protected while its filenames sit in the clear.', 'both', 'planned', 6],
+    ['6.7', 'Bulk actions on every collection', 'Every list, table and grid, including the notification centre and the history panel. Multi-select, shift ranges, a keyboard equivalent, a select-all that says whether it means this page or every match, inverse selection, and the full action set rather than a token subset.', 'both', 'planned', 6],
+    ['6.8', 'Presets in a blank editor', 'An editor that opens to nothing offers presets derived strictly from the real shipped defaults, each stating exactly what it sets. Applying one is an ordinary recorded, undoable action.', 'both', 'planned', 6],
+    ['6.9', 'Open in an external editor', 'Every export opens straight in Visual Studio Code as a workspace root, with an honest message when no install is found. A web page cannot launch a local editor, so this site offers download and copy instead and says why.', 'app', 'planned', 6],
+
+    ['7.1', 'Scheduled settings', 'Schedule the language mode, theme, density, accent, fonts, motion and every other appearance value on native date and time pickers, with an optional start and end date, a start and end time, and either every day or explicit weekdays. It states the timezone and what happens across a daylight-saving change.', 'both', 'planned', 7],
+    ['7.2', 'A versioned, bounded schedule schema', 'Stable rule identifiers, deterministic precedence, migration and recorded history. Cross-midnight windows, date boundaries, equal start and end values and invalid partial input all have explicit tested semantics rather than silent guesses.', 'both', 'planned', 7],
+    ['7.3', 'Local, HTTPS or Home Assistant sources', 'A rule can take its value from local data, a validated versioned HTTPS API, or a Home Assistant boolean entity. Network access lives behind the privileged boundary; redirects and embedded credentials are refused; failure is non-blocking and falls back to what you set yourself.', 'both', 'planned', 7],
+
+    ['8.1', 'Toy locks on every element', 'Any rendered element and any appearance value can be locked behind a password or a one-time code, and every lock carries its own credential. No master credential, no inheritance. It is for fun, it says so, and it is never described as securing or encrypting anything.', 'both', 'planned', 8],
+    ['8.2', 'A lock wizard and a real lock list', 'The wizard anchors beside the exact element and names it. Locks are enumerable, searchable, individually removable and manageable in bulk. A locked item still appears in every search and in the palette, labelled as locked, and prompts to unlock rather than doing nothing.', 'both', 'planned', 8],
+    ['8.3', 'Recovery by clearing the data', 'Forgetting a password is a normal outcome for a toy lock, so recovery is self-service and documented: delete the application data folder, named exactly, in the setting and in the unlock prompt. On this site, clear this site’s storage.', 'both', 'planned', 8],
+    ['8.4', 'Support Tickets', 'The recovery route dressed as a support desk, with a category, a ticket number, a severity nobody will honour and a status that advances. One plain unstyled line, identical at every funny level, states that nothing is sent anywhere and nobody is reading it.', 'both', 'planned', 8],
+    ['8.5', 'QR pairing for one-time codes', 'A locally drawn QR encoding a standard otpauth URI, with the manual secret beside it, grouped and copyable, and the algorithm, digit count and period stated. Never a third-party QR service, which would hand the secret to somebody else on the way to drawing it.', 'both', 'planned', 8],
+    ['8.6', 'A built-in authenticator', 'Your own arbitrary entries with live codes, a countdown, a peek at the next code and a searchable manageable list. RFC 6238 over RFC 4226, SHA-1, SHA-256 and SHA-512, 6 to 8 digits, arbitrary period. Local only, and ordinary exports omit the secrets and say so.', 'both', 'planned', 8],
+
+    ['9.1', 'Offline documentation inside the application', 'Every feature article bundled into the build, rendered through the one shared renderer, with article-to-article links resolving in-app and its own search. A build guard fails when an article on disk is missing from the bundle. A website is already online, so this row belongs to the application.', 'app', 'planned', 9],
+    ['9.2', 'Changelog viewer', 'Every released version, with an advanced date filter, regular-expression-capable search, export and copy, and a link to the commit that made each change. A version with no recorded changes says so rather than being invented.', 'both', 'planned', 9],
+    ['9.3', 'One shared markdown renderer', 'Release notes, issue bodies and commit messages are rendered as the markup they are, through one isolated renderer rather than a new one per surface. An honest empty state, never a blank region that reads as a loading failure.', 'both', 'planned', 9],
+    ['9.4', 'Landing page and documentation site', 'Every feature presented with its own article and suggested next articles, every asset bundled locally, mobile friendly from 320 pixels upward. You are looking at it.', 'both', 'building', 9],
+
+    ['10.1', 'Guided forms', 'Where a value can be enumerated it is: pickers populated from real data, sanitized suggested defaults, inline validation in plain words, and a named reason on every disabled control. Free text stays available but is never the only path when a real list exists.', 'both', 'planned', 10],
+    ['10.2', 'A browse control on every path field', 'Beside the free-text entry, with typed and browsed values running through exactly the same validation. A web page has no filesystem picker for host paths, so this site accepts typed values under the same validation and says why.', 'app', 'planned', 10],
+    ['10.3', 'A novice control over the expert values', 'A 1-to-5 level mapped onto the real advanced settings underneath, with the mapping documented so it is checkable. The level reproducing the shipped defaults is the default, and raw values matching no level show an explicit Custom state without overwriting anything.', 'both', 'planned', 10],
+    ['10.4', 'Rich controls wherever a value is shown', 'List rows, table cells, menu items, search results, detail panels and cards render the real control, wired to the same code, so two paths to one value can never disagree. Long lists virtualize so richness does not cost scrolling.', 'both', 'planned', 10],
+    ['10.5', 'Explanation and provenance on every setting', 'The full explanation behind progressive disclosure, and a line that says whether the current value is one somebody set or the value this build ships with, naming the real value rather than the opaque word "default".', 'both', 'planned', 10],
+    ['10.6', 'Overlays that behave', 'Every popover, menu, tooltip and panel paints its own surface, stays bounded by the viewport, scrolls internally rather than hiding its overflow, and never covers the control that opened it. Panels resize and drag, with a keyboard path and a persisted size and position.', 'both', 'planned', 10],
+    ['10.7', 'Collapsible filters and statistics', 'Rows that merely describe the collection start collapsed, because a view whose controls take more room than its content has buried the content. A collapsed row that is currently excluding results says so.', 'both', 'planned', 10],
+    ['10.8', 'Accessibility throughout', 'Keyboard reachability, visible focus, correct roles, names and states, contrast, reduced motion and a sensible reading structure. Treated as a completion blocker rather than polish.', 'both', 'planned', 10],
+    ['10.9', 'No clipping, correct sizing', 'Nothing clipped, truncated, overlapping or off-screen at any supported window size, density or display scale, validated at 100, 125, 150 and 200 per cent and against the longest bilingual strings.', 'both', 'planned', 10],
+
+    ['11.1', 'Universal file converter', 'A categorized, searchable adapter catalog covering documents and PDF, images, audio, video, archives, structured data and spreadsheets, code and text, and binary encodings. Each category has its own search and anchored builder, and a format nothing can convert is listed and disabled with the exact missing dependency rather than hidden.', 'both', 'planned', 11],
+    ['11.2', 'Adapters that are bundled and sandboxed', 'An enabled format means every dependency is inside the installed application and works offline. A tool found on the path or sitting on a developer machine must never make a format look enabled. Bounded, isolated, and validated after the write.', 'both', 'planned', 11],
+    ['11.3', 'PDF tools with reopen validation', 'Inspect, split, merge, extract, reorder, rotate and metadata, written atomically and then reopened and checked against what was asked for. A mismatch removes the temporary output and reports the failure without leaking a path or the document content.', 'both', 'planned', 11],
+    ['11.4', 'An unlimited-length conversion queue', 'Paged discovery, bounded concurrency, constant-memory backpressure, and durable pause, resume and cancel that survive a restart. Per-file bounds stay mandatory, and it never loads every path or every byte into memory.', 'both', 'planned', 11],
+    ['11.5', 'Local model suite manager', 'Runtime health, installed and running models, tags, pulls, deletes, copies and capability metadata over the documented local HTTP API only. Never an unofficial proxy, and never a cloud service wearing a local badge.', 'both', 'planned', 11],
+    ['11.6', 'An exhaustive model catalog', 'Every model and every published variant at each verified refresh, with the source revision, timestamp, page count, completeness verdict, and honest stale and offline behaviour. Curated is not the same as complete.', 'both', 'planned', 11],
+    ['11.7', 'Conservative hardware-fit verdicts', 'Runs well, Runs with limits, Unlikely or Unknown, each with the evidence and the assumptions behind it. Never inferred from a model name, and missing metadata produces Unknown rather than a convenient zero.', 'both', 'planned', 11],
+    ['11.8', 'A batch pull queue that is not a shop', 'Bounded parallelism, durable state, byte-accurate progress, cancel, retry, resume and honest partial outcomes. There is no price, purchase, checkout, account or payment anywhere in it.', 'both', 'planned', 11],
+    ['11.9', 'A local chat surface', 'Streaming responses, an editable system prompt, documented parameters with validated defaults, stop and regenerate, multi-session history, search and a complete redacted export. Attachments appear only where the selected model genuinely supports them.', 'both', 'planned', 11],
+    ['11.10', 'Allowlisted harness launch', 'Prebuilt local profiles and explicitly registered ones, through semantic pickers and allowlisted executables, arguments and environment keys. A visible preflight, a reviewable preview, a snapshot before every mutation and an automatic rollback when launch or health checking fails. Never an arbitrary shell command.', 'both', 'planned', 11],
+
+    ['12.1', 'Browser-extension download capture', 'A real Start download dialog opens before any transfer begins, naming the file, source and destination. Confirming begins the actual queued download; cancelling leaves the queue exactly as it was.', 'app', 'planned', 12],
+    ['12.2', 'A separate Downloading surface', 'Its own progress window rather than a background table row, reporting the real filename, source, destination, bytes, rate, estimate and state, with controls that operate the actual transfer rather than a simulated value.', 'app', 'planned', 12],
+    ['12.3', 'Start and completion stay on top', 'Both surfaces stay above the browser and application windows until you resolve them, and the completion surface names the finished file and the honest outcome rather than claiming success early.', 'app', 'planned', 12],
+    ['12.4', 'Automatic updates', 'Checked on startup and on a bounded schedule, downloaded and staged without interrupting your work, then a persistent non-blocking banner with the exact version, the notes, an unsigned-artifact warning, and a restart that happens only when you choose it.', 'app', 'planned', 12],
+
+    ['13.1', 'World downloader', 'Connection settings, live status, chunk progress, an activity log and start and stop, driving the bundled Java core. This is the thing the application is named after.', 'documented', 'planned', 13],
+    ['13.2', 'Live map viewer', 'Layer controls, a coordinate readout and markers, rendering what the companion renderer produces. Tiles are served over loopback only; there is no remote map service.', 'documented', 'planned', 13],
+    ['13.2a', 'Worldlens pairing', 'Detects an installed Worldlens, hands a downloaded world straight to it, and drives its headless renderer over loopback for the in-app map. Its absence is an honest state with a real install route, never a faked map. The two applications are deliberately complementary: this one produces worlds, that one renders them.', 'both', 'planned', 13],
+    ['13.3', 'Server and container manager', 'A container list with state, a log stream, and start, stop and restart. Destructive container actions run through the super-confirmation gate like anything else that cannot be undone.', 'documented', 'planned', 13],
+    ['13.4', 'Chat scraper bot runner', 'Profiles, run controls and a captured-message table which, being a table, carries the full bulk-action contract and the full export set.', 'documented', 'planned', 13],
+    ['13.5', 'The web console, in the application', 'What the separate web console could do, surfaced in the application itself rather than requiring a second browser session beside it.', 'documented', 'planned', 13],
+
+    ['14.1', 'build.bat and build.sh', 'Touchless dependency install and build from a bare machine, with a silent mode for automation and honest per-phase reporting. Idempotent, user-scoped, and it never installs a credential or a signing certificate.', 'app', 'planned', 14],
+    ['14.2', 'build-installer.bat and build-installer.sh', 'The real installer through the same packaging path the release workflow uses, verified and hashed, stating plainly that it is unsigned. It never publishes, tags or pushes: building an installer and shipping it are different actions with different authority.', 'app', 'planned', 14],
+    ['14.3', 'One release workflow', 'It builds, packages and publishes the desktop application, and nothing else. No test, lint, type, coverage or capture gate stands in the pipeline, so checking happens locally before a push and never withholds an artifact.', 'app', 'planned', 14],
+    ['14.4', 'A line count in every release', 'Produced by the committed counter at the tagged commit, broken down by area, stating its exclusions, separating generated from hand-written, and reporting agent versus human authorship per surviving line rather than by summing added lines.', 'app', 'planned', 14],
+    ['14.5', 'Workflow timing and a dim sum photo', 'Measured start, completion and duration rather than estimated, and one real dim sum photo attached as a downloadable asset with the dish named. The software is serious; the release table still gets a steamer basket.', 'app', 'planned', 14],
+    ['14.6', 'A negative inventory regression', 'An executable test that removes one asserted item at a time from the feature inventory and must turn red, using exact boundaries rather than a substring a rename can satisfy. A checklist that only validates what it has already found cannot notice something that disappeared.', 'app', 'planned', 14],
+    ['14.7', 'Registered with the shared status hub', 'The project reports its repository, branch, current state, evidence and next gates to the shared hub, confirmed by a real response rather than assumed.', 'app', 'shipped', 14],
+    ['14.8', 'A status surface in the application', 'The same states, the same evidence and the same honesty rules as the shared hub, so somebody looking at the application sees what the hub sees. A check nobody ran is reported as unrun, not as passed.', 'both', 'planned', 14],
+
+    ['15.1', 'Connection and session', 'Host, port, version, username, authentication mode, proxy, view distance, chat settings and reconnect policy, as a guided form rather than a blank box where a real enumeration exists. Credentials go to the credential vault, never to settings, exports, logs or history, and a disconnect reason is shown verbatim with a real route out.', 'both', 'planned', 15],
+    ['15.2', 'Live bot state', 'Health, food, saturation, breath, experience level and progress, gamemode, dimension, position, velocity, yaw, pitch and held item. Every value is the real event value; nothing is simulated while disconnected.', 'both', 'planned', 15],
+    ['15.3', 'Chat, with a rule editor', 'Full history, sender filtering, whisper, the message-position channels, and a pattern-matching rule editor built on the project regular-expression builder. The chat log is a list, so it carries bulk actions and export in every format.', 'both', 'planned', 15],
+    ['15.4', 'Movement', 'Directional controls, sprint, sneak, jump, look-at, walk-to-coordinates, follow-entity and a path preview, operable by keyboard as well as pointer. A held control says it is held, and losing focus releases it rather than leaving the bot walking into a wall.', 'both', 'planned', 15],
+    ['15.5', 'Inventory', 'The real window contents as a grid, with drag and keyboard moves, split and merge stacks, equip to each slot, drop, drop-stack and quick-move. Item icons come from bundled resources; no remote texture is fetched.', 'both', 'planned', 15],
+    ['15.6', 'Container windows', 'Chest, dispenser, dropper, hopper, shulker, ender chest and barrel, opened, browsed, transferred and closed. Withdraw-all and deposit-all are bulk actions with an exact count and a preview.', 'both', 'planned', 15],
+    ['15.7', 'Crafting', 'A recipe browser searchable by result and by ingredient, showing what is craftable right now from the current inventory and what is missing, with and without a table. It never calls a recipe craftable without checking the real ingredient count.', 'both', 'planned', 15],
+    ['15.8', 'Workstations', 'Furnace, blast furnace, smoker, anvil, enchanting table, brewing and grindstone, each with its real slots, progress and fuel state. Enchantment choices show their real cost and real level requirement.', 'both', 'planned', 15],
+    ['15.9', 'Villager trading', 'The trade list with inputs, outputs, uses remaining, disabled trades, and the profession and level. A trade that cannot be made says which condition fails rather than simply refusing.', 'both', 'planned', 15],
+    ['15.10', 'Block interaction', 'Dig with tool selection and real progress, place, activate and use-on, with a target picker driven by ray tracing rather than typed coordinates alone. Digging reports real progress and refuses re-entry while one is in flight.', 'both', 'planned', 15],
+    ['15.11', 'World query', 'Block lookup at a position, find-blocks by type within a radius as a rich list, and a block-state inspector. The results are a list, so bulk actions and export apply to them.', 'both', 'planned', 15],
+    ['15.12', 'Entities', 'A live list of nearby entities with type, name, distance, health and equipment, with attack, mount, dismount and use-on-entity. Attacking is gated when the target is a player, because that is a consequential action against another person.', 'both', 'planned', 15],
+    ['15.13', 'Fishing, sleeping and respawn', 'Fishing, sleeping, waking, spawn point and respawn. A sleep failure reports the real reason the game gave rather than a generic message.', 'both', 'planned', 15],
+    ['15.14', 'Book writing and signing', 'A page editor with the real character and page limits shown before you hit one rather than after.', 'both', 'planned', 15],
+    ['15.15', 'Creative mode', 'Give item, set block, fly and instant break, clearly separated from everything else and disabled with a stated reason when the server is not in creative.', 'both', 'planned', 15],
+    ['15.16', 'World ambience read-outs', 'Time of day, weather, sounds, particles, explosions and command-block editing.', 'both', 'planned', 15],
+    ['15.17', 'Resource packs', 'The server request surfaced honestly with accept and decline, and what each choice actually means. It never accepts on your behalf.', 'both', 'planned', 15],
+    ['15.18', 'An event inspector', 'Every library event listed as it fires, with filtering, regular-expression-capable search, pause and export. The honest catch-all: a capability with no dedicated control is still reachable and observable here, with a stated retention on a bounded buffer.', 'both', 'planned', 15],
+    ['15.19', 'Profiles and multi-bot sessions', 'Saved profiles and several bots at once, each with its own tab so their state cannot mix. Profiles are a list with the full bulk-action contract, and deleting one goes through the destructive-action gate.', 'both', 'planned', 15],
+    ['15.20', 'A plugin coverage guard', 'A check driven by the plugin directory listing itself, so a plugin gaining a capability upstream fails the guard until it has been given a home in the interface. The reverse direction from the inventory guard, and needed for the same reason.', 'app', 'planned', 15]
+  ];
+
+  function catOf(n) { for (var i = 0; i < CATS.length; i++) if (CATS[i].n === n) return CATS[i]; return CATS[0]; }
+  function articleHref(id) { return 'docs/index.html#f-' + id.replace(/\./g, '-'); }
+  function surfaceLabel(s) {
+    return s === 'both' ? 'Application and this site'
+      : s === 'app' ? 'Application only'
+      : 'Application, documented here';
+  }
+  function stateLabel(s) {
+    return s === 'shipped' ? 'Shipped' : s === 'building' ? 'Being built' : 'Planned, not built yet';
+  }
+  function stateClass(s) {
+    return s === 'shipped' ? 'status status--ok' : s === 'building' ? 'status status--warn' : 'status';
+  }
+
+  var COUNTS = (function () {
+    var c = { total: FEATURES.length, shipped: 0, building: 0, planned: 0, site: 0, app: 0, documented: 0 };
+    FEATURES.forEach(function (f) { c[f[4]]++; c[f[3] === 'both' ? 'site' : f[3] === 'app' ? 'app' : 'documented']++; });
+    return c;
+  })();
+
+  /* ================================================================
+   * 3. The download button.
+   *
+   * It reads site/release.json from this origin and renders exactly
+   * one of three states: reading, a real download, or an honest
+   * account of why there is nothing to offer. It never constructs,
+   * completes or guesses a URL, and it never renders a control that
+   * cannot do what it looks like it does.
+   * ================================================================ */
+  var dlState = document.getElementById('download-state');
+  var releaseInfo = { state: 'checking', why: '' };
+
+  function readManifest() {
+    return new Promise(function (resolve) {
+      if (!window.fetch) {
+        resolve({ ok: false, why: 'This browser has no fetch, so release.json could not be read.' });
+        return;
+      }
+      var settled = false;
+      var timer = window.setTimeout(function () {
+        if (settled) return;
+        settled = true;
+        resolve({ ok: false, why: 'Reading release.json took longer than 8 seconds and was given up on.' });
+      }, 8000);
+      window.fetch('release.json', { cache: 'no-cache' }).then(function (r) {
+        if (!r.ok) throw new Error('release.json responded with HTTP ' + r.status + '.');
+        return r.json();
+      }).then(function (json) {
+        if (settled) return;
+        settled = true; window.clearTimeout(timer);
+        resolve({ ok: true, manifest: json });
+      })['catch'](function (e) {
+        if (settled) return;
+        settled = true; window.clearTimeout(timer);
+        var msg = (e && e.message) ? String(e.message) : String(e);
+        if (window.location.protocol === 'file:') {
+          msg += ' This page was opened from a file rather than served, and a browser refuses to read a sibling file that way.';
+        }
+        resolve({ ok: false, why: msg });
+      });
+    });
+  }
+
+  /* Validation is deliberately strict and reports the exact field
+     that is missing. A partly-filled manifest is not a release. */
+  function validate(m) {
+    if (!m || typeof m !== 'object') return { ok: false, why: 'release.json did not parse into an object.' };
+    if (m.schemaVersion !== 1) {
+      return { ok: false, why: 'release.json declares schema version ' + JSON.stringify(m.schemaVersion) + '. This page reads version 1 and refuses to guess at anything else.' };
+    }
+    if (m.verified !== true) {
+      return { ok: false, why: typeof m.unverifiedReason === 'string' && m.unverifiedReason
+        ? m.unverifiedReason
+        : 'release.json is marked verified: false.' };
+    }
+    var assets = Array.isArray(m.assets) ? m.assets : [];
+    if (!assets.length) return { ok: false, why: 'release.json is marked verified but lists no assets.' };
+    var primary = null, i;
+    for (i = 0; i < assets.length; i++) { if (assets[i] && assets[i].primary) { primary = assets[i]; break; } }
+    if (!primary) primary = assets[0];
+
+    var missing = [];
+    if (primary.verified !== true) missing.push('its own verified: true');
+    if (typeof primary.url !== 'string' || primary.url.indexOf('https://') !== 0) missing.push('an absolute https URL');
+    if (typeof primary.sha256 !== 'string' || !/^[0-9a-f]{64}$/.test(primary.sha256)) missing.push('a 64-character lowercase sha256');
+    if (typeof primary.bytes !== 'number' || !(primary.bytes > 0)) missing.push('a positive byte size');
+    if (typeof primary.filename !== 'string' || !primary.filename) missing.push('a filename');
+    if (!m.release || typeof m.release.version !== 'string' || !m.release.version) missing.push('a release version');
+    if (missing.length) {
+      return { ok: false, why: 'The asset that would be offered is missing ' + missing.join(', ') + '.' };
+    }
+    return { ok: true, asset: primary, release: m.release, signing: m.signing || {}, others: assets.filter(function (a) { return a !== primary; }) };
+  }
+
+  function bytesLabel(n) {
+    if (n < 1024) return n + ' bytes';
+    if (n < 1024 * 1024) return (n / 1024).toFixed(1) + ' KB';
+    return (n / (1024 * 1024)).toFixed(1) + ' MB';
+  }
+  function dateLabel(iso) {
+    var d = new Date(iso);
+    if (isNaN(d.getTime())) return String(iso);
+    return d.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
+  }
+
+  function renderChecking() {
+    S.clear(dlState);
+    dlState.appendChild(S.el('p', { class: 'lp-dl__meta', 'data-i18n': 'lp.dlChecking' }));
+    S.i18n.apply(dlState);
+  }
+
+  function renderReady(v) {
+    S.clear(dlState);
+    var metaId = S.uid('dlmeta');
+    var link = S.el('a', {
+      class: 'lp-dl__btn', href: v.asset.url,
+      rel: 'noopener', 'aria-describedby': metaId,
+      download: v.asset.filename
+    }, [S.icon('download', 'i--lg'), 'Download ' + (v.asset.label || 'the installer') + ' ' + v.release.version]);
+
+    var dl = S.el('dl');
+    function pair(k, val) { dl.appendChild(S.el('dt', { text: k })); dl.appendChild(S.el('dd', {}, val)); }
+    pair('Version', v.release.version + (v.release.codeName ? ' · ' + v.release.codeName : ''));
+    pair('Platform', v.asset.platform || 'Windows');
+    pair('File', v.asset.filename);
+    pair('Size', bytesLabel(v.asset.bytes));
+    if (v.release.publishedAt) pair('Published', dateLabel(v.release.publishedAt));
+    if (v.release.commit) pair('Built from', S.el('code', { text: v.release.commit }));
+    pair('SHA-256', S.el('code', { text: v.asset.sha256 }));
+
+    var meta = S.el('div', { class: 'lp-dl__meta', id: metaId }, [
+      S.el('span', { text: 'The address above is the immutable release asset URL recorded in this site’s release manifest. Nothing on this page builds or completes a URL of its own.' }),
+      dl
+    ]);
+
+    var unsigned = S.el('p', { class: 'lp-dl__unsigned' }, [
+      S.icon('warn'),
+      S.el('span', { text: v.signing.note || 'This installer is unsigned. Windows will warn about an unknown publisher on first run. Nothing here claims authenticity or signature verification.' })
+    ]);
+
+    var extras = null;
+    if (v.others.length) {
+      extras = S.el('details', {}, [
+        S.el('summary', { text: 'Other files in this release (' + v.others.length + ')' }),
+        S.el('ul', {}, v.others.map(function (a) {
+          var ok = a && a.verified === true && typeof a.url === 'string' && a.url.indexOf('https://') === 0;
+          return S.el('li', {}, ok
+            ? S.el('a', { href: a.url, rel: 'noopener', text: (a.label || a.filename || a.id || 'asset') })
+            : S.el('span', { class: 'muted', text: (a && (a.label || a.filename || a.id) || 'asset') + ' — not verified, so it is listed rather than linked.' }));
+        }))
+      ]);
+    }
+
+    var notes = v.release.notesUrl
+      ? S.el('p', { class: 'lp-dl__meta' }, S.el('a', { href: v.release.notesUrl, rel: 'noopener', text: 'Release notes for ' + v.release.version }))
+      : null;
+
+    S.append(dlState, [link, unsigned, meta, extras, notes].filter(Boolean));
+  }
+
+  function renderNone(why) {
+    S.clear(dlState);
+    var box = S.el('div', { class: 'lp-dl__none' });
+    var h = S.el('h3', { 'data-i18n': 'lp.dlNone' });
+    var p = S.el('p', { 'data-i18n': 'lp.dlNoneBody' });
+    box.appendChild(h);
+    box.appendChild(p);
+    box.appendChild(S.el('p', { class: 'muted t-label-medium', text: 'What the manifest said:' }));
+    box.appendChild(S.el('p', { class: 'lp-dl__why', text: why }));
+    box.appendChild(S.el('div', { class: 'row' }, [
+      S.el('button', {
+        class: 'btn btn--tonal', type: 'button',
+        onclick: function () { strip.select('install'); }
+      }, [S.icon('play'), 'How to build it yourself']),
+      S.el('button', {
+        class: 'btn btn--text', type: 'button',
+        onclick: function () { start(); }
+      }, [S.icon('reset'), 'Check again'])
+    ]));
+    dlState.appendChild(box);
+    S.i18n.apply(dlState);
+  }
+
+  function start() {
+    releaseInfo = { state: 'checking', why: '' };
+    renderChecking();
+    readManifest().then(function (r) {
+      if (!r.ok) { releaseInfo = { state: 'none', why: r.why }; renderNone(r.why); return; }
+      var v = validate(r.manifest);
+      if (!v.ok) { releaseInfo = { state: 'none', why: v.why }; renderNone(v.why); return; }
+      releaseInfo = { state: 'ready', why: '', version: v.release.version };
+      renderReady(v);
+    });
+  }
+
+  /* ================================================================
+   * 4. Panels
+   * ================================================================ */
+  function panelOverview() {
+    var root = S.el('div', { class: 'lp-panel prose' });
+    S.append(root, [
+      S.el('h2', { text: 'What it is' }),
+      S.el('p', { text: 'World Downloader Studio is a Windows desktop application. It stands between your Minecraft client and the server you are playing on, writes every chunk the server sends you into a world folder on your own disk, and then gives you the tools to do something with that folder: a live map viewer, a manager for the containers a server runs in, and a runner for a chat capture bot.' }),
+      S.el('p', { text: 'It needs no mod on your client and no plugin on the server, because it does not ask either of them for anything they were not already going to send. It cannot obtain terrain a server never sent you, and nothing here suggests otherwise.' }),
+
+      S.el('h2', { text: 'The four things it does' }),
+      S.el('div', { class: 'grid' }, [
+        card('download', 'World downloader', 'Connection settings, live status, chunk progress, an activity log, and start and stop. The bundled Java core does the protocol work.'),
+        card('globe', 'Live map viewer', 'Layer controls, a coordinate readout and markers over the tiles a downloaded world produces. Served over loopback; there is no remote map service.'),
+        card('dock', 'Container manager', 'A container list with state, a log stream, and start, stop and restart, with the destructive ones behind the confirmation gate.'),
+        card('text', 'Chat capture bot runner', 'Profiles, run controls and a captured-message table with the full bulk-action and export contract.')
+      ]),
+
+      S.el('h2', { text: 'And the parts around them' }),
+      S.el('p', { class: 'lede', text: 'The four capabilities above are what the application is for. Everything else on the Features tab is the contract every surface of it has to meet: how it talks to you, how it lets you change it, how it asks before doing something irreversible, and how it tells you the truth when something has not been done yet.' }),
+      S.el('div', { class: 'row' }, [
+        S.el('button', {
+          class: 'btn btn--filled', type: 'button',
+          onclick: function () { strip.select('features'); }
+        }, [S.icon('grid'), 'See all ' + COUNTS.total + ' features']),
+        S.el('a', { class: 'btn btn--outlined', href: 'docs/index.html' }, [S.icon('doc'), 'Read the documentation'])
+      ]),
+
+      S.el('h2', { text: 'Where it currently stands' }),
+      S.el('p', { text: 'This is the honest number rather than a comfortable one. Of the ' + COUNTS.total + ' features in the project inventory, ' + COUNTS.shipped + ' is shipped, ' + COUNTS.building + ' is being built, and ' + COUNTS.planned + ' are planned and not built yet. No release has been published, so the download panel above has nothing to offer you.' }),
+      S.el('p', { class: 'muted', text: 'That state is read from the inventory each time this page is built, so it cannot quietly drift into a claim the project has not earned.' }),
+
+      S.el('h2', { text: 'It costs nothing' }),
+      S.el('div', { class: 'lp-callout' }, [
+        S.icon('info', 'i--lg'),
+        S.el('div', {}, [
+          S.el('b', { 'data-i18n': 'lp.freeTitle' }),
+          S.el('span', { 'data-i18n': 'lp.freeBody' })
+        ])
+      ])
+    ]);
+    S.i18n.apply(root);
+    return root;
+  }
+
+  function card(ico, title, body) {
+    return S.el('div', { class: 'card card--out' }, [
+      S.el('div', { class: 'row', style: { gap: '10px', 'flex-wrap': 'nowrap', 'align-items': 'flex-start' } }, [
+        S.el('span', { class: 'lp-fcard__ico' }, S.icon(ico)),
+        S.el('div', { style: { 'min-width': '0' } }, [
+          S.el('h4', { text: title }),
+          S.el('p', { text: body })
+        ])
+      ])
+    ]);
+  }
+
+  /* ---- features ---------------------------------------------------- */
+  var featureSearch = null, featureGrid = null, featureBulk = null, featureFilters = null;
+  var featureState = { cat: 'all', surface: 'all', build: 'all' };
+
+  function featureMatches(f) {
+    if (featureState.cat !== 'all' && String(f[5]) !== featureState.cat) return false;
+    if (featureState.surface !== 'all' && f[3] !== featureState.surface) return false;
+    if (featureState.build !== 'all' && f[4] !== featureState.build) return false;
+    if (featureSearch && featureSearch.value()) {
+      var m = featureSearch.matcher();
+      if (!m(f[0] + ' ' + f[1] + ' ' + f[2] + ' ' + catOf(f[5]).name)) return false;
+    }
+    return true;
+  }
+  function featureRows() { return FEATURES.filter(featureMatches); }
+
+  function featureCard(f) {
+    var c = catOf(f[5]);
+    var node = S.el('li', {
+      class: 'lp-fcard', 'data-bulk-item': '', 'data-id': f[0], role: 'option',
+      'aria-selected': 'false', 'data-wds-akey': 'feature:' + f[0]
+    }, [
+      S.el('span', { class: 'lp-fcard__ico' }, S.icon(c.icon)),
+      S.el('div', { class: 'lp-fcard__body' }, [
+        S.el('span', { class: 'lp-fcard__id', text: f[0] + ' · ' + c.name }),
+        S.el('h4', { class: 'lp-fcard__t' }, S.el('a', { href: articleHref(f[0]), text: f[1] })),
+        S.el('p', { class: 'lp-fcard__d', text: f[2] }),
+        S.el('div', { class: 'lp-fcard__foot' }, [
+          S.el('span', { class: stateClass(f[4]), text: stateLabel(f[4]) }),
+          S.el('span', { class: 'lp-tag ' + (f[3] === 'both' ? 'lp-tag--both' : f[3] === 'app' ? 'lp-tag--app' : ''), text: surfaceLabel(f[3]) })
+        ])
+      ])
+    ]);
+    S.appearance.enable(node, 'feature:' + f[0], f[1]);
+    S.contextMenu(node, function () {
+      return [
+        { label: 'Open the article', icon: 'doc', run: function () { window.location.href = articleHref(f[0]); } },
+        { label: 'Copy the identifier', icon: 'copy', keywords: 'id number', run: function () { S.copy(f[0]).then(function () { S.notify.success('Copied ' + f[0] + ' to the clipboard.'); }); } },
+        { label: 'Copy the description', icon: 'copy', run: function () { S.copy(f[1] + ' — ' + f[2]).then(function () { S.notify.success('Copied the description of ' + f[0] + '.'); }); } },
+        '-',
+        { label: S.t('act.openEditor') + '…', icon: 'palette', shortcut: 'Shift+Right click',
+          run: function () { S.appearance.openEditor(node, 'feature:' + f[0], f[1]); } },
+        { label: S.t('locks.lockThis') + '…', icon: 'lock',
+          run: function () { S.locks.wizard(node, 'feature:' + f[0], f[1]); } }
+      ];
+    }, { ariaLabel: 'Feature card menu', storageKey: 'feature-card' });
+    return node;
+  }
+
+  function renderFeatures() {
+    if (!featureGrid) return;
+    S.clear(featureGrid);
+    var rows = featureRows();
+    if (!rows.length) {
+      featureGrid.appendChild(S.el('li', { class: 'note', text: S.t('msg.noMatch') + ' Nothing in the inventory matches the current search and filters. Clear one of them to see the rest.' }));
+    } else {
+      var seen = {};
+      rows.forEach(function (f) {
+        if (!seen[f[5]]) {
+          seen[f[5]] = true;
+          var inCat = rows.filter(function (x) { return x[5] === f[5]; }).length;
+          var total = FEATURES.filter(function (x) { return x[5] === f[5]; }).length;
+          featureGrid.appendChild(S.el('li', {
+            class: 'lp-cathead', style: { 'grid-column': '1 / -1' }
+          }, [
+            S.el('h3', { text: catOf(f[5]).name }),
+            S.el('span', { class: 'lp-count', text: inCat === total ? (total + ' features') : (inCat + ' of ' + total + ' shown') })
+          ]));
+        }
+        featureGrid.appendChild(featureCard(f));
+      });
+    }
+    if (featureCountNode) {
+      featureCountNode.textContent = rows.length === FEATURES.length
+        ? ('All ' + FEATURES.length + ' features shown.')
+        : (rows.length + ' of ' + FEATURES.length + ' features shown.');
+    }
+    if (featureFilters) {
+      var bits = [];
+      if (featureState.cat !== 'all') bits.push('category ' + catOf(parseInt(featureState.cat, 10)).name);
+      if (featureState.surface !== 'all') bits.push('surface ' + surfaceLabel(featureState.surface).toLowerCase());
+      if (featureState.build !== 'all') bits.push('state ' + stateLabel(featureState.build).toLowerCase());
+      if (featureSearch && featureSearch.value()) bits.push('a search for "' + featureSearch.value() + '"');
+      featureFilters.setActiveSummary(bits.length ? ('Excluding results: ' + bits.join(', ') + '.') : '');
+    }
+    if (featureBulk && featureBulk.refresh) featureBulk.refresh();
+  }
+
+  var featureCountNode = null;
+
+  function panelFeatures() {
+    var root = S.el('div', { class: 'lp-panel' });
+    S.append(root, [
+      S.el('h2', { 'data-i18n': 'lp.featTitle' }),
+      S.el('p', { class: 'lede', 'data-i18n': 'lp.featNote' })
+    ]);
+
+    featureSearch = S.createSearchBar({
+      label: 'Search the features',
+      placeholder: 'Search titles, descriptions and identifiers',
+      storageKey: 'landing-features',
+      help: 'Searches the identifier, the title, the description and the category name. Plain text by default; switch on regular expressions with the control beside the field.',
+      sampleProvider: function () {
+        return FEATURES.map(function (f) { return f[0] + ' ' + f[1] + ' — ' + f[2]; }).join('\n');
+      },
+      onChange: function () { renderFeatures(); }
+    });
+
+    var catSelect = S.createSelect({
+      label: 'Category', value: 'all', storageKey: 'landing-feature-cat',
+      options: [{ value: 'all', label: 'Every category', keywords: 'all everything' }].concat(
+        CATS.map(function (c) {
+          return { value: String(c.n), label: c.n + '. ' + c.name, keywords: c.key };
+        })),
+      onChange: function (v) { featureState.cat = v; renderFeatures(); }
+    });
+    var surfSelect = S.createSelect({
+      label: 'Surface', value: 'all', storageKey: 'landing-feature-surface',
+      options: [
+        { value: 'all', label: 'Every surface', keywords: 'all' },
+        { value: 'both', label: 'Application and this site', keywords: 'site web both' },
+        { value: 'documented', label: 'Application, documented here', keywords: 'documented' },
+        { value: 'app', label: 'Application only', keywords: 'desktop app only' }
+      ],
+      onChange: function (v) { featureState.surface = v; renderFeatures(); }
+    });
+    var stateSelect = S.createSelect({
+      label: 'Build state', value: 'all', storageKey: 'landing-feature-state',
+      options: [
+        { value: 'all', label: 'Every state', keywords: 'all' },
+        { value: 'shipped', label: 'Shipped', keywords: 'done complete' },
+        { value: 'building', label: 'Being built', keywords: 'progress wip' },
+        { value: 'planned', label: 'Planned, not built yet', keywords: 'todo not started' }
+      ],
+      onChange: function (v) { featureState.build = v; renderFeatures(); }
+    });
+
+    var filterHost = S.el('div', { class: 'stack', style: { gap: '10px' } }, [
+      featureSearch.el,
+      S.el('div', { class: 'row' }, [catSelect.el, surfSelect.el, stateSelect.el])
+    ]);
+    var filterWrap = S.el('div');
+    filterWrap.appendChild(filterHost);
+    root.appendChild(filterWrap);
+    featureFilters = S.collapse.attach(filterWrap, {
+      title: 'Search and filters', descriptive: true, storageKey: 'landing-feature-filters'
+    });
+
+    featureCountNode = S.el('p', { class: 'muted t-body-small', role: 'status', 'aria-live': 'polite' });
+    root.appendChild(featureCountNode);
+
+    featureGrid = S.el('ul', { class: 'lp-fgrid', role: 'listbox', 'aria-multiselectable': 'true', 'aria-label': 'Features' });
+    root.appendChild(featureGrid);
+
+    featureBulk = S.bulk.attach(featureGrid, {
+      itemSelector: '[data-bulk-item]',
+      getLabel: function (id) {
+        var f = FEATURES.filter(function (x) { return x[0] === id; })[0];
+        return f ? (f[0] + ' ' + f[1]) : id;
+      },
+      allMatchingCount: function () { return featureRows().length; },
+      allMatchingIds: function () { return featureRows().map(function (f) { return f[0]; }); },
+      actions: [
+        {
+          id: 'export', label: 'Export',
+          run: function (ids) {
+            var rows = FEATURES.filter(function (f) { return ids.indexOf(f[0]) >= 0; }).map(function (f) {
+              return {
+                id: f[0], title: f[1], description: f[2],
+                category: catOf(f[5]).name, surface: surfaceLabel(f[3]), state: stateLabel(f[4]),
+                article: articleHref(f[0])
+              };
+            });
+            S.exportDialog(rows, {
+              name: 'features', anchor: featureGrid,
+              omitted: 'Nothing is left out of this file: every column shown on the cards is present.'
+            });
+            return { done: rows.length, skipped: 0 };
+          }
+        },
+        {
+          id: 'copy', label: 'Copy as a list',
+          run: function (ids) {
+            var text = FEATURES.filter(function (f) { return ids.indexOf(f[0]) >= 0; })
+              .map(function (f) { return f[0] + '\t' + f[1] + '\t' + stateLabel(f[4]); }).join('\n');
+            return S.copy(text).then(function () { return { done: ids.length, skipped: 0 }; });
+          }
+        },
+        {
+          id: 'articles', label: 'Open the first article',
+          run: function (ids) {
+            window.location.href = articleHref(ids[0]);
+            return { done: 1, skipped: ids.length - 1, reason: 'A browser opens one page at a time, so only the first was opened.' };
+          }
+        }
+      ]
+    });
+
+    renderFeatures();
+    S.i18n.apply(root);
+    return root;
+  }
+
+  /* ---- captures ---------------------------------------------------- */
+  var CAPTURES = [
+    ['The downloader', 'Live status, chunk progress and the activity log while a download is running.'],
+    ['The live map', 'Layer controls, the coordinate readout and the marker list over a downloaded world.'],
+    ['Containers', 'The container list, its state chips and the log stream.'],
+    ['Chat capture', 'Profiles, match rules and the captured-message table with a bulk selection active.'],
+    ['Settings', 'The tabbed settings surface, its search bar, and the provenance line under a value.'],
+    ['The command palette', 'Rich rows rendering their own live controls, opened on Ctrl+Shift+F.'],
+    ['The appearance editor', 'Anchored beside the element being edited, non-modal, with the colour picker open.'],
+    ['The destructive gate', 'Two keys turned and the slider partly travelled, with the emergency exit visible.'],
+    ['Dark theme', 'The same shell in dark, painted from its own token block rather than derived from light.'],
+    ['A narrow window', 'The tab strip collapsed to icons at the narrowest supported width, with nothing clipped.'],
+    ['Bilingual mode', 'The longest strings the application renders, with the secondary label compact.'],
+    ['The authenticator', 'A live code, its countdown and the peek at the next one.']
+  ];
+
+  function panelCaptures() {
+    var root = S.el('div', { class: 'lp-panel' });
+    S.append(root, [
+      S.el('h2', { 'data-i18n': 'lp.shotTitle' }),
+      S.el('p', { class: 'lede', 'data-i18n': 'lp.shotNote' }),
+      S.el('div', { class: 'note' }, [
+        S.el('b', { text: 'These are not screenshots. ' }),
+        S.el('span', { text: 'Each block below is a labelled empty slot, drawn deliberately as a hatched placeholder so it can never be mistaken for a picture of the application. A mockup presented as a capture would be a lie about software that has not run yet, and this page would rather show a gap.' })
+      ])
+    ]);
+
+    var gsearch = S.createSearchBar({
+      label: 'Search the capture slots',
+      placeholder: 'Search the surfaces waiting for a capture',
+      storageKey: 'landing-captures',
+      help: 'Searches the surface name and the description of what the capture will show.',
+      sampleProvider: function () { return CAPTURES.map(function (c) { return c[0] + ' ' + c[1]; }).join('\n'); },
+      onChange: function () { paint(); }
+    });
+    root.appendChild(gsearch.el);
+
+    var count = S.el('p', { class: 'muted t-body-small', role: 'status', 'aria-live': 'polite' });
+    root.appendChild(count);
+
+    var grid = S.el('ul', { class: 'lp-ggrid', 'aria-label': 'Capture slots' });
+    root.appendChild(grid);
+
+    function rows() {
+      if (!gsearch.value()) return CAPTURES;
+      var m = gsearch.matcher();
+      return CAPTURES.filter(function (c) { return m(c[0] + ' ' + c[1]); });
+    }
+    function paint() {
+      S.clear(grid);
+      var list = rows();
+      count.textContent = list.length + ' of ' + CAPTURES.length + ' surfaces listed. 0 captures exist.';
+      if (!list.length) {
+        grid.appendChild(S.el('li', { class: 'note', text: S.t('msg.noMatch') }));
+        return;
+      }
+      list.forEach(function (c) {
+        grid.appendChild(S.el('li', { class: 'lp-shot' }, [
+          S.el('div', { class: 'lp-shot__slot' }, [
+            S.icon('eye', 'i--lg'),
+            S.el('span', { text: 'No capture yet' }),
+            S.el('span', { class: 'lp-tag', text: 'static preview' })
+          ]),
+          S.el('div', { class: 'lp-shot__cap' }, [
+            S.el('b', { text: c[0] }),
+            S.el('span', { text: c[1] })
+          ])
+        ]));
+      });
+    }
+    paint();
+
+    root.appendChild(S.el('p', { class: 'muted', style: { 'margin-top': '16px' },
+      text: 'When a build is released, each slot becomes a real capture of that build at its verified commit, taken through the project’s own capture harness, carrying alt text naming exactly what it shows.' }));
+
+    S.i18n.apply(root);
+    return root;
+  }
+
+  /* ---- install ----------------------------------------------------- */
+  function panelInstall() {
+    var root = S.el('div', { class: 'lp-panel prose' });
+    S.append(root, [
+      S.el('h2', { text: 'Installing it' }),
+      S.el('p', { text: 'When a release exists, the button at the top of this page offers the Windows installer directly, at the immutable address recorded in this site’s release manifest. Until then there is nothing to install, and the two routes below are what is actually available.' }),
+
+      S.el('h3', { text: 'What it will need' }),
+      S.el('div', { class: 'scrollx' }, S.el('table', { class: 'tbl' }, [
+        S.el('thead', {}, S.el('tr', {}, [
+          S.el('th', { text: 'Requirement' }), S.el('th', { text: 'Detail' })
+        ])),
+        S.el('tbody', {}, [
+          ['Operating system', 'Windows 10 or Windows 11, 64-bit. Windows is the delivery target; no other platform is offered.'],
+          ['Installer', 'Squirrel.Windows, shipping its setup executable, RELEASES index, full package and delta packages.'],
+          ['Signature', 'None. Code signing is out of scope for this project, so Windows shows an unknown-publisher warning on first run.'],
+          ['Account', 'None. There is nothing to sign in to and nothing to activate.'],
+          ['Network', 'The application talks to the Minecraft server you point it at, and to its update feed. It sends no telemetry.']
+        ].map(function (r) {
+          return S.el('tr', {}, [S.el('td', { text: r[0] }), S.el('td', { text: r[1] })]);
+        }))
+      ])),
+
+      S.el('h2', { 'data-i18n': 'lp.buildTitle' }),
+      S.el('p', { text: 'The repository carries two scripts at its root, and they assume nothing is installed on the machine. They obtain every dependency themselves, into a user-scoped location, without a single prompt and without asking you to go and install something by hand first.' }),
+      S.el('div', { class: 'scrollx' }, S.el('pre', {}, S.el('code', { text:
+        'build.bat              Install every dependency, build, then offer to run it.\n' +
+        'build.bat /s           The same, silent: no prompt, no pause, non-zero exit on failure.\n' +
+        'build-installer.bat    Build the real installer through the same packaging path\n' +
+        '                       the release workflow uses, then verify it and print its SHA-256.\n' +
+        'build-installer.bat /s The same, silent.\n\n' +
+        'build.sh and build-installer.sh are the equivalents on a non-Windows host.'
+      }))),
+      S.el('p', { text: 'Neither script publishes, tags or pushes anything: building an installer and shipping one are different actions with different authority, and a local build script has the first and not the second. Both state plainly in their own output that what they produced is unsigned.' }),
+
+      S.el('h3', { text: 'What "unsigned" costs you' }),
+      S.el('div', { class: 'lp-dl__unsigned' }, [
+        S.icon('warn'),
+        S.el('span', { text: 'Windows will show an unknown-publisher or SmartScreen warning the first time you run the installer, and you will have to choose to continue past it. That is expected and it is stated here rather than buried, because the difference between a user who expects that warning and a user who does not is the difference between an install and a deleted file. Nothing on this site claims the artifact is authentic or signature-verified, because it is neither.' })
+      ]),
+
+      S.el('h3', { text: 'Updates, once there is something to update' }),
+      S.el('p', { text: 'The application checks for updates on startup and on a bounded background schedule, downloads and stages them without interrupting what you are doing, and then shows a banner naming the exact version with a link to its notes. The restart happens when you choose it and not before, and unsaved work is protected the same way it is everywhere else. The feed is unsigned and the banner says so.' })
+    ]);
+    S.i18n.apply(root);
+    return root;
+  }
+
+  /* ---- this site: a real settings surface, itself tabbed ----------- */
+  var settingsIndex = [];
+
+  function settingsSection(tabId, tabLabel, rows) {
+    var host = S.el('div', { class: 'lp-setting-list' });
+    rows.forEach(function (r) {
+      settingsIndex.push({ tab: tabId, tabLabel: tabLabel, id: r.id, label: r.label, keywords: r.keywords || '' });
+      host.appendChild(r.node);
+    });
+    return host;
+  }
+
+  function langSection() {
+    var rows = [];
+
+    var modeSel = S.createSelect({
+      label: 'Language mode', value: S.i18n.storedMode(), storageKey: 'landing-langmode',
+      options: [
+        { value: 'en', label: S.t('lang.en'), keywords: 'english' },
+        { value: 'zh', label: S.t('lang.zh'), keywords: 'cantonese chinese hong kong' },
+        { value: 'both', label: S.t('lang.both'), keywords: 'bilingual two' }
+      ],
+      onChange: function (v) { if (!S.i18n.setMode(v)) S.notify.warn('The language mode cannot change while ' + S.school.name() + ' is on.'); }
+    });
+    rows.push({
+      id: 'lang.mode', label: S.t('lang.title'), keywords: 'language english cantonese bilingual',
+      node: S.settingRow({
+        id: 'lang.mode', label: S.t('lang.title'), secondary: S.t2('lang.title'),
+        explain: 'Chooses which language this site renders in. **Bilingual** keeps the English label prominent and puts a compact Cantonese label beside it, which is the longest text this site ever renders — the layout is checked at 320 pixels against exactly that case.',
+        storageKey: 'lang.mode', shippedValue: 'en', control: modeSel.el,
+        onReset: function () { S.i18n.setMode('en'); }
+      })
+    });
+
+    if (!S.school.suppresses('funny')) {
+      var fEn = S.makeSlider({
+        min: 1, max: 5, step: 1, value: S.i18n.funny('en'), ariaLabel: S.t('lang.funnyEn'),
+        onChange: function (v) { S.i18n.setFunny('en', v); }
+      });
+      rows.push({
+        id: 'lang.funny.en', label: S.t('lang.funnyEn'), keywords: 'funny humour english level',
+        node: S.settingRow({
+          id: 'lang.funny.en', label: S.t('lang.funnyEn'),
+          explain: S.t('lang.funnyNote') + '\n\nLevel 1 reads fully professional and level 5 is as playful as this site gets. What never moves is the content: a warning still names what will happen, an error still names what failed, and a version number is still a version number.',
+          storageKey: 'lang.funny.en', shippedValue: 3, control: fEn,
+          onReset: function () { S.i18n.setFunny('en', 3); }
+        })
+      });
+      var fZh = S.makeSlider({
+        min: 1, max: 5, step: 1, value: S.i18n.funny('zh'), ariaLabel: S.t('lang.funnyZh'),
+        onChange: function (v) { S.i18n.setFunny('zh', v); }
+      });
+      rows.push({
+        id: 'lang.funny.zh', label: S.t('lang.funnyZh'), keywords: 'funny humour cantonese level',
+        node: S.settingRow({
+          id: 'lang.funny.zh', label: S.t('lang.funnyZh'),
+          explain: S.t('lang.funnyNote') + '\n\nThis slider is independent of the English one, because somebody may want a dry English interface and a playful Cantonese one, or the reverse.',
+          storageKey: 'lang.funny.zh', shippedValue: 3, control: fZh,
+          onReset: function () { S.i18n.setFunny('zh', 3); }
+        })
+      });
+    }
+
+    rows.push({
+      id: 'lang.emoji', label: S.t('lang.emoji'), keywords: 'emoji dialog message box',
+      node: S.settingRow({
+        id: 'lang.emoji', label: S.t('lang.emoji'),
+        explain: S.t('lang.emojiNote') + '\n\nEmoji appear only in dialogs and message boxes. They never appear in a button, an action label, a field label or an accessible name, so nothing a screen reader announces changes when this is switched on.',
+        storageKey: 'lang.emoji', shippedValue: true,
+        control: S.makeSwitch({
+          checked: S.i18n.emojiEnabled(), ariaLabel: S.t('lang.emoji'),
+          onChange: function (v) { S.i18n.setEmoji(v); }
+        }),
+        onReset: function () { S.i18n.setEmoji(true); }
+      })
+    });
+
+    /* School mode. The control is discoverable at all times; what the
+       mode omits is the capabilities it covers, not itself. */
+    var schoolBtn = S.el('button', {
+      class: 'btn btn--tonal', type: 'button',
+      onclick: function (e) { openSchool(e.currentTarget); }
+    }, [S.icon('lock'), S.school.isOn() ? S.t('school.off') : S.t('school.on')]);
+    rows.push({
+      id: 'school', label: S.school.name(), keywords: 'school mode focus lock english',
+      node: S.settingRow({
+        id: 'school', label: S.school.name(),
+        explain: S.t('school.explain') + '\n\n' + S.t('msg.notSecurity') + ' ' + S.t('msg.clearReset'),
+        storageKey: 'school.on', shippedValue: false, control: schoolBtn
+      })
+    });
+
+    if (!S.school.suppresses('vocabulary')) {
+      var vocabStatus = S.el('p', { class: 'muted t-body-small', role: 'status', 'aria-live': 'polite' });
+      function paintVocab() {
+        var st = S.i18n.vocabulary.status();
+        vocabStatus.textContent = st.loaded
+          ? (S.t('vocab.loaded') + ' ' + st.count + ' entries are in effect.')
+          : (st.error ? (S.t('vocab.rejected') + ' ' + st.error) : S.t('vocab.none'));
+      }
+      var file = S.el('input', {
+        type: 'file', accept: 'application/json,.json', id: 'vocab-file',
+        onchange: function () {
+          var f = file.files && file.files[0];
+          if (!f) return;
+          S.i18n.vocabulary.loadFile(f).then(function (r) {
+            if (r.ok) S.notify.success('Loaded ' + r.count + ' vocabulary entries. They apply to this browser only.');
+            else S.notify.error(S.t('vocab.rejected') + ' ' + r.error);
+            paintVocab();
+            file.value = '';
+          });
+        }
+      });
+      var clearBtn = S.el('button', {
+        class: 'btn btn--text', type: 'button',
+        onclick: function () { S.i18n.vocabulary.clear(); paintVocab(); S.notify.success('The vocabulary file was cleared and the original wording is back.'); }
+      }, [S.icon('reset'), 'Clear']);
+      paintVocab();
+      var lim = S.i18n.limits;
+      rows.push({
+        id: 'vocabulary', label: S.t('vocab.title'), keywords: 'vocabulary json upload words wording',
+        node: S.settingRow({
+          id: 'vocabulary', label: S.t('vocab.title'),
+          explain: 'Upload a local JSON file to rewrite wording across this site. **No mappings ship**: this site has none until you supply a file that passes every bound, and a rejected file never applies partially.\n\nBounds: ' + lim.maxBytes + ' bytes, schema version ' + lim.schemaVersion + ', ' + lim.maxEntries + ' entries, ' + lim.maxKey + '-character keys and ' + lim.maxValue + '-character values.\n\nThe file is read in this browser. It is never uploaded, and its name and path are never stored.',
+          storageKey: 'vocab.cache', shippedValue: 'no file',
+          control: S.el('div', { class: 'row', style: { gap: '8px' } }, [file, clearBtn])
+        })
+      });
+      rows[rows.length - 1].node.appendChild(vocabStatus);
+    }
+
+    return settingsSection('language', 'Language', rows);
+  }
+
+  function openSchool(anchor) {
+    var body = S.el('div', { class: 'stack' });
+    var on = S.school.isOn();
+    body.appendChild(S.el('p', { text: S.t('school.explain') }));
+    body.appendChild(S.el('p', { class: 'note--plain', text: S.t('msg.notSecurity') + ' ' + S.t('msg.clearReset') }));
+
+    var pin = S.el('input', { class: 'field__input', type: 'password', autocomplete: 'off',
+      'aria-label': on ? 'Unlock code' : 'A new unlock code' });
+    var pinField = S.el('label', { class: 'field field--outlined' },
+      S.el('span', { class: 'field__box' }, [
+        S.el('span', { class: 'field__label', text: on ? 'Unlock code' : 'Choose an unlock code' }), pin
+      ]));
+    body.appendChild(pinField);
+
+    var name = S.el('input', { class: 'field__input', type: 'text', value: S.school.name(), 'aria-label': 'What this mode is called' });
+    if (!on) {
+      body.appendChild(S.el('label', { class: 'field field--outlined' },
+        S.el('span', { class: 'field__box' }, [
+          S.el('span', { class: 'field__label', text: 'What to call it' }), name
+        ])));
+    }
+
+    var panel = S.overlay.open({
+      anchor: anchor, returnTo: anchor,
+      title: on ? (S.t('school.off') + ' — ' + S.school.name()) : S.t('school.on'),
+      content: body,
+      footer: [
+        S.el('button', { class: 'btn btn--text', type: 'button', text: S.t('act.cancel'), onclick: function () { panel.close('cancel'); } }),
+        S.el('button', {
+          class: 'btn btn--filled', type: 'button', text: on ? S.t('act.unlock') : S.t('act.apply'),
+          onclick: function () {
+            if (on) {
+              var r = S.school.disable(pin.value);
+              if (!r.ok) { S.notify.error(r.error); return; }
+              S.notify.success('The mode is off. Cantonese, bilingual mode, the funny levels, personal vocabulary and the dim sum surprise are back.');
+              panel.close('done'); window.location.reload();
+            } else {
+              if (!pin.value) { S.notify.error('Set an unlock code first, or there would be no way back out.'); return; }
+              S.school.setCredential(pin.value);
+              if (name.value.trim()) S.school.setName(name.value.trim());
+              var e = S.school.enable();
+              if (!e.ok) { S.notify.error(e.error); return; }
+              S.notify.success(S.school.name() + ' is on. This site is English only until you turn it off.');
+              panel.close('done'); window.location.reload();
+            }
+          }
+        })
+      ]
+    });
+  }
+
+  function appearanceSection() {
+    var rows = [];
+
+    var themeSel = S.createSelect({
+      label: 'Theme', value: S.theme.mode(), storageKey: 'landing-theme',
+      options: [
+        { value: 'system', label: S.t('theme.system'), keywords: 'auto os' },
+        { value: 'light', label: S.t('theme.light'), keywords: 'day' },
+        { value: 'dark', label: S.t('theme.dark'), keywords: 'night' }
+      ],
+      onChange: function (v) { S.theme.setMode(v); }
+    });
+    rows.push({ id: 'theme.mode', label: S.t('theme.mode'), keywords: 'theme dark light system',
+      node: S.settingRow({
+        id: 'theme.mode', label: S.t('theme.mode'),
+        explain: 'Light, dark, or whatever this device is set to. Every colour on this site is defined once for light and redefined for dark, so neither theme is derived from the other and neither has a token missing.',
+        storageKey: 'theme.mode', shippedValue: 'system', control: themeSel.el,
+        onReset: function () { S.theme.setMode('system'); }
+      }) });
+
+    var densSel = S.createSelect({
+      label: 'Density', value: S.theme.density(), storageKey: 'landing-density',
+      options: [
+        { value: 'comfortable', label: 'Comfortable', keywords: 'default roomy' },
+        { value: 'compact', label: 'Compact', keywords: 'tighter' },
+        { value: 'dense', label: 'Dense', keywords: 'tight small' }
+      ],
+      onChange: function (v) { S.theme.setDensity(v); }
+    });
+    rows.push({ id: 'theme.density', label: S.t('theme.density'), keywords: 'density spacing compact',
+      node: S.settingRow({
+        id: 'theme.density', label: S.t('theme.density'),
+        explain: 'Changes the height of rows, controls and toolbars. Text size does not change, because shrinking type is a legibility change rather than a density one. Interactive controls keep their full touch target at every density.',
+        storageKey: 'theme.density', shippedValue: 'comfortable', control: densSel.el,
+        onReset: function () { S.theme.setDensity('comfortable'); }
+      }) });
+
+    var seedWrap = S.el('div');
+    var seedPicker = S.appearance.colourPicker(S.theme.seed() || S.theme.seedDefault, function (v) { S.theme.setSeed(v); });
+    seedWrap.appendChild(seedPicker.el);
+    rows.push({ id: 'theme.seed', label: S.t('theme.seed'), keywords: 'accent colour color seed palette',
+      node: S.settingRow({
+        id: 'theme.seed', label: S.t('theme.seed'),
+        explain: 'Generates a full Material Design 3 tonal palette from one colour, at runtime, and writes it with the same structure the shipped tokens use — so a generated palette can never leave a token defined only in the dark block. Chroma is reduced to the most sRGB can hold at each lightness, which is what stops a requested colour from drifting in hue.',
+        storageKey: 'theme.seed', shippedValue: S.theme.seedDefault, control: seedWrap,
+        onReset: function () { S.theme.setSeed(null); }
+      }) });
+
+    var fonts = S.theme.fonts();
+    var fontSel = S.createSelect({
+      label: 'Interface font', value: S.theme.font(), storageKey: 'landing-font',
+      options: fonts.map(function (f) {
+        return { value: f.id, label: f.label + (f.available ? '' : ' — not installed on this machine'), keywords: f.stack };
+      }),
+      onChange: function (v) { S.theme.setFont(v); }
+    });
+    rows.push({ id: 'theme.font', label: S.t('theme.font'), keywords: 'font family typeface',
+      node: S.settingRow({
+        id: 'theme.font', label: S.t('theme.font'),
+        explain: 'A browser cannot enumerate installed fonts without a permission-gated interface only one engine ships, so each family here is **measured** against three generic fallbacks and labelled with what this machine actually has. Every stack keeps a CJK-safe fallback so Cantonese never falls back to boxes.',
+        storageKey: 'theme.font', shippedValue: fonts.length ? fonts[0].id : 'system', control: fontSel.el,
+        onReset: function () { S.theme.setFont(fonts.length ? fonts[0].id : 'system'); }
+      }) });
+
+    var scale = S.makeSlider({
+      min: 0.8, max: 1.6, step: 0.05, value: S.theme.fontScale(), ariaLabel: S.t('theme.fontScale'),
+      format: function (v) { return Math.round(parseFloat(v) * 100) + '%'; },
+      onChange: function (v) { S.theme.setFontScale(v); }
+    });
+    rows.push({ id: 'theme.fontScale', label: S.t('theme.fontScale'), keywords: 'font size scale bigger text',
+      node: S.settingRow({
+        id: 'theme.fontScale', label: S.t('theme.fontScale'),
+        explain: 'Scales every typographic step together rather than one heading at a time, so the type scale keeps its proportions. The layout is checked at both ends of this range.',
+        storageKey: 'theme.fontScale', shippedValue: 1, control: scale,
+        onReset: function () { S.theme.setFontScale(1); }
+      }) });
+
+    rows.push({ id: 'theme.motion', label: S.t('theme.motion'), keywords: 'motion animation reduce',
+      node: S.settingRow({
+        id: 'theme.motion', label: S.t('theme.motion'),
+        explain: 'Turns off the motion this site would otherwise use. It also follows your operating system setting without being told, so this is an override rather than the only way to get there.',
+        storageKey: 'theme.motion', shippedValue: 'system',
+        control: S.makeSwitch({
+          checked: S.theme.motion() === 'reduced', ariaLabel: S.t('theme.motion'),
+          onChange: function (v) { S.theme.setMotion(v ? 'reduced' : 'system'); }
+        }),
+        onReset: function () { S.theme.setMotion('system'); }
+      }) });
+
+    var host = settingsSection('appearance', 'Appearance', rows);
+    host.appendChild(S.el('div', { class: 'row', style: { 'margin-top': '8px' } }, [
+      S.el('button', { class: 'btn btn--outlined', type: 'button',
+        onclick: function () { S.exportDialog([S.theme.exportTheme ? S.theme.exportTheme() : {}], { name: 'theme', anchor: host }); }
+      }, [S.icon('download'), 'Export this theme']),
+      S.el('button', { class: 'btn btn--text', type: 'button',
+        onclick: function () { S.theme.reset(); S.notify.success('The appearance is back to what this site ships with.'); window.location.reload(); }
+      }, [S.icon('reset'), 'Reset the appearance']),
+      S.el('button', { class: 'btn btn--text', type: 'button',
+        onclick: function (e) { S.appearance.openEditor(e.currentTarget.closest('.lp-setting-list'), 'landing:appearance-section', 'The appearance settings'); }
+      }, [S.icon('palette'), S.t('act.openEditor')])
+    ]));
+    return host;
+  }
+
+  function dataSection() {
+    var rows = [];
+    var st = S.store.status();
+
+    rows.push({ id: 'storage', label: 'Where your settings live', keywords: 'storage local browser reset clear',
+      node: S.settingRow({
+        id: 'storage', label: 'Where your settings live',
+        explain: 'The application would keep this in an operating-system credential vault and an application data folder. A web page has neither, so **this site uses your browser’s local storage for ' + S.privacy.origin + '**, under the prefix `' + S.privacy.storagePrefix + '`. That is where your language mode, funny levels, theme, tabs, pins, groups, per-element appearance, locks, tickets, history and authenticator entries are.\n\nClearing this site’s storage resets every one of them, including any lock and this mode. That is the recovery route, and it is the only one.',
+        storageKey: null, shippedValue: 'local browser storage',
+        control: S.el('span', { class: st.available ? 'status status--ok' : 'status status--error',
+          text: st.available ? 'Available' : 'Refused by this browser' })
+      }) });
+    rows[rows.length - 1].node.appendChild(
+      S.el('p', { class: 'muted t-body-small', text: st.note + ' Currently using about ' + S.store.bytes() + ' bytes across ' + S.store.keys().length + ' keys.' }));
+
+    var clearBtn = S.el('button', {
+      class: 'btn btn--danger', type: 'button',
+      onclick: function (e) {
+        S.confirm({
+          anchor: e.currentTarget, returnTo: e.currentTarget,
+          action: 'Clear everything this site has stored in this browser',
+          target: S.privacy.origin,
+          facts: [
+            { k: 'Keys', v: String(S.store.keys().length) },
+            { k: 'Approximate size', v: S.store.bytes() + ' bytes' },
+            { k: 'Includes', v: 'settings, tabs, groups, appearance rules, locks, tickets, history, authenticator entries' }
+          ],
+          detail: 'Everything goes back to the state a first-time visitor sees. Any lock you set is removed with it, which is exactly why this route exists.',
+          irreversible: true
+        }).then(function (yes) {
+          if (!yes) return;
+          var n = S.privacy.clearAll();
+          S.notify.success('Cleared ' + n + ' stored values. Reloading.');
+          window.setTimeout(function () { window.location.reload(); }, 700);
+        });
+      }
+    }, [S.icon('trash'), 'Clear this site’s storage']);
+    rows.push({ id: 'clear', label: 'Reset everything', keywords: 'clear reset forget recovery locked out',
+      node: S.settingRow({
+        id: 'clear', label: 'Reset everything',
+        explain: 'The single recovery route for this site. If you have locked yourself out of something here, this is how you get back in — and it is why nothing on this site should ever be described as protecting anything.',
+        storageKey: null, shippedValue: 'nothing stored', control: clearBtn
+      }) });
+
+    if (!S.school.suppresses('dimsum')) {
+      rows.push({ id: 'dimsum.photos', label: S.t('dimsum.photoSetting'), keywords: 'dim sum photo image network',
+        node: S.settingRow({
+          id: 'dimsum.photos', label: S.t('dimsum.photoSetting'),
+          explain: S.t('dimsum.photoNote') + '\n\nThe dish names are bundled with this site, so the surprise itself works with no network at all. The photo is the one and only request this site can make, and this switch is how you stop it.',
+          storageKey: 'dimsum.photos', shippedValue: true,
+          control: S.makeSwitch({
+            checked: S.dimSum.photosEnabled(), ariaLabel: S.t('dimsum.photoSetting'),
+            onChange: function (v) { S.dimSum.setPhotosEnabled(v); renderNetworkList(); }
+          }),
+          onReset: function () { S.dimSum.setPhotosEnabled(true); }
+        }) });
+    }
+
+    var host = settingsSection('data', 'Data and privacy', rows);
+
+    host.appendChild(S.el('h4', { text: 'Requests this site makes' }));
+    var netList = S.el('ul', { id: 'lp-net' });
+    host.appendChild(netList);
+    host.appendChild(S.el('p', { class: 'muted t-body-small', text: 'That list is computed from your current settings rather than asserted, so it cannot become a lie when a setting changes.' }));
+    renderNetworkList();
+
+    function renderNetworkList() {
+      var n = document.getElementById('lp-net');
+      if (!n) return;
+      S.clear(n);
+      n.appendChild(S.el('li', { text: 'release.json, from this same origin, read once when this page loads to decide whether there is an installer to offer. It is a file on this site, not a third party.' }));
+      var extra = S.privacy.networkRequests();
+      if (!extra.length) n.appendChild(S.el('li', { text: 'Nothing else. No CDN, no remote font, no remote image, no analytics, no tracker.' }));
+      else extra.forEach(function (x) { n.appendChild(S.el('li', { text: x })); });
+    }
+
+    host.appendChild(S.el('div', { class: 'row', style: { 'margin-top': '8px' } }, [
+      S.el('button', { class: 'btn btn--outlined', type: 'button',
+        onclick: function (e) { S.history.open(e.currentTarget); } }, [S.icon('history'), S.t('history.title')]),
+      S.el('button', { class: 'btn btn--outlined', type: 'button',
+        onclick: function (e) { S.notifications.open(e.currentTarget); } }, [S.icon('bell'), S.t('notify.centre')]),
+      S.el('button', { class: 'btn btn--text', type: 'button',
+        onclick: function (e) {
+          var snap = S.store.keys().map(function (k) { return { key: k, value: JSON.stringify(S.store.get(k, null)) }; });
+          S.exportDialog(snap, { name: 'site-settings', anchor: e.currentTarget,
+            omitted: 'Lock credentials and authenticator secrets are left out of this file. They are stored separately and an ordinary export never carries them.' });
+        } }, [S.icon('download'), S.t('act.export')])
+    ]));
+    return host;
+  }
+
+  function securitySection() {
+    var rows = [];
+    rows.push({ id: 'locks', label: S.t('locks.title'), keywords: 'lock password otp element toy',
+      node: S.settingRow({
+        id: 'locks', label: S.t('locks.title'),
+        explain: S.t('locks.own') + '\n\n' + S.t('msg.notSecurity') + ' ' + S.t('msg.clearReset') + '\n\nAnything on this page can be locked from its own right-click menu. A locked item still appears in every search and in the command palette, labelled as locked, and selecting it asks you to unlock rather than silently doing nothing.',
+        storageKey: 'locks.list', shippedValue: 'no locks',
+        control: S.el('button', { class: 'btn btn--tonal', type: 'button',
+          onclick: function (e) { S.locks.manage(e.currentTarget); } }, [S.icon('lock'), 'Manage locks'])
+      }) });
+
+    rows.push({ id: 'authenticator', label: S.t('auth.title'), keywords: 'totp otp authenticator two factor qr',
+      node: S.settingRow({
+        id: 'authenticator', label: S.t('auth.title'),
+        explain: 'A standard TOTP authenticator for your own accounts, implemented in this page rather than through a service. RFC 6238 over RFC 4226, SHA-1, SHA-256 and SHA-512, 6 to 8 digits, any period. ' + S.t('auth.exportOmits') + '\n\nIt is local, there is no account and nothing syncs. ' + S.t('msg.clearReset'),
+        storageKey: 'auth.entries', shippedValue: 'no entries',
+        control: S.el('button', { class: 'btn btn--tonal', type: 'button',
+          onclick: function (e) { S.authenticator.open(e.currentTarget); } }, [S.icon('key'), 'Open the authenticator'])
+      }) });
+
+    rows.push({ id: 'tickets', label: S.t('tickets.title'), keywords: 'support ticket help forgot password recovery',
+      node: S.settingRow({
+        id: 'tickets', label: S.t('tickets.title'),
+        explain: 'The recovery route for a forgotten lock, dressed as a support desk. It has a category, a ticket number, a severity nobody will honour and a status that advances, and its resolution explains how to clear this site’s storage.',
+        storageKey: 'tickets.list', shippedValue: 'no tickets',
+        control: S.el('button', { class: 'btn btn--tonal', type: 'button',
+          onclick: function (e) { S.support.open(e.currentTarget); } }, [S.icon('ticket'), 'Open Support Tickets'])
+      }) });
+
+    var host = settingsSection('security', 'Locks and codes', rows);
+    host.appendChild(S.el('p', { class: 'note--plain', text: S.t('tickets.plain') }));
+    return host;
+  }
+
+  function panelSite() {
+    var root = S.el('div', { class: 'lp-panel' });
+    S.append(root, [
+      S.el('h2', { 'data-i18n': 'lp.siteTitle' }),
+      S.el('p', { class: 'lede', 'data-i18n': 'lp.siteNote' })
+    ]);
+
+    /* This is a settings surface, so it gets its own search bar wired
+       to the regular-expression builder, and it reports when a match
+       sits on a tab other than the one you are looking at. */
+    var cross = S.el('div', { class: 'lp-crosstab', hidden: true });
+    var search = S.createSearchBar({
+      label: 'Search these settings',
+      placeholder: 'Search every setting on this page',
+      storageKey: 'landing-settings',
+      help: 'Searches the label and keywords of every setting across all four tabs below, and says when a match is on a tab you are not looking at.',
+      sampleProvider: function () { return settingsIndex.map(function (s) { return s.label; }).join('\n'); },
+      onChange: function () { applySettingSearch(); }
+    });
+    root.appendChild(search.el);
+    root.appendChild(cross);
+
+    var subHost = S.el('div', { class: 'lp-subtabs' });
+    root.appendChild(subHost);
+
+    var subStrip = S.tabs.create(subHost, {
+      id: 'landing-settings', dock: 'left',
+      tabs: [
+        { id: 'language', label: 'Language', icon: 'text', closable: false, keywords: 'language funny emoji school vocabulary', panel: langSection },
+        { id: 'appearance', label: 'Appearance', icon: 'palette', closable: false, keywords: 'theme density colour font motion', panel: appearanceSection },
+        { id: 'data', label: 'Data and privacy', icon: 'history', closable: false, keywords: 'storage privacy export history notifications', panel: dataSection },
+        { id: 'security', label: 'Locks and codes', icon: 'lock', closable: false, keywords: 'lock authenticator support tickets', panel: securitySection }
+      ]
+    });
+
+    function applySettingSearch() {
+      var q = search.value();
+      var here = subStrip.selected();
+      if (!q) {
+        cross.hidden = true;
+        Array.prototype.forEach.call(document.querySelectorAll('[data-setting]'), function (n) { n.hidden = false; });
+        return;
+      }
+      var m = search.matcher();
+      var hits = settingsIndex.filter(function (s) { return m(s.label + ' ' + s.keywords + ' ' + s.id); });
+      Array.prototype.forEach.call(document.querySelectorAll('[data-setting]'), function (n) {
+        var id = n.getAttribute('data-setting');
+        var hit = hits.filter(function (s) { return s.id === id; })[0];
+        n.hidden = !hit;
+      });
+      var elsewhere = hits.filter(function (s) { return s.tab !== here; });
+      S.clear(cross);
+      if (!hits.length) {
+        cross.hidden = false;
+        cross.appendChild(S.el('span', { text: S.t('msg.noMatch') + ' No setting on any of these four tabs matches that.' }));
+        return;
+      }
+      if (!elsewhere.length) { cross.hidden = true; return; }
+      cross.hidden = false;
+      cross.appendChild(S.el('span', { text: elsewhere.length + ' matching ' + (elsewhere.length === 1 ? 'setting sits' : 'settings sit') + ' on a different tab:' }));
+      var ul = S.el('ul');
+      elsewhere.forEach(function (s) {
+        ul.appendChild(S.el('li', {}, S.el('button', {
+          class: 'btn btn--text', type: 'button',
+          onclick: function () { subStrip.select(s.tab); applySettingSearch(); }
+        }, s.label + ' — ' + s.tabLabel)));
+      });
+      cross.appendChild(ul);
+    }
+
+    S.on('tab-selected', function () { if (search.value()) applySettingSearch(); });
+    S.i18n.apply(root);
+    return root;
+  }
+
+  /* ---- privacy ------------------------------------------------------ */
+  function panelPrivacy() {
+    var root = S.el('div', { class: 'lp-panel prose' });
+    S.append(root, [
+      S.el('h2', { 'data-i18n': 'lp.privTitle' }),
+      S.el('p', { text: S.privacy.note }),
+      S.el('h3', { text: 'What this site sends' }),
+      S.el('p', { text: 'One file, from this same origin: release.json, read once on load to decide whether there is an installer to offer you. Beyond that, the only request this site is capable of making is the dim sum dish photo, and there is a switch for it on the Data and privacy tab.' }),
+      S.el('ul', {}, [
+        S.el('li', { text: 'No content delivery network. Every stylesheet, script and image is served from this origin.' }),
+        S.el('li', { text: 'No remote font. The type comes from families already on your device, measured rather than assumed.' }),
+        S.el('li', { text: 'No analytics, no tracker, no pixel, no beacon, no error reporter.' }),
+        S.el('li', { text: 'No account, no sign-in, no cookie set by this site.' }),
+        S.el('li', { text: 'Nothing you type here — a search, a regular expression, a vocabulary file, an authenticator secret — leaves this browser.' })
+      ]),
+      S.el('h3', { text: 'What this site keeps' }),
+      S.el('p', { text: 'Everything you change is written to this browser’s local storage for ' + S.privacy.origin + ', under the prefix ' + S.privacy.storagePrefix + '. Nothing is written anywhere else, and nothing is readable by anybody who does not already have this machine.' }),
+      S.el('div', { class: 'note' }, [
+        S.el('b', { text: 'This is not security. ' }),
+        S.el('span', { text: S.t('msg.notSecurity') + ' ' + S.t('msg.clearReset') + ' Anybody with this machine and a developer console can read every value this site stores, including a lock credential’s stored hash. The locks here are a self-imposed speed bump and nothing more.' })
+      ]),
+      S.el('h3', { text: 'The application' }),
+      S.el('p', { text: 'The desktop application sends no telemetry either. It talks to the Minecraft server you point it at, to a container host if you connect one, and to its own update feed. Credentials go to the operating system credential vault, never to a settings file, an export, a log, a screenshot or version history.' })
+    ]);
+    S.i18n.apply(root);
+    return root;
+  }
+
+  /* ---- about -------------------------------------------------------- */
+  function panelAbout() {
+    var root = S.el('div', { class: 'lp-panel prose' });
+    S.append(root, [
+      S.el('h2', { text: 'About this page' }),
+      S.el('p', { text: 'This is a static page: HTML, CSS and one script, served directly with no build step and no framework. Everything interactive on it is real. Nothing here is a picture of a control.' }),
+      S.el('h3', { text: 'The keyboard' }),
+      S.el('div', { class: 'scrollx' }, S.el('table', { class: 'tbl' }, [
+        S.el('thead', {}, S.el('tr', {}, [S.el('th', { text: 'Keys' }), S.el('th', { text: 'What it does' })])),
+        S.el('tbody', {}, [
+          ['Ctrl+Shift+F', 'Open the command palette, from anywhere on the page.'],
+          ['Tab and Shift+Tab', 'Move through every control. The focus ring is always visible.'],
+          ['Arrow keys', 'Move along the tab strip, following its axis rather than the screen.'],
+          ['Alt+arrow', 'Reorder the focused tab.'],
+          ['Shift+right click', 'Open the appearance editor for the element under the pointer.'],
+          ['Alt+Shift+E', 'The same, from the keyboard, for the focused element.'],
+          ['Shift+F10', 'Open the context menu for the focused element.'],
+          ['Escape', 'Close the top overlay, or clear a menu filter before closing it.']
+        ].map(function (r) {
+          return S.el('tr', {}, [S.el('td', {}, S.el('kbd', { text: r[0] })), S.el('td', { text: r[1] })]);
+        }))
+      ])),
+      S.el('h3', { text: 'The mark' }),
+      S.el('p', { text: 'The logo is original artwork for this project: an isometric world chunk, standing for what the application downloads, with a download arrow cut through it. It borrows nothing from any game’s trademarks, textures or branding, and it is inlined into this page rather than fetched, so displaying it costs no request.' }),
+      S.el('h3', { text: 'The credits' }),
+      S.el('p', { text: 'This project builds on work other people did first, and the repository’s credits file names them. Where a funding link exists it points at those upstream projects and says plainly that it goes to them; nothing on this site collects on their behalf, and nothing on this site collects for itself either.' }),
+      S.el('h3', { text: 'Reporting something' }),
+      S.el('p', { text: 'A defect on this page, a claim that turns out not to be true, or a feature card describing something differently from how it actually behaves — all of those are worth reporting, and the last one especially, because a documentation site that is confidently wrong is worse than one that is missing.' })
+    ]);
+    return root;
+  }
+
+  /* ================================================================
+   * 5. Tabs
+   * ================================================================ */
+  var strip = S.tabs.create(document.getElementById('tabhost'), {
+    id: 'landing', dock: 'left',
+    tabs: [
+      { id: 'overview', label: 'Overview', icon: 'globe', closable: false, keywords: 'start home what is it', panel: panelOverview },
+      { id: 'features', label: 'Features', icon: 'grid', closable: false, keywords: 'everything inventory list all', panel: panelFeatures },
+      { id: 'captures', label: 'Captures', icon: 'eye', closable: false, keywords: 'screenshots pictures gallery', panel: panelCaptures },
+      { id: 'install', label: 'Install', icon: 'download', closable: false, keywords: 'download installer build requirements unsigned', panel: panelInstall },
+      { id: 'site', label: 'This site', icon: 'settings', closable: false, keywords: 'settings language theme appearance storage', panel: panelSite },
+      { id: 'privacy', label: 'Privacy', icon: 'lock', closable: false, keywords: 'privacy tracking analytics storage', panel: panelPrivacy },
+      { id: 'about', label: 'About', icon: 'info', closable: false, keywords: 'about keyboard shortcuts logo credits', panel: panelAbout }
+    ],
+    groups: [
+      { id: 'reference', name: 'Reference', colour: '#4A6357', collapsed: false, members: ['privacy', 'about'] }
+    ]
+  });
+
+  /* ================================================================
+   * 6. The appbar: search, palette, theme, notifications
+   * ================================================================ */
+  var resultsHost = document.getElementById('appbar-results');
+  var siteIndex = [];
+
+  function buildIndex() {
+    siteIndex = [];
+    strip.tabs().forEach(function (t) {
+      siteIndex.push({
+        kind: 'Section', title: t.label, sub: 'On this page',
+        run: function () { strip.select(t.id); }
+      });
+    });
+    FEATURES.forEach(function (f) {
+      siteIndex.push({
+        kind: 'Feature', title: f[0] + ' ' + f[1], sub: catOf(f[5]).name + ' · ' + stateLabel(f[4]),
+        text: f[2],
+        run: function () {
+          strip.select('features');
+          featureSearch.setValue(f[0]);
+          renderFeatures();
+          window.setTimeout(function () {
+            var n = featureGrid.querySelector('[data-id="' + f[0].replace(/"/g, '') + '"]');
+            if (n) { n.scrollIntoView({ block: 'center' }); n.focus(); S.flash(n); }
+          }, 60);
+        }
+      });
+    });
+    settingsIndex.forEach(function (s) {
+      siteIndex.push({
+        kind: 'Setting', title: s.label, sub: 'This site · ' + s.tabLabel,
+        text: s.keywords,
+        run: function () { strip.select('site'); }
+      });
+    });
+    siteIndex.push({ kind: 'Page', title: 'Documentation', sub: 'Every feature, one article each', run: function () { window.location.href = 'docs/index.html'; } });
+    siteIndex.push({ kind: 'Page', title: 'Changelog', sub: 'Every released version', run: function () { window.location.href = 'changelog.html'; } });
+  }
+
+  var appSearch = S.createSearchBar({
+    ariaLabel: 'Search this site',
+    placeholder: 'Search sections, features and settings',
+    storageKey: 'landing-appbar',
+    help: 'Searches every section of this page, every feature in the inventory and every setting on the This site tab.',
+    sampleProvider: function () { return siteIndex.map(function (r) { return r.title; }).join('\n'); },
+    onChange: function () { paintResults(); }
+  });
+  document.getElementById('appbar-search').appendChild(appSearch.el);
+
+  function paintResults() {
+    var q = appSearch.value();
+    S.clear(resultsHost);
+    if (!q) { resultsHost.hidden = true; return; }
+    if (!siteIndex.length) buildIndex();
+    var m = appSearch.matcher();
+    var hits = siteIndex.filter(function (r) { return m(r.title + ' ' + (r.sub || '') + ' ' + (r.text || '')); }).slice(0, 40);
+    resultsHost.hidden = false;
+    var box = S.el('div', { class: 'lp-results__box', role: 'listbox', 'aria-label': 'Search results' });
+    if (!hits.length) {
+      box.appendChild(S.el('p', { class: 'muted', style: { padding: '12px' }, text: S.t('msg.noMatch') }));
+    } else {
+      hits.forEach(function (r) {
+        box.appendChild(S.el('button', {
+          class: 'lp-results__row', type: 'button', role: 'option', 'aria-selected': 'false',
+          onclick: function () { r.run(); appSearch.setValue(''); paintResults(); }
+        }, [
+          S.el('span', { class: 'lp-tag', text: r.kind }),
+          S.el('span', { style: { 'min-width': '0' } }, [
+            S.el('b', { text: r.title }),
+            r.sub ? S.el('small', { text: ' — ' + r.sub }) : null
+          ].filter(Boolean))
+        ]));
+      });
+      box.appendChild(S.el('p', { class: 'muted t-body-small', style: { padding: '6px 12px' },
+        text: hits.length + ' result' + (hits.length === 1 ? '' : 's') + (hits.length === 40 ? ', showing the first 40' : '') + '. Ctrl+Shift+F opens the full command palette.' }));
+    }
+    resultsHost.appendChild(box);
+  }
+
+  var actions = document.getElementById('appbar-actions');
+  S.append(actions, [
+    S.el('button', {
+      class: 'btn btn--icon', type: 'button', 'aria-label': S.t('palette.title'),
+      title: S.t('palette.title') + ' (' + S.palette.shortcut + ')',
+      onclick: function () { S.palette.open(); }
+    }, S.icon('search')),
+    S.el('button', {
+      class: 'btn btn--icon', type: 'button', 'aria-label': S.t('notify.centre'),
+      title: S.t('notify.centre'),
+      onclick: function (e) { S.notifications.open(e.currentTarget); }
+    }, S.icon('bell')),
+    S.el('button', {
+      class: 'btn btn--icon', type: 'button', 'aria-label': S.t('theme.mode'),
+      title: S.t('theme.mode'),
+      onclick: function (e) {
+        S.createMenu({
+          anchor: e.currentTarget, ariaLabel: S.t('theme.mode'),
+          filterLabel: 'Filter themes', storageKey: 'appbar-theme',
+          items: [
+            { label: S.t('theme.system'), icon: 'settings', checked: S.theme.mode() === 'system', keywords: 'auto os device', run: function () { S.theme.setMode('system'); } },
+            { label: S.t('theme.light'), icon: 'eye', checked: S.theme.mode() === 'light', keywords: 'day bright', run: function () { S.theme.setMode('light'); } },
+            { label: S.t('theme.dark'), icon: 'eye', checked: S.theme.mode() === 'dark', keywords: 'night', run: function () { S.theme.setMode('dark'); } }
+          ]
+        });
+      }
+    }, S.icon('palette')),
+    S.el('button', {
+      class: 'btn btn--icon', type: 'button', 'aria-label': 'More actions',
+      title: 'More actions',
+      onclick: function (e) {
+        S.createMenu({
+          anchor: e.currentTarget, ariaLabel: 'More actions',
+          filterLabel: 'Filter actions', storageKey: 'appbar-more',
+          items: [
+            { label: 'Documentation', icon: 'doc', keywords: 'articles help', run: function () { window.location.href = 'docs/index.html'; } },
+            { label: 'Changelog', icon: 'history', keywords: 'versions releases', run: function () { window.location.href = 'changelog.html'; } },
+            '-',
+            { label: S.t('history.title'), icon: 'history', keywords: 'undo restore versions', run: function () { S.history.open(e.currentTarget); } },
+            { label: S.t('locks.title'), icon: 'lock', keywords: 'password otp', run: function () { S.locks.manage(e.currentTarget); } },
+            { label: S.t('auth.title'), icon: 'key', keywords: 'totp two factor', run: function () { S.authenticator.open(e.currentTarget); } },
+            { label: S.t('tickets.title'), icon: 'ticket', keywords: 'support help forgot', run: function () { S.support.open(e.currentTarget); } },
+            '-',
+            { label: S.t('palette.title'), icon: 'search', shortcut: S.palette.shortcut, run: function () { S.palette.open(); } },
+            { label: 'Settings for this site', icon: 'settings', keywords: 'language theme appearance', run: function () { strip.select('site'); } }
+          ]
+        });
+      }
+    }, S.icon('more'))
+  ]);
+
+  /* ================================================================
+   * 7. Palette registration.
+   *
+   * Every section, every feature, every setting and every command on
+   * this page. A feature nobody can find by its name is not
+   * palette-complete.
+   * ================================================================ */
+  buildIndex();
+
+  var paletteItems = [];
+  strip.tabs().forEach(function (t) {
+    paletteItems.push({
+      id: 'landing.tab.' + t.id, title: t.label, subtitle: 'Section of the landing page',
+      kind: 'destination', keywords: t.keywords || '',
+      tabStrip: 'landing', tabId: t.id, run: function () { strip.select(t.id); }
+    });
+  });
+  FEATURES.forEach(function (f) {
+    paletteItems.push({
+      id: 'feature.' + f[0], title: f[0] + ' · ' + f[1],
+      subtitle: catOf(f[5]).name + ' · ' + stateLabel(f[4]),
+      kind: 'article', keywords: f[2] + ' ' + surfaceLabel(f[3]),
+      target: '[data-wds-akey="feature:' + f[0] + '"]',
+      tabStrip: 'landing', tabId: 'features',
+      run: function () { strip.select('features'); }
+    });
+  });
+  paletteItems.push(
+    { id: 'landing.download', title: 'Download the installer', subtitle: 'Landing page', kind: 'destination',
+      keywords: 'install setup exe release', target: '#download' },
+    { id: 'landing.palette', title: 'Open the command palette', kind: 'command', keywords: 'search everything',
+      run: function () { S.palette.open(); } },
+    { id: 'landing.docs', title: 'Documentation', kind: 'page', keywords: 'articles help reference', page: 'docs/index.html' },
+    { id: 'landing.changelog', title: 'Changelog', kind: 'page', keywords: 'versions releases history', page: 'changelog.html' },
+    { id: 'landing.dimsum', title: 'Show a dim sum dish now', kind: 'command', keywords: 'surprise food',
+      run: function () { if (!S.dimSum.maybeShow(true)) S.notify.warn('The dim sum capability is not available right now.'); } },
+    { id: 'landing.recheck', title: 'Check for a verified release again', kind: 'command', keywords: 'download refresh manifest',
+      run: function () { strip.select('overview'); start(); } }
+  );
+  S.palette.register(paletteItems);
+
+  /* Settings rows exist only once their tab has been built, so they
+     are registered when that happens rather than being promised now
+     and quietly never arriving. */
+  var settingsRegistered = false;
+  S.on('tab-selected', function () {
+    if (settingsRegistered || !settingsIndex.length) return;
+    settingsRegistered = true;
+    S.palette.register(settingsIndex.map(function (s) {
+      return {
+        id: 'setting.' + s.id, title: s.label, subtitle: 'This site · ' + s.tabLabel,
+        kind: 'setting', keywords: s.keywords,
+        target: '[data-setting="' + s.id + '"]',
+        tabStrip: 'landing', tabId: 'site',
+        run: function () { strip.select('site'); }
+      };
+    }));
+    buildIndex();
+  });
+
+  /* ================================================================
+   * 8. Appearance and locks on the page's own furniture
+   * ================================================================ */
+  [
+    [document.querySelector('.lp-hero'), 'landing:hero', 'The hero'],
+    [document.getElementById('download'), 'landing:download', 'The download panel'],
+    [document.querySelector('.site-appbar'), 'landing:appbar', 'The top bar'],
+    [document.querySelector('.site-footer'), 'landing:footer', 'The footer']
+  ].forEach(function (pair) {
+    if (!pair[0]) return;
+    S.appearance.enable(pair[0], pair[1], pair[2]);
+    S.contextMenu(pair[0], function () {
+      return [
+        { label: S.t('act.openEditor') + '…', icon: 'palette', shortcut: 'Shift+Right click',
+          run: function () { S.appearance.openEditor(pair[0], pair[1], pair[2]); } },
+        { label: S.t('locks.lockThis') + '…', icon: 'lock',
+          run: function () { S.locks.wizard(pair[0], pair[1], pair[2]); } },
+        '-',
+        { label: S.t('palette.title'), icon: 'search', shortcut: S.palette.shortcut, run: function () { S.palette.open(); } },
+        { label: 'Settings for this site', icon: 'settings', run: function () { strip.select('site'); } }
+      ];
+    }, { ariaLabel: pair[2] + ' menu', storageKey: 'landing-furniture' });
+  });
+
+  /* ================================================================
+   * 9. Go
+   * ================================================================ */
+  S.on('i18n', function () { S.i18n.apply(document.body); });
+  document.title = S.tBoth('lp.tagline', 'World Downloader Studio') + ' · World Downloader Studio';
+  S.i18n.apply(document.body);
+  start();
+});
+</script>
+</body>
+</html>

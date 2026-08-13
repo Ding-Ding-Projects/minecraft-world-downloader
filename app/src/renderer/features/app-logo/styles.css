@@ -1,0 +1,282 @@
+/*
+ * Styles for the application logo feature.
+ *
+ * Every class is prefixed with the feature id, and every value comes from a
+ * design token. A literal colour here would stop following the user's seed the
+ * moment they changed it, which is exactly the drift the token system exists to
+ * prevent.
+ */
+
+/* ------------------------------------------------------------------ */
+/* The mark in the title bar                                           */
+/* ------------------------------------------------------------------ */
+
+.app-logo-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  line-height: 0;
+}
+
+/*
+ * While our own mark is in the brand area, the shipped icon beside it would be
+ * a second logo saying the same thing. The class is set by this feature, so the
+ * rule only ever applies to a title bar this feature is actually driving.
+ */
+.app-logo-brand-active > .md-icon {
+  display: none;
+}
+
+/* ------------------------------------------------------------------ */
+/* Panel layout                                                        */
+/* ------------------------------------------------------------------ */
+
+.app-logo-section {
+  margin-block: var(--md-space-6);
+}
+
+.app-logo-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--md-space-3);
+  margin-block: var(--md-space-3);
+}
+
+.app-logo-status {
+  margin-block: var(--md-space-2);
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.app-logo-status--warning {
+  color: var(--md-sys-color-error);
+}
+
+.app-logo-card {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--md-space-5);
+  padding: var(--md-space-5);
+  border-radius: var(--md-sys-shape-corner-large);
+  background: var(--md-sys-color-surface-container-low);
+  border: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.app-logo-card__text {
+  flex: 1 1 18rem;
+  min-width: 0;
+}
+
+/* ------------------------------------------------------------------ */
+/* Previews                                                           */
+/* ------------------------------------------------------------------ */
+
+.app-logo-previews {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--md-space-5);
+  padding: var(--md-space-4);
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: var(--md-sys-color-surface-container);
+  overflow-x: auto;
+}
+
+.app-logo-preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--md-space-2);
+  min-width: max-content;
+}
+
+.app-logo-preview__frame {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--md-space-2);
+  border-radius: var(--md-sys-shape-corner-small);
+  background:
+    repeating-conic-gradient(
+      var(--md-sys-color-surface-container-highest) 0% 25%,
+      var(--md-sys-color-surface-container-lowest) 0% 50%
+    )
+    50% / 12px 12px;
+  border: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.app-logo-preview__label {
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.app-logo-safe-ring {
+  position: absolute;
+  inset: var(--md-space-2);
+  border: 1px dashed var(--md-sys-color-tertiary);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/* ------------------------------------------------------------------ */
+/* Cropper                                                             */
+/* ------------------------------------------------------------------ */
+
+.app-logo-cropper {
+  position: relative;
+  max-width: 480px;
+  width: 100%;
+  border-radius: var(--md-sys-shape-corner-medium);
+  overflow: hidden;
+  border: 1px solid var(--md-sys-color-outline);
+  background:
+    repeating-conic-gradient(
+      var(--md-sys-color-surface-container-highest) 0% 25%,
+      var(--md-sys-color-surface-container-lowest) 0% 50%
+    )
+    50% / 16px 16px;
+  touch-action: none;
+}
+
+.app-logo-cropper__canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.app-logo-cropper__region {
+  position: absolute;
+  box-sizing: border-box;
+  border: 2px solid var(--md-sys-color-primary);
+  background: color-mix(in srgb, var(--md-sys-color-primary) 12%, transparent);
+  cursor: move;
+}
+
+.app-logo-cropper__region:focus-visible {
+  outline: 3px solid var(--md-sys-color-tertiary);
+  outline-offset: 2px;
+}
+
+.app-logo-cropper__handle {
+  position: absolute;
+  inline-size: var(--md-comp-touch-target, 44px);
+  block-size: var(--md-comp-touch-target, 44px);
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.app-logo-cropper__handle::after {
+  content: '';
+  position: absolute;
+  inset-inline-start: 50%;
+  inset-block-start: 50%;
+  inline-size: 14px;
+  block-size: 14px;
+  transform: translate(-50%, -50%);
+  border-radius: var(--md-sys-shape-corner-extra-small);
+  background: var(--md-sys-color-primary);
+  border: 2px solid var(--md-sys-color-on-primary);
+}
+
+.app-logo-cropper__handle:focus-visible {
+  outline: 3px solid var(--md-sys-color-tertiary);
+  outline-offset: -6px;
+}
+
+.app-logo-cropper__handle[data-corner='topLeft'] {
+  inset-inline-start: calc(var(--md-comp-touch-target, 44px) / -2);
+  inset-block-start: calc(var(--md-comp-touch-target, 44px) / -2);
+}
+
+.app-logo-cropper__handle[data-corner='topRight'] {
+  inset-inline-end: calc(var(--md-comp-touch-target, 44px) / -2);
+  inset-block-start: calc(var(--md-comp-touch-target, 44px) / -2);
+}
+
+.app-logo-cropper__handle[data-corner='bottomLeft'] {
+  inset-inline-start: calc(var(--md-comp-touch-target, 44px) / -2);
+  inset-block-end: calc(var(--md-comp-touch-target, 44px) / -2);
+}
+
+.app-logo-cropper__handle[data-corner='bottomRight'] {
+  inset-inline-end: calc(var(--md-comp-touch-target, 44px) / -2);
+  inset-block-end: calc(var(--md-comp-touch-target, 44px) / -2);
+}
+
+.app-logo-numbers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-space-3);
+  margin-block: var(--md-space-3);
+}
+
+.app-logo-numbers > * {
+  flex: 1 1 8rem;
+  min-width: 7rem;
+}
+
+/* ------------------------------------------------------------------ */
+/* Loss report                                                         */
+/* ------------------------------------------------------------------ */
+
+.app-logo-losses {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: var(--md-space-2);
+}
+
+.app-logo-loss {
+  padding: var(--md-space-3);
+  border-inline-start: 4px solid var(--md-sys-color-tertiary);
+  border-radius: var(--md-sys-shape-corner-small);
+  background: var(--md-sys-color-surface-container);
+}
+
+.app-logo-loss__title {
+  display: block;
+  color: var(--md-sys-color-on-surface);
+}
+
+.app-logo-loss__detail {
+  display: block;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+/* ------------------------------------------------------------------ */
+/* Identity facts                                                      */
+/* ------------------------------------------------------------------ */
+
+.app-logo-identity {
+  display: grid;
+  grid-template-columns: minmax(8rem, auto) minmax(0, 1fr);
+  gap: var(--md-space-2) var(--md-space-4);
+  margin: var(--md-space-3) 0 0;
+}
+
+.app-logo-identity dt {
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.app-logo-identity dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+  font-family: var(--md-sys-typeface-mono);
+}
+
+/* ------------------------------------------------------------------ */
+/* Table cell previews                                                 */
+/* ------------------------------------------------------------------ */
+
+.app-logo-cell-preview {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 32px;
+  block-size: 32px;
+}

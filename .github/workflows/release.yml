@@ -1,0 +1,603 @@
+name: Release the desktop application
+
+# The only workflow in this repository that publishes a GitHub Release, and the only thing it
+# releases is the Electron desktop application in app/.
+#
+# There is deliberately NO test job, NO lint job, NO type-check job, NO coverage job and NO
+# screenshot gate here, and nothing in any `needs:` chain that could withhold a release on a
+# code-quality verdict. This workflow builds, packages and publishes. That is the whole job.
+#
+# This is the repository owner's explicit standing decision, and it has a cost worth stating
+# plainly rather than pretending it is free: with no gate in the pipeline, a release can ship from
+# a commit whose tests would have failed, and the first thing that notices will be a person running
+# the installer. That is the accepted trade — artifacts reach people quickly and unconditionally.
+# Checking happens locally, before the push, in the task that changes the code. A failing local
+# test is still a defect to fix in that same task; it simply never blocks a build or a release.
+
+on:
+  push:
+    branches:
+      - '**'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+# Deliberately WITHOUT cancel-in-progress. This workflow has non-idempotent side effects: it
+# creates a tag and a release and uploads assets. Cancelling a run halfway can strand a tag with no
+# artifact behind it, which is far worse than letting two publishes queue up behind each other.
+concurrency:
+  group: release-${{ github.workflow }}-${{ github.ref }}
+
+env:
+  # Resolution chain: an optional repository-scoped fine-grained token first, then the organization
+  # token, then the workflow token as a last fallback. Passed only through the GH_TOKEN convention
+  # and never echoed, logged or written to a file.
+  GH_TOKEN: ${{ secrets.RELEASE_TOKEN || secrets.ORG_TOKEN || secrets.GITHUB_TOKEN }}
+  DIM_SUM_REPOSITORY: Ding-Ding-Projects/dim-sum-photos
+  DIM_SUM_CATALOG_URL: https://raw.githubusercontent.com/Ding-Ding-Projects/dim-sum-photos/main/catalog/index.json
+
+jobs:
+  release:
+    name: Build, package and publish
+    runs-on: windows-latest
+    timeout-minutes: 90
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+        with:
+          # Full history: the line counter attributes surviving lines with `git blame`, which needs
+          # the commits those lines came from.
+          fetch-depth: 0
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+
+      # ------------------------------------------------------------------------------------------
+      # Timing: measured from the workflow's own first-job start, read back from the API rather than
+      # from a clock started inside this job, so the recorded figure covers queueing too. Never
+      # estimated: if the API cannot answer, the notes say the value is unavailable.
+      # ------------------------------------------------------------------------------------------
+      - name: Record when the workflow started
+        id: started
+        run: |
+          set -euo pipefail
+          if started=$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}" --jq .run_started_at 2>/dev/null) \
+            && [ -n "${started}" ] && [ "${started}" != "null" ]; then
+            echo "Workflow started at ${started}"
+          else
+            started="unavailable"
+            echo "::warning title=Start time unavailable::The run_started_at field could not be read from the API; the release notes will say so rather than estimate it."
+          fi
+          echo "value=${started}" >> "$GITHUB_OUTPUT"
+
+      - name: Decide the release tag and version
+        id: version
+        run: |
+          set -euo pipefail
+          # Monotonic in the run number, so no tag is ever recycled or overwritten.
+          version="1.0.${GITHUB_RUN_NUMBER}"
+          tag="app-v${version}"
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+          echo "tag=${tag}" >> "$GITHUB_OUTPUT"
+          echo "Releasing ${tag} (application version ${version})"
+
+      - name: Refuse to recycle an existing tag
+        run: |
+          set -euo pipefail
+          tag='${{ steps.version.outputs.tag }}'
+          if gh release view "${tag}" --repo "${GITHUB_REPOSITORY}" >/dev/null 2>&1; then
+            echo "::error title=Tag already released::${tag} already has a release. Tags are immutable here and are never recycled or overwritten."
+            exit 1
+          fi
+          echo "${tag} is free"
+
+      - name: Install dependencies
+        working-directory: app
+        run: |
+          set -euo pipefail
+          if [ -f package-lock.json ]; then
+            if ! npm ci; then
+              echo "::warning title=Lockfile install failed::npm ci did not succeed; falling back to npm install so packaging can continue."
+              rm -rf node_modules
+              npm install
+            fi
+          else
+            npm install
+          fi
+
+      - name: Stamp the application version
+        working-directory: app
+        run: |
+          set -euo pipefail
+          # The installer, the package metadata and the tag all carry the same number, so the
+          # Squirrel update feed sees a monotonic version rather than a constant one.
+          npm version --no-git-tag-version --allow-same-version '${{ steps.version.outputs.version }}'
+          node -e 'process.stdout.write("package.json version is now " + require("./package.json").version + "\n")'
+
+      - name: Make sure the Electron binary is actually extracted
+        working-directory: app
+        run: npm run ensure-electron
+
+      - name: Build the application
+        working-directory: app
+        run: npm run build
+
+      - name: Package the Windows installer with Squirrel
+        working-directory: app
+        env:
+          # Blanked deliberately for this step only. electron-builder will publish to GitHub by
+          # itself when it finds a token and a publish configuration, and this workflow does the
+          # publishing explicitly further down; leaving the token visible here risks two publishers
+          # racing for the same tag. `--publish never` says the same thing a second way.
+          GH_TOKEN: ''
+          GITHUB_TOKEN: ''
+          # Code signing is permanently out of scope for this project. No certificate, no key, no
+          # timestamp credential, no signer. These say so to every layer that might go looking.
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+          CSC_LINK: ''
+          CSC_KEY_PASSWORD: ''
+          WIN_CSC_LINK: ''
+          WIN_CSC_KEY_PASSWORD: ''
+        run: npx electron-builder --win squirrel --config electron-builder.yml --publish never
+
+      - name: Collect the release artifacts
+        id: collect
+        run: |
+          set -euo pipefail
+          staging="${GITHUB_WORKSPACE}/staging"
+          rm -rf "${staging}"
+          mkdir -p "${staging}"
+
+          # electron-builder writes the Squirrel output into a `squirrel-windows` subdirectory of
+          # the configured output directory, so a collector that only looks at the output root
+          # reports a missing installer even though packaging succeeded. Search the whole tree.
+          find app/release -type f \( -name '*.exe' -o -name 'RELEASES' -o -name '*.nupkg' \) > collected.txt 2>/dev/null || true
+          found=0
+          while IFS= read -r file; do
+            [ -n "${file}" ] || continue
+            cp -f "${file}" "${staging}/"
+            found=$((found + 1))
+          done < collected.txt
+
+          echo "Collected ${found} packaging outputs into staging/"
+          ls -la "${staging}"
+
+          setup_count=$(find "${staging}" -maxdepth 1 -type f -name '*.exe' | wc -l | tr -d '[:space:]')
+          releases_count=$(find "${staging}" -maxdepth 1 -type f -name 'RELEASES' | wc -l | tr -d '[:space:]')
+          full_count=$(find "${staging}" -maxdepth 1 -type f -name '*-full.nupkg' | wc -l | tr -d '[:space:]')
+          delta_count=$(find "${staging}" -maxdepth 1 -type f -name '*-delta.nupkg' | wc -l | tr -d '[:space:]')
+
+          if [ "${setup_count}" -eq 0 ]; then
+            echo "::error title=No installer::Squirrel packaging produced no setup executable. Refusing to publish a release with nothing to install."
+            exit 1
+          fi
+          if [ "${releases_count}" -eq 0 ]; then
+            echo "::error title=No RELEASES file::Squirrel packaging produced no RELEASES index. The update feed would be unusable."
+            exit 1
+          fi
+          if [ "${full_count}" -eq 0 ]; then
+            echo "::error title=No full package::Squirrel packaging produced no full .nupkg. The update feed would be unusable."
+            exit 1
+          fi
+
+          echo "delta_count=${delta_count}" >> "$GITHUB_OUTPUT"
+          echo "staging=${staging}" >> "$GITHUB_OUTPUT"
+
+      - name: Confirm every executable is unsigned
+        shell: pwsh
+        run: |
+          # Code signing is permanently prohibited here. This is not a formality: if a tool ever
+          # discovers a certificate and signs an artifact, that is a release blocker, not a bonus.
+          $signed = @()
+          Get-ChildItem -Path "$env:GITHUB_WORKSPACE\staging" -Filter *.exe -File | ForEach-Object {
+            $status = (Get-AuthenticodeSignature -FilePath $_.FullName).Status
+            Write-Host "$($_.Name): $status"
+            if ($status -ne 'NotSigned') { $signed += "$($_.Name) reports $status" }
+          }
+          if ($signed.Count -gt 0) {
+            Write-Host "::error title=Signed artifact::$($signed -join '; ')"
+            throw "An artifact is signed. Code signing is permanently out of scope for this project."
+          }
+          Write-Host "All executables report NotSigned, as intended."
+
+      # ------------------------------------------------------------------------------------------
+      # Line count. CI does the counting, at exactly the commit being released, using the committed
+      # script so anyone can reproduce the figure locally with the same one command.
+      # ------------------------------------------------------------------------------------------
+      - name: Count the lines of code
+        run: |
+          set -uo pipefail
+          if [ -f scripts/count-lines.mjs ]; then
+            if node scripts/count-lines.mjs --markdown > line-count.md 2> line-count.err; then
+              echo 'Line counter finished.'
+            else
+              {
+                echo '> The committed line counter exited non-zero for this commit, so no line-count table'
+                echo '> is published with this release. Its output is reproduced below verbatim.'
+                echo ''
+                echo '```'
+                cat line-count.err
+                echo '```'
+              } > line-count.md
+              echo '::warning title=Line counter failed::scripts/count-lines.mjs exited non-zero; the release notes say so instead of carrying a table.'
+            fi
+          else
+            {
+              echo '> No line-count table is published with this release: the committed counter'
+              echo '> `scripts/count-lines.mjs` was not present at this commit. The count is produced by'
+              echo '> CI from that script and is never hand-written, so nothing is substituted for it here.'
+            } > line-count.md
+            echo '::warning title=No line counter::scripts/count-lines.mjs is missing at this commit.'
+          fi
+          cat line-count.md
+
+      # ------------------------------------------------------------------------------------------
+      # Release code name. Resolved from the public dim sum catalog, one dish per release, never
+      # reused. This is decoration with a purpose and must never block or delay a release: every
+      # failure path below ends with the release shipping and the notes saying what happened.
+      # ------------------------------------------------------------------------------------------
+      - name: Read which dishes previous releases already used
+        continue-on-error: true
+        run: |
+          set -uo pipefail
+          : > prior-release-bodies.txt
+          if gh api "repos/${GITHUB_REPOSITORY}/releases?per_page=100" --paginate --jq '.[].body' > prior-release-bodies.txt 2>/dev/null; then
+            echo "Read $(wc -c < prior-release-bodies.txt) bytes of prior release notes."
+          else
+            echo '::warning title=Prior releases unreadable::Could not read prior release notes; a code name may repeat.'
+          fi
+
+      - name: List the published catalog volumes
+        continue-on-error: true
+        run: |
+          set -uo pipefail
+          : > catalog-volumes.txt
+          if gh api "repos/${DIM_SUM_REPOSITORY}/releases" --paginate \
+            --jq '.[] | select(.draft == false) | select(.tag_name | startswith("catalog-v1")) | .tag_name' \
+            > catalog-volumes.txt 2>/dev/null; then
+            echo "Published catalog volumes:"
+            cat catalog-volumes.txt
+          else
+            echo '::warning title=Catalog volumes unreadable::Could not list the published catalog volumes.'
+          fi
+
+      - name: Choose and download one dim sum photo
+        continue-on-error: true
+        env:
+          STAGING_DIR: staging
+        run: |
+          set -uo pipefail
+          cat > pick-dish.mjs <<'PICK_DISH'
+          // Resolve one release code name from the public dim sum catalog.
+          //
+          // The rules this implements: only ever choose a dish whose photo is actually published as
+          // a release asset in the public catalog repository; never reuse a dish this repository has
+          // already used; download exactly one image; and never let any of it block the release.
+          //
+          // Asset lists are deliberately NOT paginated. There are thousands of them across the
+          // catalog volumes, and paging through all of them to choose one name costs far more than
+          // asking about the single candidate we actually want. Instead the next unused dish is
+          // taken from the catalog in order and its filename is probed with a HEAD request against
+          // each published volume until one answers.
+          import { writeFile, mkdir } from 'node:fs/promises';
+          import { readFileSync, existsSync } from 'node:fs';
+          import path from 'node:path';
+
+          const CATALOG_URL = process.env.DIM_SUM_CATALOG_URL;
+          const REPOSITORY = process.env.DIM_SUM_REPOSITORY;
+          const STAGING_DIR = process.env.STAGING_DIR || 'staging';
+          const MAX_CANDIDATES = 60;
+          const PNG_MAGIC = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+
+          const unresolved = async (reason) => {
+            await writeFile('dim-sum.json', JSON.stringify({ resolved: false, reason }, null, 2), 'utf8');
+            console.log('No code name resolved: ' + reason);
+            process.exit(0);
+          };
+
+          const get = (url, method) =>
+            fetch(url, { method, redirect: 'follow', signal: AbortSignal.timeout(60000) });
+
+          try {
+            const volumes = existsSync('catalog-volumes.txt')
+              ? readFileSync('catalog-volumes.txt', 'utf8').split('\n').map((s) => s.trim()).filter(Boolean)
+              : [];
+            if (volumes.length === 0) {
+              await unresolved('no published catalog volumes could be listed');
+            }
+
+            const priorNotes = existsSync('prior-release-bodies.txt')
+              ? readFileSync('prior-release-bodies.txt', 'utf8')
+              : '';
+
+            const catalogResponse = await get(CATALOG_URL, 'GET');
+            if (!catalogResponse.ok) {
+              await unresolved('the catalog index responded ' + catalogResponse.status);
+            }
+            const catalog = await catalogResponse.json();
+            const dishes = Array.isArray(catalog.dishes) ? catalog.dishes : [];
+            if (dishes.length === 0) {
+              await unresolved('the catalog index carried no dish records');
+            }
+            console.log('Catalog holds ' + dishes.length + ' dish records across ' + volumes.length + ' published volumes.');
+
+            let attempted = 0;
+            for (const dish of dishes) {
+              const imagePath = dish && dish.image && typeof dish.image.path === 'string' ? dish.image.path : '';
+              const filename = imagePath ? path.posix.basename(imagePath) : '';
+              const nameEn = dish && dish.name && typeof dish.name.en === 'string' ? dish.name.en : '';
+              const nameZh = dish && dish.name && typeof dish.name.zhHant === 'string' ? dish.name.zhHant : '';
+              if (!filename || !nameEn) continue;
+
+              // Already used by an earlier release of this repository.
+              if (priorNotes.includes(filename)) continue;
+              if (dish.id && priorNotes.includes(String(dish.id))) continue;
+
+              if (attempted >= MAX_CANDIDATES) {
+                await unresolved('the first ' + MAX_CANDIDATES + ' unused catalog records had no published photo');
+              }
+              attempted += 1;
+
+              for (const volume of volumes) {
+                const url = 'https://github.com/' + REPOSITORY + '/releases/download/' + volume + '/' + encodeURIComponent(filename);
+                let head;
+                try {
+                  head = await get(url, 'HEAD');
+                } catch (error) {
+                  console.log('HEAD ' + volume + '/' + filename + ' failed: ' + error.message);
+                  continue;
+                }
+                if (!head.ok) continue;
+
+                const download = await get(url, 'GET');
+                if (!download.ok) continue;
+                const bytes = Buffer.from(await download.arrayBuffer());
+                if (bytes.length < 1024 || !bytes.subarray(0, 8).equals(PNG_MAGIC)) {
+                  console.log('Rejected ' + filename + ': the downloaded bytes are not a PNG.');
+                  continue;
+                }
+
+                await mkdir(STAGING_DIR, { recursive: true });
+                await writeFile(path.join(STAGING_DIR, filename), bytes);
+                const alt = dish.image && dish.image.alt && typeof dish.image.alt.en === 'string'
+                  ? dish.image.alt.en
+                  : 'Photograph of ' + nameEn;
+                await writeFile(
+                  'dim-sum.json',
+                  JSON.stringify(
+                    { resolved: true, id: dish.id || '', nameEn, nameZh, filename, volume, alt, bytes: bytes.length },
+                    null,
+                    2,
+                  ),
+                  'utf8',
+                );
+                console.log('Code name: ' + nameEn + (nameZh ? ' · ' + nameZh : '') + ' (' + filename + ' from ' + volume + ')');
+                process.exit(0);
+              }
+            }
+
+            await unresolved('every catalog record was either already used or had no published photo');
+          } catch (error) {
+            await unresolved('resolution failed: ' + error.message);
+          }
+          PICK_DISH
+          node pick-dish.mjs || echo '::warning title=No code name::A dim sum code name could not be resolved; the release ships without one and says so.'
+          if [ ! -f dim-sum.json ]; then
+            printf '%s\n' '{ "resolved": false, "reason": "the resolver did not run to completion" }' > dim-sum.json
+          fi
+          cat dim-sum.json
+
+      - name: Compose the release notes
+        id: notes
+        run: |
+          set -euo pipefail
+          version='${{ steps.version.outputs.version }}'
+          tag='${{ steps.version.outputs.tag }}'
+          started='${{ steps.started.outputs.value }}'
+          completed=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+
+          if [ "${started}" = "unavailable" ]; then
+            duration="unavailable"
+          else
+            duration=$(WF_STARTED="${started}" WF_COMPLETED="${completed}" node -e 'const a=new Date(process.env.WF_STARTED),b=new Date(process.env.WF_COMPLETED);if(Number.isNaN(a.getTime())||Number.isNaN(b.getTime())){process.stdout.write("unavailable");}else{let s=Math.max(0,Math.round((b-a)/1000));const p=(n)=>String(n).padStart(2,"0");process.stdout.write(p(Math.floor(s/3600))+":"+p(Math.floor((s%3600)/60))+":"+p(s%60));}')
+          fi
+
+          echo "completed=${completed}" >> "$GITHUB_OUTPUT"
+          echo "duration=${duration}" >> "$GITHUB_OUTPUT"
+
+          notes=RELEASE_NOTES.md
+          {
+            echo "## World Downloader Studio ${version}"
+            echo ''
+            echo 'The Minecraft world downloader proxy, the world tools, the live map pipeline, the web console'
+            echo 'and the automation bot, combined into one Material Design 3 desktop application. This is the'
+            echo 'only artifact this repository releases.'
+            echo ''
+            echo '> [!WARNING]'
+            echo '> **These artifacts are unsigned.** Code signing is permanently out of scope for this project:'
+            echo '> no certificate, no signing key and no signer is used anywhere in the build. Windows will show'
+            echo "> an unknown-publisher or SmartScreen warning when you run the installer, and that is expected."
+            echo '> No authenticity or signature verification is claimed for any file attached here. Verify the'
+            echo '> download against the SHA-256 digests in the artifact table below if you want an integrity check.'
+            echo ''
+            echo '### Install'
+            echo ''
+            echo '1. Download the `Setup.exe` asset below.'
+            echo '2. Run it. Squirrel installs per user, so no administrator rights are needed.'
+            echo '3. Dismiss the unknown-publisher warning described above.'
+            echo ''
+            echo 'The application checks this feed for updates on startup and on a bounded background schedule,'
+            echo 'stages an update in the background, and shows a non-blocking banner offering to restart. It'
+            echo 'never restarts on its own.'
+            echo ''
+            echo '### Checks that were run'
+            echo ''
+            echo 'None. This pipeline is deliberately ungated: the release workflow builds, packages and'
+            echo 'publishes, and runs no test, lint, type-check, coverage, accessibility or screenshot gate.'
+            echo 'Nothing in it can withhold a release on a code-quality verdict. Checking happens locally,'
+            echo 'before the push, in the task that changes the code — so this release is **not** described as'
+            echo 'passing anything, because nothing here checked it.'
+            echo ''
+            echo '### Build'
+            echo ''
+            echo '| Field | Value |'
+            echo '| --- | --- |'
+            printf '| Tag | `%s` |\n' "${tag}"
+            printf '| Version | `%s` |\n' "${version}"
+            printf '| Commit | `%s` |\n' "${GITHUB_SHA}"
+            printf '| Workflow run | [%s](%s/%s/actions/runs/%s) |\n' "${GITHUB_RUN_ID}" "${GITHUB_SERVER_URL}" "${GITHUB_REPOSITORY}" "${GITHUB_RUN_ID}"
+            printf '| Installer | Squirrel.Windows, x64, unsigned |\n'
+            printf '| Workflow started | `%s` |\n' "${started}"
+            printf '| Workflow completed | `%s` |\n' "${completed}"
+            printf '| Workflow duration | `%s` |\n' "${duration}"
+            echo ''
+            echo '### Artifacts'
+            echo ''
+            echo '| File | Size | SHA-256 |'
+            echo '| --- | ---: | --- |'
+          } > "${notes}"
+
+          for file in staging/*; do
+            [ -f "${file}" ] || continue
+            name=$(basename "${file}")
+            bytes=$(stat -c %s "${file}")
+            mib=$(awk -v b="${bytes}" 'BEGIN { printf "%.2f", b / 1048576 }')
+            sha=$(sha256sum "${file}" | cut -d' ' -f1)
+            printf '| `%s` | %s MiB | `%s` |\n' "${name}" "${mib}" "${sha}" >> "${notes}"
+          done
+
+          {
+            echo ''
+            echo '### Lines of code'
+            echo ''
+            echo 'Counted by CI at the released commit with the repository'"'"'s own committed script, so the'
+            echo 'figure is reproducible locally with `node scripts/count-lines.mjs --markdown`.'
+            echo ''
+            cat line-count.md
+            echo ''
+            echo '### Release code name'
+            echo ''
+          } >> "${notes}"
+
+          node -e '
+            const fs = require("node:fs");
+            const notes = process.argv[1];
+            let dish = { resolved: false, reason: "no resolver output" };
+            try { dish = JSON.parse(fs.readFileSync("dim-sum.json", "utf8")); } catch (error) { dish.reason = error.message; }
+            const lines = [];
+            if (dish.resolved) {
+              lines.push("**" + dish.nameEn + " · " + dish.nameZh + "**");
+              lines.push("");
+              lines.push("A label beside the version, never a replacement for it: this release is identified by");
+              lines.push("`" + process.env.RELEASE_TAG + "`. Each code name is used once and never repeated.");
+              lines.push("");
+              lines.push("| Field | Value |");
+              lines.push("| --- | --- |");
+              lines.push("| Dish (English) | " + dish.nameEn + " |");
+              lines.push("| Dish (Traditional Chinese) | " + dish.nameZh + " |");
+              lines.push("| Catalog record | `" + dish.id + "` |");
+              lines.push("| Photo asset attached here | `" + dish.filename + "` |");
+              lines.push("| Public catalog volume | `" + dish.volume + "` |");
+              lines.push("| Alt text | " + dish.alt + " |");
+              lines.push("");
+              lines.push("The photo is from the public dim sum catalog at");
+              lines.push("https://github.com/Ding-Ding-Projects/dim-sum-photos and is attached to this release as");
+              lines.push("`" + dish.filename + "`.");
+            } else {
+              lines.push("No code name was resolved for this release: " + dish.reason + ".");
+              lines.push("");
+              lines.push("The code name is decoration with a purpose and never blocks a release, so this build");
+              lines.push("ships identified by its version alone.");
+            }
+            fs.appendFileSync(notes, lines.join("\n") + "\n");
+          ' "${notes}"
+
+          echo '--- release notes ---'
+          cat "${notes}"
+        env:
+          RELEASE_TAG: ${{ steps.version.outputs.tag }}
+
+      - name: Publish the release
+        run: |
+          set -euo pipefail
+          tag='${{ steps.version.outputs.tag }}'
+          version='${{ steps.version.outputs.version }}'
+          shopt -s nullglob
+          assets=(staging/*)
+          if [ ${#assets[@]} -eq 0 ]; then
+            echo '::error title=Nothing to attach::No assets were staged; refusing to publish an empty release.'
+            exit 1
+          fi
+          gh release create "${tag}" \
+            --repo "${GITHUB_REPOSITORY}" \
+            --target "${GITHUB_SHA}" \
+            --title "World Downloader Studio ${version}" \
+            --notes-file RELEASE_NOTES.md \
+            "${assets[@]}"
+
+      - name: Verify the published release
+        run: |
+          set -euo pipefail
+          tag='${{ steps.version.outputs.tag }}'
+          gh release view "${tag}" --repo "${GITHUB_REPOSITORY}" --json isDraft,tagName,targetCommitish,assets > published.json
+          node -e '
+            const release = JSON.parse(require("node:fs").readFileSync("published.json", "utf8"));
+            const problems = [];
+            if (release.isDraft) problems.push("the release is a draft");
+            const names = (release.assets || []).map((asset) => asset.name);
+            if (!names.some((name) => name.toLowerCase().endsWith(".exe"))) problems.push("no installer is attached");
+            if (!names.includes("RELEASES")) problems.push("no RELEASES index is attached");
+            if (!names.some((name) => name.toLowerCase().endsWith("-full.nupkg"))) problems.push("no full package is attached");
+            console.log("Published " + release.tagName + " with " + names.length + " assets:");
+            for (const name of names) console.log("  " + name);
+            if (problems.length > 0) {
+              console.error("::error title=Release incomplete::" + problems.join("; "));
+              process.exit(1);
+            }
+          '
+
+      - name: Summarize the run
+        if: ${{ always() }}
+        run: |
+          set -uo pipefail
+          {
+            echo '### Release'
+            echo ''
+            echo '| Field | Value |'
+            echo '| --- | --- |'
+            printf '| Tag | `%s` |\n' '${{ steps.version.outputs.tag }}'
+            printf '| Commit | `%s` |\n' "${GITHUB_SHA}"
+            printf '| Started | `%s` |\n' '${{ steps.started.outputs.value }}'
+            printf '| Completed | `%s` |\n' '${{ steps.notes.outputs.completed }}'
+            printf '| Duration | `%s` |\n' '${{ steps.notes.outputs.duration }}'
+            printf '| Signing | none, permanently out of scope |\n'
+            printf '| Gates | none, this pipeline is ungated by design |\n'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      # Evidence survives a failed run: collect whatever safe output exists even when an earlier
+      # step failed, and never let artifact handling mask the original failure or turn it green.
+      # Only packaging outputs and the generated notes are uploaded — never credentials, never
+      # node_modules, never a cache, never the source tree.
+      - name: Upload the packaging outputs as run evidence
+        if: ${{ always() }}
+        continue-on-error: true
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-squirrel-${{ github.run_number }}
+          path: |
+            staging/**
+            RELEASE_NOTES.md
+            line-count.md
+            dim-sum.json
+          if-no-files-found: warn
+          retention-days: 14

@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Download capture</title>
+    <link rel="stylesheet" href="shared.css" />
+    <style>
+      body {
+        width: 360px;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Download capture</h1>
+      <p class="status" id="status" role="status" data-tone="neutral">Checking the receiver.</p>
+      <div class="actions">
+        <button type="button" id="recheck" class="secondary">Check again</button>
+        <button type="button" id="open-options">Settings</button>
+      </div>
+      <h2 style="font-size: 14px; margin: 18px 0 0">What happened recently</h2>
+      <ul class="recent" id="recent" aria-live="polite">
+        <li class="detail">Nothing has been captured since the browser last started.</li>
+      </ul>
+    </main>
+    <script type="module" src="popup.js"></script>
+  </body>
+</html>

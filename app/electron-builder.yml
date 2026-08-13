@@ -1,0 +1,49 @@
+appId: com.worlddownloaderstudio.app
+productName: World Downloader Studio
+copyright: World Downloader Studio contributors
+
+# Code signing is permanently out of scope for this project. These three keys are
+# stated explicitly so no tool can silently discover a certificate and sign the
+# artifacts. The published installer is unsigned and Windows will show an
+# unknown-publisher warning; that is expected and documented in the release notes.
+forceCodeSigning: false
+
+directories:
+  buildResources: build
+  output: release
+
+files:
+  - out/**/*
+  - package.json
+  # Production dependencies must travel with the build: the main process keeps
+  # them external rather than bundling them, so anything in `dependencies` is
+  # resolved from node_modules at runtime and has to be inside the package.
+  # Naming `files` at all replaces the default pattern, so this line is what
+  # keeps them; without it a feature's runtime dependency is missing only in the
+  # installed build, which is the worst place to discover it.
+  - node_modules/**/*
+  - '!**/*.map'
+  - '!**/node_modules/*/{CHANGELOG.md,README.md,readme.md,README,readme}'
+  - '!**/node_modules/*/{test,__tests__,tests,powered-test,example,examples}'
+  - '!**/node_modules/*.d.ts'
+
+asar: true
+asarUnpack: []
+
+electronLanguages:
+  - en-US
+
+win:
+  icon: build/icon.ico
+  signExecutable: false
+  signAndEditExecutable: false
+  target:
+    - target: squirrel
+      arch:
+        - x64
+
+squirrelWindows:
+  artifactName: ${productName}-Setup-${version}.${ext}
+  msi: false
+
+publish: null

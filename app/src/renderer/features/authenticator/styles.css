@@ -1,0 +1,437 @@
+/*
+ * The authenticator's own styling.
+ *
+ * Everything here is built on the Material tokens the rest of the application
+ * uses, so a theme, a density, a seed colour or a font change reaches this
+ * surface too. The one deliberate exception is the pairing picture: it is drawn
+ * true black on true white in both themes rather than tinted into the palette,
+ * because a QR styled to match a dark interface stops being readable by the
+ * camera it exists for.
+ *
+ * Wide content scrolls inside its own container; the page itself never scrolls
+ * sideways.
+ */
+
+.authenticator-banners {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-sys-spacing-2, 8px);
+  margin-block: var(--md-sys-spacing-2, 8px);
+}
+
+.authenticator-banner {
+  border-radius: var(--md-sys-shape-medium, 12px);
+  padding: var(--md-sys-spacing-4, 16px);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  background: var(--md-sys-color-surface-container);
+  color: var(--md-sys-color-on-surface);
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-sys-spacing-2, 8px);
+  align-items: flex-start;
+}
+
+.authenticator-banner--warning {
+  background: var(--md-sys-color-error-container);
+  color: var(--md-sys-color-on-error-container);
+  border-color: var(--md-sys-color-error);
+}
+
+.authenticator-banner--notice {
+  background: var(--md-sys-color-secondary-container);
+  color: var(--md-sys-color-on-secondary-container);
+}
+
+.authenticator-banner h2 {
+  margin: 0;
+}
+
+.authenticator-banner p {
+  margin: 0;
+  max-inline-size: 72ch;
+}
+
+.authenticator-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-sys-spacing-2, 8px);
+  align-items: flex-end;
+  margin-block: var(--md-sys-spacing-2, 8px);
+}
+
+.authenticator-bulk {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-sys-spacing-1, 4px);
+  align-items: center;
+  padding: var(--md-sys-spacing-2, 8px);
+  border-radius: var(--md-sys-shape-medium, 12px);
+  background: var(--md-sys-color-surface-container-low);
+}
+
+.authenticator-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-sys-spacing-3, 12px);
+}
+
+.authenticator-group__header {
+  display: flex;
+  align-items: center;
+  gap: var(--md-sys-spacing-2, 8px);
+  padding-block: var(--md-sys-spacing-1, 4px);
+}
+
+.authenticator-group__swatch {
+  inline-size: 12px;
+  block-size: 12px;
+  border-radius: 50%;
+  flex: 0 0 auto;
+}
+
+.authenticator-group__toggle {
+  background: none;
+  border: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  padding: var(--md-sys-spacing-2, 8px);
+  min-block-size: 44px;
+  border-radius: var(--md-sys-shape-small, 8px);
+}
+
+.authenticator-group__toggle:focus-visible {
+  outline: 3px solid var(--md-sys-color-primary);
+  outline-offset: 2px;
+}
+
+/* ---------------- one row ---------------- */
+
+.authenticator-row {
+  display: grid;
+  grid-template-columns: auto minmax(12ch, 2fr) minmax(14ch, 1fr) minmax(10ch, auto) auto;
+  gap: var(--md-sys-spacing-3, 12px);
+  align-items: center;
+  padding: var(--md-sys-spacing-3, 12px);
+  border-radius: var(--md-sys-shape-medium, 12px);
+}
+
+.authenticator-row:focus-visible {
+  outline: 3px solid var(--md-sys-color-primary);
+  outline-offset: -3px;
+}
+
+.authenticator-row[aria-selected='true'] {
+  background: var(--md-sys-color-secondary-container);
+  color: var(--md-sys-color-on-secondary-container);
+}
+
+.authenticator-row__identity {
+  display: flex;
+  align-items: center;
+  gap: var(--md-sys-spacing-2, 8px);
+  min-inline-size: 0;
+}
+
+.authenticator-row__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-inline-size: 0;
+}
+
+.authenticator-row__text > span {
+  overflow-wrap: anywhere;
+}
+
+.authenticator-row__parameters {
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.authenticator-row__code {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-inline-size: 0;
+}
+
+.authenticator-row__missing {
+  color: var(--md-sys-color-error);
+  margin: 0;
+}
+
+.authenticator-code {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.12em;
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  padding: var(--md-sys-spacing-1, 4px) var(--md-sys-spacing-2, 8px);
+  border-radius: var(--md-sys-shape-small, 8px);
+  text-align: start;
+  min-block-size: 44px;
+  user-select: text;
+}
+
+.authenticator-code:hover:not(:disabled) {
+  background: var(--md-sys-color-surface-container-high);
+}
+
+.authenticator-code:focus-visible {
+  outline: 3px solid var(--md-sys-color-primary);
+  outline-offset: 2px;
+}
+
+.authenticator-code:disabled {
+  cursor: default;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.authenticator-code__next,
+.authenticator-code__seconds {
+  color: var(--md-sys-color-on-surface-variant);
+  font-variant-numeric: tabular-nums;
+}
+
+.authenticator-code__bar {
+  inline-size: 100%;
+  block-size: 6px;
+  border-radius: 3px;
+  background: var(--md-sys-color-surface-container-highest);
+  overflow: hidden;
+}
+
+.authenticator-code__bar-fill {
+  block-size: 100%;
+  background: var(--md-sys-color-primary);
+  transition: inline-size 250ms linear;
+}
+
+/* The bar is a second reading of the seconds, never the only one: the exact
+   number is always present as text beside it, and the low state is marked by a
+   pattern as well as a colour so it does not depend on colour vision. */
+.authenticator-code__bar-fill--low {
+  background: repeating-linear-gradient(
+    45deg,
+    var(--md-sys-color-error),
+    var(--md-sys-color-error) 4px,
+    var(--md-sys-color-error-container) 4px,
+    var(--md-sys-color-error-container) 8px
+  );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .authenticator-code__bar-fill {
+    transition: none;
+  }
+}
+
+.authenticator-row__group {
+  min-inline-size: 12ch;
+}
+
+/* ---------------- registration ---------------- */
+
+.authenticator-register {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-sys-spacing-3, 12px);
+  min-inline-size: min(48rem, 92vw);
+}
+
+.authenticator-register__route,
+.authenticator-register__body,
+.authenticator-register__details,
+.authenticator-register__confirm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-sys-spacing-2, 8px);
+}
+
+.authenticator-register__status {
+  margin: 0;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.authenticator-register__status--error {
+  color: var(--md-sys-color-error);
+  margin: 0;
+}
+
+.authenticator-register__drop {
+  border: 2px dashed var(--md-sys-color-outline);
+  border-radius: var(--md-sys-shape-medium, 12px);
+  padding: var(--md-sys-spacing-6, 24px);
+  text-align: center;
+  cursor: pointer;
+  min-block-size: 96px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.authenticator-register__drop--over,
+.authenticator-register__drop:focus-visible {
+  border-color: var(--md-sys-color-primary);
+  outline: none;
+  background: var(--md-sys-color-surface-container-high);
+}
+
+.authenticator-register__camera {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-sys-spacing-2, 8px);
+}
+
+.authenticator-register__video {
+  inline-size: 100%;
+  max-inline-size: 480px;
+  border-radius: var(--md-sys-shape-medium, 12px);
+  background: #000000;
+}
+
+/* ---------------- the pairing picture ---------------- */
+
+.authenticator-pairing {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-sys-spacing-4, 16px);
+  align-items: flex-start;
+}
+
+.authenticator-pairing__figure {
+  /* Always a real white card behind the code, in both themes. A quiet zone
+     drawn on a dark surface is not a quiet zone. */
+  background: #ffffff;
+  padding: var(--md-sys-spacing-2, 8px);
+  border-radius: var(--md-sys-shape-small, 8px);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  flex: 0 0 auto;
+  max-inline-size: 100%;
+  overflow: auto;
+}
+
+.authenticator-qr {
+  display: block;
+  max-inline-size: 100%;
+  block-size: auto;
+}
+
+.authenticator-pairing__facts {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-sys-spacing-2, 8px);
+  min-inline-size: min(28rem, 100%);
+  flex: 1 1 20rem;
+}
+
+.authenticator-pairing__facts p {
+  margin: 0;
+  max-inline-size: 60ch;
+}
+
+.authenticator-pairing__secret {
+  font-family: var(--md-sys-typescale-code-font, ui-monospace, SFMono-Regular, Menlo, monospace);
+  letter-spacing: 0.08em;
+  overflow-wrap: anywhere;
+  user-select: all;
+  margin: 0;
+  padding: var(--md-sys-spacing-2, 8px);
+  border-radius: var(--md-sys-shape-small, 8px);
+  background: var(--md-sys-color-surface-container-high);
+}
+
+.authenticator-pairing__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-sys-spacing-2, 8px);
+}
+
+/* ---------------- verification ---------------- */
+
+.authenticator-checks {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-sys-spacing-2, 8px);
+  margin-block-start: var(--md-sys-spacing-3, 12px);
+}
+
+.authenticator-check__head {
+  display: flex;
+  align-items: center;
+  gap: var(--md-sys-spacing-2, 8px);
+  flex-wrap: wrap;
+}
+
+.authenticator-check--failed {
+  border-inline-start: 4px solid var(--md-sys-color-error);
+}
+
+.authenticator-check--passed {
+  border-inline-start: 4px solid var(--md-sys-color-primary);
+}
+
+.authenticator-checks p {
+  margin: 0;
+  max-inline-size: 80ch;
+  overflow-wrap: anywhere;
+}
+
+/* ---------------- misc ---------------- */
+
+.authenticator-pager,
+.authenticator-clock__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-sys-spacing-2, 8px);
+  align-items: center;
+  margin-block: var(--md-sys-spacing-2, 8px);
+}
+
+.authenticator-footer {
+  margin-block-start: var(--md-sys-spacing-6, 24px);
+  padding-block-start: var(--md-sys-spacing-3, 12px);
+  border-block-start: 1px solid var(--md-sys-color-outline-variant);
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.authenticator-footer p,
+.authenticator-footer h2 {
+  margin: 0 0 var(--md-sys-spacing-1, 4px);
+  max-inline-size: 80ch;
+}
+
+.authenticator-export__losses {
+  margin: 0;
+  padding-inline-start: 1.2em;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+/* A narrow window stacks the row rather than clipping it, and the code stays
+   the largest thing on the row at every width and display scale. */
+@media (max-width: 900px) {
+  .authenticator-row {
+    grid-template-columns: auto 1fr auto;
+    grid-template-areas:
+      'select identity menu'
+      'select code code'
+      'select group group';
+  }
+
+  .authenticator-row__select {
+    grid-area: select;
+  }
+
+  .authenticator-row__identity {
+    grid-area: identity;
+  }
+
+  .authenticator-row__code {
+    grid-area: code;
+  }
+
+  .authenticator-row__group {
+    grid-area: group;
+  }
+}

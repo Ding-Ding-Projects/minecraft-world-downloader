@@ -1,0 +1,8 @@
+GitHub Pages runs Jekyll over a site by default, and Jekyll skips every
+file and directory whose name starts with an underscore. This empty file
+turns that off, so the directory is published exactly as it is committed.
+
+It matters here even though no current filename starts with an
+underscore: the day somebody adds one, the file would vanish from the
+published site with no error anywhere, and the build would still be
+green. Removing this file is how that happens.

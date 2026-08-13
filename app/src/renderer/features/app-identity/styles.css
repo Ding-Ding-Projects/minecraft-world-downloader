@@ -1,0 +1,245 @@
+/*
+ * Styles owned by the app-identity feature.
+ *
+ * Every class is prefixed with the feature id so nothing here can collide with
+ * another feature, and every value is a design token: the whole scheme is
+ * generated at runtime from the user's seed colour, so a literal colour, radius
+ * or duration would simply stop following it.
+ */
+
+.app-identity-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-5);
+}
+
+.app-identity-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-3);
+  padding: var(--md-space-4);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-corner-large);
+  background: var(--md-sys-color-surface-container-low);
+  color: var(--md-sys-color-on-surface);
+}
+
+.app-identity-card__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--md-space-2);
+}
+
+.app-identity-card__secondary {
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.app-identity-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-3);
+  min-width: 0;
+}
+
+.app-identity-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-space-2);
+}
+
+.app-identity-note {
+  color: var(--md-sys-color-on-surface-variant);
+  margin: 0;
+}
+
+.app-identity-error {
+  margin: 0;
+  padding: var(--md-space-2) var(--md-space-3);
+  border-radius: var(--md-sys-shape-corner-small);
+  background: var(--md-sys-color-error-container);
+  color: var(--md-sys-color-on-error-container);
+}
+
+.app-identity-summary {
+  margin: 0;
+}
+
+/* ---------------- the static preview ---------------- */
+
+.app-identity-preview {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-2);
+  padding: var(--md-space-3);
+  border: 1px dashed var(--md-sys-color-outline);
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: var(--md-sys-color-surface-container);
+}
+
+.app-identity-preview__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-space-1) var(--md-space-3);
+  align-items: baseline;
+}
+
+.app-identity-preview__label {
+  min-width: 12ch;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.app-identity-preview__value {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.app-identity-preview-list {
+  max-height: 40vh;
+  overflow-y: auto;
+}
+
+/* ---------------- checks ---------------- */
+
+.app-identity-checks {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.app-identity-check {
+  display: flex;
+  gap: var(--md-space-3);
+  align-items: flex-start;
+  padding: var(--md-space-3);
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: var(--md-sys-color-surface-container);
+  border-inline-start: 4px solid var(--md-sys-color-outline-variant);
+}
+
+.app-identity-check--pass {
+  border-inline-start-color: var(--md-sys-color-success);
+}
+
+.app-identity-check--fail {
+  border-inline-start-color: var(--md-sys-color-error);
+}
+
+.app-identity-check--unknown {
+  border-inline-start-color: var(--md-sys-color-warning);
+}
+
+.app-identity-check__text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-1);
+  min-width: 0;
+}
+
+.app-identity-check__text p {
+  margin: 0;
+}
+
+.app-identity-check__evidence {
+  color: var(--md-sys-color-on-surface-variant);
+  font-family: var(--md-sys-typeface-mono);
+  overflow-wrap: anywhere;
+}
+
+/* ---------------- tables ---------------- */
+
+.app-identity-table {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-2);
+  min-width: 0;
+}
+
+.app-identity-bulk {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-space-1);
+}
+
+.app-identity-bulk__status {
+  margin: 0;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+/* Wide content scrolls inside its own container; the panel never scrolls sideways. */
+.app-identity-scroll {
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+.app-identity-table__grid {
+  min-width: 32rem;
+}
+
+.app-identity-table__mono {
+  font-family: var(--md-sys-typeface-mono);
+  /* Paths and URLs are long. The shared table cell is `nowrap`, which would push
+     the table far wider than the container instead of using the height it has. */
+  white-space: normal;
+  overflow-wrap: anywhere;
+  max-inline-size: 46ch;
+}
+
+.app-identity-table__check {
+  /* 24px of box inside 10px of padding is a 44px target, which is the accessible
+     minimum, while the box itself stays in proportion to the row it sits in. */
+  inline-size: 24px;
+  block-size: 24px;
+  padding: 10px;
+  margin: -10px;
+  accent-color: var(--md-sys-color-primary);
+  cursor: pointer;
+}
+
+.app-identity-table__check:focus-visible {
+  outline: 2px solid var(--md-sys-color-primary);
+  outline-offset: 2px;
+}
+
+.app-identity-export__losses {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-1);
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+/* ---------------- the diagnostic report ---------------- */
+
+.app-identity-report {
+  margin: 0;
+  padding: var(--md-space-3);
+  max-height: 22rem;
+  overflow: auto;
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: var(--md-sys-color-surface-container-highest);
+  color: var(--md-sys-color-on-surface);
+  font-family: var(--md-sys-typeface-mono);
+  font-size: var(--md-sys-typescale-body-small-size);
+  line-height: var(--md-sys-typescale-body-small-line);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.app-identity-report:focus-visible {
+  outline: 2px solid var(--md-sys-color-primary);
+  outline-offset: 2px;
+}
+
+@media (max-width: 720px) {
+  .app-identity-card {
+    padding: var(--md-space-3);
+  }
+
+  .app-identity-preview__label {
+    min-width: 0;
+  }
+}

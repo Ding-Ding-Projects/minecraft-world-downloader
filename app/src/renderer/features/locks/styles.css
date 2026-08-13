@@ -1,0 +1,112 @@
+/*
+ * Locks — this feature's own styles.
+ *
+ * Every class is prefixed `wds-locks` so nothing here can collide with another
+ * feature's surface, and every value comes from the Material token set rather
+ * than a hard-coded colour, so the light scheme, the dark scheme, the contrast
+ * levels and the density scale all reach this surface for free.
+ */
+
+.wds-locks {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-4);
+  padding: var(--md-space-4);
+  max-width: 1200px;
+  margin-inline: auto;
+}
+
+.wds-locks-forfun {
+  border-color: var(--md-sys-color-outline);
+}
+
+.wds-locks-forfun p {
+  margin: 0 0 var(--md-space-2);
+  color: var(--md-sys-color-on-surface);
+  /* The path is long and must never push the page sideways. */
+  overflow-wrap: anywhere;
+}
+
+.wds-locks-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--md-space-2);
+}
+
+/* The list scrolls inside its own container; the page never scrolls sideways. */
+.wds-locks-list {
+  overflow-x: auto;
+  border-radius: var(--md-sys-shape-corner-medium);
+}
+
+.wds-locks-row__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--md-space-2);
+  justify-content: flex-end;
+}
+
+.wds-locks-picker,
+.wds-locks-queue {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-3);
+  min-width: min(420px, 90vw);
+}
+
+.wds-locks-picker__list {
+  max-height: min(46vh, 420px);
+  overflow: auto;
+}
+
+.wds-locks-picker__property {
+  display: flex;
+  gap: var(--md-space-2);
+}
+
+/*
+ * The marker on a guarded element.
+ *
+ * A blocked control that looks identical to a working one reads as broken, so
+ * the padlock and the dimmed state are the difference between "locked" and
+ * "this application is faulty". The outline is drawn with `outline` rather than
+ * `border` so it cannot change the element's own layout.
+ */
+.wds-locks-guarded[data-locks-state='locked'] {
+  position: relative;
+  outline: 1px dashed var(--md-sys-color-outline);
+  outline-offset: 2px;
+}
+
+.wds-locks-guarded[data-locks-state='locked']::after {
+  content: '🔒';
+  position: absolute;
+  inset-block-start: -6px;
+  inset-inline-end: -6px;
+  font-size: 12px;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.wds-locks-guarded[data-locks-state='unlocked'] {
+  outline: 1px dotted var(--md-sys-color-outline-variant);
+  outline-offset: 2px;
+}
+
+@media (max-width: 720px) {
+  .wds-locks {
+    padding: var(--md-space-3);
+  }
+
+  .wds-locks-row__actions {
+    justify-content: flex-start;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wds-locks-guarded[data-locks-state='locked'] {
+    transition: none;
+  }
+}

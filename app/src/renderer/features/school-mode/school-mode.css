@@ -1,0 +1,245 @@
+/*
+ * Shared study mode.
+ *
+ * Every value here is a Material token rather than a literal, so the surface
+ * follows the seed colour, the density, the contrast level and the type scale
+ * the user chose, in both light and dark. Nothing is sized in a way that clips
+ * the longest bilingual string: rows wrap, wide content scrolls inside its own
+ * container, and the page itself never scrolls sideways.
+ */
+
+.school-mode > section {
+  margin-block-end: var(--md-space-8);
+}
+
+.school-mode__panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-3);
+  padding: var(--md-space-4);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-corner-large);
+  background: var(--md-sys-color-surface-container-low);
+}
+
+.school-mode__state-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--md-space-3);
+}
+
+.school-mode__line {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+/* The compact second line of a bilingual label: present, and never competing
+   with the primary for attention. */
+.school-mode__secondary {
+  color: var(--md-sys-color-on-surface-variant);
+  font-size: 0.82em;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.school-mode__authority,
+.school-mode__path,
+.school-mode__watch,
+.school-mode__toy,
+.school-mode__recovery,
+.school-mode__mirror-note {
+  margin: 0;
+  color: var(--md-sys-color-on-surface-variant);
+  overflow-wrap: anywhere;
+}
+
+/* A path is quoted text: it must never be re-wrapped into something the user
+   would retype incorrectly, so it scrolls inside its own box instead. */
+.school-mode__path {
+  font-family: ui-monospace, 'Cascadia Mono', 'Segoe UI Mono', Consolas, monospace;
+  max-width: 100%;
+  overflow-x: auto;
+  padding: var(--md-space-1) 0;
+}
+
+.school-mode__toy {
+  padding: var(--md-space-3);
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: var(--md-sys-color-surface-container-high);
+  color: var(--md-sys-color-on-surface);
+}
+
+.school-mode__warning {
+  color: var(--md-sys-color-error);
+}
+
+.school-mode__feedback {
+  margin: 0;
+  min-height: 1.4em;
+  color: var(--md-sys-color-error);
+}
+
+.school-mode__actions,
+.school-mode__dialog-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-space-2);
+  align-items: center;
+}
+
+.school-mode__dialog-actions {
+  justify-content: flex-end;
+  margin-block-start: var(--md-space-3);
+}
+
+/* ------------------------------------------------------------------ */
+/* Pairing                                                             */
+/* ------------------------------------------------------------------ */
+
+/*
+ * The QR keeps true dark-on-light in both themes rather than being tinted into
+ * the palette: a themed QR is a QR that some cameras will not read, and it is
+ * the one element here whose job is to be scanned rather than to look correct.
+ */
+.school-mode__qr {
+  display: flex;
+  justify-content: center;
+  padding: var(--md-space-4);
+  background: #ffffff;
+  border-radius: var(--md-sys-shape-corner-medium);
+}
+
+.school-mode__qr svg {
+  width: min(220px, 60vw);
+  height: auto;
+}
+
+.school-mode__secret {
+  display: block;
+  padding: var(--md-space-2);
+  border-radius: var(--md-sys-shape-corner-small);
+  background: var(--md-sys-color-surface-container-highest);
+  font-family: ui-monospace, 'Cascadia Mono', 'Segoe UI Mono', Consolas, monospace;
+  letter-spacing: 0.12em;
+  overflow-wrap: anywhere;
+}
+
+/* ------------------------------------------------------------------ */
+/* Lists                                                               */
+/* ------------------------------------------------------------------ */
+
+.school-mode__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-3);
+}
+
+.school-mode__list-toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-2);
+}
+
+.school-mode__list-selection {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--md-space-2);
+}
+
+.school-mode__list-count {
+  margin-inline-end: var(--md-space-2);
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.school-mode__list-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-1);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-corner-medium);
+  padding: var(--md-space-2);
+  background: var(--md-sys-color-surface-container-lowest);
+}
+
+.school-mode__row {
+  display: flex;
+  align-items: center;
+  gap: var(--md-space-3);
+  /* 48px keeps the row itself a comfortable target even where its own control
+     is smaller, at every density the user can choose. */
+  min-height: 48px;
+  padding: var(--md-space-2) var(--md-space-3);
+  border-radius: var(--md-sys-shape-corner-medium);
+  cursor: pointer;
+}
+
+.school-mode__row:hover {
+  background: var(--md-sys-color-surface-container);
+}
+
+.school-mode__row:focus-visible {
+  outline: 3px solid var(--md-sys-color-primary);
+  outline-offset: 2px;
+}
+
+.school-mode__row--selected {
+  background: var(--md-sys-color-secondary-container);
+  color: var(--md-sys-color-on-secondary-container);
+}
+
+.school-mode__row-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.school-mode__row-meta {
+  flex: 0 0 auto;
+  color: var(--md-sys-color-on-surface-variant);
+  text-align: end;
+}
+
+.school-mode__list-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--md-space-2);
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.school-mode__preview-list {
+  margin: var(--md-space-2) 0;
+  padding-inline-start: var(--md-space-5);
+  max-height: 40vh;
+  overflow-y: auto;
+  overflow-wrap: anywhere;
+}
+
+/* ------------------------------------------------------------------ */
+/* Narrow widths and reduced motion                                    */
+/* ------------------------------------------------------------------ */
+
+@media (max-width: 720px) {
+  .school-mode__row {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .school-mode__row-meta {
+    flex-basis: 100%;
+    text-align: start;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .school-mode__row {
+    transition: none;
+  }
+}

@@ -1,0 +1,491 @@
+/*
+ * Version history surfaces.
+ *
+ * Every colour, radius, spacing and duration comes from the Material Design 3
+ * tokens rather than a literal, so a seed-colour change, a density change or a
+ * contrast change reaches this feature without editing it.
+ *
+ * Two layout rules are deliberate. Wide content — the entry rows, the comparison
+ * table, the calendar — scrolls inside its own container, so the page itself
+ * never scrolls sideways. And nothing here is sized in a way that clips at 200%
+ * display scale or under the longest bilingual label: the rows wrap their text
+ * and the toolbars wrap their buttons.
+ */
+
+.history-status__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-space-2);
+  margin-block-start: var(--md-space-2);
+}
+
+.history-status__extra {
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.history-status--bad {
+  border-color: var(--md-sys-color-error);
+}
+
+.history-status--bad .md-typescale-body-medium {
+  color: var(--md-sys-color-error);
+}
+
+/* ---------------- filters ---------------- */
+
+.history-filters {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-3);
+  margin-block: var(--md-space-3);
+}
+
+.history-filters__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--md-space-3);
+}
+
+.history-filters__summary {
+  flex: 1 1 16rem;
+  min-inline-size: 0;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.history-filters__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-4);
+  padding: var(--md-space-4);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-corner-large);
+  background: var(--md-sys-color-surface-container-low);
+}
+
+.history-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-2);
+}
+
+.history-actions__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-space-2);
+  max-block-size: 12rem;
+  overflow-y: auto;
+}
+
+/*
+ * An action with no matches under the current filters stays visible and reads as
+ * empty. Hiding it would make the filter set look smaller than it is.
+ */
+.history-actions__chip--empty {
+  opacity: 0.72;
+  border-style: dashed;
+}
+
+/* ---------------- the date range ---------------- */
+
+.history-daterange {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-2);
+}
+
+.history-daterange__controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--md-space-3);
+}
+
+.history-daterange__field {
+  flex: 1 1 12rem;
+  min-inline-size: 10rem;
+}
+
+.history-daterange__hint,
+.history-daterange__warning {
+  color: var(--md-sys-color-on-surface-variant);
+  margin: 0;
+}
+
+.history-daterange__warning {
+  color: var(--md-sys-color-error);
+}
+
+.history-calendar .md-overlay__body {
+  max-inline-size: min(44rem, 92vw);
+}
+
+.history-calendar__layout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-space-4);
+}
+
+.history-calendar__month {
+  flex: 1 1 18rem;
+  min-inline-size: 16rem;
+}
+
+.history-calendar__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--md-space-2);
+  margin-block-end: var(--md-space-3);
+}
+
+.history-calendar__grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(2.5rem, 1fr));
+  gap: 2px;
+}
+
+.history-calendar__weekday {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  block-size: 2rem;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.history-calendar__blank {
+  block-size: var(--md-comp-touch-target, 44px);
+}
+
+.history-calendar__day {
+  min-block-size: var(--md-comp-touch-target, 44px);
+  min-inline-size: var(--md-comp-touch-target, 44px);
+  border: none;
+  border-radius: var(--md-sys-shape-corner-full);
+  background: transparent;
+  color: var(--md-sys-color-on-surface);
+  font: inherit;
+  cursor: pointer;
+}
+
+.history-calendar__day:hover {
+  background: color-mix(in srgb, var(--md-sys-color-on-surface) 8%, transparent);
+}
+
+.history-calendar__day:focus-visible {
+  outline: 3px solid var(--md-sys-color-primary);
+  outline-offset: 2px;
+}
+
+.history-calendar__day--between {
+  background: var(--md-sys-color-secondary-container);
+  color: var(--md-sys-color-on-secondary-container);
+  border-radius: var(--md-sys-shape-corner-small);
+}
+
+.history-calendar__day--edge {
+  background: var(--md-sys-color-primary);
+  color: var(--md-sys-color-on-primary);
+}
+
+.history-calendar__presets {
+  flex: 0 1 12rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--md-space-1);
+}
+
+.history-calendar__presets-title {
+  color: var(--md-sys-color-on-surface-variant);
+  margin: 0 0 var(--md-space-1);
+}
+
+/* ---------------- results ---------------- */
+
+.history-results__head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-space-3);
+  align-items: baseline;
+  margin-block-start: var(--md-space-3);
+}
+
+.history-results__warning {
+  color: var(--md-sys-color-warning, var(--md-sys-color-error));
+}
+
+.history-bulk {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--md-space-2);
+  padding: var(--md-space-2) var(--md-space-3);
+  margin-block: var(--md-space-2);
+  border-radius: var(--md-sys-shape-corner-large);
+  background: var(--md-sys-color-secondary-container);
+  color: var(--md-sys-color-on-secondary-container);
+  box-shadow: var(--md-sys-elevation-1);
+}
+
+.history-list {
+  position: relative;
+  block-size: min(60vh, 46rem);
+  overflow: auto;
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-corner-large);
+  background: var(--md-sys-color-surface-container-lowest);
+}
+
+.history-list__sizer {
+  position: relative;
+  inline-size: 100%;
+}
+
+.history-list__viewport {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  will-change: transform;
+}
+
+.history-list__empty {
+  padding: var(--md-space-4);
+}
+
+.history-row {
+  display: flex;
+  align-items: center;
+  gap: var(--md-space-3);
+  block-size: 84px;
+  padding-inline: var(--md-space-3);
+  border-block-end: 1px solid var(--md-sys-color-outline-variant);
+  box-sizing: border-box;
+}
+
+.history-row[aria-selected='true'] {
+  background: var(--md-sys-color-secondary-container);
+  color: var(--md-sys-color-on-secondary-container);
+}
+
+.history-row__check {
+  inline-size: 20px;
+  block-size: 20px;
+  min-inline-size: 20px;
+  margin: calc((var(--md-comp-touch-target, 44px) - 20px) / 2);
+  accent-color: var(--md-sys-color-primary);
+  cursor: pointer;
+}
+
+.history-row__check:focus-visible {
+  outline: 3px solid var(--md-sys-color-primary);
+  outline-offset: 3px;
+}
+
+.history-row__main {
+  flex: 2 1 20rem;
+  min-inline-size: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.history-row__headline {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: start;
+  padding: var(--md-space-1) 0;
+  cursor: pointer;
+  min-block-size: 2.5rem;
+}
+
+.history-row__headline:focus-visible {
+  outline: 3px solid var(--md-sys-color-primary);
+  outline-offset: 2px;
+  border-radius: var(--md-sys-shape-corner-small);
+}
+
+.history-row__action,
+.history-row__preview {
+  display: block;
+  inline-size: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.history-row__meta,
+.history-row__preview {
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.history-row__label {
+  flex: 1 1 14rem;
+  min-inline-size: 9rem;
+}
+
+.history-row__label .md-field__support {
+  display: none;
+}
+
+.history-pager {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--md-space-3);
+  margin-block: var(--md-space-3);
+}
+
+/* ---------------- overlays ---------------- */
+
+.history-details .md-overlay__body,
+.history-diff .md-overlay__body,
+.history-factor .md-overlay__body {
+  max-inline-size: min(52rem, 94vw);
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-3);
+}
+
+.history-details__payload {
+  max-block-size: 18rem;
+  overflow: auto;
+  padding: var(--md-space-3);
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: var(--md-sys-color-surface-container-high);
+  font-family: var(--md-sys-typeface-mono);
+  font-size: var(--md-sys-typescale-body-small-size);
+  white-space: pre;
+}
+
+.history-details__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-space-2);
+}
+
+.history-dialog {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-3);
+  min-inline-size: min(28rem, 80vw);
+}
+
+.history-dialog__preview {
+  margin: 0;
+  padding-inline-start: var(--md-space-4);
+  max-block-size: 12rem;
+  overflow: auto;
+  color: var(--md-sys-color-on-surface-variant);
+  font-size: var(--md-sys-typescale-body-small-size);
+}
+
+/* ---------------- the protected log ---------------- */
+
+.history-protected {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-3);
+}
+
+.history-protected__list {
+  max-block-size: min(56vh, 40rem);
+  overflow: auto;
+  border-radius: var(--md-sys-shape-corner-large);
+}
+
+.history-protected__entries {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.history-protected__row {
+  display: flex;
+  align-items: center;
+  gap: var(--md-space-3);
+  padding: var(--md-space-2) var(--md-space-3);
+  border-block-end: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.history-protected__text {
+  flex: 1 1 20rem;
+  min-inline-size: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.history-protected__warning {
+  color: var(--md-sys-color-error);
+}
+
+.history-protected__recovery {
+  color: var(--md-sys-color-on-surface-variant);
+  margin-block-start: var(--md-space-3);
+}
+
+.history-factor__panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-3);
+}
+
+.history-factor__qr {
+  display: flex;
+  justify-content: center;
+  padding: var(--md-space-3);
+  /*
+   * A pairing code is scanned by a camera, so it holds true dark-on-light
+   * contrast in both themes rather than being tinted into the palette.
+   */
+  background: #ffffff;
+  border-radius: var(--md-sys-shape-corner-medium);
+}
+
+.history-factor__secret {
+  font-family: var(--md-sys-typeface-mono);
+  user-select: all;
+  word-break: break-all;
+}
+
+/* ---------------- narrow widths and reduced motion ---------------- */
+
+@media (max-width: 60rem) {
+  /*
+   * The payload preview goes first, because it is the one thing on the row that
+   * is also one click away in the details overlay. The label box stays: it is a
+   * real control, and a control removed at a narrow width is a control the user
+   * cannot reach at all on that screen.
+   */
+  .history-row__preview {
+    display: none;
+  }
+
+  .history-row__label {
+    flex-basis: 8rem;
+    min-inline-size: 7rem;
+  }
+
+  .history-calendar__presets {
+    flex-basis: 100%;
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .history-list__viewport {
+    will-change: auto;
+  }
+}

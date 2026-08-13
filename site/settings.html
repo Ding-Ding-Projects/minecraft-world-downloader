@@ -1,0 +1,2679 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Settings · World Downloader Studio</title>
+<meta name="description" content="Every setting this documentation site carries, in tabbed sections with a searchable index. Nothing is uploaded; everything lives in this browser.">
+<link rel="stylesheet" href="assets/tokens.css">
+<link rel="stylesheet" href="assets/material.css">
+<link rel="stylesheet" href="assets/site.css">
+<script defer src="assets/site.js"></script>
+<style>
+/* Page-scoped layout only. Nothing here restyles a .wds- runtime class,
+   and every colour comes from a token. */
+.set-host {
+  display: flex; min-height: 68vh; min-width: 0;
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-corner-large);
+  overflow: hidden;
+  background: var(--md-sys-color-surface);
+}
+.set-panel { padding: 20px; display: flex; flex-direction: column; gap: 24px; min-width: 0; }
+.set-block { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.set-block > h2 { margin: 0; }
+.set-block > h3 { margin: 8px 0 0; }
+.set-rows { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+.set-rows > * { padding-bottom: 16px; border-bottom: 1px solid var(--md-sys-color-outline-variant); }
+.set-rows > *:last-child { border-bottom: 0; padding-bottom: 0; }
+.set-swatch {
+  width: 32px; height: 32px; flex: none;
+  border-radius: var(--md-sys-shape-corner-small);
+  border: 1px solid var(--md-sys-color-outline);
+}
+.set-preview {
+  display: flex; flex-direction: column; gap: 12px;
+  background: var(--md-sys-color-surface-container-low);
+  border-radius: var(--md-sys-shape-corner-medium);
+  padding: 16px;
+}
+.set-preview__line { display: flex; gap: 10px; align-items: flex-start; min-width: 0; }
+.set-preview__line > .i { margin-top: 2px; flex: none; }
+.set-results { margin: 16px 0 24px; }
+.set-rule { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.set-fields { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr)); }
+.set-native {
+  min-height: var(--wds-target-min); width: 100%;
+  padding: 8px 12px; font: inherit; color: var(--md-sys-color-on-surface);
+  background: var(--md-sys-color-surface-container-highest);
+  border: 1px solid var(--md-sys-color-outline);
+  border-radius: var(--md-sys-shape-corner-extra-small);
+}
+.set-native:focus-visible {
+  outline: var(--wds-focus-width) solid var(--md-sys-color-secondary);
+  outline-offset: var(--wds-focus-offset);
+}
+.set-days { display: flex; flex-wrap: wrap; gap: 8px; }
+.set-code {
+  font-family: var(--md-sys-typeface-mono);
+  font-size: var(--md-sys-typescale-body-small-size);
+  word-break: break-all;
+}
+@media (max-width: 760px) {
+  .set-host { min-height: 0; border-radius: var(--md-sys-shape-corner-medium); }
+  .set-panel { padding: 16px 12px; gap: 20px; }
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to the content</a>
+
+<header class="site-appbar">
+  <div class="appbar">
+    <a class="site-brand" href="index.html">
+      <svg class="site-brand__mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none"
+           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 4L3 7v13l6-3 6 3 6-3V4l-6 3z"></path><path d="M9 4v13M15 7v13"></path>
+      </svg>
+      <span class="site-brand__name">World Downloader Studio</span>
+    </a>
+    <nav class="row" aria-label="Site" style="gap:2px;flex:1;min-width:0">
+      <a class="btn btn--text" href="index.html">Home</a>
+      <a class="btn btn--text" href="docs/index.html">Documentation</a>
+      <a class="btn btn--text" href="changelog.html">Changelog</a>
+      <a class="btn btn--text" href="settings.html" aria-current="page">Settings</a>
+    </nav>
+    <div class="appbar__actions" id="appbar-actions"></div>
+  </div>
+</header>
+
+<main id="main" class="wrap wrap--wide">
+  <h1 id="page-title">Settings</h1>
+  <p class="lede" id="page-lede">Everything on this page is stored in this browser.</p>
+
+  <div class="note" id="storage-note"></div>
+
+  <div id="search-host"></div>
+  <div class="set-results" id="search-results" role="region" aria-label="Settings search results" hidden></div>
+
+  <div class="set-host" id="tabs-host"></div>
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer__inner">
+    <div>
+      <p><strong>World Downloader Studio</strong></p>
+      <p>Free, for everyone, with no purchase of any kind.</p>
+    </div>
+    <div>
+      <p><a href="index.html">Home</a> · <a href="docs/index.html">Documentation</a> · <a href="changelog.html">Changelog</a></p>
+      <p id="footer-privacy"></p>
+    </div>
+  </div>
+</footer>
+
+<script>
+Studio.ready(function (S) {
+  'use strict';
+
+  var el = S.el, icon = S.icon, t = S.t, clear = S.clear;
+
+  /* ================================================================
+   * 1. Copy
+   *
+   * Five variants per language, lowest funny level first. Labels and
+   * action words stay near-constant across the levels; the messages,
+   * explanations and empty states carry the humour. The facts inside a
+   * message -- what happened, which value, which limit -- are byte for
+   * byte the same at every level, which is the whole point of the
+   * preview further down.
+   * ================================================================ */
+  function same(en, zh) { return { en: [en, en, en, en, en], zh: [zh, zh, zh, zh, zh] }; }
+
+  var copy = {
+    'set.title': same('Settings', '設定'),
+
+    'set.lede': {
+      en: [
+        'Every setting on this page is stored in this browser. There is no account and nothing is uploaded.',
+        'Every setting on this page is stored in this browser. There is no account and nothing is uploaded.',
+        'Every setting here lives in this browser. No account, no upload, nothing leaves the machine.',
+        'Every setting here lives in this browser and nowhere else. No account, no sign-up, no upload, nothing leaves the machine.',
+        'Every setting here lives in this browser and absolutely nowhere else. No account, no sign-up, no upload, and nothing wanders off this machine while you are not looking.'
+      ],
+      zh: [
+        '呢版每個設定都存喺呢個瀏覽器，無帳戶，唔會上載。',
+        '呢版每個設定都存喺呢個瀏覽器，無帳戶，唔會上載。',
+        '呢度嘅設定全部住喺呢個瀏覽器，無帳戶、無上載，乜都唔會離開部機。',
+        '呢度嘅設定全部住喺呢個瀏覽器，第二度一份都無。無帳戶、無登記、無上載，乜都唔會離開部機。',
+        '呢度嘅設定全部住喺呢個瀏覽器，第二度真係一份都無。無帳戶、無登記、無上載，你唔望住嗰陣都唔會有嘢偷走。'
+      ]
+    },
+
+    'set.storageNote': {
+      en: [
+        'The desktop application keeps this in the operating system credential vault and its own data folder. A web page has neither, so this site uses your browser\'s local storage for the same origin instead. Clearing this site\'s storage resets everything here, including every lock.',
+        'The desktop application keeps this in the operating system credential vault and its own data folder. A web page has neither, so this site uses your browser\'s local storage for the same origin instead. Clearing this site\'s storage resets everything here, including every lock.',
+        'The desktop application uses the operating system credential vault and its own data folder. A web page has neither, so this site uses your browser\'s local storage for this origin. Clearing that storage resets everything here, locks included.',
+        'The desktop application uses the operating system credential vault and its own data folder. A web page has neither of those, so this site uses your browser\'s local storage for this origin and says so rather than behaving as though it had a vault. Clearing that storage resets everything here, locks included.',
+        'The desktop application uses the operating system credential vault and its own data folder. A web page has neither of those, so this site uses your browser\'s local storage for this origin and says so out loud rather than quietly behaving as though a vault existed. Clearing that storage resets absolutely everything here, every lock included.'
+      ],
+      zh: [
+        '桌面應用程式會用作業系統嘅憑證保險庫同自己嘅資料夾。網頁兩樣都無，所以本站改用你瀏覽器喺同一來源嘅本機儲存空間。清除本站儲存空間，呢度所有嘢包括每個鎖都會重設。',
+        '桌面應用程式會用作業系統嘅憑證保險庫同自己嘅資料夾。網頁兩樣都無，所以本站改用你瀏覽器喺同一來源嘅本機儲存空間。清除本站儲存空間，呢度所有嘢包括每個鎖都會重設。',
+        '桌面版用作業系統嘅憑證保險庫同自己個資料夾。網頁兩樣都無，所以本站用你瀏覽器喺呢個來源嘅本機儲存空間。清咗佢，呢度全部嘢連鎖一齊重設。',
+        '桌面版用作業系統嘅憑證保險庫同自己個資料夾。網頁兩樣都無，所以本站用你瀏覽器喺呢個來源嘅本機儲存空間，而且照直講明，唔會扮自己有個保險庫。清咗佢，呢度全部嘢連鎖一齊重設。',
+        '桌面版用作業系統嘅憑證保險庫同自己個資料夾。網頁呢兩樣一樣都無，所以本站用你瀏覽器喺呢個來源嘅本機儲存空間，仲要大聲講出嚟，唔會靜靜雞扮自己有個保險庫。清咗佢，呢度真係全部嘢連每一個鎖一齊重設。'
+      ]
+    },
+
+    /* The three sample messages the funny-level preview renders. The
+       facts in them never change: the same file size, the same limit,
+       the same row counts, at every level and in both languages. */
+    'sample.saved': {
+      en: [
+        'Your settings were saved in this browser.',
+        'Your settings were saved in this browser.',
+        'Saved. Your settings are in this browser.',
+        'Saved. Your settings are sitting in this browser and nowhere else.',
+        'Saved. Your settings are sitting in this browser and nowhere else, which is exactly as far as they were ever going.'
+      ],
+      zh: [
+        '你嘅設定已儲存喺呢個瀏覽器。',
+        '你嘅設定已儲存喺呢個瀏覽器。',
+        '搞掂，你嘅設定喺呢個瀏覽器度。',
+        '搞掂，你嘅設定就坐喺呢個瀏覽器，第二度一份都無。',
+        '搞掂，你嘅設定就坐喺呢個瀏覽器，第二度一份都無，佢哋本來就淨係去到咁遠。'
+      ]
+    },
+    'sample.skipped': {
+      en: [
+        '3 of the 12 rows were skipped because they had no coordinates.',
+        '3 of the 12 rows were skipped because they had no coordinates.',
+        '3 of the 12 rows were skipped: they had no coordinates.',
+        '3 of the 12 rows were skipped, because they arrived with no coordinates at all.',
+        '3 of the 12 rows were skipped, because they turned up with no coordinates whatsoever and nobody could guess where they meant.'
+      ],
+      zh: [
+        '12 行入面有 3 行因為無座標而略過咗。',
+        '12 行入面有 3 行因為無座標而略過咗。',
+        '12 行入面 3 行略過咗：佢哋無座標。',
+        '12 行入面 3 行略過咗，因為佢哋嚟到嗰陣連座標都無。',
+        '12 行入面 3 行略過咗，因為佢哋嚟到嗰陣連一個座標都無，無人估到佢哋想講邊度。'
+      ]
+    },
+    'sample.refused': {
+      en: [
+        'The file was refused: it is 90,000 bytes and the limit is 65,536 bytes.',
+        'The file was refused: it is 90,000 bytes and the limit is 65,536 bytes.',
+        'The file was refused: it is 90,000 bytes, and the limit is 65,536 bytes.',
+        'The file was refused. It is 90,000 bytes and the limit is 65,536 bytes, so nothing was loaded.',
+        'The file was refused. It is 90,000 bytes and the limit is 65,536 bytes, so not one byte of it was loaded.'
+      ],
+      zh: [
+        '檔案被拒絕：佢有 90,000 位元組，上限係 65,536 位元組。',
+        '檔案被拒絕：佢有 90,000 位元組，上限係 65,536 位元組。',
+        '檔案唔收：佢 90,000 位元組，上限 65,536 位元組。',
+        '檔案唔收。佢有 90,000 位元組，上限係 65,536 位元組，所以乜都無載入。',
+        '檔案唔收。佢有 90,000 位元組，上限係 65,536 位元組，所以連一個位元組都無載入到。'
+      ]
+    },
+    'sample.note': {
+      en: [
+        'These three messages are the same facts at every level. Move a slider and watch only the voice change.',
+        'These three messages are the same facts at every level. Move a slider and watch only the voice change.',
+        'Same facts at every level. Move a slider: only the voice moves.',
+        'Same facts at every level, every time. Move a slider and only the voice moves; the numbers stay nailed down.',
+        'Same facts at every level, every single time. Move a slider and only the voice wanders off; the numbers stay nailed to the floor.'
+      ],
+      zh: [
+        '呢三句喺每一級嘅事實都一樣，拉下滑桿，變嘅淨係語氣。',
+        '呢三句喺每一級嘅事實都一樣，拉下滑桿，變嘅淨係語氣。',
+        '每一級事實都一樣，拉下滑桿，郁嘅淨係語氣。',
+        '每一級事實都一樣，次次都係。拉下滑桿，郁嘅淨係語氣，啲數字釘死咗。',
+        '每一級事實都一模一樣，次次都係。拉下滑桿，走嘅淨係語氣，啲數字釘死咗喺地下。'
+      ]
+    },
+
+    /* Tabs. Labels stay constant so a visitor learns them once. */
+    'tab.language': same('Language and text', '語言同文字'),
+    'tab.appearance': same('Appearance', '外觀'),
+    'tab.navigation': same('Navigation', '導覽'),
+    'tab.notifications': same('Notifications', '通知'),
+    'tab.schedule': same('Scheduled settings', '排程設定'),
+    'tab.locks': same('Locks', '鎖'),
+    'tab.authenticator': same('Authenticator', '驗證器'),
+    'tab.history': same('History', '歷史'),
+    'tab.school': same('Focus mode', '專注模式'),
+    'tab.storage': same('Storage and privacy', '儲存同私隱'),
+
+    'set.searchLabel': same('Search every setting', '搜尋所有設定'),
+    'set.searchHelp': {
+      en: [
+        'Searches the label, the explanation and the current value of every setting on every tab.',
+        'Searches the label, the explanation and the current value of every setting on every tab.',
+        'Searches the label, the explanation and the current value of every setting, on every tab.',
+        'Searches the label, the explanation and the current value of every setting on every tab, including the tabs you are not looking at.',
+        'Searches the label, the explanation and the current value of every setting on every tab, very much including the tabs you are not looking at.'
+      ],
+      zh: [
+        '搜尋每個分頁入面每個設定嘅名稱、說明同現時數值。',
+        '搜尋每個分頁入面每個設定嘅名稱、說明同現時數值。',
+        '搜尋每一個分頁裡面每個設定嘅名稱、說明同現時數值。',
+        '搜尋每一個分頁裡面每個設定嘅名稱、說明同現時數值，包括你而家無睇緊嗰啲分頁。',
+        '搜尋每一個分頁裡面每個設定嘅名稱、說明同現時數值，尤其係你而家無睇緊嗰啲分頁。'
+      ]
+    },
+    'set.matchesElsewhere': {
+      en: [
+        'Some matches are on other tabs.',
+        'Some matches are on other tabs.',
+        'Some of these matches sit on other tabs.',
+        'Some of these matches sit on tabs other than the one you are on.',
+        'Some of these matches sit on tabs other than the one you are on, which is why they are listed here rather than hiding.'
+      ],
+      zh: [
+        '部分結果喺其他分頁。',
+        '部分結果喺其他分頁。',
+        '有啲結果坐喺其他分頁。',
+        '有啲結果坐喺你而家嗰個以外嘅分頁。',
+        '有啲結果坐喺你而家嗰個以外嘅分頁，所以先要喺呢度列出嚟，唔畀佢哋匿埋。'
+      ]
+    },
+    'set.noMatch': {
+      en: [
+        'No setting matches that.',
+        'No setting matches that.',
+        'No setting matches that.',
+        'No setting matches that. Nothing was hidden; there simply is not one.',
+        'No setting matches that. Nothing is being hidden from you; there simply is not one.'
+      ],
+      zh: [
+        '無設定符合。',
+        '無設定符合。',
+        '無設定符合。',
+        '無設定符合。唔係匿埋咗，係真係無。',
+        '無設定符合。唔係有嘢匿埋唔畀你睇，係真係一個都無。'
+      ]
+    },
+
+    'sched.timezoneNote': {
+      en: [
+        'Times are read in this computer\'s own time zone. A window is matched against the wall clock, so on the day the clock goes forward a time that does not exist never matches, and on the day it goes back a time that happens twice matches on both.',
+        'Times are read in this computer\'s own time zone. A window is matched against the wall clock, so on the day the clock goes forward a time that does not exist never matches, and on the day it goes back a time that happens twice matches on both.',
+        'Times are read in this computer\'s own time zone, against the wall clock. On the day the clock goes forward, a time that does not exist never matches; on the day it goes back, a time that happens twice matches both times.',
+        'Times are read in this computer\'s own time zone, against the wall clock rather than against elapsed time. On the day the clock goes forward, a time that does not exist never matches; on the day it goes back, a time that happens twice matches on both occasions.',
+        'Times are read in this computer\'s own time zone, against the wall clock rather than elapsed time. On the day the clock springs forward, a time that never exists never matches; on the day it falls back, a time that happens twice matches on both occasions, which is either a bug or a bonus depending on the rule.'
+      ],
+      zh: [
+        '時間以呢部電腦本身嘅時區讀取。時段係對住牆上時鐘計，所以撥快嗰日唔存在嘅時間永遠唔會match，撥慢嗰日出現兩次嘅時間兩次都會match。',
+        '時間以呢部電腦本身嘅時區讀取。時段係對住牆上時鐘計，所以撥快嗰日唔存在嘅時間永遠唔會match，撥慢嗰日出現兩次嘅時間兩次都會match。',
+        '時間以呢部電腦嘅時區讀，對住牆上時鐘計。撥快嗰日唔存在嘅時間永遠唔會中；撥慢嗰日出現兩次嘅時間兩次都中。',
+        '時間以呢部電腦嘅時區讀，對住牆上時鐘計，唔係計流逝時間。撥快嗰日唔存在嘅時間永遠唔會中；撥慢嗰日出現兩次嘅時間，兩次都會中。',
+        '時間以呢部電腦嘅時區讀，對住牆上時鐘計，唔係計流逝時間。撥快嗰日唔存在嘅時間永遠唔會中；撥慢嗰日出現兩次嘅時間兩次都中，係bug定係賺咗，睇你條規則點寫。'
+      ]
+    },
+    'sched.networkNote': {
+      en: [
+        'A rule may take its value from local data, from a versioned HTTPS API, or from a Home Assistant boolean entity. On this site only the local source works: a static page has no privileged boundary to validate a response behind, and this site makes no network request. Both remote sources are listed and disabled with that reason rather than hidden, and both work in the desktop application.',
+        'A rule may take its value from local data, from a versioned HTTPS API, or from a Home Assistant boolean entity. On this site only the local source works: a static page has no privileged boundary to validate a response behind, and this site makes no network request. Both remote sources are listed and disabled with that reason rather than hidden, and both work in the desktop application.',
+        'A rule may take its value from local data, from a versioned HTTPS API, or from a Home Assistant boolean entity. Here only the local source works: a static page has no privileged boundary to validate a response behind, and this site makes no network request. The two remote sources are listed and disabled with the reason rather than quietly dropped, and both work in the desktop application.',
+        'A rule may take its value from local data, from a versioned HTTPS API, or from a Home Assistant boolean entity. Here only the local source works, because a static page has no privileged boundary to validate a response behind and this site makes no network request at all. The two remote sources are listed and disabled with the exact reason rather than quietly dropped, and both work in the desktop application.',
+        'A rule may take its value from local data, from a versioned HTTPS API, or from a Home Assistant boolean entity. Here only the local source works, because a static page has no privileged boundary to validate a response behind and this site makes no network request whatsoever. The two remote sources are listed and disabled with the exact reason rather than quietly dropped, because a control that vanishes teaches you the feature does not exist. Both work in the desktop application.'
+      ],
+      zh: [
+        '一條規則可以由本機資料、有版本嘅 HTTPS API，或者 Home Assistant 布林實體攞值。喺本站淨係本機來源行到：靜態網頁無特權邊界去驗證回應，而本站唔會發任何網絡要求。兩個遠端來源會照樣列出並停用，同時講明原因，唔會收埋；兩個喺桌面應用程式都行得。',
+        '一條規則可以由本機資料、有版本嘅 HTTPS API，或者 Home Assistant 布林實體攞值。喺本站淨係本機來源行到：靜態網頁無特權邊界去驗證回應，而本站唔會發任何網絡要求。兩個遠端來源會照樣列出並停用，同時講明原因，唔會收埋；兩個喺桌面應用程式都行得。',
+        '一條規則可以由本機資料、有版本嘅 HTTPS API 或者 Home Assistant 布林實體攞值。喺呢度淨係本機來源行到：靜態網頁無特權邊界驗證回應，本站亦唔發任何網絡要求。兩個遠端來源照列出、照停用，仲要講明原因，唔會靜靜雞刪走；兩個喺桌面版都行得。',
+        '一條規則可以由本機資料、有版本嘅 HTTPS API 或者 Home Assistant 布林實體攞值。喺呢度淨係本機來源行到，因為靜態網頁無特權邊界去驗證回應，而本站完全唔發網絡要求。兩個遠端來源照列出、照停用，仲要講明實際原因，唔會靜靜雞刪走；兩個喺桌面版都行得。',
+        '一條規則可以由本機資料、有版本嘅 HTTPS API 或者 Home Assistant 布林實體攞值。喺呢度淨係本機來源行到，因為靜態網頁無特權邊界去驗證回應，本站更加係一個網絡要求都唔發。兩個遠端來源照列出、照停用，仲要講明實際原因，唔會靜靜雞刪走 —— 一個控制項消失咗，係教你以為呢個功能唔存在。兩個喺桌面版都行得。'
+      ]
+    }
+  };
+  S.i18n.define(copy);
+
+  /* ================================================================
+   * 2. Page chrome
+   * ================================================================ */
+  function paintPageCopy() {
+    S.label(document.getElementById('page-title'), 'set.title', 'Settings');
+    S.label(document.getElementById('page-lede'), 'set.lede', '');
+    document.title = S.tBoth('set.title', 'Settings') + ' · World Downloader Studio';
+
+    var note = document.getElementById('storage-note');
+    clear(note);
+    note.appendChild(el('p', { text: t('set.storageNote', '') }));
+    note.appendChild(el('p', { class: 'set-code muted', text: S.privacy.origin }));
+
+    var fp = document.getElementById('footer-privacy');
+    clear(fp);
+    fp.appendChild(document.createTextNode(S.privacy.note));
+  }
+
+  function buildAppbarActions() {
+    var host = document.getElementById('appbar-actions');
+    clear(host);
+
+    host.appendChild(el('button', {
+      class: 'btn btn--icon', type: 'button',
+      'aria-label': 'Search every setting', title: 'Search every setting',
+      onclick: function () { search.focus(); search.el.scrollIntoView({ block: 'center' }); }
+    }, icon('search')));
+
+    var langBtn = el('button', {
+      class: 'btn btn--icon', type: 'button', 'aria-haspopup': 'menu',
+      'aria-label': t('lang.title', 'Language'), title: t('lang.title', 'Language'),
+      onclick: function () {
+        var items = [{
+          label: t('lang.en', 'English'), checked: S.i18n.mode() === 'en',
+          run: function () { S.i18n.setMode('en'); }
+        }];
+        if (!S.school.suppresses('cantonese')) {
+          items.push({
+            label: t('lang.zh', 'Cantonese'), checked: S.i18n.mode() === 'zh',
+            run: function () { S.i18n.setMode('zh'); }
+          });
+        }
+        if (!S.school.suppresses('bilingual')) {
+          items.push({
+            label: t('lang.both', 'Both'), checked: S.i18n.mode() === 'both',
+            run: function () { S.i18n.setMode('both'); }
+          });
+        }
+        items.push('-');
+        items.push({
+          label: t('lang.title', 'Language') + ' settings', icon: 'settings',
+          run: function () { strip.select('language'); }
+        });
+        S.createMenu({
+          anchor: langBtn, returnTo: langBtn, ariaLabel: t('lang.title', 'Language'),
+          filterLabel: 'Filter languages', storageKey: 'appbar-language', items: items
+        });
+      }
+    }, icon('globe'));
+    host.appendChild(langBtn);
+
+    var themeBtn = el('button', {
+      class: 'btn btn--icon', type: 'button', 'aria-haspopup': 'menu',
+      'aria-label': t('theme.mode', 'Theme'), title: t('theme.mode', 'Theme'),
+      onclick: function () {
+        S.createMenu({
+          anchor: themeBtn, returnTo: themeBtn, ariaLabel: t('theme.mode', 'Theme'),
+          filterLabel: 'Filter themes', storageKey: 'appbar-theme',
+          items: [
+            { label: t('theme.light', 'Light'), checked: S.theme.mode() === 'light', run: function () { S.theme.setMode('light'); } },
+            { label: t('theme.dark', 'Dark'), checked: S.theme.mode() === 'dark', run: function () { S.theme.setMode('dark'); } },
+            { label: t('theme.system', 'Follow the system'), checked: S.theme.mode() === 'system', run: function () { S.theme.setMode('system'); } },
+            '-',
+            { label: 'Appearance settings', icon: 'palette', run: function () { strip.select('appearance'); } }
+          ]
+        });
+      }
+    }, icon('eye'));
+    host.appendChild(themeBtn);
+
+    var bellBtn = el('button', {
+      class: 'btn btn--icon', type: 'button',
+      'aria-label': t('notify.centre', 'Notifications'), title: t('notify.centre', 'Notifications'),
+      onclick: function () { S.notifications.open(bellBtn); }
+    }, icon('bell'));
+    host.appendChild(bellBtn);
+
+    var palBtn = el('button', {
+      class: 'btn btn--icon', type: 'button',
+      'aria-label': t('palette.title', 'Command palette'),
+      title: t('palette.title', 'Command palette') + ' (' + S.palette.shortcut + ')',
+      'aria-keyshortcuts': 'Control+Shift+F',
+      onclick: function () { S.palette.open(); }
+    }, icon('grid'));
+    host.appendChild(palBtn);
+
+    var editBtn = el('button', {
+      class: 'btn btn--icon', type: 'button',
+      'aria-label': t('act.openEditor', 'Edit appearance'),
+      title: t('act.openEditor', 'Edit appearance') + ': the page heading',
+      onclick: function () {
+        S.appearance.openEditor(document.getElementById('page-title'), 'settings:title', 'The settings page heading');
+      }
+    }, icon('palette'));
+    host.appendChild(editBtn);
+  }
+
+  /* ================================================================
+   * 3. The settings registry
+   *
+   * One descriptor per setting. The row on the page and the rich row
+   * in the command palette are built from the SAME control factory,
+   * so the two can never disagree about the value or about what
+   * changing it does.
+   * ================================================================ */
+  var searchIndex = [];
+  var paletteRegistered = Object.create(null);
+  var TAB_LABELS = {};
+
+  function settingInto(container, tabId, spec) {
+    var control = spec.control();
+    var row = S.settingRow({
+      id: spec.id,
+      label: spec.label,
+      secondary: spec.secondary || '',
+      explain: spec.explain,
+      storageKey: spec.storageKey || null,
+      shippedValue: spec.shippedValue,
+      control: control,
+      onReset: spec.onReset || null
+    });
+    container.appendChild(row);
+
+    searchIndex.push({
+      id: spec.id, tabId: tabId, label: spec.label,
+      explain: spec.explain, keywords: spec.keywords || '',
+      value: spec.value || function () { return ''; }
+    });
+
+    if (!paletteRegistered[spec.id]) {
+      paletteRegistered[spec.id] = true;
+      S.palette.register([{
+        id: 'setting.' + spec.id,
+        title: spec.label,
+        subtitle: TAB_LABELS[tabId] || 'Settings',
+        kind: 'setting',
+        keywords: (spec.keywords || '') + ' ' + spec.explain,
+        target: '[data-setting="' + spec.id + '"]',
+        tabStrip: 'settings', tabId: tabId,
+        control: spec.control
+      }]);
+    }
+    return row;
+  }
+
+  /* A plain heading + paragraph block, so a section can explain itself
+     without pretending to be a setting. */
+  function block(title, paragraphs, children) {
+    var node = el('div', { class: 'set-block' }, [el('h2', { text: title })]);
+    (paragraphs || []).forEach(function (p) {
+      node.appendChild(el('p', { class: 'muted', text: p }));
+    });
+    (children || []).forEach(function (c) { if (c) node.appendChild(c); });
+    return node;
+  }
+  function rows() { return el('div', { class: 'set-rows' }); }
+  function plain(text) { return el('p', { class: 'note--plain', text: text }); }
+
+  /* ================================================================
+   * 4. Tabs
+   *
+   * The settings surface is tabbed with the shared strip, carrying the
+   * whole contract: any dock edge, overflow, reordering, pinning,
+   * groups, the four searches, the bulk closes and persistence. "It is
+   * only settings" is not an exemption.
+   * ================================================================ */
+  var TABS = [
+    { id: 'language', labelKey: 'tab.language', icon: 'globe', keywords: 'english cantonese bilingual funny emoji vocabulary' },
+    { id: 'appearance', labelKey: 'tab.appearance', icon: 'palette', keywords: 'theme dark light density colour accent font motion preset' },
+    { id: 'navigation', labelKey: 'tab.navigation', icon: 'dock', keywords: 'tabs dock palette shortcut strip group' },
+    { id: 'notifications', labelKey: 'tab.notifications', icon: 'bell', keywords: 'toast snackbar centre corner alerts' },
+    { id: 'schedule', labelKey: 'tab.schedule', icon: 'calendar', keywords: 'rules time date weekday timezone home assistant api' },
+    { id: 'locks', labelKey: 'tab.locks', icon: 'lock', keywords: 'password one-time code toy lock recovery' },
+    { id: 'authenticator', labelKey: 'tab.authenticator', icon: 'key', keywords: 'totp otp qr two factor rfc 6238' },
+    { id: 'history', labelKey: 'tab.history', icon: 'history', keywords: 'undo restore versions diff append only' },
+    { id: 'school', labelKey: 'tab.school', icon: 'eye', keywords: 'school focus mode pin rename english only' },
+    { id: 'storage', labelKey: 'tab.storage', icon: 'folder', keywords: 'privacy reset clear export dim sum photo network' }
+  ];
+
+  var panels = {};
+  TABS.forEach(function (tb) {
+    panels[tb.id] = el('div', { class: 'set-panel' });
+    TAB_LABELS[tb.id] = t(tb.labelKey, tb.id);
+  });
+
+  var strip = S.tabs.create(document.getElementById('tabs-host'), {
+    id: 'settings',
+    dock: 'left',
+    tabs: TABS.map(function (tb) {
+      return {
+        id: tb.id, labelKey: tb.labelKey, icon: tb.icon,
+        panel: panels[tb.id], closable: true, keywords: tb.keywords
+      };
+    }),
+    groups: [
+      { id: 'g-text', name: 'Text and looks', colour: '#006D34', members: ['language', 'appearance'] },
+      { id: 'g-safety', name: 'Locks and codes', colour: '#006973', members: ['locks', 'authenticator', 'school'] }
+    ]
+  });
+
+  /* The dock lives inside the strip's own persisted record. A mirror
+     key exists purely so the provenance line can name the real value
+     rather than printing the entire tab record, and it is re-synced on
+     every write so the two can never drift. */
+  function syncDockMirror() {
+    if (S.store.get('nav.dock', null) !== strip.dock()) S.store.set('nav.dock', strip.dock());
+  }
+  S.store.onChange(function (key) { if (key === 'tabs.settings') syncDockMirror(); });
+
+  /* ================================================================
+   * 5. Language and text
+   * ================================================================ */
+  function renderLanguage(panel) {
+    var b = rows();
+
+    var modeOptions = [{ value: 'en', label: t('lang.en', 'English'), keywords: 'english' }];
+    if (!S.school.suppresses('cantonese')) modeOptions.push({ value: 'zh', label: t('lang.zh', 'Cantonese'), keywords: 'cantonese chinese 廣東話' });
+    if (!S.school.suppresses('bilingual')) modeOptions.push({ value: 'both', label: t('lang.both', 'Both'), keywords: 'bilingual both' });
+
+    settingInto(b, 'language', {
+      id: 'lang.mode',
+      label: t('lang.title', 'Language'),
+      secondary: S.t2('lang.title'),
+      explain: 'Which language this site renders in. Bilingual keeps the English label prominent and adds a compact secondary line, which is the longest this site\'s labels ever get — check the layout at 320 pixels wide in that mode.',
+      storageKey: 'lang.mode', shippedValue: 'en',
+      keywords: 'language english cantonese bilingual',
+      value: function () { return S.i18n.storedMode(); },
+      onReset: function () { S.i18n.setMode('en'); },
+      control: function () {
+        return S.createSelect({
+          ariaLabel: t('lang.title', 'Language'), storageKey: 'lang-mode',
+          value: S.i18n.storedMode(), options: modeOptions,
+          onChange: function (v) { S.i18n.setMode(v); }
+        }).el;
+      }
+    });
+
+    if (!S.school.suppresses('funny')) {
+      settingInto(b, 'language', {
+        id: 'lang.funny.en',
+        label: t('lang.funnyEn', 'Funny level, English'),
+        explain: t('lang.funnyNote', '') + '\n\n1 is fully professional and 5 is maximum playfulness. It is set independently of the Cantonese level.',
+        storageKey: 'lang.funny.en', shippedValue: 3,
+        keywords: 'funny humour tone level english slider',
+        value: function () { return String(S.i18n.funny('en')) + ' of 5'; },
+        onReset: function () { S.i18n.setFunny('en', 3); },
+        control: function () {
+          return S.makeSlider({
+            min: 1, max: 5, step: 1, value: S.i18n.funny('en'),
+            ariaLabel: t('lang.funnyEn', 'Funny level, English'),
+            format: function (v) { return v + ' of 5'; },
+            onChange: function (v) { S.i18n.setFunny('en', v); }
+          });
+        }
+      });
+
+      settingInto(b, 'language', {
+        id: 'lang.funny.zh',
+        label: t('lang.funnyZh', 'Funny level, Cantonese'),
+        explain: t('lang.funnyNote', '') + '\n\nSet independently of the English level, because the two languages are not funny in the same places.',
+        storageKey: 'lang.funny.zh', shippedValue: 3,
+        keywords: 'funny humour tone level cantonese slider 搞笑',
+        value: function () { return String(S.i18n.funny('zh')) + ' of 5'; },
+        onReset: function () { S.i18n.setFunny('zh', 3); },
+        control: function () {
+          return S.makeSlider({
+            min: 1, max: 5, step: 1, value: S.i18n.funny('zh'),
+            ariaLabel: t('lang.funnyZh', 'Funny level, Cantonese'),
+            format: function (v) { return v + ' of 5'; },
+            onChange: function (v) { S.i18n.setFunny('zh', v); }
+          });
+        }
+      });
+    }
+
+    settingInto(b, 'language', {
+      id: 'lang.emoji',
+      label: t('lang.emoji', 'Show emojis in dialogs and message boxes'),
+      explain: t('lang.emojiNote', '') + '\n\nEmoji never appear in a button, an action label, a field label or an accessible name — only as decoration beside the text of a dialog or a message box.',
+      storageKey: 'lang.emoji', shippedValue: false,
+      keywords: 'emoji decoration dialog message box',
+      value: function () { return S.i18n.emojiEnabled() ? 'on' : 'off'; },
+      onReset: function () { S.i18n.setEmoji(false); },
+      control: function () {
+        return S.makeSwitch({
+          checked: S.i18n.emojiEnabled(),
+          ariaLabel: t('lang.emoji', 'Show emojis in dialogs and message boxes'),
+          onChange: function (v) { S.i18n.setEmoji(v); }
+        });
+      }
+    });
+
+    panel.appendChild(block(t('lang.title', 'Language'), [], [b]));
+
+    /* ---- the live preview ---------------------------------------- */
+    if (!S.school.suppresses('funny')) {
+      var preview = el('div', { class: 'set-preview' });
+      function line(kind, key) {
+        var deco = S.i18n.emoji(kind);
+        return el('div', { class: 'set-preview__line' }, [
+          icon(kind === 'success' ? 'success' : kind === 'warn' ? 'warn' : 'error', 'i'),
+          el('p', { style: { margin: '0' }, text: (deco ? deco + ' ' : '') + t(key, '') })
+        ]);
+      }
+      preview.appendChild(line('success', 'sample.saved'));
+      preview.appendChild(line('warn', 'sample.skipped'));
+      preview.appendChild(line('error', 'sample.refused'));
+      preview.appendChild(el('p', { class: 'muted t-body-small', style: { margin: '0' }, text: t('sample.note', '') }));
+
+      panel.appendChild(block('Preview', [], [preview]));
+    }
+
+    /* ---- personal vocabulary ------------------------------------- */
+    if (!S.school.suppresses('vocabulary')) {
+      panel.appendChild(renderVocabulary());
+    }
+  }
+
+  function renderVocabulary() {
+    var lim = S.i18n.limits;
+    var status = el('p', { role: 'status', 'aria-live': 'polite' });
+    var fileInput = el('input', {
+      class: 'set-native', type: 'file', accept: 'application/json,.json',
+      'aria-describedby': 'vocab-status',
+      onchange: function () {
+        var f = fileInput.files && fileInput.files[0];
+        if (!f) return;
+        S.i18n.vocabulary.loadFile(f).then(function (res) {
+          fileInput.value = '';
+          if (res.ok) S.notify.success('Loaded ' + res.count + ' vocabulary entries. Nothing left this browser.');
+          else S.notify.error(t('vocab.rejected', 'The file was refused') + ': ' + res.error);
+          paint();
+        });
+      }
+    });
+    status.id = 'vocab-status';
+
+    var clearBtn = el('button', {
+      class: 'btn btn--outlined', type: 'button', text: t('act.reset', 'Clear'),
+      onclick: function () {
+        S.i18n.vocabulary.clear();
+        S.notify.info('The vocabulary file was cleared. The original wording is back.');
+        paint();
+      }
+    });
+
+    function paint() {
+      var st = S.i18n.vocabulary.status();
+      clear(status);
+      if (st.error) {
+        status.appendChild(el('span', { class: 'status status--error' }, [el('span', { class: 'dot' }), 'Refused']));
+        status.appendChild(document.createTextNode(' ' + st.error));
+      } else if (st.loaded) {
+        status.appendChild(el('span', { class: 'status status--ok' }, [el('span', { class: 'dot' }), 'Loaded']));
+        status.appendChild(document.createTextNode(' ' + st.count + ' entries, read at ' + st.loadedAt + '.'));
+      } else {
+        status.appendChild(document.createTextNode(t('vocab.none', 'No vocabulary file loaded.')));
+      }
+      clearBtn.disabled = !st.loaded && !st.error;
+      clearBtn.title = clearBtn.disabled ? 'There is no file loaded, so there is nothing to clear.' : '';
+    }
+    paint();
+
+    var limitTable = el('div', { class: 'scrollx' }, el('table', { class: 'tbl' }, [
+      el('thead', {}, el('tr', {}, [el('th', { text: 'Bound' }), el('th', { text: 'Limit' })])),
+      el('tbody', {}, [
+        ['File size', lim.maxBytes + ' bytes'],
+        ['Schema version', String(lim.schemaVersion)],
+        ['Entries', String(lim.maxEntries)],
+        ['Key length', lim.maxKey + ' characters'],
+        ['Value length', lim.maxValue + ' characters'],
+        ['Nesting depth', String(lim.maxDepth)]
+      ].map(function (r) {
+        return el('tr', {}, [el('td', { text: r[0] }), el('td', { class: 'set-code', text: r[1] })]);
+      }))
+    ]));
+
+    var sample = el('pre', {}, el('code', {
+      text: '{\n  "schemaVersion": 1,\n  "entries": [\n    { "match": "world", "replace": "realm", "mode": "word", "lang": "en" }\n  ]\n}'
+    }));
+
+    var wrap = block(t('vocab.title', 'Personal vocabulary'), [
+      'No mappings ship with this site. Wording changes only after you supply a file that passes every bound below, and a file that fails any of them is refused whole rather than applied in part.',
+      'The file is read in this browser. There is no network request, and the file\'s name and path are never stored.'
+    ], [
+      el('div', { class: 'row' }, [fileInput, clearBtn]),
+      status,
+      limitTable,
+      el('details', {}, [el('summary', { text: 'The file format' }), sample])
+    ]);
+    return wrap;
+  }
+
+  /* ================================================================
+   * 6. Appearance
+   * ================================================================ */
+  function renderAppearance(panel) {
+    var b = rows();
+
+    settingInto(b, 'appearance', {
+      id: 'theme.mode',
+      label: t('theme.mode', 'Theme'),
+      explain: 'Light, dark, or whatever this computer is currently set to. Choosing one here overrides the system preference for this site only.',
+      storageKey: 'theme.mode', shippedValue: 'system',
+      keywords: 'theme dark light system colour scheme night',
+      value: function () { return S.theme.mode() + ' (showing ' + S.theme.effectiveMode() + ')'; },
+      onReset: function () { S.theme.setMode('system'); },
+      control: function () {
+        return S.createSelect({
+          ariaLabel: t('theme.mode', 'Theme'), storageKey: 'theme-mode', value: S.theme.mode(),
+          options: [
+            { value: 'light', label: t('theme.light', 'Light'), keywords: 'day bright' },
+            { value: 'dark', label: t('theme.dark', 'Dark'), keywords: 'night' },
+            { value: 'system', label: t('theme.system', 'Follow the system'), keywords: 'auto automatic os' }
+          ],
+          onChange: function (v) { S.theme.setMode(v); }
+        }).el;
+      }
+    });
+
+    settingInto(b, 'appearance', {
+      id: 'theme.density',
+      label: t('theme.density', 'Density'),
+      explain: 'Changes the height of rows, controls and toolbars. Text size does not change, because shrinking type is a legibility change rather than a density one. Interactive controls keep their full touch target at every density.',
+      storageKey: 'theme.density', shippedValue: 'comfortable',
+      keywords: 'density compact dense spacing rows height',
+      value: function () { return S.theme.density(); },
+      onReset: function () { S.theme.setDensity('comfortable'); },
+      control: function () {
+        return S.createSelect({
+          ariaLabel: t('theme.density', 'Density'), storageKey: 'theme-density', value: S.theme.density(),
+          options: [
+            { value: 'comfortable', label: 'Comfortable', keywords: 'default roomy' },
+            { value: 'compact', label: 'Compact', keywords: 'tighter' },
+            { value: 'dense', label: 'Dense', keywords: 'tightest 40px' }
+          ],
+          onChange: function (v) { S.theme.setDensity(v); }
+        }).el;
+      }
+    });
+
+    settingInto(b, 'appearance', {
+      id: 'theme.seed',
+      label: t('theme.seed', 'Accent colour'),
+      explain: 'One colour generates the full Material 3 tonal palette at runtime, for both the light and the dark scheme. The picker is continuous rather than a fixed set of swatches, and it reports honestly when a colour you enter cannot be shown in sRGB.',
+      storageKey: 'theme.seed', shippedValue: S.theme.seedDefault,
+      keywords: 'accent colour color seed palette tonal hue picker',
+      value: function () { return S.theme.seed() || ('the shipped ' + S.theme.seedDefault); },
+      onReset: function () { S.theme.setSeed(null); },
+      control: function () {
+        var swatch = el('span', {
+          class: 'set-swatch',
+          style: { 'background-color': S.theme.seed() || S.theme.seedDefault }
+        });
+        var btn = el('button', {
+          class: 'btn btn--outlined', type: 'button', text: 'Choose',
+          'aria-label': 'Choose the accent colour',
+          onclick: function () {
+            var picker = S.appearance.colourPicker(S.theme.seed() || S.theme.seedDefault, function (v) {
+              swatch.style.setProperty('background-color', v);
+            });
+            var h = S.overlay.open({
+              anchor: btn, returnTo: btn, title: t('theme.seed', 'Accent colour'),
+              content: picker.el, draggable: true, resizable: true, persistKey: 'seed-picker',
+              footer: [
+                el('button', {
+                  class: 'btn btn--text', type: 'button', text: t('act.reset', 'Reset'),
+                  onclick: function () { S.theme.setSeed(null); swatch.style.setProperty('background-color', S.theme.seedDefault); h.close('reset'); }
+                }),
+                el('button', {
+                  class: 'btn btn--text', type: 'button', text: t('act.cancel', 'Cancel'),
+                  onclick: function () { swatch.style.setProperty('background-color', S.theme.seed() || S.theme.seedDefault); h.close('cancel'); }
+                }),
+                el('button', {
+                  class: 'btn btn--filled', type: 'button', text: t('act.apply', 'Apply'),
+                  onclick: function () {
+                    if (!S.theme.setSeed(picker.value())) S.notify.error('That is not a colour this site can read.');
+                    else S.notify.success(t('msg.appliedLive', 'Applied.'));
+                    h.close('apply');
+                  }
+                })
+              ]
+            });
+          }
+        });
+        return el('div', { class: 'row' }, [swatch, btn]);
+      }
+    });
+
+    settingInto(b, 'appearance', {
+      id: 'theme.font',
+      label: t('theme.font', 'Interface font'),
+      explain: 'A browser cannot list the fonts installed on a computer without a permission-gated API only one engine ships, so this picker measures each family against three generic fallbacks and tells you which of them this machine actually has. A family it cannot find is still selectable; it will simply fall back.',
+      storageKey: 'theme.font', shippedValue: 'system',
+      keywords: 'font family typeface serif mono measured available',
+      value: function () { return S.theme.font(); },
+      onReset: function () { S.theme.setFont('system'); },
+      control: function () {
+        var custom = el('input', {
+          class: 'set-native', type: 'text', value: S.theme.customFont(),
+          'aria-label': 'A font family name of your own',
+          placeholder: 'Font family name',
+          hidden: S.theme.font() !== 'custom',
+          onchange: function () { S.theme.setFont('custom', custom.value); }
+        });
+        var sel = S.createSelect({
+          ariaLabel: t('theme.font', 'Interface font'), storageKey: 'theme-font', value: S.theme.font(),
+          options: S.theme.fonts().map(function (f) {
+            return {
+              value: f.id,
+              label: f.label + (f.available ? '' : ' (not on this computer)'),
+              keywords: f.stack
+            };
+          }).concat([{ value: 'custom', label: 'A family of my own', keywords: 'custom other' }]),
+          onChange: function (v) {
+            custom.hidden = v !== 'custom';
+            S.theme.setFont(v, custom.value);
+          }
+        });
+        return el('div', { class: 'stack', style: { gap: '8px' } }, [sel.el, custom]);
+      }
+    });
+
+    settingInto(b, 'appearance', {
+      id: 'theme.fontScale',
+      label: t('theme.fontScale', 'Text size'),
+      explain: 'Scales every piece of type on this site between 80 and 160 per cent. Layouts are checked at the top of that range, so nothing should clip.',
+      storageKey: 'theme.fontScale', shippedValue: 1,
+      keywords: 'text size scale zoom bigger smaller',
+      value: function () { return Math.round(S.theme.fontScale() * 100) + ' per cent'; },
+      onReset: function () { S.theme.setFontScale(1); },
+      control: function () {
+        return S.makeSlider({
+          min: 0.8, max: 1.6, step: 0.05, value: S.theme.fontScale(),
+          ariaLabel: t('theme.fontScale', 'Text size'),
+          format: function (v) { return Math.round(parseFloat(v) * 100) + '%'; },
+          onChange: function (v) { S.theme.setFontScale(v); }
+        });
+      }
+    });
+
+    settingInto(b, 'appearance', {
+      id: 'theme.fontWeight',
+      label: 'Heavier labels',
+      explain: 'Draws labels and headings at a heavier weight. Some screens and some eyes read a heavier face far more easily, and it costs nothing to offer.',
+      storageKey: 'theme.fontWeight', shippedValue: 'normal',
+      keywords: 'bold weight heavier labels legibility',
+      value: function () { return S.theme.fontWeight(); },
+      onReset: function () { S.theme.setFontWeight('normal'); },
+      control: function () {
+        return S.makeSwitch({
+          checked: S.theme.fontWeight() === 'bold', ariaLabel: 'Heavier labels',
+          onChange: function (v) { S.theme.setFontWeight(v ? 'bold' : 'normal'); }
+        });
+      }
+    });
+
+    settingInto(b, 'appearance', {
+      id: 'theme.motion',
+      label: t('theme.motion', 'Reduce motion'),
+      explain: 'Cuts every transition to a millisecond. This site also honours the operating system\'s own reduced-motion preference without being asked; this switch is for turning motion down when the system preference is not set.',
+      storageKey: 'theme.motion', shippedValue: 'system',
+      keywords: 'motion animation reduce accessibility vestibular',
+      value: function () { return S.theme.motion(); },
+      onReset: function () { S.theme.setMotion('system'); },
+      control: function () {
+        return S.makeSwitch({
+          checked: S.theme.motion() === 'reduced', ariaLabel: t('theme.motion', 'Reduce motion'),
+          onChange: function (v) { S.theme.setMotion(v ? 'reduced' : 'system'); }
+        });
+      }
+    });
+
+    panel.appendChild(block(t('theme.title', 'Appearance'), [], [b]));
+
+    /* ---- presets ------------------------------------------------- */
+    var presetList = el('ul', { class: 'list' });
+    S.appearance.presets().forEach(function (p) {
+      presetList.appendChild(el('li', { class: 'li' }, [
+        el('div', { class: 'li__t' }, [
+          el('div', { class: 'li__h', text: p.label }),
+          el('div', { class: 'li__s', text: p.describes })
+        ]),
+        el('button', {
+          class: 'btn btn--tonal', type: 'button', text: t('act.apply', 'Apply'),
+          'aria-label': t('act.apply', 'Apply') + ': ' + p.label,
+          onclick: function () { p.apply(); S.notify.success(p.label + ' applied. ' + p.describes); render(); }
+        })
+      ]));
+    });
+    panel.appendChild(block('Presets', [
+      'Every preset is derived from the values this site actually ships, so a preset and the reset path can never disagree about what the defaults are. Applying one is an ordinary recorded change you can undo from History.'
+    ], [presetList]));
+
+    /* ---- per-element rules --------------------------------------- */
+    panel.appendChild(renderAppearanceRules());
+
+    /* ---- export and import --------------------------------------- */
+    var importInput = el('input', {
+      class: 'set-native', type: 'file', accept: 'application/json,.json',
+      'aria-label': 'Choose a theme file to import',
+      onchange: function () {
+        var f = importInput.files && importInput.files[0];
+        if (!f) return;
+        var reader = new FileReader();
+        reader.onerror = function () { S.notify.error('That file could not be read.'); };
+        reader.onload = function () {
+          var data;
+          try { data = JSON.parse(String(reader.result || '')); }
+          catch (e) { S.notify.error('That file is not valid JSON: ' + e.message); importInput.value = ''; return; }
+          var res = S.theme.importTheme(data);
+          importInput.value = '';
+          if (res.ok) { S.notify.success('Theme imported and applied.'); render(); }
+          else S.notify.error(res.error);
+        };
+        reader.readAsText(f);
+      }
+    });
+
+    panel.appendChild(block('Export and import', [
+      'A theme file carries the appearance settings above and every per-element rule, so a customised look survives a cleared browser and can be handed to somebody else.'
+    ], [
+      el('div', { class: 'row' }, [
+        el('button', {
+          class: 'btn btn--outlined', type: 'button', text: t('act.export', 'Export') + ' theme',
+          onclick: function () {
+            S.download('world-downloader-studio-theme.json', JSON.stringify(S.theme.exportTheme(), null, 2), 'application/json');
+          }
+        }),
+        el('button', {
+          class: 'btn btn--text', type: 'button', text: t('act.copy', 'Copy'),
+          'aria-label': 'Copy the theme file to the clipboard',
+          onclick: function () { S.copy(JSON.stringify(S.theme.exportTheme(), null, 2)); }
+        })
+      ]),
+      importInput,
+      el('p', { class: 'muted t-body-small', text: 'UTF-8, schema version 1. This site cannot open a local editor the way the desktop application can, so it offers download and copy instead.' })
+    ]));
+
+    /* ---- reset --------------------------------------------------- */
+    var resetBtn = el('button', {
+      class: 'btn btn--danger', type: 'button', text: 'Reset every appearance setting',
+      onclick: function () {
+        S.confirm({
+          anchor: resetBtn, returnTo: resetBtn,
+          action: 'Reset every appearance setting',
+          target: 'theme, density, accent colour, font, text size, motion, and ' + Object.keys(S.appearance.rules()).length + ' per-element rules',
+          facts: [
+            { k: 'Theme', v: S.theme.mode() },
+            { k: 'Density', v: S.theme.density() },
+            { k: 'Accent', v: S.theme.seed() || S.theme.seedDefault },
+            { k: 'Per-element rules', v: String(Object.keys(S.appearance.rules()).length) }
+          ],
+          detail: 'Everything goes back to the values this site ships with. The change is recorded in History, so it can be undone from there.',
+          irreversible: false
+        }).then(function (ok) {
+          if (!ok) return;
+          S.theme.reset(); S.appearance.resetAll();
+          S.notify.success('Every appearance setting is back to the shipped value.');
+          render();
+        });
+      }
+    });
+    panel.appendChild(block('Reset', [
+      'This is recorded in History like any other change, so it is recoverable rather than final.'
+    ], [resetBtn]));
+  }
+
+  function renderAppearanceRules() {
+    var ruleMap = S.appearance.rules();
+    var keys = Object.keys(ruleMap);
+    var list = el('ul', { class: 'list' });
+
+    if (!keys.length) {
+      list.appendChild(el('li', { class: 'li' }, el('div', { class: 'li__t' }, [
+        el('div', { class: 'li__h', text: 'No element has been restyled yet.' }),
+        el('div', { class: 'li__s', text: 'Right-click any element and choose Edit appearance, or hold Shift and right-click it, or focus it and press Alt+Shift+E.' })
+      ])));
+    } else {
+      keys.forEach(function (k) {
+        var props = Object.keys(ruleMap[k] || {});
+        list.appendChild(el('li', {
+          class: 'li', 'data-bulk-item': '', 'data-id': k, tabindex: '0', role: 'option', 'aria-selected': 'false'
+        }, [
+          el('span', { class: 'cbx', 'data-bulk-check': '', role: 'checkbox', 'aria-checked': 'false', 'aria-label': 'Select ' + k }),
+          el('div', { class: 'li__t' }, [
+            el('div', { class: 'li__h', text: k }),
+            el('div', { class: 'li__s', text: props.length + ' propert' + (props.length === 1 ? 'y' : 'ies') + ': ' + props.join(', ') })
+          ]),
+          el('button', {
+            class: 'btn btn--text', type: 'button', text: t('act.reset', 'Reset'),
+            'aria-label': t('act.reset', 'Reset') + ': ' + k,
+            onclick: function () { S.appearance.reset(k); S.notify.info('Removed the appearance rules on ' + k + '.'); render(); }
+          })
+        ]));
+      });
+    }
+
+    var wrap = block('Per-element appearance', [
+      'Every rendered element on this site carries its own appearance editor: 21 typography properties and 7 box properties, opened from the element\'s own context menu, with Shift and a right-click, or with Alt+Shift+E when it has focus. Resetting a property removes it rather than overwriting it with a guess at the default.',
+      'Rules are stored against a stable element key, so a rule survives a re-render that replaces the node.'
+    ], [
+      list,
+      el('div', { class: 'row' }, [
+        el('button', {
+          class: 'btn btn--outlined', type: 'button', text: t('act.openEditor', 'Edit appearance') + ': this section',
+          onclick: function (e) {
+            S.appearance.openEditor(wrap, 'settings:appearance-rules', 'The per-element appearance section');
+          }
+        })
+      ])
+    ]);
+
+    if (keys.length) {
+      S.bulk.attach(list, {
+        getLabel: function (id) { return id; },
+        allMatchingCount: function () { return keys.length; },
+        allMatchingIds: function () { return keys.slice(); },
+        actions: [
+          {
+            id: 'export', label: t('act.export', 'Export'),
+            run: function (ids) {
+              S.exportDialog(ids.map(function (k) {
+                return { element: k, properties: Object.keys(ruleMap[k] || {}).join(' ') };
+              }), { name: 'appearance-rules', anchor: list });
+            }
+          },
+          {
+            id: 'reset', label: 'Reset', danger: true, destructive: true,
+            run: function (ids) {
+              ids.forEach(function (k) { S.appearance.reset(k); });
+              window.setTimeout(render, 0);
+              return { done: ids.length, skipped: 0 };
+            }
+          }
+        ]
+      });
+    }
+    return wrap;
+  }
+
+  /* ================================================================
+   * 7. Navigation
+   * ================================================================ */
+  function renderNavigation(panel) {
+    var b = rows();
+    syncDockMirror();
+
+    settingInto(b, 'navigation', {
+      id: 'nav.dock',
+      label: t('tabs.dock', 'Tab strip edge'),
+      explain: 'Which edge the settings tab strip sits on. Left is the default because a screen is wider than it is tall while a tab label is wider than it is high, so a vertical strip shows more tabs legibly than the horizontal one every browser trained us to expect. Docking is an orientation change, not a rotation: a label is never turned on its side, and the arrow keys follow the axis.',
+      storageKey: 'nav.dock', shippedValue: 'left',
+      keywords: 'dock tabs strip left right top bottom edge orientation',
+      value: function () { return strip.dock(); },
+      onReset: function () { strip.setDock('left'); syncDockMirror(); },
+      control: function () {
+        return S.createSelect({
+          ariaLabel: t('tabs.dock', 'Tab strip edge'), storageKey: 'nav-dock', value: strip.dock(),
+          options: [
+            { value: 'left', label: 'Left', keywords: 'start vertical' },
+            { value: 'right', label: 'Right', keywords: 'end vertical' },
+            { value: 'top', label: 'Top', keywords: 'horizontal' },
+            { value: 'bottom', label: 'Bottom', keywords: 'horizontal' }
+          ],
+          onChange: function (v) { strip.setDock(v); syncDockMirror(); }
+        }).el;
+      }
+    });
+
+    settingInto(b, 'navigation', {
+      id: 'palette.size',
+      label: t('palette.size', 'Command palette size'),
+      explain: 'The palette opens as a bounded card by default and can be switched to the full window when you are working through a long list of results. Ctrl+Shift+F opens it from anywhere on this site.',
+      storageKey: 'palette.size', shippedValue: 'card',
+      keywords: 'palette size card window ctrl shift f',
+      value: function () { return S.store.get('palette.size', 'card'); },
+      onReset: function () { S.store.set('palette.size', 'card'); },
+      control: function () {
+        return S.createSelect({
+          ariaLabel: t('palette.size', 'Command palette size'), storageKey: 'palette-size',
+          value: S.store.get('palette.size', 'card'),
+          options: [
+            { value: 'card', label: 'A bounded card', keywords: 'small default' },
+            { value: 'full', label: 'The full window', keywords: 'large maximised' }
+          ],
+          onChange: function (v) { S.store.set('palette.size', v); }
+        }).el;
+      }
+    });
+
+    panel.appendChild(block(t('tab.navigation', 'Navigation'), [], [b]));
+
+    var openBtn = el('button', {
+      class: 'btn btn--filled', type: 'button', text: t('palette.title', 'Command palette'),
+      'aria-keyshortcuts': 'Control+Shift+F',
+      onclick: function () { S.palette.open(); }
+    });
+
+    panel.appendChild(block('Finding things', [
+      'Every page, every article, every setting and every appearance control on this site is registered on the command palette. A setting found there renders its real control inline, wired to the same code as the row on this page, so the two cannot disagree. Selecting a result opens the right page, selects the right tab, expands anything collapsed around the target, scrolls to it, focuses it and flashes it.'
+    ], [
+      openBtn,
+      el('p', { class: 'muted t-body-small', text: 'Keyboard: Ctrl+Shift+F.' })
+    ]));
+
+    var searchRow = el('div', { class: 'row' }, [
+      el('button', {
+        class: 'btn btn--outlined', type: 'button', text: t('tabs.searchStrip', 'Search this tab strip'),
+        onclick: function (e) { strip.searchStrip(e.currentTarget); }
+      }),
+      el('button', {
+        class: 'btn btn--outlined', type: 'button', text: t('tabs.searchGroups', 'Search tab groups'),
+        onclick: function (e) { strip.searchGroups(e.currentTarget); }
+      }),
+      el('button', {
+        class: 'btn btn--outlined', type: 'button', text: t('tabs.searchAll', 'Search every open tab'),
+        onclick: function (e) { S.tabs.masterSearch(e.currentTarget); }
+      }),
+      el('button', {
+        class: 'btn btn--outlined', type: 'button', text: t('tabs.searchGroup', 'Search inside a group'),
+        onclick: function (e) {
+          var groups = strip.groups();
+          if (!groups.length) { S.notify.info('There are no tab groups yet. Right-click a tab and use Move into group to make one.'); return; }
+          var anchor = e.currentTarget;
+          S.createMenu({
+            anchor: anchor, returnTo: anchor, ariaLabel: 'Choose a group',
+            filterLabel: 'Filter groups', storageKey: 'group-pick',
+            items: groups.map(function (g) {
+              return {
+                label: g.name, secondary: g.members.length + ' tabs',
+                run: function () { strip.searchGroup(anchor, g.id); }
+              };
+            })
+          });
+        }
+      })
+    ]);
+
+    var closeRow = el('div', { class: 'row' }, [
+      el('button', {
+        class: 'btn btn--outlined', type: 'button', text: t('tabs.closeContaining', 'Close tabs containing text'),
+        onclick: function (e) { strip.closeContaining(e.currentTarget); }
+      }),
+      el('button', {
+        class: 'btn btn--outlined', type: 'button', text: t('tabs.closeNotContaining', 'Close tabs not containing text'),
+        onclick: function (e) { strip.closeNotContaining(e.currentTarget); }
+      })
+    ]);
+
+    panel.appendChild(block('The tab strip', [
+      'All four tab searches are here as well as in the strip\'s own tools: this strip, inside one group, groups by name, and every open tab in every strip on the page. Each carries its own anchored regular-expression builder, and each keeps its own query and flags.',
+      'Both bulk closes match against the visible tab label, preview the exact count before anything closes, and leave pinned tabs alone unless you deliberately include them. Closing a settings section here hides it until you reload the page; nothing is lost.'
+    ], [searchRow, closeRow]));
+  }
+
+  /* ================================================================
+   * 8. Notifications
+   * ================================================================ */
+  function renderNotifications(panel) {
+    var b = rows();
+
+    settingInto(b, 'notifications', {
+      id: 'notifications.corner',
+      label: 'Corner',
+      explain: 'Which corner toasts stack in. Anything that only informs is a toast; a blocking dialog is reserved for a decision you have to make before continuing. Errors and warnings stay until dismissed, because an error that vanishes on a timer is an error you may never have read.',
+      storageKey: 'notifications.corner', shippedValue: 'bottom-end',
+      keywords: 'notification toast snackbar corner position',
+      value: function () { return S.notifications.corner(); },
+      onReset: function () { S.notifications.setCorner('bottom-end'); },
+      control: function () {
+        return S.createSelect({
+          ariaLabel: 'Notification corner', storageKey: 'notify-corner', value: S.notifications.corner(),
+          options: [
+            { value: 'bottom-end', label: 'Bottom, trailing edge', keywords: 'right default' },
+            { value: 'bottom-start', label: 'Bottom, leading edge', keywords: 'left' },
+            { value: 'top-end', label: 'Top, trailing edge', keywords: 'right' },
+            { value: 'top-start', label: 'Top, leading edge', keywords: 'left' }
+          ],
+          onChange: function (v) { S.notifications.setCorner(v); S.notify.info('Toasts now appear here.'); }
+        }).el;
+      }
+    });
+
+    panel.appendChild(block(t('notify.centre', 'Notifications'), [], [b]));
+
+    /* The centre is a list, so it carries the full bulk contract. It is
+       not exempt for being a log. */
+    var all = S.notifications.all();
+    var list = el('ul', { class: 'list', role: 'listbox', 'aria-label': 'Notification history', 'aria-multiselectable': 'true' });
+
+    if (!all.length) {
+      list.appendChild(el('li', { class: 'li' }, el('div', { class: 'li__t' }, [
+        el('div', { class: 'li__h', text: t('notify.none', 'No notifications yet.') })
+      ])));
+    } else {
+      all.slice(0, 60).forEach(function (n) {
+        list.appendChild(el('li', {
+          class: 'li', 'data-bulk-item': '', 'data-id': n.id, tabindex: '0', role: 'option', 'aria-selected': 'false'
+        }, [
+          el('span', { class: 'cbx', 'data-bulk-check': '', role: 'checkbox', 'aria-checked': 'false', 'aria-label': 'Select this notification' }),
+          el('span', {
+            class: 'status status--' + (n.kind === 'error' ? 'error' : n.kind === 'warn' ? 'warn' : 'ok')
+          }, [el('span', { class: 'dot' }), n.kind]),
+          el('div', { class: 'li__t' }, [
+            el('div', { class: 'li__h', text: n.title || n.body || '(no text)' }),
+            el('div', { class: 'li__s', text: (n.title ? n.body + ' · ' : '') + n.at + (n.read ? ' · read' : '') })
+          ])
+        ]));
+      });
+    }
+
+    var centreBlock = block('History', [
+      'Dismissed notifications stay reviewable here. The newest 60 are listed; the log keeps 200.'
+    ], [
+      list,
+      el('div', { class: 'row' }, [
+        el('button', {
+          class: 'btn btn--outlined', type: 'button', text: 'Open the notification centre',
+          onclick: function (e) { S.notifications.open(e.currentTarget); }
+        }),
+        el('button', {
+          class: 'btn btn--text', type: 'button', text: 'Send a test notification',
+          onclick: function () { S.notify.info('This is a test notification. Nothing happened.'); render(); }
+        })
+      ])
+    ]);
+    panel.appendChild(centreBlock);
+
+    if (all.length) {
+      S.bulk.attach(list, {
+        getLabel: function (id) {
+          var n = all.filter(function (x) { return x.id === id; })[0];
+          return n ? (n.title || n.body || id) : id;
+        },
+        allMatchingCount: function () { return all.length; },
+        allMatchingIds: function () { return all.map(function (n) { return n.id; }); },
+        actions: [
+          { id: 'read', label: 'Mark as read', run: function (ids) { S.notifications.markRead(ids); window.setTimeout(render, 0); } },
+          {
+            id: 'export', label: t('act.export', 'Export'),
+            run: function (ids) {
+              S.exportDialog(all.filter(function (n) { return ids.indexOf(n.id) >= 0; })
+                .map(function (n) { return { at: n.at, kind: n.kind, title: n.title, body: n.body, read: n.read }; }),
+                { name: 'notifications', anchor: list });
+            }
+          },
+          {
+            id: 'dismiss', label: t('act.dismiss', 'Dismiss'), danger: true, destructive: true,
+            run: function (ids) { S.notifications.dismiss(ids); window.setTimeout(render, 0); return { done: ids.length, skipped: 0 }; }
+          }
+        ]
+      });
+    }
+  }
+
+  /* ================================================================
+   * 9. Scheduled settings
+   *
+   * Versioned, bounded schema. Deterministic precedence. Explicit,
+   * stated semantics for a cross-midnight window, for a zero-length
+   * window and for partial input, rather than a silent guess.
+   * ================================================================ */
+  var SCHED_KEY = 'schedule.rules';
+  var SCHED_BASE = 'schedule.base';
+  var SCHED_VERSION = 1;
+
+  var SCHED_SETTINGS = {
+    'lang.mode': {
+      label: 'Language mode', shipped: 'en',
+      options: [{ value: 'en', label: 'English' }, { value: 'zh', label: 'Cantonese' }, { value: 'both', label: 'Both' }],
+      get: function () { return S.i18n.storedMode(); },
+      set: function (v) { S.i18n.setMode(v); }
+    },
+    'theme.mode': {
+      label: 'Theme', shipped: 'system',
+      options: [{ value: 'light', label: 'Light' }, { value: 'dark', label: 'Dark' }, { value: 'system', label: 'Follow the system' }],
+      get: function () { return S.theme.mode(); },
+      set: function (v) { S.theme.setMode(v); }
+    },
+    'theme.density': {
+      label: 'Density', shipped: 'comfortable',
+      options: [{ value: 'comfortable', label: 'Comfortable' }, { value: 'compact', label: 'Compact' }, { value: 'dense', label: 'Dense' }],
+      get: function () { return S.theme.density(); },
+      set: function (v) { S.theme.setDensity(v); }
+    },
+    'theme.motion': {
+      label: 'Motion', shipped: 'system',
+      options: [{ value: 'system', label: 'As the system asks' }, { value: 'reduced', label: 'Reduced' }],
+      get: function () { return S.theme.motion(); },
+      set: function (v) { S.theme.setMotion(v); }
+    },
+    'theme.seed': {
+      label: 'Accent colour', shipped: S.theme.seedDefault,
+      options: null,
+      get: function () { return S.theme.seed() || S.theme.seedDefault; },
+      set: function (v) { S.theme.setSeed(v); }
+    }
+  };
+
+  var WEEKDAY_IDS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+  function weekdays() {
+    var fmt = new Intl.DateTimeFormat(undefined, { weekday: 'long' });
+    var out = [];
+    for (var i = 0; i < 7; i++) {
+      var d = new Date(2024, 0, 7 + i); /* 7 January 2024 is a Sunday. */
+      out.push({ id: WEEKDAY_IDS[i], label: fmt.format(d) });
+    }
+    return out;
+  }
+
+  function schedRead() {
+    var raw = S.store.get(SCHED_KEY, null);
+    if (!raw || typeof raw !== 'object' || raw.schemaVersion !== SCHED_VERSION || !Array.isArray(raw.rules)) {
+      return { schemaVersion: SCHED_VERSION, rules: [] };
+    }
+    return { schemaVersion: SCHED_VERSION, rules: raw.rules };
+  }
+  function schedWrite(doc) {
+    S.store.set(SCHED_KEY, { schemaVersion: SCHED_VERSION, rules: doc.rules });
+    S.history.record('schedule', 'Scheduled settings changed: ' + doc.rules.length + ' rule' + (doc.rules.length === 1 ? '' : 's'), { rules: doc.rules.length });
+    schedEvaluate();
+  }
+  function toMinutes(hhmm) {
+    var m = /^(\d{1,2}):(\d{2})$/.exec(String(hhmm || ''));
+    if (!m) return null;
+    return parseInt(m[1], 10) * 60 + parseInt(m[2], 10);
+  }
+  function localDate(d) {
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  }
+  function ruleMatches(rule, now) {
+    if (!rule.enabled) return false;
+    if (rule.source !== 'local') return false;
+    if (!SCHED_SETTINGS[rule.setting]) return false;
+    var ymd = localDate(now);
+    if (rule.startDate && ymd < rule.startDate) return false;
+    if (rule.endDate && ymd > rule.endDate) return false;
+    if (rule.days !== 'every') {
+      if (!Array.isArray(rule.days) || rule.days.indexOf(WEEKDAY_IDS[now.getDay()]) < 0) return false;
+    }
+    var mins = now.getHours() * 60 + now.getMinutes();
+    var s = rule.startTime ? toMinutes(rule.startTime) : 0;
+    var e = rule.endTime ? toMinutes(rule.endTime) : 1440;
+    if (s === null) s = 0;
+    if (e === null) e = 1440;
+    if (s === e) return false;                       /* zero length: never matches */
+    if (s < e) return mins >= s && mins < e;
+    return mins >= s || mins < e;                    /* wraps past midnight */
+  }
+  /* Deterministic: the highest priority wins, and among equal
+     priorities the rule further down the list wins. */
+  function schedWinners(now) {
+    var doc = schedRead();
+    var out = {};
+    doc.rules.forEach(function (rule, i) {
+      if (!ruleMatches(rule, now)) return;
+      var cur = out[rule.setting];
+      if (!cur || rule.priority > cur.rule.priority || (rule.priority === cur.rule.priority && i > cur.index)) {
+        out[rule.setting] = { rule: rule, index: i };
+      }
+    });
+    return out;
+  }
+  function schedEvaluate() {
+    var now = new Date();
+    var winners = schedWinners(now);
+    var base = S.store.get(SCHED_BASE, {}) || {};
+    var changed = false;
+
+    Object.keys(SCHED_SETTINGS).forEach(function (key) {
+      var def = SCHED_SETTINGS[key];
+      var win = winners[key];
+      if (win) {
+        if (!Object.prototype.hasOwnProperty.call(base, key)) {
+          base[key] = S.store.get(key, null);
+          changed = true;
+        }
+        if (def.get() !== win.rule.value) def.set(win.rule.value);
+      } else if (Object.prototype.hasOwnProperty.call(base, key)) {
+        var was = base[key];
+        delete base[key];
+        changed = true;
+        if (was === null || was === undefined) { S.store.remove(key); def.set(def.shipped); }
+        else def.set(was);
+      }
+    });
+    if (changed) S.store.set(SCHED_BASE, base);
+    return winners;
+  }
+
+  function renderSchedule(panel) {
+    var doc = schedRead();
+    var tz = 'unknown';
+    try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'unknown'; } catch (e) { tz = 'unknown'; }
+
+    var status = el('div', { class: 'set-preview', role: 'status', 'aria-live': 'polite' });
+    function paintStatus() {
+      var winners = schedWinners(new Date());
+      clear(status);
+      var keys = Object.keys(winners);
+      if (!keys.length) {
+        status.appendChild(el('p', { style: { margin: '0' }, text: 'No rule is in effect right now, so every setting is the one you chose by hand.' }));
+      } else {
+        status.appendChild(el('p', { style: { margin: '0' }, text: keys.length + ' rule' + (keys.length === 1 ? ' is' : 's are') + ' in effect right now:' }));
+        keys.forEach(function (k) {
+          var w = winners[k];
+          status.appendChild(el('p', {
+            class: 'muted t-body-small', style: { margin: '0' },
+            text: SCHED_SETTINGS[k].label + ' is held at "' + w.rule.value + '" by the rule "' + (w.rule.label || w.rule.id) + '" (priority ' + w.rule.priority + ').'
+          }));
+        });
+      }
+      var base = S.store.get(SCHED_BASE, {}) || {};
+      var held = Object.keys(base);
+      if (held.length) {
+        status.appendChild(el('p', {
+          class: 'muted t-body-small', style: { margin: '0' },
+          text: 'Held for restoring when the window ends: ' + held.map(function (k) {
+            return SCHED_SETTINGS[k].label + ' = ' + (base[k] === null ? 'not set here' : String(base[k]));
+          }).join('; ') + '.'
+        }));
+      }
+    }
+    paintStatus();
+
+    panel.appendChild(block(t('tab.schedule', 'Scheduled settings'), [
+      'A rule holds one setting at one value inside a window you describe with native date and time pickers. When the window ends, the value you had before the rule started is put back — a scheduled override never quietly becomes your permanent setting.',
+      t('sched.timezoneNote', '') + ' This computer reports its time zone as ' + tz + '.',
+      t('sched.networkNote', '')
+    ], [
+      status,
+      el('div', { class: 'row' }, [
+        el('button', {
+          class: 'btn btn--text', type: 'button', text: 'Check now',
+          onclick: function () { schedEvaluate(); paintStatus(); S.notify.info('Rules evaluated against the clock right now.'); }
+        })
+      ])
+    ]));
+
+    /* ---- semantics, stated -------------------------------------- */
+    panel.appendChild(block('How a window is read', [], [
+      el('div', { class: 'scrollx' }, el('table', { class: 'tbl' }, [
+        el('thead', {}, el('tr', {}, [el('th', { text: 'Input' }), el('th', { text: 'What it means' })])),
+        el('tbody', {}, [
+          ['Both times empty', 'The rule is active all day on the days it matches.'],
+          ['Only a start time', 'The window runs from that time to the end of the day.'],
+          ['Only an end time', 'The window runs from the start of the day to that time.'],
+          ['Start earlier than end', 'Active from the start time inclusive to the end time exclusive.'],
+          ['Start later than end', 'The window wraps past midnight and is matched against the current day, so 22:00 to 02:00 on a Monday is active on Monday from 22:00 and again on Monday from 00:00.'],
+          ['Start equal to end', 'A zero-length window. It never matches, and this row is why that is a decision rather than an accident.'],
+          ['Both dates empty', 'The rule has no start or end date and runs whenever its times and days match.'],
+          ['Dates given', 'Inclusive on both ends, compared by calendar date in this computer\'s time zone.'],
+          ['Two rules match at once', 'The higher priority wins. If the priorities are equal, the rule further down the list wins.']
+        ].map(function (r) {
+          return el('tr', {}, [el('td', { text: r[0] }), el('td', { text: r[1] })]);
+        }))
+      ]))
+    ]));
+
+    /* ---- the rules ---------------------------------------------- */
+    var list = el('div', { role: 'list', 'aria-label': 'Scheduled rules' });
+    if (!doc.rules.length) {
+      list.appendChild(el('p', { class: 'muted', text: 'No rules yet. Add one below; nothing changes until you enable it.' }));
+    }
+    doc.rules.forEach(function (rule, index) {
+      list.appendChild(ruleCard(rule, index));
+    });
+
+    var addBtn = el('button', {
+      class: 'btn btn--filled', type: 'button', text: 'Add a rule',
+      onclick: function () {
+        var d = schedRead();
+        d.rules.push({
+          id: 'rule-' + Date.now().toString(36),
+          label: 'New rule', enabled: false, priority: 1,
+          setting: 'theme.mode', value: 'dark', source: 'local',
+          startDate: '', endDate: '', startTime: '', endTime: '', days: 'every'
+        });
+        schedWrite(d);
+        render();
+      }
+    });
+
+    panel.appendChild(block('Rules', [], [list, el('div', { class: 'row' }, [addBtn])]));
+
+    if (doc.rules.length) {
+      var container = el('div');
+      list.setAttribute('data-rule-list', '');
+      S.bulk.attach(list, {
+        itemSelector: '[data-bulk-item]',
+        getLabel: function (id) {
+          var r = schedRead().rules.filter(function (x) { return x.id === id; })[0];
+          return r ? (r.label || r.id) : id;
+        },
+        allMatchingCount: function () { return schedRead().rules.length; },
+        allMatchingIds: function () { return schedRead().rules.map(function (r) { return r.id; }); },
+        actions: [
+          {
+            id: 'enable', label: 'Enable',
+            run: function (ids) {
+              var d = schedRead();
+              d.rules.forEach(function (r) { if (ids.indexOf(r.id) >= 0) r.enabled = true; });
+              schedWrite(d); window.setTimeout(render, 0);
+            }
+          },
+          {
+            id: 'disable', label: 'Disable',
+            run: function (ids) {
+              var d = schedRead();
+              d.rules.forEach(function (r) { if (ids.indexOf(r.id) >= 0) r.enabled = false; });
+              schedWrite(d); window.setTimeout(render, 0);
+            }
+          },
+          {
+            id: 'export', label: t('act.export', 'Export'),
+            run: function (ids) {
+              S.exportDialog(schedRead().rules.filter(function (r) { return ids.indexOf(r.id) >= 0; }), { name: 'schedule-rules', anchor: list });
+            }
+          },
+          {
+            id: 'delete', label: t('act.delete', 'Delete'), danger: true, destructive: true,
+            run: function (ids) {
+              var d = schedRead();
+              d.rules = d.rules.filter(function (r) { return ids.indexOf(r.id) < 0; });
+              schedWrite(d); window.setTimeout(render, 0);
+              return { done: ids.length, skipped: 0 };
+            }
+          }
+        ]
+      });
+    }
+  }
+
+  function ruleCard(rule, index) {
+    function update(fn) {
+      var d = schedRead();
+      var r = d.rules.filter(function (x) { return x.id === rule.id; })[0];
+      if (!r) return;
+      fn(r);
+      schedWrite(d);
+    }
+
+    var def = SCHED_SETTINGS[rule.setting] || SCHED_SETTINGS['theme.mode'];
+    var valueHost = el('div');
+
+    function buildValueControl() {
+      clear(valueHost);
+      var d2 = SCHED_SETTINGS[rule.setting];
+      if (!d2) return;
+      if (d2.options) {
+        valueHost.appendChild(S.createSelect({
+          label: 'Value', ariaLabel: 'Value for ' + d2.label, value: rule.value,
+          storageKey: 'rule-value-' + rule.id,
+          options: d2.options,
+          onChange: function (v) { rule.value = v; update(function (r) { r.value = v; }); }
+        }).el);
+      } else {
+        var swatch = el('span', { class: 'set-swatch', style: { 'background-color': rule.value } });
+        var btn = el('button', {
+          class: 'btn btn--outlined', type: 'button', text: 'Choose', 'aria-label': 'Choose the colour this rule holds',
+          onclick: function () {
+            var picker = S.appearance.colourPicker(rule.value, function () {});
+            var h = S.overlay.open({
+              anchor: btn, returnTo: btn, title: 'Colour for this rule', content: picker.el,
+              footer: [
+                el('button', { class: 'btn btn--text', type: 'button', text: t('act.cancel', 'Cancel'), onclick: function () { h.close('cancel'); } }),
+                el('button', {
+                  class: 'btn btn--filled', type: 'button', text: t('act.save', 'Save'),
+                  onclick: function () {
+                    rule.value = picker.value();
+                    swatch.style.setProperty('background-color', rule.value);
+                    update(function (r) { r.value = rule.value; });
+                    h.close('save');
+                  }
+                })
+              ]
+            });
+          }
+        });
+        valueHost.appendChild(el('div', { class: 'row' }, [swatch, btn]));
+      }
+    }
+    buildValueControl();
+
+    var labelInput = el('input', {
+      class: 'set-native', type: 'text', value: rule.label, 'aria-label': 'A name for this rule',
+      onchange: function () { update(function (r) { r.label = labelInput.value; }); }
+    });
+    var priorityInput = el('input', {
+      class: 'set-native', type: 'number', min: '0', max: '99', step: '1', value: String(rule.priority),
+      'aria-label': 'Priority for this rule',
+      onchange: function () {
+        var n = Math.max(0, Math.min(99, parseInt(priorityInput.value, 10) || 0));
+        priorityInput.value = String(n);
+        update(function (r) { r.priority = n; });
+      }
+    });
+
+    var settingSel = S.createSelect({
+      label: 'Setting', ariaLabel: 'Which setting this rule holds', value: rule.setting,
+      storageKey: 'rule-setting-' + rule.id,
+      options: Object.keys(SCHED_SETTINGS).map(function (k) {
+        return { value: k, label: SCHED_SETTINGS[k].label, keywords: k };
+      }),
+      onChange: function (v) {
+        rule.setting = v;
+        var d2 = SCHED_SETTINGS[v];
+        rule.value = d2.options ? d2.options[0].value : d2.shipped;
+        update(function (r) { r.setting = v; r.value = rule.value; });
+        buildValueControl();
+      }
+    });
+
+    var sourceSel = S.createSelect({
+      label: 'Where the value comes from', ariaLabel: 'Where this rule takes its value from',
+      value: rule.source, storageKey: 'rule-source-' + rule.id,
+      options: [
+        { value: 'local', label: 'Local: the value set on this rule', keywords: 'offline this browser' },
+        {
+          value: 'https', label: 'A versioned HTTPS API', keywords: 'network remote fetch',
+          disabled: true,
+          disabledReason: 'This site makes no network request and has no privileged boundary to validate a response behind. The desktop application does both, and supports this source there.'
+        },
+        {
+          value: 'homeassistant', label: 'A Home Assistant boolean entity', keywords: 'network home automation binary sensor',
+          disabled: true,
+          disabledReason: 'This site makes no network request and cannot hold an access token safely. The desktop application keeps the token in the operating system credential vault and supports this source there.'
+        }
+      ],
+      onChange: function (v) { update(function (r) { r.source = v; }); }
+    });
+
+    var startDate = el('input', {
+      class: 'set-native', type: 'date', value: rule.startDate || '', 'aria-label': 'Start date, optional',
+      onchange: function () { update(function (r) { r.startDate = startDate.value; }); paintNote(); }
+    });
+    var endDate = el('input', {
+      class: 'set-native', type: 'date', value: rule.endDate || '', 'aria-label': 'End date, optional',
+      onchange: function () { update(function (r) { r.endDate = endDate.value; }); paintNote(); }
+    });
+    var startTime = el('input', {
+      class: 'set-native', type: 'time', value: rule.startTime || '', 'aria-label': 'Start time, optional',
+      onchange: function () { update(function (r) { r.startTime = startTime.value; }); paintNote(); }
+    });
+    var endTime = el('input', {
+      class: 'set-native', type: 'time', value: rule.endTime || '', 'aria-label': 'End time, optional',
+      onchange: function () { update(function (r) { r.endTime = endTime.value; }); paintNote(); }
+    });
+
+    var everyDay = S.makeSwitch({
+      checked: rule.days === 'every', ariaLabel: 'Every day',
+      onChange: function (v) {
+        update(function (r) { r.days = v ? 'every' : []; });
+        rule.days = v ? 'every' : [];
+        dayBox.hidden = v;
+        paintNote();
+      }
+    });
+
+    var dayBox = el('div', { class: 'set-days', hidden: rule.days === 'every' });
+    weekdays().forEach(function (d) {
+      var on = rule.days !== 'every' && Array.isArray(rule.days) && rule.days.indexOf(d.id) >= 0;
+      var chip = el('button', {
+        class: 'chip' + (on ? ' is-sel' : ''), type: 'button', role: 'checkbox',
+        'aria-checked': on ? 'true' : 'false', text: d.label,
+        onclick: function () {
+          var next = chip.getAttribute('aria-checked') !== 'true';
+          chip.setAttribute('aria-checked', next ? 'true' : 'false');
+          chip.classList.toggle('is-sel', next);
+          update(function (r) {
+            var days = Array.isArray(r.days) ? r.days.slice() : [];
+            if (next) { if (days.indexOf(d.id) < 0) days.push(d.id); }
+            else days = days.filter(function (x) { return x !== d.id; });
+            r.days = days;
+            rule.days = days;
+          });
+          paintNote();
+        }
+      });
+      dayBox.appendChild(chip);
+    });
+
+    var note = el('p', { class: 'muted t-body-small', role: 'status', 'aria-live': 'polite', style: { margin: '0' } });
+    function paintNote() {
+      var s = rule.startTime ? toMinutes(rule.startTime) : 0;
+      var e = rule.endTime ? toMinutes(rule.endTime) : 1440;
+      if (s === null) s = 0;
+      if (e === null) e = 1440;
+      var parts = [];
+      if (s === e) parts.push('The start and end times are the same, so this window has zero length and will never match.');
+      else if (s > e) parts.push('This window wraps past midnight and is matched against the current day.');
+      else if (!rule.startTime && !rule.endTime) parts.push('No times set, so this rule is active all day on the days it matches.');
+      else if (!rule.startTime) parts.push('No start time, so the window runs from the start of the day.');
+      else if (!rule.endTime) parts.push('No end time, so the window runs to the end of the day.');
+      if (rule.days !== 'every' && (!Array.isArray(rule.days) || !rule.days.length)) {
+        parts.push('No weekdays are selected, so this rule can never match.');
+      }
+      if (rule.startDate && rule.endDate && rule.startDate > rule.endDate) {
+        parts.push('The start date is after the end date, so this rule can never match.');
+      }
+      if (!rule.enabled) parts.push('This rule is disabled and is not being evaluated.');
+      note.textContent = parts.join(' ');
+    }
+    paintNote();
+
+    var enabled = S.makeSwitch({
+      checked: !!rule.enabled, ariaLabel: 'Enable this rule',
+      onChange: function (v) { rule.enabled = v; update(function (r) { r.enabled = v; }); paintNote(); }
+    });
+
+    var deleteBtn = el('button', {
+      class: 'btn btn--text btn--danger', type: 'button', text: t('act.delete', 'Delete'),
+      'aria-label': t('act.delete', 'Delete') + ': ' + (rule.label || rule.id),
+      onclick: function () {
+        S.confirm({
+          anchor: deleteBtn, returnTo: deleteBtn,
+          action: 'Delete this scheduled rule', target: rule.label || rule.id,
+          facts: [
+            { k: 'Setting', v: (SCHED_SETTINGS[rule.setting] || {}).label || rule.setting },
+            { k: 'Value', v: String(rule.value) },
+            { k: 'Enabled', v: rule.enabled ? 'yes' : 'no' }
+          ],
+          detail: 'The rule is removed from this browser. Any value it is currently holding is put back to what you had before it started.',
+          irreversible: false
+        }).then(function (ok) {
+          if (!ok) return;
+          var d = schedRead();
+          d.rules = d.rules.filter(function (x) { return x.id !== rule.id; });
+          schedWrite(d);
+          render();
+        });
+      }
+    });
+
+    var card = el('div', {
+      class: 'card card--out set-rule', role: 'listitem',
+      'data-bulk-item': '', 'data-id': rule.id, tabindex: '0', 'aria-selected': 'false',
+      style: { 'margin-bottom': '12px' }
+    }, [
+      el('div', { class: 'row', style: { 'justify-content': 'space-between' } }, [
+        el('span', { class: 'cbx', 'data-bulk-check': '', role: 'checkbox', 'aria-checked': 'false', 'aria-label': 'Select this rule' }),
+        el('div', { style: { flex: '1 1 200px', 'min-width': '0' } }, labelInput),
+        enabled
+      ]),
+      el('div', { class: 'set-fields' }, [
+        settingSel.el,
+        valueHost,
+        sourceSel.el,
+        el('label', { class: 'field field--outlined' }, [
+          el('span', { class: 'field__label', text: 'Priority' }),
+          priorityInput
+        ])
+      ]),
+      el('div', { class: 'set-fields' }, [
+        el('label', { class: 'field field--outlined' }, [el('span', { class: 'field__label', text: 'Start date' }), startDate]),
+        el('label', { class: 'field field--outlined' }, [el('span', { class: 'field__label', text: 'End date' }), endDate]),
+        el('label', { class: 'field field--outlined' }, [el('span', { class: 'field__label', text: 'Start time' }), startTime]),
+        el('label', { class: 'field field--outlined' }, [el('span', { class: 'field__label', text: 'End time' }), endTime])
+      ]),
+      el('div', { class: 'row' }, [el('span', { class: 'cap', text: 'Every day' }), everyDay]),
+      dayBox,
+      note,
+      el('div', { class: 'row' }, [deleteBtn])
+    ]);
+
+    S.appearance.enable(card, 'schedule:rule:' + rule.id, 'Scheduled rule: ' + (rule.label || rule.id));
+    S.contextMenu(card, function () {
+      return [
+        {
+          label: t('act.openEditor', 'Edit appearance') + '…', icon: 'palette', shortcut: 'Shift+Right click',
+          run: function () { S.appearance.openEditor(card, 'schedule:rule:' + rule.id, 'Scheduled rule: ' + (rule.label || rule.id)); }
+        },
+        {
+          label: t('locks.lockThis', 'Lock this element') + '…', icon: 'lock',
+          run: function () { S.locks.wizard(card, 'schedule:rule:' + rule.id, 'Scheduled rule: ' + (rule.label || rule.id)); }
+        },
+        '-',
+        { label: rule.enabled ? 'Disable this rule' : 'Enable this rule', icon: rule.enabled ? 'stop' : 'play', run: function () { rule.enabled = !rule.enabled; update(function (r) { r.enabled = rule.enabled; }); render(); } },
+        { label: t('act.delete', 'Delete') + '…', icon: 'trash', danger: true, run: function () { deleteBtn.click(); } }
+      ];
+    }, { ariaLabel: 'Rule menu', storageKey: 'rule-menu' });
+
+    return card;
+  }
+
+  /* ================================================================
+   * 10. Locks
+   * ================================================================ */
+  function renderLocks(panel) {
+    var all = S.locks.list();
+    var list = el('ul', { class: 'list', role: 'listbox', 'aria-label': 'Locks', 'aria-multiselectable': 'true' });
+
+    if (!all.length) {
+      list.appendChild(el('li', { class: 'li' }, el('div', { class: 'li__t' }, [
+        el('div', { class: 'li__h', text: 'Nothing is locked.' }),
+        el('div', { class: 'li__s', text: 'Right-click any element on this site and choose Lock this element, or use the button below to lock one of these sections.' })
+      ])));
+    } else {
+      all.forEach(function (lk) {
+        list.appendChild(el('li', {
+          class: 'li', 'data-bulk-item': '', 'data-id': lk.key, tabindex: '0', role: 'option', 'aria-selected': 'false'
+        }, [
+          el('span', { class: 'cbx', 'data-bulk-check': '', role: 'checkbox', 'aria-checked': 'false', 'aria-label': 'Select ' + lk.label }),
+          icon(lk.unlocked ? 'unlock' : 'lock'),
+          el('div', { class: 'li__t' }, [
+            el('div', { class: 'li__h', text: lk.label }),
+            el('div', { class: 'li__s', text: (lk.kind === 'totp' ? 'A one-time code' : 'A password') + ' · added ' + lk.createdAt + ' · ' + (lk.unlocked ? 'unlocked right now' : 'locked') })
+          ]),
+          el('button', {
+            class: 'btn btn--text', type: 'button', text: 'Lock again',
+            'aria-label': 'Lock again: ' + lk.label,
+            disabled: !lk.unlocked,
+            title: lk.unlocked ? '' : 'This is already locked.',
+            onclick: function () { S.locks.relock(lk.key); render(); }
+          })
+        ]));
+      });
+    }
+
+    var lockTargets = TABS.map(function (tb) {
+      return { value: 'settings:tab:' + tb.id, label: t(tb.labelKey, tb.id) + ' (this section)', keywords: tb.keywords };
+    });
+    var targetSel = S.createSelect({
+      label: 'What to lock', ariaLabel: 'Choose what to lock', value: lockTargets[0].value,
+      storageKey: 'lock-target', options: lockTargets
+    });
+    var lockBtn = el('button', {
+      class: 'btn btn--filled', type: 'button', text: 'Lock it',
+      onclick: function () {
+        var key = targetSel.value();
+        var tabId = key.replace('settings:tab:', '');
+        var label = TAB_LABELS[tabId] || key;
+        S.locks.wizard(lockBtn, key, label);
+      }
+    });
+
+    panel.appendChild(block(t('locks.title', 'Locks'), [
+      t('locks.own', ''),
+      t('msg.notSecurity', ''),
+      t('msg.clearReset', '')
+    ], [
+      list,
+      el('div', { class: 'row' }, [targetSel.el, lockBtn]),
+      el('div', { class: 'row' }, [
+        el('button', {
+          class: 'btn btn--outlined', type: 'button', text: 'Manage every lock',
+          onclick: function (e) { S.locks.manage(e.currentTarget); }
+        }),
+        el('button', {
+          class: 'btn btn--text', type: 'button', text: t('locks.forgot', 'Forgotten your password?'),
+          onclick: function (e) { S.support.open(e.currentTarget); }
+        })
+      ]),
+      plain('A locked element still appears in every search and in the command palette, labelled as locked. Selecting one asks you to unlock it rather than silently doing nothing.'),
+      el('p', { class: 'set-code muted', text: 'Storage prefix ' + S.privacy.storagePrefix + ' at ' + S.privacy.origin })
+    ]));
+
+    if (all.length) {
+      S.bulk.attach(list, {
+        getLabel: function (id) {
+          var lk = all.filter(function (x) { return x.key === id; })[0];
+          return lk ? lk.label : id;
+        },
+        allMatchingCount: function () { return all.length; },
+        allMatchingIds: function () { return all.map(function (lk) { return lk.key; }); },
+        actions: [
+          { id: 'relock', label: 'Lock again', run: function (ids) { ids.forEach(function (k) { S.locks.relock(k); }); window.setTimeout(render, 0); } },
+          {
+            id: 'export', label: t('act.export', 'Export'),
+            run: function (ids) {
+              S.exportDialog(all.filter(function (lk) { return ids.indexOf(lk.key) >= 0; })
+                .map(function (lk) { return { key: lk.key, label: lk.label, kind: lk.kind, createdAt: lk.createdAt }; }),
+                { name: 'locks', anchor: list, omitted: 'Passwords and one-time-code secrets are left out of this file.' });
+            }
+          },
+          {
+            id: 'remove', label: t('act.remove', 'Remove'), danger: true, destructive: true,
+            run: function (ids) { ids.forEach(function (k) { S.locks.remove(k); }); window.setTimeout(render, 0); return { done: ids.length, skipped: 0 }; }
+          }
+        ]
+      });
+    }
+  }
+
+  /* ================================================================
+   * 11. Authenticator
+   * ================================================================ */
+  function renderAuthenticator(panel) {
+    var entries = S.authenticator.list();
+    var list = el('ul', { class: 'list', role: 'listbox', 'aria-label': 'Authenticator entries', 'aria-multiselectable': 'true' });
+
+    if (!entries.length) {
+      list.appendChild(el('li', { class: 'li' }, el('div', { class: 'li__t' }, [
+        el('div', { class: 'li__h', text: 'No entries yet.' }),
+        el('div', { class: 'li__s', text: 'Open the authenticator below to add one by scanning a code, pasting an otpauth link, or typing a secret by hand.' })
+      ])));
+    } else {
+      entries.forEach(function (e) {
+        list.appendChild(el('li', {
+          class: 'li', 'data-bulk-item': '', 'data-id': e.id, tabindex: '0', role: 'option', 'aria-selected': 'false'
+        }, [
+          el('span', { class: 'cbx', 'data-bulk-check': '', role: 'checkbox', 'aria-checked': 'false', 'aria-label': 'Select ' + (e.issuer || e.account) }),
+          el('div', { class: 'li__t' }, [
+            el('div', { class: 'li__h', text: (e.issuer || 'No issuer') + ' · ' + (e.account || 'no account') }),
+            el('div', { class: 'li__s', text: e.algorithm + ', ' + e.digits + ' digits, every ' + e.period + ' seconds · added ' + e.addedAt })
+          ])
+        ]));
+      });
+    }
+
+    var skew = S.authenticator.clockWarning();
+    var skewNode = skew
+      ? el('p', { class: 'note note--warn', text: String(skew) })
+      : el('p', { class: 'muted t-body-small', text: 'This computer\'s clock looks reasonable. A code is generated from the system clock, so a badly wrong clock produces codes that every service rejects with nothing to read.' });
+
+    var selfTestOut = el('div');
+    var selfTestBtn = el('button', {
+      class: 'btn btn--outlined', type: 'button', text: 'Run the RFC 6238 test vectors',
+      onclick: function () {
+        var res = S.authenticator.selfTest();
+        var pass = res.filter(function (r) { return r.pass; }).length;
+        clear(selfTestOut);
+        selfTestOut.appendChild(el('p', {
+          class: pass === res.length ? 'muted' : 'note note--warn',
+          text: pass + ' of ' + res.length + ' published test vectors produced the expected code.'
+        }));
+        selfTestOut.appendChild(el('div', { class: 'scrollx' }, el('table', { class: 'tbl' }, [
+          el('thead', {}, el('tr', {}, [
+            el('th', { text: 'Algorithm' }), el('th', { text: 'Time' }),
+            el('th', { text: 'Expected' }), el('th', { text: 'Produced' }), el('th', { text: 'Result' })
+          ])),
+          el('tbody', {}, res.map(function (r) {
+            return el('tr', {}, [
+              el('td', { text: r.algorithm }), el('td', { class: 'set-code', text: String(r.at) }),
+              el('td', { class: 'set-code', text: r.expected }), el('td', { class: 'set-code', text: r.got }),
+              el('td', {}, el('span', {
+                class: 'status status--' + (r.pass ? 'ok' : 'error')
+              }, [el('span', { class: 'dot' }), r.pass ? 'matches' : 'differs']))
+            ]);
+          }))
+        ])));
+      }
+    });
+
+    panel.appendChild(block(t('auth.title', 'Authenticator'), [
+      'This holds your own one-time-code entries for whatever accounts you like, not only for anything on this site. RFC 6238 over RFC 4226, SHA-1, SHA-256 and SHA-512, six to eight digits and any period.',
+      'A pairing code is drawn here, in this page, from these bytes. A remote code-drawing service would be handed the secret on its way to being rendered, which is the one thing a pairing code must never do. The manual secret is always shown beside the code, because a code is no use to somebody who cannot see it and no use again to somebody pairing on the very device showing it.',
+      t('auth.exportOmits', '')
+    ], [
+      list,
+      el('div', { class: 'row' }, [
+        el('button', {
+          class: 'btn btn--filled', type: 'button', text: 'Open the authenticator',
+          onclick: function (e) { S.authenticator.open(e.currentTarget); }
+        }),
+        selfTestBtn
+      ]),
+      skewNode,
+      selfTestOut,
+      plain('Secrets stay in this browser. They are left out of ordinary exports, and an export that omits them says so.')
+    ]));
+
+    if (entries.length) {
+      S.bulk.attach(list, {
+        getLabel: function (id) {
+          var e = entries.filter(function (x) { return x.id === id; })[0];
+          return e ? (e.issuer || e.account || id) : id;
+        },
+        allMatchingCount: function () { return entries.length; },
+        allMatchingIds: function () { return entries.map(function (e) { return e.id; }); },
+        actions: [
+          {
+            id: 'export', label: t('act.export', 'Export') + ' the names',
+            run: function (ids) {
+              S.exportDialog(entries.filter(function (e) { return ids.indexOf(e.id) >= 0; })
+                .map(function (e) { return { issuer: e.issuer, account: e.account, algorithm: e.algorithm, digits: e.digits, period: e.period, addedAt: e.addedAt }; }),
+                { name: 'authenticator-entries', anchor: list, omitted: t('auth.exportOmits', '') });
+            }
+          },
+          {
+            id: 'remove', label: t('act.remove', 'Remove'), danger: true, destructive: true,
+            run: function (ids) { ids.forEach(function (id) { S.authenticator.remove(id); }); window.setTimeout(render, 0); return { done: ids.length, skipped: 0 }; }
+          }
+        ]
+      });
+    }
+  }
+
+  /* ================================================================
+   * 12. History
+   * ================================================================ */
+  var historyFilter = { from: null, to: null, actions: {} };
+
+  function renderHistory(panel) {
+    var entries = S.history.all();
+    var actions = S.history.actions();
+
+    var search = S.createSearchBar({
+      ariaLabel: 'Search the history', placeholder: t('act.search', 'Search'),
+      storageKey: 'history-page',
+      help: 'Searches the description of every recorded change.',
+      sampleProvider: function () { return entries.slice(0, 40).map(function (e) { return e.label; }).join('\n'); },
+      onChange: function () { paint(); }
+    });
+
+    var picker = S.datePicker({
+      from: historyFilter.from, to: historyFilter.to, range: true,
+      onChange: function (from, to) { historyFilter.from = from; historyFilter.to = to; paint(); }
+    });
+
+    var actionBox = el('div', { class: 'set-days', role: 'group', 'aria-label': 'Filter by what was recorded' });
+    actions.forEach(function (a) {
+      var on = !!historyFilter.actions[a.action];
+      var chip = el('button', {
+        class: 'chip' + (on ? ' is-sel' : ''), type: 'button', role: 'checkbox',
+        'aria-checked': on ? 'true' : 'false',
+        text: a.action + ' (' + a.count + ')',
+        onclick: function () {
+          var next = chip.getAttribute('aria-checked') !== 'true';
+          chip.setAttribute('aria-checked', next ? 'true' : 'false');
+          chip.classList.toggle('is-sel', next);
+          historyFilter.actions[a.action] = next;
+          paint();
+        }
+      });
+      actionBox.appendChild(chip);
+    });
+    if (!actions.length) actionBox.appendChild(el('p', { class: 'muted', text: 'Nothing has been recorded yet, so there is nothing to filter by.' }));
+
+    var listWrap = el('div');
+    var filterHost = el('div', { class: 'stack' }, [search.el, picker.el, actionBox]);
+
+    function visible() {
+      var m = search.matcher();
+      var chosen = Object.keys(historyFilter.actions).filter(function (k) { return historyFilter.actions[k]; });
+      return entries.filter(function (e) {
+        if (chosen.length && chosen.indexOf(e.action) < 0) return false;
+        if (historyFilter.from && new Date(e.at) < startOfDay(historyFilter.from)) return false;
+        if (historyFilter.to && new Date(e.at) > endOfDay(historyFilter.to)) return false;
+        return m(e.label + ' ' + e.action);
+      });
+    }
+    function startOfDay(d) { var x = new Date(d.getTime()); x.setHours(0, 0, 0, 0); return x; }
+    function endOfDay(d) { var x = new Date(d.getTime()); x.setHours(23, 59, 59, 999); return x; }
+
+    var collapseCtl = null;
+
+    function paint() {
+      var rowsOut = visible();
+      clear(listWrap);
+
+      if (collapseCtl) {
+        var chosen = Object.keys(historyFilter.actions).filter(function (k) { return historyFilter.actions[k]; });
+        var bits = [];
+        if (search.value()) bits.push('a text search');
+        if (historyFilter.from || historyFilter.to) bits.push('a date range');
+        if (chosen.length) bits.push(chosen.length + ' action filter' + (chosen.length === 1 ? '' : 's'));
+        collapseCtl.setActiveSummary(bits.length ? ('Excluding entries: ' + bits.join(', ')) : '');
+      }
+
+      if (!rowsOut.length) {
+        listWrap.appendChild(el('p', { class: 'muted', text: entries.length ? t('msg.noMatch', 'Nothing matches those filters.') : 'Nothing has been recorded yet.' }));
+        return;
+      }
+
+      var ul = el('ul', { class: 'list', role: 'listbox', 'aria-label': 'History entries', 'aria-multiselectable': 'true' });
+      rowsOut.slice(0, 80).forEach(function (e) {
+        var diff = S.history.diff(e.id) || [];
+        var details = el('details', {}, [
+          el('summary', { text: diff.length ? ('What changed (' + diff.length + ')') : 'What changed (nothing recorded)' }),
+          diff.length
+            ? el('div', { class: 'scrollx' }, el('table', { class: 'tbl' }, [
+                el('thead', {}, el('tr', {}, [el('th', { text: 'Key' }), el('th', { text: 'Before' }), el('th', { text: 'After' })])),
+                el('tbody', {}, diff.map(function (d) {
+                  return el('tr', {}, [
+                    el('td', { class: 'set-code', text: d.key }),
+                    el('td', { class: 'set-code', text: String(d.before) }),
+                    el('td', { class: 'set-code', text: String(d.after) })
+                  ]);
+                }))
+              ]))
+            : el('p', { class: 'muted', text: 'This entry recorded no difference against the one before it.' })
+        ]);
+
+        ul.appendChild(el('li', {
+          class: 'li', 'data-bulk-item': '', 'data-id': e.id, tabindex: '0', role: 'option', 'aria-selected': 'false',
+          style: { 'align-items': 'flex-start', 'flex-wrap': 'wrap' }
+        }, [
+          el('span', { class: 'cbx', 'data-bulk-check': '', role: 'checkbox', 'aria-checked': 'false', 'aria-label': 'Select this entry' }),
+          el('div', { class: 'li__t' }, [
+            el('div', { class: 'li__h', text: e.label }),
+            el('div', { class: 'li__s', text: e.action + ' · ' + e.at }),
+            details
+          ]),
+          el('button', {
+            class: 'btn btn--outlined', type: 'button', text: t('act.restore', 'Restore'),
+            'aria-label': t('act.restore', 'Restore') + ': ' + e.label,
+            onclick: function (ev) {
+              var btn = ev.currentTarget;
+              S.confirm({
+                anchor: btn, returnTo: btn,
+                action: 'Restore the settings from this entry',
+                target: e.label,
+                facts: [{ k: 'Recorded', v: e.at }, { k: 'Kind', v: e.action }, { k: 'Differences', v: String(diff.length) }],
+                detail: 'History is append-only, so this restore is written as a new entry and can itself be undone.',
+                irreversible: false
+              }).then(function (ok) {
+                if (!ok) return;
+                S.history.restore(e.id);
+                S.notify.success('Restored the settings recorded at ' + e.at + '. The restore was itself recorded.');
+                render();
+              });
+            }
+          })
+        ]));
+      });
+      listWrap.appendChild(ul);
+      if (rowsOut.length > 80) {
+        listWrap.appendChild(el('p', { class: 'muted t-body-small', text: 'Showing the newest 80 of ' + rowsOut.length + ' matching entries.' }));
+      }
+
+      S.bulk.attach(ul, {
+        getLabel: function (id) {
+          var e = entries.filter(function (x) { return x.id === id; })[0];
+          return e ? e.label : id;
+        },
+        allMatchingCount: function () { return rowsOut.length; },
+        allMatchingIds: function () { return rowsOut.map(function (e) { return e.id; }); },
+        actions: [
+          {
+            id: 'export', label: t('act.export', 'Export'),
+            run: function (ids) {
+              S.exportDialog(entries.filter(function (e) { return ids.indexOf(e.id) >= 0; })
+                .map(function (e) { return { at: e.at, action: e.action, label: e.label }; }),
+                { name: 'history', anchor: ul, omitted: 'The stored snapshot of each entry is left out; this file is the log of what happened.' });
+            }
+          },
+          {
+            id: 'label', label: 'Label',
+            run: function (ids) {
+              var text = window.prompt('A label for ' + ids.length + ' entr' + (ids.length === 1 ? 'y' : 'ies') + ':', '');
+              if (text === null) return { done: 0, skipped: ids.length, reason: 'cancelled' };
+              ids.forEach(function (id) { S.history.label(id, text); });
+              window.setTimeout(render, 0);
+            }
+          }
+        ]
+      });
+    }
+
+    var wrap = block(t('history.title', 'History'), [
+      t('history.appendOnly', ''),
+      'The desktop application keeps this in a local Git repository inside its own data folder. A web page has no such folder, so this site keeps the same append-only log in browser storage and says so rather than implying a repository exists.'
+    ], [filterHost, listWrap, el('div', { class: 'row' }, [
+      el('button', {
+        class: 'btn btn--outlined', type: 'button', text: 'Open the history panel',
+        onclick: function (e) { S.history.open(e.currentTarget); }
+      }),
+      el('button', {
+        class: 'btn btn--text', type: 'button', text: 'Prune to the newest 100',
+        onclick: function (e) {
+          var btn = e.currentTarget;
+          S.confirm({
+            anchor: btn, returnTo: btn, action: 'Prune the history', target: 'everything older than the newest 100 entries',
+            facts: [{ k: 'Entries now', v: String(entries.length) }, { k: 'Kept', v: '100' }],
+            detail: 'The pruned entries cannot be brought back, and the states they recorded can no longer be restored.',
+            irreversible: true
+          }).then(function (ok) {
+            if (!ok) return;
+            S.history.prune(100);
+            S.notify.success('History pruned to the newest 100 entries.');
+            render();
+          });
+        }
+      })
+    ])]);
+
+    panel.appendChild(wrap);
+    collapseCtl = S.collapse.attach(filterHost, {
+      title: 'Filters', descriptive: true, storageKey: 'history-filters'
+    });
+    paint();
+  }
+
+  /* ================================================================
+   * 13. Focus mode (the renamable School mode)
+   * ================================================================ */
+  function renderSchool(panel) {
+    var name = S.school.name();
+    var b = rows();
+
+    var nameInput = el('input', {
+      class: 'set-native', type: 'text', value: name, 'aria-label': t('school.rename', 'Rename this mode')
+    });
+    var nameBtn = el('button', {
+      class: 'btn btn--outlined', type: 'button', text: t('act.save', 'Save'),
+      'aria-label': 'Save the name for this mode',
+      onclick: function () {
+        var v = nameInput.value.trim();
+        if (!v) { S.notify.error('The name cannot be empty.'); return; }
+        S.school.setName(v);
+        S.notify.success('This mode is now called "' + v + '" everywhere on this site.');
+        render();
+      }
+    });
+
+    settingInto(b, 'school', {
+      id: 'school.name',
+      label: t('school.rename', 'The name of this mode'),
+      explain: 'You choose what this mode is called. After a rename, every surface on this site uses only the name you chose — the shipped name never reappears in a label, a search result or an accessible name.',
+      storageKey: 'school.name', shippedValue: t('school.default', 'School mode'),
+      keywords: 'school mode rename focus name',
+      value: function () { return S.school.name(); },
+      onReset: function () { S.store.remove('school.name'); render(); },
+      control: function () { return el('div', { class: 'row' }, [nameInput, nameBtn]); }
+    });
+
+    var pinInput = el('input', {
+      class: 'set-native', type: 'password', autocomplete: 'new-password',
+      'aria-label': t('school.setPin', 'Set an unlock code')
+    });
+    var pinBtn = el('button', {
+      class: 'btn btn--outlined', type: 'button', text: t('act.save', 'Save'),
+      'aria-label': 'Save the unlock code',
+      onclick: function () {
+        var v = pinInput.value;
+        if (!v) { S.notify.error('An unlock code cannot be empty.'); return; }
+        S.school.setCredential(v);
+        pinInput.value = '';
+        S.notify.success('The unlock code was set. It is stored as a slow hash, never as the code itself.');
+        render();
+      }
+    });
+
+    settingInto(b, 'school', {
+      id: 'school.credential',
+      label: t('school.setPin', 'The unlock code'),
+      explain: 'Turning the mode off asks for this. It is stored as a PBKDF2-HMAC-SHA256 hash with a random salt, never as the code you typed. It cannot be recovered or shown back to you; clearing this site\'s storage is the way out if you forget it.',
+      storageKey: 'school.cred',
+      shippedValue: 'none set',
+      keywords: 'pin password unlock code credential',
+      value: function () { return S.school.hasCredential() ? 'set' : 'not set'; },
+      control: function () { return el('div', { class: 'row' }, [pinInput, pinBtn]); }
+    });
+
+    var toggleBtn;
+    if (S.school.isOn()) {
+      var offInput = el('input', {
+        class: 'set-native', type: 'password', autocomplete: 'current-password',
+        'aria-label': 'The unlock code'
+      });
+      toggleBtn = el('div', { class: 'row' }, [
+        offInput,
+        el('button', {
+          class: 'btn btn--filled', type: 'button', text: t('school.off', 'Turn it off'),
+          onclick: function () {
+            var res = S.school.disable(offInput.value);
+            offInput.value = '';
+            if (res.ok) { S.notify.success(name + ' is off. Everything it was hiding is back.'); render(); }
+            else S.notify.error(res.error);
+          }
+        })
+      ]);
+    } else {
+      toggleBtn = el('button', {
+        class: 'btn btn--filled', type: 'button', text: t('school.on', 'Turn it on'),
+        onclick: function () {
+          var res = S.school.enable();
+          if (res.ok) { S.notify.success(name + ' is on. This site is English only until you turn it off.'); render(); }
+          else S.notify.error(res.error);
+        }
+      });
+    }
+
+    panel.appendChild(block(name, [t('school.explain', '')], [
+      b,
+      el('div', { class: 'row' }, [toggleBtn]),
+      plain('This is a user-experience lock, not security. Everything is in this browser and anyone with this computer can clear the site\'s storage and get past it. ' + t('msg.clearReset', '')),
+      el('p', { class: 'muted t-body-small', text: 'While it is on, Cantonese, bilingual mode, both funny sliders, personal vocabulary and every dim sum capability are removed from the interface rather than greyed out, because a greyed-out control still tells you the feature exists. Your choices are kept and come back when you turn it off.' })
+    ]));
+  }
+
+  /* ================================================================
+   * 14. Storage and privacy
+   * ================================================================ */
+  function renderStorage(panel) {
+    var b = rows();
+    var st = S.store.status();
+
+    settingInto(b, 'storage', {
+      id: 'dimsum.photos',
+      label: t('dimsum.photoSetting', 'Show a photo with the dim sum dish'),
+      explain: t('dimsum.photoNote', '') + '\n\nThe dish names are bundled with this site, so the surprise works with no network at all. The photo is an image from the public dim sum catalogue\'s release assets, and it is the only network request this site is capable of making.',
+      storageKey: 'dimsum.photos', shippedValue: true,
+      keywords: 'dim sum photo image network offline surprise',
+      value: function () { return S.dimSum.photosEnabled() ? 'on' : 'off'; },
+      onReset: function () { S.dimSum.setPhotosEnabled(true); },
+      control: function () {
+        return S.makeSwitch({
+          checked: S.dimSum.photosEnabled(),
+          ariaLabel: t('dimsum.photoSetting', 'Show a photo with the dim sum dish'),
+          onChange: function (v) { S.dimSum.setPhotosEnabled(v); render(); }
+        });
+      }
+    });
+
+    panel.appendChild(block('Dim sum', [
+      'There is a one in ten chance at each page load of a dim sum dish appearing. It never blocks the page, never takes focus and dismisses itself, and there is no switch to turn it off — only the photo is optional.'
+    ], [b, el('div', { class: 'row' }, [
+      el('button', {
+        class: 'btn btn--text', type: 'button', text: 'Show one now',
+        onclick: function () { S.dimSum.maybeShow(true); }
+      })
+    ])]));
+
+    /* ---- what this site actually requests ------------------------ */
+    var reqs = S.privacy.networkRequests();
+    var reqList = el('ul', {});
+    if (!reqs.length) reqList.appendChild(el('li', { text: 'None. With the dish photo switched off, this site makes no network request of any kind.' }));
+    else reqs.forEach(function (r) { reqList.appendChild(el('li', { text: r })); });
+
+    panel.appendChild(block('Network', [
+      'This list is computed from the setting above rather than asserted, so it cannot quietly become untrue.'
+    ], [reqList]));
+
+    /* ---- what is stored ------------------------------------------ */
+    var keys = S.store.keys();
+    var keyList = el('ul', { class: 'list', role: 'listbox', 'aria-label': 'Stored keys', 'aria-multiselectable': 'true' });
+    if (!keys.length) {
+      keyList.appendChild(el('li', { class: 'li' }, el('div', { class: 'li__t' }, el('div', { class: 'li__h', text: 'Nothing is stored yet.' }))));
+    } else {
+      keys.forEach(function (k) {
+        var raw = JSON.stringify(S.store.get(k, null));
+        keyList.appendChild(el('li', {
+          class: 'li', 'data-bulk-item': '', 'data-id': k, tabindex: '0', role: 'option', 'aria-selected': 'false'
+        }, [
+          el('span', { class: 'cbx', 'data-bulk-check': '', role: 'checkbox', 'aria-checked': 'false', 'aria-label': 'Select ' + k }),
+          el('div', { class: 'li__t' }, [
+            el('div', { class: 'li__h set-code', text: S.privacy.storagePrefix + k }),
+            el('div', { class: 'li__s set-code', text: raw && raw.length > 160 ? raw.slice(0, 160) + '…' : String(raw) })
+          ])
+        ]));
+      });
+    }
+
+    var clearBtn = el('button', {
+      class: 'btn btn--danger', type: 'button', text: 'Clear everything this site stored',
+      onclick: function () {
+        S.confirm({
+          anchor: clearBtn, returnTo: clearBtn,
+          action: 'Clear everything this site stored in this browser',
+          target: keys.length + ' key' + (keys.length === 1 ? '' : 's') + ' at ' + S.privacy.origin,
+          facts: [
+            { k: 'Keys', v: String(keys.length) },
+            { k: 'Approximate size', v: S.store.bytes() + ' bytes' },
+            { k: 'Origin', v: S.privacy.origin }
+          ],
+          detail: 'Every setting, every lock, every authenticator entry, every ticket, the notification log and the whole history go. This is the recovery route for a forgotten lock or a forgotten unlock code, and it cannot be undone.',
+          irreversible: true
+        }).then(function (ok) {
+          if (!ok) return;
+          var n = S.privacy.clearAll();
+          S.notify.success('Cleared ' + n + ' stored values. Reload the page to start from the shipped defaults.');
+          window.setTimeout(function () { window.location.reload(); }, 1200);
+        });
+      }
+    });
+
+    panel.appendChild(block('What is stored', [
+      S.privacy.note,
+      st.available ? ('Storage is working. About ' + S.store.bytes() + ' bytes are in use across ' + keys.length + ' keys.')
+                   : ('Storage is not available: ' + st.note + ' Settings will work for this page and will not survive a reload.')
+    ], [
+      keyList,
+      el('div', { class: 'row' }, [
+        el('button', {
+          class: 'btn btn--outlined', type: 'button', text: 'Export everything',
+          onclick: function (e) {
+            S.exportDialog(S.store.keys().map(function (k) { return { key: k, value: JSON.stringify(S.store.get(k, null)) }; }),
+              {
+                name: 'world-downloader-studio-site-settings', anchor: e.currentTarget,
+                omitted: 'Lock passwords and authenticator secrets are left out of this file.'
+              });
+          }
+        }),
+        el('button', {
+          class: 'btn btn--outlined', type: 'button', text: t('tickets.title', 'Support Tickets'),
+          onclick: function (e) { S.support.open(e.currentTarget); }
+        }),
+        clearBtn
+      ])
+    ]));
+
+    if (keys.length) {
+      S.bulk.attach(keyList, {
+        getLabel: function (id) { return S.privacy.storagePrefix + id; },
+        allMatchingCount: function () { return keys.length; },
+        allMatchingIds: function () { return keys.slice(); },
+        actions: [
+          {
+            id: 'export', label: t('act.export', 'Export'),
+            run: function (ids) {
+              S.exportDialog(ids.map(function (k) { return { key: k, value: JSON.stringify(S.store.get(k, null)) }; }),
+                { name: 'stored-keys', anchor: keyList });
+            }
+          },
+          {
+            id: 'remove', label: t('act.remove', 'Remove'), danger: true, destructive: true,
+            run: function (ids) {
+              ids.forEach(function (k) { S.store.remove(k); });
+              window.setTimeout(function () { window.location.reload(); }, 600);
+              return { done: ids.length, skipped: 0 };
+            }
+          }
+        ]
+      });
+    }
+  }
+
+  /* ================================================================
+   * 15. The settings search
+   *
+   * One search across every tab. When a match sits on a tab other than
+   * the one showing, the result says which tab it is on rather than
+   * leaving the visitor to conclude the setting does not exist.
+   * ================================================================ */
+  var resultsHost = document.getElementById('search-results');
+
+  var search = S.createSearchBar({
+    label: t('set.searchLabel', 'Search every setting'),
+    placeholder: t('act.search', 'Search'),
+    storageKey: 'settings-page',
+    help: t('set.searchHelp', ''),
+    sampleProvider: function () {
+      return searchIndex.map(function (s) { return s.label + ' — ' + s.value(); }).join('\n');
+    },
+    onChange: function () { paintResults(); }
+  });
+  document.getElementById('search-host').appendChild(search.el);
+
+  function paintResults() {
+    var q = search.value();
+    clear(resultsHost);
+    if (!q) { resultsHost.hidden = true; return; }
+    resultsHost.hidden = false;
+
+    var m = search.matcher();
+    var hits = searchIndex.filter(function (s) {
+      return m(s.label + ' ' + s.explain + ' ' + s.keywords + ' ' + s.value() + ' ' + (TAB_LABELS[s.tabId] || ''));
+    });
+
+    if (!hits.length) {
+      resultsHost.appendChild(el('p', { class: 'muted', text: t('set.noMatch', 'No setting matches that.') }));
+      return;
+    }
+
+    var current = strip.selected();
+    var elsewhere = hits.filter(function (h) { return h.tabId !== current; });
+
+    resultsHost.appendChild(el('p', {
+      class: 'muted t-body-small',
+      text: hits.length + ' setting' + (hits.length === 1 ? '' : 's') + ' match. ' +
+        (elsewhere.length
+          ? t('set.matchesElsewhere', '') + ' ' + elsewhere.length + ' of them are on: ' +
+            elsewhere.map(function (h) { return TAB_LABELS[h.tabId]; })
+              .filter(function (v, i, a) { return a.indexOf(v) === i; }).join(', ') + '.'
+          : 'All of them are on the tab you are looking at.')
+    }));
+
+    var ul = el('ul', { class: 'list', role: 'listbox', 'aria-label': 'Matching settings', 'aria-multiselectable': 'true' });
+    hits.forEach(function (h) {
+      ul.appendChild(el('li', {
+        class: 'li', 'data-bulk-item': '', 'data-id': h.id, tabindex: '0', role: 'option', 'aria-selected': 'false'
+      }, [
+        el('span', { class: 'cbx', 'data-bulk-check': '', role: 'checkbox', 'aria-checked': 'false', 'aria-label': 'Select ' + h.label }),
+        el('div', { class: 'li__t' }, [
+          el('div', { class: 'li__h', text: h.label }),
+          el('div', { class: 'li__s', text: TAB_LABELS[h.tabId] + ' · currently ' + (h.value() || 'unset') })
+        ]),
+        el('button', {
+          class: 'btn btn--tonal', type: 'button', text: 'Go to it',
+          'aria-label': 'Go to ' + h.label + ' on the ' + TAB_LABELS[h.tabId] + ' tab',
+          onclick: function () { goTo(h); }
+        })
+      ]));
+    });
+    resultsHost.appendChild(ul);
+
+    S.bulk.attach(ul, {
+      getLabel: function (id) {
+        var h = searchIndex.filter(function (x) { return x.id === id; })[0];
+        return h ? h.label : id;
+      },
+      allMatchingCount: function () { return hits.length; },
+      allMatchingIds: function () { return hits.map(function (h) { return h.id; }); },
+      actions: [
+        {
+          id: 'export', label: t('act.export', 'Export'),
+          run: function (ids) {
+            S.exportDialog(searchIndex.filter(function (h) { return ids.indexOf(h.id) >= 0; })
+              .map(function (h) { return { setting: h.id, label: h.label, section: TAB_LABELS[h.tabId], value: h.value(), explanation: h.explain }; }),
+              { name: 'settings', anchor: ul });
+          }
+        }
+      ]
+    });
+  }
+
+  function goTo(hit) {
+    strip.select(hit.tabId);
+    window.setTimeout(function () {
+      var node = document.querySelector('[data-setting="' + hit.id + '"]');
+      if (!node) { S.notify.warn('That setting is on the ' + TAB_LABELS[hit.tabId] + ' tab, but its row is not on the page right now.'); return; }
+      var p = node.parentElement;
+      while (p) {
+        if (p.tagName === 'DETAILS' && !p.open) p.open = true;
+        if (p.classList && p.classList.contains('wds-collapse') && p.dataset.open === 'false') p.dataset.open = 'true';
+        p = p.parentElement;
+      }
+      node.scrollIntoView({ block: 'center', behavior: S.a11y.reducedMotion() ? 'auto' : 'smooth' });
+      var focusable = node.querySelector('button,input,select,textarea,a,[tabindex]');
+      if (focusable) { try { focusable.focus({ preventScroll: true }); } catch (e) { focusable.focus(); } }
+      S.flash(node);
+    }, 60);
+  }
+
+  /* ================================================================
+   * 16. Render
+   *
+   * Everything re-renders when the language, the funny level or the
+   * focus mode changes, because an explanation written at one level
+   * would otherwise sit there in the voice of the level before.
+   * ================================================================ */
+  var BUILDERS = {
+    language: renderLanguage,
+    appearance: renderAppearance,
+    navigation: renderNavigation,
+    notifications: renderNotifications,
+    schedule: renderSchedule,
+    locks: renderLocks,
+    authenticator: renderAuthenticator,
+    history: renderHistory,
+    school: renderSchool,
+    storage: renderStorage
+  };
+
+  var rendering = false;
+  function render() {
+    if (rendering) return;
+    rendering = true;
+
+    var activeRow = document.activeElement && document.activeElement.closest
+      ? document.activeElement.closest('[data-setting]') : null;
+    var restoreId = activeRow ? activeRow.getAttribute('data-setting') : null;
+
+    searchIndex.length = 0;
+    TABS.forEach(function (tb) {
+      TAB_LABELS[tb.id] = t(tb.labelKey, tb.id);
+      var panel = panels[tb.id];
+      clear(panel);
+      try { BUILDERS[tb.id](panel); }
+      catch (e) {
+        panel.appendChild(el('p', { class: 'note note--warn', text: 'This section failed to build: ' + e.message }));
+        if (window.console && window.console.error) window.console.error(e);
+      }
+      /* The whole section is an appearance target and a lock target,
+         with its own context menu, exactly like every other element. */
+      S.appearance.enable(panel, 'settings:tab:' + tb.id, TAB_LABELS[tb.id]);
+      S.contextMenu(panel, function () {
+        var key = 'settings:tab:' + tb.id;
+        return [
+          {
+            label: t('act.openEditor', 'Edit appearance') + '…', icon: 'palette', shortcut: 'Shift+Right click',
+            run: function () { S.appearance.openEditor(panel, key, TAB_LABELS[tb.id]); }
+          },
+          {
+            label: t('locks.lockThis', 'Lock this element') + '…', icon: 'lock',
+            run: function () { S.locks.wizard(panel, key, TAB_LABELS[tb.id]); }
+          },
+          '-',
+          { label: t('act.search', 'Search') + ' every setting', icon: 'search', run: function () { search.focus(); } },
+          { label: t('palette.title', 'Command palette'), icon: 'grid', shortcut: 'Ctrl+Shift+F', run: function () { S.palette.open(); } }
+        ];
+      }, { ariaLabel: TAB_LABELS[tb.id] + ' menu', storageKey: 'panel-' + tb.id });
+
+      if (S.locks.isLocked('settings:tab:' + tb.id) && !S.locks.isUnlocked('settings:tab:' + tb.id)) {
+        S.locks.veil(panel, 'settings:tab:' + tb.id, TAB_LABELS[tb.id]);
+      }
+    });
+
+    strip.refresh();
+    paintPageCopy();
+    buildAppbarActions();
+    paintResults();
+
+    if (restoreId) {
+      var back = document.querySelector('[data-setting="' + restoreId + '"]');
+      var f = back && back.querySelector('button,input,select,textarea,[tabindex]');
+      if (f) { try { f.focus({ preventScroll: true }); } catch (e) { /* focus is a convenience here */ } }
+    }
+    rendering = false;
+  }
+
+  /* ================================================================
+   * 17. Page-level palette entries and boot
+   * ================================================================ */
+  S.palette.register([
+    { id: 'page.settings', title: 'Settings', subtitle: 'This page', kind: 'page', page: 'settings.html', keywords: 'settings preferences options configure' },
+    { id: 'page.settings.search', title: 'Search every setting', subtitle: 'Settings', kind: 'command', run: function () { search.focus(); } }
+  ].concat(TABS.map(function (tb) {
+    return {
+      id: 'settings.tab.' + tb.id,
+      title: t(tb.labelKey, tb.id),
+      subtitle: 'Settings',
+      kind: 'destination',
+      keywords: tb.keywords,
+      page: 'settings.html',
+      tabStrip: 'settings', tabId: tb.id,
+      target: '[data-wds-akey="settings:tab:' + tb.id + '"]',
+      locked: 'settings:tab:' + tb.id
+    };
+  })));
+
+  S.on('i18n', function () { render(); });
+  S.on('school', function () { render(); });
+  S.on('vocab', function () { render(); });
+
+  render();
+  schedEvaluate();
+  window.setInterval(function () { schedEvaluate(); }, 30000);
+});
+</script>
+</body>
+</html>

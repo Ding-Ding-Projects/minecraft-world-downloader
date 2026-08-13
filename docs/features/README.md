@@ -41,5 +41,10 @@ conventions see [`../../AGENTS.md`](../../AGENTS.md).
 | **Ported features (heads, modded colours, voice)** | Player skin-heads on the map, modded-block map colours from mod-JAR textures, and a transparent Simple Voice Chat / PlasmoVoice UDP relay (from TheHecateII's fork). | [ported-features.md](ported-features.md) |
 | **Deployment, CI & installer** | Multi-stage Docker image (jar + Python console + Node bot), docker-compose with optional BlueMap, the NSIS Windows installer, and the GitHub Actions release pipelines. | [deployment-ci.md](deployment-ci.md) |
 
+## Delight & release identity
+| Feature | Summary | Doc |
+|---|---|---|
+| **Dim sum surprise & release code names** | A one-in-ten startup card naming a dish in both languages, with its photograph resolved from the public dim sum photo catalogue (never stored here); plus the resolver that gives every release its own unused dish as a code name. | [dim-sum.md](dim-sum.md) |
+
 ---
 *Each detailed doc follows the same structure: What it does · How it works · Key files · Configuration/flags · Usage · Verification · Gotchas & limitations · Open items.*

@@ -1,0 +1,423 @@
+/*
+ * The settings surface.
+ *
+ * Everything is expressed in Material Design 3 system tokens so the surface
+ * follows the seed colour, the contrast level, the density scale and the type
+ * scale without a single hard-coded colour of its own.
+ *
+ * Two layout rules are load-bearing here. Wide content scrolls inside its own
+ * container so the page itself never scrolls sideways, and the tab strip is a
+ * grid whose direction follows the dock edge rather than a rotated version of
+ * one orientation.
+ */
+
+.settings-surface {
+  display: flex;
+  flex-direction: column;
+  gap: calc(12px + var(--md-sys-density-step, 0px));
+  min-inline-size: 0;
+  inline-size: 100%;
+}
+
+.settings-surface__notice {
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: var(--md-sys-color-secondary-container);
+  color: var(--md-sys-color-on-secondary-container);
+}
+
+.settings-surface__search {
+  min-inline-size: 0;
+}
+
+.settings-surface__summary {
+  margin: 0;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.settings-surface__elsewhere {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  min-inline-size: 0;
+}
+
+.settings-surface__bulk {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-corner-large);
+  background: var(--md-sys-color-surface-container-low);
+}
+
+.settings-surface__bulk > p {
+  margin: 0;
+  flex: 1 1 16ch;
+  min-inline-size: 0;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.settings-surface__panels:empty {
+  display: none;
+}
+
+/* ------------------------------------------------------------------ */
+/* The nested tab strip                                                */
+/* ------------------------------------------------------------------ */
+
+.settings-tabs {
+  display: grid;
+  gap: 12px;
+  min-inline-size: 0;
+  align-items: start;
+}
+
+.settings-tabs[data-dock='left'] {
+  grid-template-columns: minmax(180px, 15rem) minmax(0, 1fr);
+  grid-template-areas: 'strip content';
+}
+
+.settings-tabs[data-dock='right'] {
+  grid-template-columns: minmax(0, 1fr) minmax(180px, 15rem);
+  grid-template-areas: 'content strip';
+}
+
+.settings-tabs[data-dock='top'] {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: 'strip' 'content';
+}
+
+.settings-tabs[data-dock='bottom'] {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: 'content' 'strip';
+}
+
+.settings-tabs__strip {
+  grid-area: strip;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-inline-size: 0;
+  max-block-size: 70vh;
+  overflow: auto;
+  padding: 8px;
+  border-radius: var(--md-sys-shape-corner-large);
+  background: var(--md-sys-color-surface-container);
+  border: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.settings-tabs__strip[data-dock='top'],
+.settings-tabs__strip[data-dock='bottom'] {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  max-block-size: none;
+}
+
+.settings-tabs__strip[data-dock='top'] .settings-tabs__list,
+.settings-tabs__strip[data-dock='bottom'] .settings-tabs__list {
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.settings-tabs__search {
+  min-inline-size: 0;
+}
+
+.settings-tabs__list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  min-inline-size: 0;
+}
+
+.settings-tabs__list--pinned {
+  padding-block-end: 6px;
+  border-block-end: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.settings-tabs__tab {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  inline-size: 100%;
+  min-block-size: 44px;
+  padding: 6px 12px;
+  border: none;
+  border-radius: var(--md-sys-shape-corner-full);
+  background: transparent;
+  color: var(--md-sys-color-on-surface-variant);
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+  transition: background-color var(--md-sys-motion-duration-short2) var(--md-sys-motion-easing-standard);
+}
+
+.settings-tabs__tab:hover {
+  background: color-mix(in srgb, var(--md-sys-color-on-surface) 8%, transparent);
+}
+
+.settings-tabs__tab[aria-selected='true'] {
+  background: var(--md-sys-color-secondary-container);
+  color: var(--md-sys-color-on-secondary-container);
+}
+
+.settings-tabs__tab:focus-visible,
+.settings-tabs__tab[data-force-focus-ring='true'] {
+  outline: 3px solid var(--md-sys-color-primary);
+  outline-offset: 2px;
+}
+
+.settings-tabs__label {
+  flex: 1 1 auto;
+  min-inline-size: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.settings-tabs__badge {
+  flex: 0 0 auto;
+  font-size: 0.75em;
+}
+
+.settings-tabs__group {
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: var(--md-sys-color-surface-container-low);
+  padding: 4px;
+}
+
+.settings-tabs__group-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  inline-size: 100%;
+  min-block-size: 44px;
+  padding: 4px 8px;
+  border: none;
+  border-radius: var(--md-sys-shape-corner-small);
+  background: transparent;
+  color: var(--md-sys-color-on-surface);
+  font: inherit;
+  cursor: pointer;
+}
+
+.settings-tabs__group-header:focus-visible {
+  outline: 3px solid var(--md-sys-color-primary);
+  outline-offset: 2px;
+}
+
+.settings-tabs__group-body {
+  margin: 0;
+  padding: 0 0 0 6px;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.settings-tabs__group[data-collapsed='true'] .settings-tabs__group-body {
+  display: none;
+}
+
+.settings-tabs__swatch {
+  inline-size: 12px;
+  block-size: 12px;
+  border-radius: var(--md-sys-shape-corner-full);
+  flex: 0 0 auto;
+  border: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.settings-tabs__tools {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-block-start: auto;
+  padding-block-start: 6px;
+}
+
+.settings-tabs__content {
+  grid-area: content;
+  min-inline-size: 0;
+}
+
+.settings-tabs__panel {
+  min-inline-size: 0;
+  display: flex;
+  flex-direction: column;
+  gap: calc(10px + var(--md-sys-density-step, 0px));
+}
+
+.settings-tabs__panel[hidden] {
+  display: none;
+}
+
+/* ------------------------------------------------------------------ */
+/* One settings row                                                    */
+/* ------------------------------------------------------------------ */
+
+.settings-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: calc(12px + var(--md-sys-density-step, 0px));
+  border-radius: var(--md-sys-shape-corner-large);
+  background: var(--md-sys-color-surface-container-low);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  min-inline-size: 0;
+}
+
+.settings-row[hidden] {
+  display: none;
+}
+
+.settings-row__head {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  min-inline-size: 0;
+}
+
+.settings-row__select {
+  flex: 0 0 auto;
+  padding-block-start: 2px;
+}
+
+.settings-row__titles {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1 1 auto;
+  min-inline-size: 0;
+}
+
+.settings-row__titles > span {
+  overflow-wrap: anywhere;
+}
+
+.settings-row__secondary {
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.settings-row__id {
+  font-family: ui-monospace, 'Cascadia Mono', 'Consolas', monospace;
+  font-size: 0.75rem;
+  color: var(--md-sys-color-on-surface-variant);
+  overflow-wrap: anywhere;
+}
+
+.settings-row__id[hidden] {
+  display: none;
+}
+
+.settings-row__explain {
+  flex: 0 0 auto;
+  inline-size: 44px;
+  block-size: 44px;
+  border-radius: var(--md-sys-shape-corner-full);
+  border: 1px solid var(--md-sys-color-outline);
+  background: transparent;
+  color: var(--md-sys-color-on-surface-variant);
+  font: inherit;
+  cursor: pointer;
+}
+
+.settings-row__explain:focus-visible,
+.settings-row__lock:focus-visible {
+  outline: 3px solid var(--md-sys-color-primary);
+  outline-offset: 2px;
+}
+
+.settings-row__description {
+  margin: 0;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.settings-row__description[hidden] {
+  display: none;
+}
+
+.settings-row__body {
+  min-inline-size: 0;
+  overflow-x: auto;
+}
+
+.settings-row__validation {
+  margin: 0;
+  padding: 6px 10px;
+  border-radius: var(--md-sys-shape-corner-small);
+}
+
+.settings-row__validation--error {
+  background: var(--md-sys-color-error-container);
+  color: var(--md-sys-color-on-error-container);
+}
+
+.settings-row__provenance {
+  margin: 0;
+  color: var(--md-sys-color-on-surface-variant);
+  overflow-wrap: anywhere;
+}
+
+.settings-row__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.settings-row__color,
+.settings-row__path,
+.settings-row__font,
+.settings-row__custom {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  min-inline-size: 0;
+}
+
+.settings-row__swatch {
+  inline-size: 28px;
+  block-size: 28px;
+  border-radius: var(--md-sys-shape-corner-small);
+  border: 1px solid var(--md-sys-color-outline);
+  flex: 0 0 auto;
+}
+
+.settings-warning {
+  color: var(--md-sys-color-on-warning-container);
+  background: var(--md-sys-color-warning-container);
+  padding: 6px 10px;
+  border-radius: var(--md-sys-shape-corner-small);
+}
+
+/* ------------------------------------------------------------------ */
+/* Narrow widths and high display scales                               */
+/* ------------------------------------------------------------------ */
+
+@media (max-width: 900px) {
+  .settings-tabs[data-dock='left'],
+  .settings-tabs[data-dock='right'] {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: 'strip' 'content';
+  }
+
+  .settings-tabs__strip {
+    max-block-size: 40vh;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .settings-tabs__tab {
+    transition: none;
+  }
+}

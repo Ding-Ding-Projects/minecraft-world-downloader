@@ -1,0 +1,191 @@
+/*
+ * The extension's own surfaces. Bundled locally: no web font, no remote
+ * stylesheet, no image fetched from anywhere.
+ */
+
+:root {
+  color-scheme: light dark;
+  --ext-surface: #f8fafd;
+  --ext-on-surface: #191c20;
+  --ext-surface-container: #eceef4;
+  --ext-outline: #74777f;
+  --ext-outline-variant: #c4c6d0;
+  --ext-primary: #38618f;
+  --ext-on-primary: #ffffff;
+  --ext-error: #ba1a1a;
+  --ext-success: #2c6c47;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ext-surface: #111418;
+    --ext-on-surface: #e1e2e8;
+    --ext-surface-container: #1d2024;
+    --ext-outline: #8e9099;
+    --ext-outline-variant: #44474e;
+    --ext-primary: #a3c9fe;
+    --ext-on-primary: #00325a;
+    --ext-error: #ffb4ab;
+    --ext-success: #8fd8ab;
+  }
+}
+
+body {
+  margin: 0;
+  padding: 16px;
+  background: var(--ext-surface);
+  color: var(--ext-on-surface);
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+h1 {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0 0 4px;
+}
+
+p.lede {
+  margin: 0 0 16px;
+  color: var(--ext-outline);
+}
+
+fieldset {
+  border: 1px solid var(--ext-outline-variant);
+  border-radius: 12px;
+  margin: 0 0 16px;
+  padding: 12px 16px 16px;
+}
+
+legend {
+  font-weight: 600;
+  padding: 0 6px;
+}
+
+label {
+  display: block;
+  font-weight: 500;
+  margin: 12px 0 4px;
+}
+
+label:first-of-type {
+  margin-top: 0;
+}
+
+input[type='text'],
+input[type='number'],
+input[type='password'] {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 1px solid var(--ext-outline);
+  border-radius: 8px;
+  background: var(--ext-surface-container);
+  color: inherit;
+  font: inherit;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+}
+
+.row input[type='checkbox'] {
+  width: 22px;
+  height: 22px;
+  margin: 0;
+}
+
+.row label {
+  margin: 0;
+}
+
+.hint {
+  margin: 4px 0 0;
+  color: var(--ext-outline);
+  font-size: 12px;
+}
+
+.error {
+  margin: 4px 0 0;
+  color: var(--ext-error);
+  font-size: 12px;
+}
+
+button {
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0 20px;
+  border: 1px solid transparent;
+  border-radius: 22px;
+  background: var(--ext-primary);
+  color: var(--ext-on-primary);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+button.secondary {
+  background: transparent;
+  color: var(--ext-primary);
+  border-color: var(--ext-outline);
+}
+
+button:focus-visible,
+input:focus-visible {
+  outline: 3px solid var(--ext-primary);
+  outline-offset: 2px;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.status {
+  margin: 12px 0 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--ext-surface-container);
+}
+
+.status[data-tone='error'] {
+  color: var(--ext-error);
+}
+
+.status[data-tone='success'] {
+  color: var(--ext-success);
+}
+
+ul.recent {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+ul.recent li {
+  padding: 8px 0;
+  border-bottom: 1px solid var(--ext-outline-variant);
+  word-break: break-all;
+}
+
+ul.recent li:last-child {
+  border-bottom: none;
+}
+
+.recent .outcome {
+  font-weight: 600;
+}
+
+.recent .detail {
+  color: var(--ext-outline);
+  font-size: 12px;
+}

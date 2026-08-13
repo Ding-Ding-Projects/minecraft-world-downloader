@@ -1,0 +1,334 @@
+/*
+ * Scheduled settings.
+ *
+ * Everything here is scoped to this feature's own class names and every colour,
+ * space and shape comes from a Material Design 3 token, so a theme, density,
+ * contrast or font change reaches this surface without it needing to be told.
+ *
+ * Wide content — the rules table — scrolls inside its own container. The page
+ * itself never scrolls sideways.
+ */
+
+.schedule-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-4);
+  min-width: 0;
+}
+
+.schedule-panel__zone {
+  color: var(--md-sys-color-on-surface-variant);
+  margin: 0;
+  max-width: 76ch;
+}
+
+/* ---------------- runtime strip ---------------- */
+
+.schedule-strip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--md-space-3);
+  padding: var(--md-space-3);
+  border-radius: var(--md-sys-shape-corner-large);
+  background: var(--md-sys-color-surface-container);
+  color: var(--md-sys-color-on-surface);
+}
+
+/* ---------------- toolbar ---------------- */
+
+.schedule-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--md-space-3);
+  min-width: 0;
+}
+
+.schedule-toolbar > .md-search {
+  flex: 1 1 18rem;
+  min-width: 0;
+}
+
+/* ---------------- selection ---------------- */
+
+.schedule-selection {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--md-space-2);
+  padding: var(--md-space-2) var(--md-space-3);
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: var(--md-sys-color-surface-container-high);
+}
+
+.schedule-selection__scope {
+  flex-basis: 100%;
+  color: var(--md-sys-color-on-surface-variant);
+  margin: 0;
+}
+
+.schedule-selection__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-space-2);
+}
+
+/* ---------------- table ---------------- */
+
+.schedule-table-wrap {
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+.schedule-table-wrap .md-table {
+  min-width: 60rem;
+}
+
+.schedule-table-wrap tr[data-selected='true'] {
+  background: var(--md-sys-color-secondary-container);
+  color: var(--md-sys-color-on-secondary-container);
+}
+
+.schedule-cell-name {
+  font-weight: 500;
+  max-width: 16rem;
+  overflow-wrap: anywhere;
+}
+
+.schedule-cell-note {
+  display: block;
+  color: var(--md-sys-color-on-surface-variant);
+  overflow-wrap: anywhere;
+}
+
+/* A real, adequately sized target rather than the browser's default 13 pixels. */
+.schedule-select {
+  inline-size: 1.25rem;
+  block-size: 1.25rem;
+  min-inline-size: 1.25rem;
+  margin: calc((var(--md-comp-touch-target, 44px) - 1.25rem) / 2);
+  accent-color: var(--md-sys-color-primary);
+  cursor: pointer;
+}
+
+.schedule-select:focus-visible {
+  outline: 2px solid var(--md-sys-color-primary);
+  outline-offset: 2px;
+}
+
+/* ---------------- active overrides ---------------- */
+
+.schedule-active,
+.schedule-quarantine {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-2);
+  min-width: 0;
+}
+
+.schedule-active h2,
+.schedule-quarantine h2 {
+  margin: 0;
+}
+
+.schedule-quarantine:empty {
+  display: none;
+}
+
+/* ---------------- editor ---------------- */
+
+.schedule-editor {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-4);
+  min-inline-size: min(30rem, 90vw);
+  max-inline-size: 42rem;
+}
+
+.schedule-editor__problems {
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: var(--md-sys-color-error-container);
+  color: var(--md-sys-color-on-error-container);
+  padding: var(--md-space-3);
+}
+
+.schedule-editor__problems[hidden] {
+  display: none;
+}
+
+.schedule-editor__problem-list {
+  margin: var(--md-space-2) 0 0;
+  padding-inline-start: var(--md-space-5);
+}
+
+.schedule-editor__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--md-space-2);
+  flex-wrap: wrap;
+}
+
+.schedule-editor__zone,
+.schedule-editor__summary {
+  margin: 0;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.schedule-editor__summary {
+  color: var(--md-sys-color-on-surface);
+  font-weight: 500;
+}
+
+.schedule-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-2);
+  padding: var(--md-space-3);
+  border-radius: var(--md-sys-shape-corner-large);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  min-width: 0;
+}
+
+.schedule-group__title {
+  margin: 0;
+}
+
+.schedule-group__hint {
+  margin: 0;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.schedule-group__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-3);
+  min-width: 0;
+}
+
+.schedule-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-space-3);
+  min-width: 0;
+}
+
+.schedule-row > * {
+  flex: 1 1 12rem;
+  min-width: 0;
+}
+
+.schedule-row--actions > *,
+.schedule-row--picker > * {
+  flex: 0 0 auto;
+}
+
+.schedule-row--picker > .md-select {
+  flex: 1 1 16rem;
+  min-width: 0;
+}
+
+.schedule-weekdays {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-space-2);
+}
+
+.schedule-weekdays[hidden] {
+  display: none;
+}
+
+.schedule-assignments {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-3);
+  min-width: 0;
+}
+
+.schedule-assignment {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-2);
+  padding: var(--md-space-3);
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: var(--md-sys-color-surface-container);
+  min-width: 0;
+}
+
+.schedule-assignment__head {
+  display: flex;
+  align-items: center;
+  gap: var(--md-space-2);
+  flex-wrap: wrap;
+}
+
+.schedule-assignment__id {
+  font-family: var(--md-sys-typeface-mono, monospace);
+  font-size: 0.85em;
+  color: var(--md-sys-color-on-surface-variant);
+  overflow-wrap: anywhere;
+}
+
+.schedule-assignment__base {
+  margin: 0;
+  color: var(--md-sys-color-on-surface-variant);
+  overflow-wrap: anywhere;
+}
+
+.schedule-preview__list {
+  margin: var(--md-space-2) 0 0;
+  padding-inline-start: var(--md-space-5);
+  max-block-size: 40vh;
+  overflow-y: auto;
+}
+
+/* ---------------- progressive disclosure ---------------- */
+
+.schedule-explain {
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.schedule-explain > summary {
+  cursor: pointer;
+  min-block-size: var(--md-comp-touch-target, 44px);
+  display: flex;
+  align-items: center;
+  border-radius: var(--md-sys-shape-corner-small);
+}
+
+.schedule-explain > summary:focus-visible {
+  outline: 2px solid var(--md-sys-color-primary);
+  outline-offset: 2px;
+}
+
+.schedule-explain > p {
+  margin: 0 0 var(--md-space-2);
+  max-width: 76ch;
+}
+
+/* ---------------- provenance ---------------- */
+
+.schedule-provenance {
+  margin: 0;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+/* ---------------- narrow layouts ---------------- */
+
+@media (max-width: 720px) {
+  .schedule-row > * {
+    flex-basis: 100%;
+  }
+
+  .schedule-editor {
+    min-inline-size: min(24rem, 92vw);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .schedule-panel *,
+  .schedule-editor * {
+    transition-duration: 0.001ms !important;
+    animation-duration: 0.001ms !important;
+  }
+}

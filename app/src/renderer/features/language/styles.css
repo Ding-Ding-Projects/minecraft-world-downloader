@@ -1,0 +1,376 @@
+/*
+ * Language and voice.
+ *
+ * Every colour, radius, spacing and motion value below is a Material Design 3
+ * system token, so both themes and every contrast level follow the application
+ * without this file knowing anything about them.
+ *
+ * Two layout rules are load-bearing here rather than decorative. Wide content
+ * scrolls inside its own container — the preview matrix and the variant table
+ * each have their own scroller, and the page itself never scrolls sideways. And
+ * nothing is given a fixed height: bilingual copy is the longest the interface
+ * ever renders, and a box sized for English clips it at exactly the moment the
+ * user is checking whether it clips.
+ */
+
+.lang-tab {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-6);
+}
+
+/* ------------------------------------------------------------------ */
+/* Disclosure                                                          */
+/* ------------------------------------------------------------------ */
+
+.lang-disclosure {
+  border-inline-start: 4px solid var(--md-sys-color-tertiary);
+}
+
+.lang-disclosure__status {
+  color: var(--md-sys-color-on-surface-variant);
+  margin: 0;
+}
+
+.lang-disclosure__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-space-2);
+}
+
+.lang-disclosure__actions:empty {
+  display: none;
+}
+
+/* ------------------------------------------------------------------ */
+/* Controls                                                            */
+/* ------------------------------------------------------------------ */
+
+.lang-control {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-3);
+  min-inline-size: 0;
+}
+
+.lang-controls-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--md-space-5);
+}
+
+.lang-controls-grid__cell {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-2);
+  min-inline-size: 0;
+}
+
+.lang-controls-grid__cell > p {
+  margin: 0;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.lang-funny__readout {
+  margin: 0;
+  color: var(--md-sys-color-primary);
+}
+
+.lang-mirror-note {
+  margin: 0;
+  color: var(--md-sys-color-on-surface-variant);
+  overflow-wrap: anywhere;
+}
+
+.lang-emoji-compare {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--md-space-3);
+}
+
+.lang-emoji-compare__column {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-2);
+  min-inline-size: 0;
+}
+
+.lang-emoji-compare__column > p {
+  margin: 0;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+/* ------------------------------------------------------------------ */
+/* Samples                                                             */
+/* ------------------------------------------------------------------ */
+
+.lang-samples {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-3);
+  min-inline-size: 0;
+}
+
+/*
+ * A sample is a message box rendered flat. It carries no hover, no pointer and
+ * no focusable child, because it is a preview of a message and not a message
+ * anybody can act on.
+ */
+.lang-sample {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-1);
+  padding: var(--md-space-3);
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: var(--md-sys-color-surface-container-high);
+  color: var(--md-sys-color-on-surface);
+  border-inline-start: 4px solid var(--md-sys-color-outline-variant);
+  min-inline-size: 0;
+}
+
+.lang-sample--info {
+  border-inline-start-color: var(--md-sys-color-primary);
+}
+
+.lang-sample--destructive {
+  border-inline-start-color: var(--md-sys-color-tertiary);
+}
+
+.lang-sample--error {
+  border-inline-start-color: var(--md-sys-color-error);
+}
+
+.lang-sample__category {
+  margin: 0;
+  color: var(--md-sys-color-on-surface-variant);
+  text-transform: none;
+}
+
+.lang-sample__primary,
+.lang-sample__secondary {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+/* The secondary line stays compact so bilingual mode does not double the height. */
+.lang-sample__secondary {
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+/* ------------------------------------------------------------------ */
+/* Preview screens                                                     */
+/* ------------------------------------------------------------------ */
+
+.lang-preview-pane {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-2);
+  padding: var(--md-space-3);
+  border: 1px dashed var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: var(--md-sys-color-surface-container-lowest);
+  min-inline-size: 0;
+}
+
+.lang-preview-pane__head {
+  margin: 0;
+  color: var(--md-sys-color-primary);
+}
+
+.lang-preview-pane__notice,
+.lang-screen__notice,
+.lang-matrix__notice,
+.lang-variants__honesty {
+  margin: 0;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.lang-screen {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-3);
+  padding: var(--md-space-4);
+  border: 1px dashed var(--md-sys-color-outline);
+  border-radius: var(--md-sys-shape-corner-large);
+  background: var(--md-sys-color-surface-container-low);
+  color: var(--md-sys-color-on-surface);
+  /* Never a fixed height: the tallest cell in the matrix decides the row. */
+  block-size: auto;
+  min-inline-size: 0;
+  max-inline-size: 100%;
+}
+
+.lang-screen__caption {
+  margin: 0;
+  color: var(--md-sys-color-primary);
+  overflow-wrap: anywhere;
+}
+
+.lang-screen__header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-1);
+}
+
+.lang-screen__title,
+.lang-screen__title-secondary,
+.lang-screen__supporting {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.lang-screen__title-secondary,
+.lang-screen__secondary {
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.lang-screen__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-space-2);
+}
+
+/*
+ * An action label, rendered as the text it is.
+ *
+ * It is deliberately NOT styled as a button: it has no filled container, no
+ * elevation and no pointer, because it cannot be pressed. A preview that looks
+ * operable and is not is worse than a screenshot.
+ */
+.lang-screen__action {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--md-space-1) var(--md-space-2);
+  border-block-end: 2px solid var(--md-sys-color-outline-variant);
+  color: var(--md-sys-color-on-surface-variant);
+  min-inline-size: 0;
+  overflow-wrap: anywhere;
+}
+
+.lang-screen__action-secondary {
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.lang-inline-preview,
+.lang-funny__preview {
+  min-inline-size: 0;
+}
+
+/* ------------------------------------------------------------------ */
+/* The matrix                                                          */
+/* ------------------------------------------------------------------ */
+
+.lang-matrix {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-4);
+}
+
+.lang-matrix__controls {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--md-space-4);
+  align-items: end;
+}
+
+/*
+ * The matrix scrolls inside itself.
+ *
+ * At 720 pixels a cell and 200 per cent scale, six cells cannot fit any window,
+ * so this container takes the horizontal scroll and the page never does.
+ */
+.lang-matrix__grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-space-4);
+  overflow-x: auto;
+  padding-block-end: var(--md-space-2);
+}
+
+/*
+ * The display-scale simulation.
+ *
+ * `zoom` scales the layout as well as the type, which is what a display scale
+ * actually does — a font-size multiplier would show larger text in a box that
+ * never grew, and clipping is the exact thing this control exists to reveal.
+ */
+.lang-matrix__grid .lang-screen {
+  zoom: var(--lang-preview-scale, 1);
+}
+
+/* ------------------------------------------------------------------ */
+/* Fact check                                                          */
+/* ------------------------------------------------------------------ */
+
+.lang-fact-status {
+  margin: 0;
+  padding: var(--md-space-3);
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: var(--md-sys-color-surface-container-high);
+  color: var(--md-sys-color-on-surface);
+  overflow-wrap: anywhere;
+}
+
+.lang-fact-status--failed {
+  background: var(--md-sys-color-error-container);
+  color: var(--md-sys-color-on-error-container);
+}
+
+/* ------------------------------------------------------------------ */
+/* The variant list                                                    */
+/* ------------------------------------------------------------------ */
+
+.lang-variants {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-3);
+}
+
+.lang-variants__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-space-2);
+}
+
+.lang-variants__status {
+  margin: 0;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.lang-variants__wrap {
+  max-block-size: 60vh;
+  overflow-y: auto;
+}
+
+.lang-variants__text {
+  min-inline-size: 22ch;
+  max-inline-size: 60ch;
+  overflow-wrap: anywhere;
+}
+
+.lang-variants input[type='checkbox'] {
+  /* An adequate target even where the row is dense. */
+  inline-size: 20px;
+  block-size: 20px;
+  margin: var(--md-space-3);
+  accent-color: var(--md-sys-color-primary);
+}
+
+.lang-variants tr[aria-selected='true'] {
+  background: var(--md-sys-color-secondary-container);
+  color: var(--md-sys-color-on-secondary-container);
+}
+
+/* ------------------------------------------------------------------ */
+/* Motion                                                              */
+/* ------------------------------------------------------------------ */
+
+@media (prefers-reduced-motion: reduce) {
+  .lang-tab *,
+  .lang-screen,
+  .lang-sample {
+    transition: none !important;
+    animation: none !important;
+  }
+}
