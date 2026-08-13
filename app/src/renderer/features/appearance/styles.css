@@ -1,0 +1,415 @@
+/*
+ * Appearance destination.
+ *
+ * Every value below comes from the Material Design 3 token set rather than a
+ * hard-coded colour or spacing, so this surface follows the theme it edits —
+ * including while the user is dragging the density slider that changes it.
+ *
+ * Wide content scrolls inside its own container. The page itself must never
+ * scroll sideways, which is the failure that a table or a long selector string
+ * causes first.
+ */
+
+.appearance-body {
+  display: block;
+  min-width: 0;
+}
+
+.appearance-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-4);
+  min-width: 0;
+}
+
+.appearance-section[hidden] {
+  display: none;
+}
+
+/* ------------------------------------------------------------------ */
+/* One control with its explanation and provenance                     */
+/* ------------------------------------------------------------------ */
+
+.appearance-block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-2);
+  padding: var(--md-space-4);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-corner-large);
+  background: var(--md-sys-color-surface-container-low);
+  min-width: 0;
+}
+
+.appearance-block__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--md-space-2);
+}
+
+.appearance-block__title {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.appearance-block__secondary {
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+/* ------------------------------------------------------------------ */
+/* Theme preview                                                       */
+/* ------------------------------------------------------------------ */
+
+.appearance-swatches {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: var(--md-space-2);
+  min-width: 0;
+}
+
+.appearance-swatch {
+  display: flex;
+  align-items: center;
+  gap: var(--md-space-2);
+  padding: var(--md-space-2);
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: var(--md-sys-color-surface-container);
+  min-width: 0;
+}
+
+.appearance-swatch__chip {
+  inline-size: 28px;
+  block-size: 28px;
+  border-radius: var(--md-sys-shape-corner-small);
+  border: 1px solid var(--md-sys-color-outline);
+  flex: 0 0 auto;
+}
+
+.appearance-swatch__name {
+  color: var(--md-sys-color-on-surface);
+  overflow-wrap: anywhere;
+}
+
+.appearance-swatch__value {
+  color: var(--md-sys-color-on-surface-variant);
+  font-size: 11px;
+  margin-inline-start: auto;
+  overflow-wrap: anywhere;
+}
+
+.appearance-seed {
+  display: flex;
+  align-items: center;
+  gap: var(--md-space-2);
+  flex-wrap: wrap;
+}
+
+.appearance-seed__chip {
+  inline-size: 32px;
+  block-size: 32px;
+  border-radius: var(--md-sys-shape-corner-full);
+  border: 1px solid var(--md-sys-color-outline);
+  flex: 0 0 auto;
+}
+
+.appearance-seed__value {
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+/* ------------------------------------------------------------------ */
+/* Typography                                                          */
+/* ------------------------------------------------------------------ */
+
+.appearance-typepreview {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-2);
+  padding: var(--md-space-4);
+  border-radius: var(--md-sys-shape-corner-large);
+  background: var(--md-sys-color-surface-container);
+  overflow-x: auto;
+}
+
+.appearance-typepreview__line {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--md-space-3);
+  min-width: 0;
+}
+
+.appearance-typepreview__line p {
+  margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.appearance-typepreview__meta {
+  color: var(--md-sys-color-on-surface-variant);
+  flex: 0 0 auto;
+}
+
+.appearance-typepreview__cjk {
+  margin: 0;
+  color: var(--md-sys-color-on-surface);
+}
+
+.appearance-fontlist {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-2);
+  min-width: 0;
+}
+
+.appearance-fontlist__rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-1);
+  max-block-size: 340px;
+  overflow-y: auto;
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-corner-medium);
+  padding: var(--md-space-1);
+}
+
+.appearance-fontlist__row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-block-size: 44px;
+  padding: var(--md-space-2) var(--md-space-3);
+  border: none;
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: transparent;
+  color: var(--md-sys-color-on-surface);
+  text-align: start;
+  cursor: pointer;
+}
+
+.appearance-fontlist__row:hover {
+  background: var(--md-sys-color-surface-container-high);
+}
+
+.appearance-fontlist__row[aria-checked='true'] {
+  background: var(--md-sys-color-secondary-container);
+  color: var(--md-sys-color-on-secondary-container);
+}
+
+.appearance-fontlist__sample {
+  color: var(--md-sys-color-on-surface-variant);
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+/* ------------------------------------------------------------------ */
+/* Bulk actions                                                        */
+/* ------------------------------------------------------------------ */
+
+.appearance-bulkbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--md-space-2);
+  padding: var(--md-space-2);
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: var(--md-sys-color-surface-container);
+}
+
+/* ------------------------------------------------------------------ */
+/* Presets                                                             */
+/* ------------------------------------------------------------------ */
+
+.appearance-save {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--md-space-3);
+}
+
+.appearance-presets {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--md-space-3);
+  min-width: 0;
+}
+
+.appearance-preset {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-2);
+  padding: var(--md-space-3);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-corner-large);
+  background: var(--md-sys-color-surface-container-low);
+  min-width: 0;
+}
+
+.appearance-preset[aria-selected='true'] {
+  border-color: var(--md-sys-color-primary);
+  background: var(--md-sys-color-surface-container-high);
+}
+
+.appearance-preset__head {
+  display: flex;
+  align-items: center;
+  gap: var(--md-space-2);
+  min-width: 0;
+}
+
+.appearance-preset__head > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.appearance-preset__detail p {
+  margin: 0;
+  color: var(--md-sys-color-on-surface-variant);
+  overflow-wrap: anywhere;
+}
+
+.appearance-preset__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--md-space-2);
+  margin-block-start: auto;
+}
+
+/* ------------------------------------------------------------------ */
+/* Element catalogue                                                   */
+/* ------------------------------------------------------------------ */
+
+.appearance-elements {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-3);
+  min-width: 0;
+}
+
+.appearance-element {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-2);
+  padding: var(--md-space-3);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-corner-large);
+  background: var(--md-sys-color-surface-container-low);
+  min-width: 0;
+}
+
+.appearance-element[aria-selected='true'] {
+  border-color: var(--md-sys-color-primary);
+}
+
+.appearance-element__head {
+  display: flex;
+  align-items: center;
+  gap: var(--md-space-2);
+  min-width: 0;
+}
+
+.appearance-element__head > div:last-child {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.appearance-element__selector {
+  color: var(--md-sys-color-on-surface-variant);
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.appearance-element__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-space-2);
+}
+
+/* The sample is real chrome, so it is given room and its own scroll rather
+   than being allowed to widen the page. */
+.appearance-sample {
+  padding: var(--md-space-3);
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: var(--md-sys-color-surface-container);
+  overflow-x: auto;
+  min-width: 0;
+}
+
+.appearance-sample__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--md-space-2);
+}
+
+.appearance-sample__explain {
+  margin: 0;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.appearance-sample__titlebar {
+  display: flex;
+  align-items: center;
+  gap: var(--md-space-2);
+  padding: var(--md-space-2) var(--md-space-3);
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: var(--md-sys-color-surface-container-highest);
+}
+
+.appearance-sample__brand {
+  display: flex;
+  align-items: center;
+  gap: var(--md-space-2);
+  margin-inline-end: auto;
+  min-width: 0;
+}
+
+/* ------------------------------------------------------------------ */
+/* Export, import and kept entries                                     */
+/* ------------------------------------------------------------------ */
+
+.appearance-transfer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--md-space-3);
+  min-width: 0;
+}
+
+.appearance-kept {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-2);
+  min-width: 0;
+  overflow-x: auto;
+}
+
+/* ------------------------------------------------------------------ */
+/* Narrow layouts and high display scales                              */
+/* ------------------------------------------------------------------ */
+
+@media (max-width: 720px) {
+  .appearance-presets {
+    grid-template-columns: 1fr;
+  }
+
+  .appearance-swatches {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  }
+
+  .appearance-save,
+  .appearance-transfer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .appearance-fontlist__row {
+    transition: none;
+  }
+}

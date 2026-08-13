@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>World Downloader Studio download capture — settings</title>
+    <link rel="stylesheet" href="shared.css" />
+  </head>
+  <body>
+    <main>
+      <h1>Download capture</h1>
+      <p class="lede">
+        This extension offers a browser download to World Downloader Studio instead of letting the browser
+        take it. Nothing leaves this machine: the only address it ever contacts is the loopback receiver
+        below.
+      </p>
+
+      <form id="settings-form" novalidate>
+        <fieldset>
+          <legend>Pairing</legend>
+
+          <div class="row">
+            <input id="enabled" type="checkbox" />
+            <label for="enabled">Capture downloads and hand them to the application</label>
+          </div>
+          <p class="hint" id="enabled-hint">
+            While this is off the browser downloads everything itself, exactly as it did before the
+            extension was installed.
+          </p>
+
+          <label for="endpoint">Receiver address</label>
+          <input id="endpoint" type="text" inputmode="url" spellcheck="false" aria-describedby="endpoint-hint endpoint-error" />
+          <p class="hint" id="endpoint-hint">
+            The application shows this on its Downloads tab. Only a loopback address is accepted.
+          </p>
+          <p class="error" id="endpoint-error" role="status"></p>
+
+          <label for="token">Pairing token</label>
+          <input id="token" type="password" spellcheck="false" autocomplete="off" aria-describedby="token-hint token-error" />
+          <p class="hint" id="token-hint">
+            Copy it from the application's Downloads tab. It is regenerated whenever the receiver
+            restarts, and it is stored only in this browser profile.
+          </p>
+          <p class="error" id="token-error" role="status"></p>
+
+          <div class="row">
+            <input id="show-token" type="checkbox" />
+            <label for="show-token">Show the token while typing</label>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Which downloads to capture</legend>
+
+          <label for="minimum-bytes">Smallest download to capture, in bytes</label>
+          <input id="minimum-bytes" type="number" min="0" step="1" aria-describedby="minimum-hint minimum-error" />
+          <p class="hint" id="minimum-hint">
+            Zero captures every download. A floor here leaves small files to the browser, where the
+            round trip through the application is not worth the interruption.
+          </p>
+          <p class="error" id="minimum-error" role="status"></p>
+
+          <label for="only-extensions">Capture only these file extensions</label>
+          <input id="only-extensions" type="text" spellcheck="false" placeholder="zip, iso, mp4" aria-describedby="only-hint" />
+          <p class="hint" id="only-hint">Leave it empty to capture every extension.</p>
+
+          <label for="never-extensions">Never capture these file extensions</label>
+          <input id="never-extensions" type="text" spellcheck="false" placeholder="pdf, txt" aria-describedby="never-hint" />
+          <p class="hint" id="never-hint">This list wins over the one above.</p>
+
+          <div class="row">
+            <input id="keep-on-failure" type="checkbox" />
+            <label for="keep-on-failure">Leave the browser's own download running when the handover fails</label>
+          </div>
+          <p class="hint">
+            The handover is posted before the browser download is cancelled, so a receiver that is not
+            listening never costs you the file.
+          </p>
+        </fieldset>
+
+        <div class="actions">
+          <button type="submit" id="save">Save</button>
+          <button type="button" class="secondary" id="test">Test the connection</button>
+        </div>
+        <p class="status" id="status" role="status" data-tone="neutral">Loading the stored settings.</p>
+      </form>
+    </main>
+    <script type="module" src="options.js"></script>
+  </body>
+</html>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  World Downloader Studio — application mark.
+
+  Original artwork for this project. An isometric cube, standing for the world
+  chunk the application downloads, with a download arrow cut through it. It
+  borrows nothing from any game's trademarks, textures or branding.
+
+  Self-contained: no external references, no embedded raster, no script, no font.
+  Generated from app/scripts/generate-icons.mjs, which rasterises the same
+  geometry for the PNG set and the Windows icon container.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="World Downloader Studio">
+  <defs>
+    <linearGradient id="wds-backdrop" x1="0" y1="0" x2="0" y2="512" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0D8F4E"/>
+      <stop offset="1" stop-color="#00382C"/>
+    </linearGradient>
+    <clipPath id="wds-topface">
+      <polygon points="256,52 440,156 256,260 72,156"/>
+    </clipPath>
+  </defs>
+  <!-- Backdrop: a rounded square so the mark holds its shape on a light desktop and a dark one. -->
+  <rect x="0" y="0" width="512" height="512" rx="112" ry="112" fill="url(#wds-backdrop)"/>
+  <!-- The chunk: three faces of an isometric cube. -->
+  <polygon points="256,52 440,156 256,260 72,156" fill="#B6FFCE"/>
+  <polygon points="72,156 256,260 256,460 72,356" fill="#62DE89"/>
+  <polygon points="256,260 440,156 440,356 256,460" fill="#22A85F"/>
+  <!-- Map grid, clipped to the top face. -->
+  <g clip-path="url(#wds-topface)" fill="#0D8F4E" fill-opacity="0.3">
+    <polygon points="346.28,100.95 162.28,204.95 165.72,211.05 349.72,107.05"/>
+    <polygon points="162.28,107.05 346.28,211.05 349.72,204.95 165.72,100.95"/>
+  </g>
+  <!-- The download arrow, filled with the backdrop so it reads as a shape cut through the chunk. -->
+  <polygon points="212,104 300,104 300,268 350,268 256,394 162,268 212,268" fill="url(#wds-backdrop)"/>
+</svg>

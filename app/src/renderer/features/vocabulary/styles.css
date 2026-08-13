@@ -1,0 +1,226 @@
+/*
+ * Personal vocabulary destination.
+ *
+ * Every colour, radius, spacing and type value comes from the Material Design 3
+ * system tokens, so light, dark and every contrast level follow automatically
+ * and no value here has to be kept in step with a second declaration elsewhere.
+ *
+ * Two layout rules this file exists to hold: the page never scrolls sideways,
+ * and the one piece of genuinely wide content — the replacement table — scrolls
+ * inside its own container instead of pushing the page out. Terms can be long,
+ * bilingual mode doubles the length of every label, and 200% display scale
+ * doubles it again, so the table is the surface that has to give.
+ */
+
+.vocab {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-4);
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+.vocab__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-6);
+  padding: var(--md-space-4);
+  max-width: 100%;
+}
+
+.vocab__section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-3);
+  padding: var(--md-space-4);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-corner-large);
+  background: var(--md-sys-color-surface-container-low);
+  max-width: 100%;
+  min-width: 0;
+}
+
+.vocab__status {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-2);
+  padding: var(--md-space-4);
+}
+
+.vocab__status p {
+  margin: 0;
+}
+
+.vocab__muted {
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+/* ---------------- rows of controls ---------------- */
+
+.vocab__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--md-space-2);
+  min-width: 0;
+}
+
+.vocab__toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-2);
+  padding: var(--md-space-3);
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: var(--md-sys-color-surface-container);
+}
+
+.vocab__selection {
+  margin: 0;
+  color: var(--md-sys-color-on-surface);
+}
+
+/* ---------------- banners ---------------- */
+
+.vocab__banner {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-2);
+  margin-top: var(--md-space-3);
+  padding: var(--md-space-3);
+  border-radius: var(--md-sys-shape-corner-medium);
+  border-inline-start: 4px solid var(--md-sys-color-outline);
+  background: var(--md-sys-color-surface-container-high);
+}
+
+.vocab__banner p {
+  margin: 0;
+}
+
+.vocab__banner--error {
+  border-inline-start-color: var(--md-sys-color-error);
+  background: var(--md-sys-color-error-container);
+  color: var(--md-sys-color-on-error-container);
+}
+
+.vocab__banner--warning {
+  border-inline-start-color: var(--md-sys-color-tertiary);
+  background: var(--md-sys-color-surface-container-highest);
+}
+
+/* ---------------- the replacement table ---------------- */
+
+.vocab__tablehost {
+  min-width: 0;
+  max-width: 100%;
+}
+
+/*
+ * The scroll container. `tabindex` is set in script so a keyboard user can
+ * scroll it without a pointer; the visible focus ring is what tells them it is
+ * focusable at all.
+ */
+.vocab__tablewrap {
+  overflow-x: auto;
+  max-width: 100%;
+  border-radius: var(--md-sys-shape-corner-medium);
+}
+
+.vocab__tablewrap:focus-visible {
+  outline: 3px solid var(--md-sys-color-primary);
+  outline-offset: 2px;
+}
+
+.vocab__table {
+  width: 100%;
+  min-width: 32rem;
+}
+
+.vocab__term {
+  max-width: 22rem;
+  overflow-wrap: anywhere;
+}
+
+.vocab__code-inline {
+  font-family: var(--md-sys-typeface-mono);
+  font-size: 0.95em;
+  padding: 2px 6px;
+  border-radius: var(--md-sys-shape-corner-extra-small);
+  background: var(--md-sys-color-surface-container-highest);
+  color: var(--md-sys-color-on-surface);
+}
+
+.vocab__pager {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--md-space-3);
+}
+
+/* ---------------- schema and preview ---------------- */
+
+.vocab__schema {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-2);
+}
+
+.vocab__schema p {
+  margin: 0;
+}
+
+.vocab__code {
+  margin: 0;
+  padding: var(--md-space-3);
+  border-radius: var(--md-sys-shape-corner-medium);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  background: var(--md-sys-color-surface-container-highest);
+  color: var(--md-sys-color-on-surface);
+  font-family: var(--md-sys-typeface-mono);
+  font-size: var(--md-sys-typescale-body-small-size);
+  line-height: 1.5;
+  max-width: 100%;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.vocab__code:focus-visible {
+  outline: 3px solid var(--md-sys-color-primary);
+  outline-offset: 2px;
+}
+
+.vocab__preview-result {
+  min-height: 4.5rem;
+}
+
+/* ---------------- narrow layouts and high display scales ---------------- */
+
+@media (max-width: 720px) {
+  .vocab__body {
+    padding: var(--md-space-3);
+    gap: var(--md-space-4);
+  }
+
+  .vocab__section {
+    padding: var(--md-space-3);
+  }
+
+  .vocab__term {
+    max-width: 14rem;
+  }
+
+  /* The pager's own buttons stay full-width targets rather than shrinking. */
+  .vocab__pager {
+    justify-content: space-between;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vocab *,
+  .vocab *::before,
+  .vocab *::after {
+    transition-duration: 1ms !important;
+    animation-duration: 1ms !important;
+  }
+}

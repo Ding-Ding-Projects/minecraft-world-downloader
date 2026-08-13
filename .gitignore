@@ -65,3 +65,15 @@ desktop/publish-test/
 # transient GUI launch logs (local testing)
 gui.out
 gui.err
+
+# Desktop application (Electron) build output and dependencies
+app/node_modules/
+app/dist/
+app/out/
+app/release/
+app/.vite/
+node_modules/
+
+# Static site build output
+site/.cache/
+site/dist/

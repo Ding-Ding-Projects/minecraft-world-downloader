@@ -1,0 +1,777 @@
+<!-- @dsCard group="Components" -->
+<title>Text fields · World Downloader Studio</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+:root {
+  color-scheme: light dark;
+  --md-sys-color-primary: #006D34;
+  --md-sys-color-on-primary: #FEFFFE;
+  --md-sys-color-primary-container: #80FBA3;
+  --md-sys-color-on-primary-container: #002108;
+  --md-sys-color-secondary: #46664D;
+  --md-sys-color-on-secondary: #FEFFFE;
+  --md-sys-color-secondary-container: #C7EBCE;
+  --md-sys-color-on-secondary-container: #03210B;
+  --md-sys-color-tertiary: #006973;
+  --md-sys-color-on-tertiary: #FEFFFF;
+  --md-sys-color-tertiary-container: #96F1FD;
+  --md-sys-color-on-tertiary-container: #001F23;
+  --md-sys-color-error: #BF002A;
+  --md-sys-color-on-error: #FFFFFF;
+  --md-sys-color-error-container: #FFDAD6;
+  --md-sys-color-on-error-container: #410000;
+  --md-sys-color-surface: #F3FCF4;
+  --md-sys-color-on-surface: #171D18;
+  --md-sys-color-surface-variant: #D5E7D8;
+  --md-sys-color-on-surface-variant: #3C4A3E;
+  --md-sys-color-surface-dim: #D3DCD5;
+  --md-sys-color-surface-bright: #F3FCF4;
+  --md-sys-color-surface-container-lowest: #FEFFFE;
+  --md-sys-color-surface-container-low: #EDF6EE;
+  --md-sys-color-surface-container: #E7F0E9;
+  --md-sys-color-surface-container-high: #E2EAE3;
+  --md-sys-color-surface-container-highest: #DCE5DD;
+  --md-sys-color-outline: #6B7B6E;
+  --md-sys-color-outline-variant: #BACBBD;
+  --md-sys-color-inverse-surface: #2B322C;
+  --md-sys-color-inverse-on-surface: #EAF3EB;
+  --md-sys-color-inverse-primary: #62DE89;
+  --md-sys-color-scrim: #000000;
+  --md-sys-color-shadow: #000000;
+  --md-sys-color-surface-tint: #006D34;
+  --md-sys-typeface-plain: system-ui, -apple-system, "Segoe UI Variable Text",
+      "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans",
+      "Noto Sans CJK HK", "Microsoft JhengHei", sans-serif;
+  --md-sys-typeface-brand: var(--md-sys-typeface-plain);
+  --md-sys-typeface-mono: ui-monospace, "Cascadia Mono", "Segoe UI Mono",
+      Consolas, "Liberation Mono", "Noto Sans Mono", monospace;
+  --md-sys-typescale-display-large-size: 57px;
+  --md-sys-typescale-display-large-line-height: 64px;
+  --md-sys-typescale-display-large-weight: 400;
+  --md-sys-typescale-display-large-tracking: -0.25px;
+  --md-sys-typescale-display-medium-size: 45px;
+  --md-sys-typescale-display-medium-line-height: 52px;
+  --md-sys-typescale-display-medium-weight: 400;
+  --md-sys-typescale-display-medium-tracking: 0px;
+  --md-sys-typescale-display-small-size: 36px;
+  --md-sys-typescale-display-small-line-height: 44px;
+  --md-sys-typescale-display-small-weight: 400;
+  --md-sys-typescale-display-small-tracking: 0px;
+  --md-sys-typescale-headline-large-size: 32px;
+  --md-sys-typescale-headline-large-line-height: 40px;
+  --md-sys-typescale-headline-large-weight: 400;
+  --md-sys-typescale-headline-large-tracking: 0px;
+  --md-sys-typescale-headline-medium-size: 28px;
+  --md-sys-typescale-headline-medium-line-height: 36px;
+  --md-sys-typescale-headline-medium-weight: 400;
+  --md-sys-typescale-headline-medium-tracking: 0px;
+  --md-sys-typescale-headline-small-size: 24px;
+  --md-sys-typescale-headline-small-line-height: 32px;
+  --md-sys-typescale-headline-small-weight: 400;
+  --md-sys-typescale-headline-small-tracking: 0px;
+  --md-sys-typescale-title-large-size: 22px;
+  --md-sys-typescale-title-large-line-height: 28px;
+  --md-sys-typescale-title-large-weight: 400;
+  --md-sys-typescale-title-large-tracking: 0px;
+  --md-sys-typescale-title-medium-size: 16px;
+  --md-sys-typescale-title-medium-line-height: 24px;
+  --md-sys-typescale-title-medium-weight: 500;
+  --md-sys-typescale-title-medium-tracking: 0.15px;
+  --md-sys-typescale-title-small-size: 14px;
+  --md-sys-typescale-title-small-line-height: 20px;
+  --md-sys-typescale-title-small-weight: 500;
+  --md-sys-typescale-title-small-tracking: 0.1px;
+  --md-sys-typescale-body-large-size: 16px;
+  --md-sys-typescale-body-large-line-height: 24px;
+  --md-sys-typescale-body-large-weight: 400;
+  --md-sys-typescale-body-large-tracking: 0.5px;
+  --md-sys-typescale-body-medium-size: 14px;
+  --md-sys-typescale-body-medium-line-height: 20px;
+  --md-sys-typescale-body-medium-weight: 400;
+  --md-sys-typescale-body-medium-tracking: 0.25px;
+  --md-sys-typescale-body-small-size: 12px;
+  --md-sys-typescale-body-small-line-height: 16px;
+  --md-sys-typescale-body-small-weight: 400;
+  --md-sys-typescale-body-small-tracking: 0.4px;
+  --md-sys-typescale-label-large-size: 14px;
+  --md-sys-typescale-label-large-line-height: 20px;
+  --md-sys-typescale-label-large-weight: 500;
+  --md-sys-typescale-label-large-tracking: 0.1px;
+  --md-sys-typescale-label-medium-size: 12px;
+  --md-sys-typescale-label-medium-line-height: 16px;
+  --md-sys-typescale-label-medium-weight: 500;
+  --md-sys-typescale-label-medium-tracking: 0.5px;
+  --md-sys-typescale-label-small-size: 11px;
+  --md-sys-typescale-label-small-line-height: 16px;
+  --md-sys-typescale-label-small-weight: 500;
+  --md-sys-typescale-label-small-tracking: 0.5px;
+  --md-sys-shape-corner-none: 0px;
+  --md-sys-shape-corner-extra-small: 4px;
+  --md-sys-shape-corner-small: 8px;
+  --md-sys-shape-corner-medium: 12px;
+  --md-sys-shape-corner-large: 16px;
+  --md-sys-shape-corner-extra-large: 28px;
+  --md-sys-shape-corner-full: 9999px;
+  --md-sys-elevation-level0: none;
+  --md-sys-elevation-level1:
+      0 1px 2px 0 color-mix(in srgb, var(--md-sys-color-shadow) 30%, transparent),
+      0 1px 3px 1px color-mix(in srgb, var(--md-sys-color-shadow) 15%, transparent);
+  --md-sys-elevation-level2:
+      0 1px 2px 0 color-mix(in srgb, var(--md-sys-color-shadow) 30%, transparent),
+      0 2px 6px 2px color-mix(in srgb, var(--md-sys-color-shadow) 15%, transparent);
+  --md-sys-elevation-level3:
+      0 4px 8px 3px color-mix(in srgb, var(--md-sys-color-shadow) 15%, transparent),
+      0 1px 3px 0 color-mix(in srgb, var(--md-sys-color-shadow) 30%, transparent);
+  --md-sys-elevation-level4:
+      0 6px 10px 4px color-mix(in srgb, var(--md-sys-color-shadow) 15%, transparent),
+      0 2px 3px 0 color-mix(in srgb, var(--md-sys-color-shadow) 30%, transparent);
+  --md-sys-elevation-level5:
+      0 8px 12px 6px color-mix(in srgb, var(--md-sys-color-shadow) 15%, transparent),
+      0 4px 4px 0 color-mix(in srgb, var(--md-sys-color-shadow) 30%, transparent);
+  --md-sys-state-hover-opacity: 0.08;
+  --md-sys-state-focus-opacity: 0.10;
+  --md-sys-state-pressed-opacity: 0.10;
+  --md-sys-state-dragged-opacity: 0.16;
+  --md-sys-state-disabled-content-opacity: 0.38;
+  --md-sys-state-disabled-container-opacity: 0.12;
+  --md-sys-motion-easing-linear: cubic-bezier(0, 0, 1, 1);
+  --md-sys-motion-easing-standard: cubic-bezier(0.2, 0, 0, 1);
+  --md-sys-motion-easing-standard-accelerate: cubic-bezier(0.3, 0, 1, 1);
+  --md-sys-motion-easing-standard-decelerate: cubic-bezier(0, 0, 0, 1);
+  --md-sys-motion-easing-emphasized: cubic-bezier(0.2, 0, 0, 1);
+  --md-sys-motion-easing-emphasized-accelerate: cubic-bezier(0.3, 0, 0.8, 0.15);
+  --md-sys-motion-easing-emphasized-decelerate: cubic-bezier(0.05, 0.7, 0.1, 1);
+  --md-sys-motion-duration-short1: 50ms;
+  --md-sys-motion-duration-short2: 100ms;
+  --md-sys-motion-duration-short3: 150ms;
+  --md-sys-motion-duration-short4: 200ms;
+  --md-sys-motion-duration-medium1: 250ms;
+  --md-sys-motion-duration-medium2: 300ms;
+  --md-sys-motion-duration-medium3: 350ms;
+  --md-sys-motion-duration-medium4: 400ms;
+  --md-sys-motion-duration-long1: 450ms;
+  --md-sys-motion-duration-long2: 500ms;
+  --md-sys-motion-duration-long3: 550ms;
+  --md-sys-motion-duration-long4: 600ms;
+  --md-sys-motion-duration-extra-long1: 700ms;
+  --md-sys-motion-duration-extra-long2: 800ms;
+  --md-sys-motion-duration-extra-long3: 900ms;
+  --md-sys-motion-duration-extra-long4: 1000ms;
+  --wds-space-0: 0px;
+  --wds-space-1: 4px;
+  --wds-space-2: 8px;
+  --wds-space-3: 12px;
+  --wds-space-4: 16px;
+  --wds-space-5: 20px;
+  --wds-space-6: 24px;
+  --wds-space-7: 28px;
+  --wds-space-8: 32px;
+  --wds-space-10: 40px;
+  --wds-space-12: 48px;
+  --wds-space-16: 64px;
+  --wds-target-min: 48px;
+  --wds-target-min-dense: 40px;
+  --wds-density-row-height: 56px;
+  --wds-density-control-height: 40px;
+  --wds-density-toolbar-height: 64px;
+  --wds-titlebar-height: 40px;
+  --wds-tabstrip-width: 232px;
+  --wds-tabstrip-width-collapsed: 56px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --md-sys-color-primary: #62DE89;
+    --md-sys-color-on-primary: #003918;
+    --md-sys-color-primary-container: #005226;
+    --md-sys-color-on-primary-container: #80FBA3;
+    --md-sys-color-secondary: #ACCFB3;
+    --md-sys-color-on-secondary: #183621;
+    --md-sys-color-secondary-container: #2F4D36;
+    --md-sys-color-on-secondary-container: #C7EBCE;
+    --md-sys-color-tertiary: #79D4E0;
+    --md-sys-color-on-tertiary: #00363C;
+    --md-sys-color-tertiary-container: #004F57;
+    --md-sys-color-on-tertiary-container: #96F1FD;
+    --md-sys-color-error: #FFB3AD;
+    --md-sys-color-on-error: #680012;
+    --md-sys-color-error-container: #92001E;
+    --md-sys-color-on-error-container: #FFDAD6;
+    --md-sys-color-surface: #0D150F;
+    --md-sys-color-on-surface: #DCE5DD;
+    --md-sys-color-surface-variant: #3C4A3E;
+    --md-sys-color-on-surface-variant: #BACBBD;
+    --md-sys-color-surface-dim: #0D150F;
+    --md-sys-color-surface-bright: #343B35;
+    --md-sys-color-surface-container-lowest: #061008;
+    --md-sys-color-surface-container-low: #171D18;
+    --md-sys-color-surface-container: #1B211C;
+    --md-sys-color-surface-container-high: #252C26;
+    --md-sys-color-surface-container-highest: #303631;
+    --md-sys-color-outline: #849587;
+    --md-sys-color-outline-variant: #3C4A3E;
+    --md-sys-color-inverse-surface: #DCE5DD;
+    --md-sys-color-inverse-on-surface: #2B322C;
+    --md-sys-color-inverse-primary: #006D34;
+    --md-sys-color-scrim: #000000;
+    --md-sys-color-shadow: #000000;
+    --md-sys-color-surface-tint: #62DE89;
+  }
+}
+:root[data-theme="dark"] {
+  --md-sys-color-primary: #62DE89;
+  --md-sys-color-on-primary: #003918;
+  --md-sys-color-primary-container: #005226;
+  --md-sys-color-on-primary-container: #80FBA3;
+  --md-sys-color-secondary: #ACCFB3;
+  --md-sys-color-on-secondary: #183621;
+  --md-sys-color-secondary-container: #2F4D36;
+  --md-sys-color-on-secondary-container: #C7EBCE;
+  --md-sys-color-tertiary: #79D4E0;
+  --md-sys-color-on-tertiary: #00363C;
+  --md-sys-color-tertiary-container: #004F57;
+  --md-sys-color-on-tertiary-container: #96F1FD;
+  --md-sys-color-error: #FFB3AD;
+  --md-sys-color-on-error: #680012;
+  --md-sys-color-error-container: #92001E;
+  --md-sys-color-on-error-container: #FFDAD6;
+  --md-sys-color-surface: #0D150F;
+  --md-sys-color-on-surface: #DCE5DD;
+  --md-sys-color-surface-variant: #3C4A3E;
+  --md-sys-color-on-surface-variant: #BACBBD;
+  --md-sys-color-surface-dim: #0D150F;
+  --md-sys-color-surface-bright: #343B35;
+  --md-sys-color-surface-container-lowest: #061008;
+  --md-sys-color-surface-container-low: #171D18;
+  --md-sys-color-surface-container: #1B211C;
+  --md-sys-color-surface-container-high: #252C26;
+  --md-sys-color-surface-container-highest: #303631;
+  --md-sys-color-outline: #849587;
+  --md-sys-color-outline-variant: #3C4A3E;
+  --md-sys-color-inverse-surface: #DCE5DD;
+  --md-sys-color-inverse-on-surface: #2B322C;
+  --md-sys-color-inverse-primary: #006D34;
+  --md-sys-color-scrim: #000000;
+  --md-sys-color-shadow: #000000;
+  --md-sys-color-surface-tint: #62DE89;
+}
+:root[data-theme="light"] {
+  --md-sys-color-primary: #006D34;
+  --md-sys-color-on-primary: #FEFFFE;
+  --md-sys-color-primary-container: #80FBA3;
+  --md-sys-color-on-primary-container: #002108;
+  --md-sys-color-secondary: #46664D;
+  --md-sys-color-on-secondary: #FEFFFE;
+  --md-sys-color-secondary-container: #C7EBCE;
+  --md-sys-color-on-secondary-container: #03210B;
+  --md-sys-color-tertiary: #006973;
+  --md-sys-color-on-tertiary: #FEFFFF;
+  --md-sys-color-tertiary-container: #96F1FD;
+  --md-sys-color-on-tertiary-container: #001F23;
+  --md-sys-color-error: #BF002A;
+  --md-sys-color-on-error: #FFFFFF;
+  --md-sys-color-error-container: #FFDAD6;
+  --md-sys-color-on-error-container: #410000;
+  --md-sys-color-surface: #F3FCF4;
+  --md-sys-color-on-surface: #171D18;
+  --md-sys-color-surface-variant: #D5E7D8;
+  --md-sys-color-on-surface-variant: #3C4A3E;
+  --md-sys-color-surface-dim: #D3DCD5;
+  --md-sys-color-surface-bright: #F3FCF4;
+  --md-sys-color-surface-container-lowest: #FEFFFE;
+  --md-sys-color-surface-container-low: #EDF6EE;
+  --md-sys-color-surface-container: #E7F0E9;
+  --md-sys-color-surface-container-high: #E2EAE3;
+  --md-sys-color-surface-container-highest: #DCE5DD;
+  --md-sys-color-outline: #6B7B6E;
+  --md-sys-color-outline-variant: #BACBBD;
+  --md-sys-color-inverse-surface: #2B322C;
+  --md-sys-color-inverse-on-surface: #EAF3EB;
+  --md-sys-color-inverse-primary: #62DE89;
+  --md-sys-color-scrim: #000000;
+  --md-sys-color-shadow: #000000;
+  --md-sys-color-surface-tint: #006D34;
+}
+[data-density="compact"] {
+  --wds-density-row-height: 48px;
+  --wds-density-control-height: 36px;
+  --wds-density-toolbar-height: 56px;
+}
+[data-density="dense"] {
+  --wds-density-row-height: 40px;
+  --wds-density-control-height: 32px;
+  --wds-density-toolbar-height: 48px;
+}
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --md-sys-motion-duration-short1: 1ms;  --md-sys-motion-duration-short2: 1ms;
+    --md-sys-motion-duration-short3: 1ms;  --md-sys-motion-duration-short4: 1ms;
+    --md-sys-motion-duration-medium1: 1ms; --md-sys-motion-duration-medium2: 1ms;
+    --md-sys-motion-duration-medium3: 1ms; --md-sys-motion-duration-medium4: 1ms;
+    --md-sys-motion-duration-long1: 1ms;   --md-sys-motion-duration-long2: 1ms;
+    --md-sys-motion-duration-long3: 1ms;   --md-sys-motion-duration-long4: 1ms;
+    --md-sys-motion-duration-extra-long1: 1ms;
+    --md-sys-motion-duration-extra-long2: 1ms;
+    --md-sys-motion-duration-extra-long3: 1ms;
+    --md-sys-motion-duration-extra-long4: 1ms;
+  }
+}
+
+/* specimen-only: element-scoped themes, so light and dark can sit side by side on one page. Not part of the shipped token contract. */
+[data-theme="light"]{
+  --md-sys-color-primary:#006D34;
+  --md-sys-color-on-primary:#FEFFFE;
+  --md-sys-color-primary-container:#80FBA3;
+  --md-sys-color-on-primary-container:#002108;
+  --md-sys-color-secondary:#46664D;
+  --md-sys-color-on-secondary:#FEFFFE;
+  --md-sys-color-secondary-container:#C7EBCE;
+  --md-sys-color-on-secondary-container:#03210B;
+  --md-sys-color-tertiary:#006973;
+  --md-sys-color-on-tertiary:#FEFFFF;
+  --md-sys-color-tertiary-container:#96F1FD;
+  --md-sys-color-on-tertiary-container:#001F23;
+  --md-sys-color-error:#BF002A;
+  --md-sys-color-on-error:#FFFFFF;
+  --md-sys-color-error-container:#FFDAD6;
+  --md-sys-color-on-error-container:#410000;
+  --md-sys-color-surface:#F3FCF4;
+  --md-sys-color-on-surface:#171D18;
+  --md-sys-color-surface-variant:#D5E7D8;
+  --md-sys-color-on-surface-variant:#3C4A3E;
+  --md-sys-color-surface-dim:#D3DCD5;
+  --md-sys-color-surface-bright:#F3FCF4;
+  --md-sys-color-surface-container-lowest:#FEFFFE;
+  --md-sys-color-surface-container-low:#EDF6EE;
+  --md-sys-color-surface-container:#E7F0E9;
+  --md-sys-color-surface-container-high:#E2EAE3;
+  --md-sys-color-surface-container-highest:#DCE5DD;
+  --md-sys-color-outline:#6B7B6E;
+  --md-sys-color-outline-variant:#BACBBD;
+  --md-sys-color-inverse-surface:#2B322C;
+  --md-sys-color-inverse-on-surface:#EAF3EB;
+  --md-sys-color-inverse-primary:#62DE89;
+  --md-sys-color-scrim:#000000;
+  --md-sys-color-shadow:#000000;
+  --md-sys-color-surface-tint:#006D34;
+}
+[data-theme="dark"]{
+  --md-sys-color-primary:#62DE89;
+  --md-sys-color-on-primary:#003918;
+  --md-sys-color-primary-container:#005226;
+  --md-sys-color-on-primary-container:#80FBA3;
+  --md-sys-color-secondary:#ACCFB3;
+  --md-sys-color-on-secondary:#183621;
+  --md-sys-color-secondary-container:#2F4D36;
+  --md-sys-color-on-secondary-container:#C7EBCE;
+  --md-sys-color-tertiary:#79D4E0;
+  --md-sys-color-on-tertiary:#00363C;
+  --md-sys-color-tertiary-container:#004F57;
+  --md-sys-color-on-tertiary-container:#96F1FD;
+  --md-sys-color-error:#FFB3AD;
+  --md-sys-color-on-error:#680012;
+  --md-sys-color-error-container:#92001E;
+  --md-sys-color-on-error-container:#FFDAD6;
+  --md-sys-color-surface:#0D150F;
+  --md-sys-color-on-surface:#DCE5DD;
+  --md-sys-color-surface-variant:#3C4A3E;
+  --md-sys-color-on-surface-variant:#BACBBD;
+  --md-sys-color-surface-dim:#0D150F;
+  --md-sys-color-surface-bright:#343B35;
+  --md-sys-color-surface-container-lowest:#061008;
+  --md-sys-color-surface-container-low:#171D18;
+  --md-sys-color-surface-container:#1B211C;
+  --md-sys-color-surface-container-high:#252C26;
+  --md-sys-color-surface-container-highest:#303631;
+  --md-sys-color-outline:#849587;
+  --md-sys-color-outline-variant:#3C4A3E;
+  --md-sys-color-inverse-surface:#DCE5DD;
+  --md-sys-color-inverse-on-surface:#2B322C;
+  --md-sys-color-inverse-primary:#006D34;
+  --md-sys-color-scrim:#000000;
+  --md-sys-color-shadow:#000000;
+  --md-sys-color-surface-tint:#62DE89;
+}
+
+
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;font-family:var(--md-sys-typeface-plain);
+  font-size:var(--md-sys-typescale-body-medium-size);
+  line-height:var(--md-sys-typescale-body-medium-line-height);
+  background:var(--md-sys-color-surface);color:var(--md-sys-color-on-surface);
+  overflow-wrap:break-word}
+[data-theme]{background:var(--md-sys-color-surface);color:var(--md-sys-color-on-surface)}
+
+/* ---- page scaffolding ------------------------------------------------ */
+.wrap{max-width:1200px;margin:0 auto;padding:32px 24px 80px}
+.wrap--wide{max-width:1560px}
+h1{font-size:var(--md-sys-typescale-headline-large-size);
+   line-height:var(--md-sys-typescale-headline-large-line-height);
+   font-weight:400;letter-spacing:var(--md-sys-typescale-headline-large-tracking);margin:0 0 8px}
+h2{font-size:var(--md-sys-typescale-title-large-size);
+   line-height:var(--md-sys-typescale-title-large-line-height);
+   font-weight:400;margin:40px 0 4px}
+h3{font-size:var(--md-sys-typescale-title-small-size);
+   line-height:var(--md-sys-typescale-title-small-line-height);
+   font-weight:var(--md-sys-typescale-title-small-weight);
+   letter-spacing:var(--md-sys-typescale-title-small-tracking);
+   text-transform:uppercase;color:var(--md-sys-color-on-surface-variant);margin:24px 0 8px}
+.lede{font-size:var(--md-sys-typescale-body-large-size);
+      line-height:var(--md-sys-typescale-body-large-line-height);
+      color:var(--md-sys-color-on-surface-variant);max-width:72ch;margin:0 0 8px}
+p{margin:0 0 12px}
+code,kbd,.mono{font-family:var(--md-sys-typeface-mono);font-size:.92em}
+code{background:var(--md-sys-color-surface-container-high);padding:1px 5px;
+     border-radius:var(--md-sys-shape-corner-extra-small)}
+kbd{background:var(--md-sys-color-surface-container-highest);
+    border:1px solid var(--md-sys-color-outline-variant);border-bottom-width:2px;
+    border-radius:var(--md-sys-shape-corner-extra-small);padding:1px 6px}
+
+/* ---- specimen scaffolding -------------------------------------------- */
+.banner{display:flex;gap:12px;align-items:flex-start;
+  background:var(--md-sys-color-tertiary-container);color:var(--md-sys-color-on-tertiary-container);
+  border-radius:var(--md-sys-shape-corner-medium);padding:12px 16px;margin:0 0 24px;
+  font-size:var(--md-sys-typescale-body-medium-size);max-width:96ch}
+.banner b{font-weight:600}
+.pair{display:grid;grid-template-columns:repeat(auto-fit,minmax(440px,1fr));gap:16px}
+.panel{border:1px solid var(--md-sys-color-outline-variant);
+  border-radius:var(--md-sys-shape-corner-large);padding:20px;min-width:0}
+.panel > .ph{font-size:var(--md-sys-typescale-label-large-size);
+  font-weight:var(--md-sys-typescale-label-large-weight);
+  letter-spacing:var(--md-sys-typescale-label-large-tracking);text-transform:uppercase;
+  color:var(--md-sys-color-on-surface-variant);margin:0 0 16px}
+.sec{border:1px solid var(--md-sys-color-outline-variant);
+  border-radius:var(--md-sys-shape-corner-large);padding:20px;margin:0 0 16px;min-width:0;
+  background:var(--md-sys-color-surface-container-low)}
+.row{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.col{display:flex;flex-direction:column;gap:12px;align-items:flex-start}
+.stack{display:flex;flex-direction:column;gap:16px}
+.states{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.st{display:flex;flex-direction:column;gap:8px;align-items:flex-start;min-width:0}
+.st > .cap,.cap{font-size:var(--md-sys-typescale-label-small-size);
+  line-height:var(--md-sys-typescale-label-small-line-height);
+  letter-spacing:var(--md-sys-typescale-label-small-tracking);
+  color:var(--md-sys-color-on-surface-variant);text-transform:uppercase}
+.spec{font-family:var(--md-sys-typeface-mono);
+  font-size:var(--md-sys-typescale-body-small-size);
+  color:var(--md-sys-color-on-surface-variant)}
+.note{border-left:3px solid var(--md-sys-color-primary);padding:2px 0 2px 16px;margin:16px 0;
+  color:var(--md-sys-color-on-surface-variant);max-width:80ch}
+.note b{color:var(--md-sys-color-on-surface)}
+.warn{border-left-color:var(--md-sys-color-error)}
+.tagsp{display:inline-block;vertical-align:middle;
+  background:var(--md-sys-color-surface-container-highest);
+  color:var(--md-sys-color-on-surface-variant);
+  border:1px dashed var(--md-sys-color-outline);border-radius:var(--md-sys-shape-corner-full);
+  padding:1px 10px;font-size:var(--md-sys-typescale-label-small-size);
+  letter-spacing:var(--md-sys-typescale-label-small-tracking);white-space:nowrap}
+
+/* ---- buttons --------------------------------------------------------- */
+.btn{position:relative;overflow:hidden;isolation:isolate;display:inline-flex;
+  align-items:center;justify-content:center;gap:8px;height:40px;padding:0 24px;border:none;
+  border-radius:var(--md-sys-shape-corner-full);font-family:inherit;
+  font-size:var(--md-sys-typescale-label-large-size);
+  line-height:var(--md-sys-typescale-label-large-line-height);
+  font-weight:var(--md-sys-typescale-label-large-weight);
+  letter-spacing:var(--md-sys-typescale-label-large-tracking);
+  background:transparent;color:var(--md-sys-color-primary);cursor:pointer;
+  text-decoration:none;white-space:nowrap;
+  transition:box-shadow var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard)}
+.btn::after{content:"";position:absolute;inset:0;background:currentColor;opacity:0;
+  pointer-events:none;
+  transition:opacity var(--md-sys-motion-duration-short3) var(--md-sys-motion-easing-standard)}
+.btn:hover::after,.btn.s-hover::after{opacity:var(--md-sys-state-hover-opacity)}
+.btn:focus-visible::after,.btn.s-focus::after{opacity:var(--md-sys-state-focus-opacity)}
+.btn:active::after,.btn.s-press::after{opacity:var(--md-sys-state-pressed-opacity)}
+.btn:focus-visible,.btn.s-focus{outline:3px solid var(--md-sys-color-secondary);outline-offset:2px}
+.btn--filled{background:var(--md-sys-color-primary);color:var(--md-sys-color-on-primary)}
+.btn--tonal{background:var(--md-sys-color-secondary-container);
+  color:var(--md-sys-color-on-secondary-container)}
+.btn--outlined{border:1px solid var(--md-sys-color-outline);color:var(--md-sys-color-primary)}
+.btn--text{padding:0 12px;color:var(--md-sys-color-primary)}
+.btn--elevated{background:var(--md-sys-color-surface-container-low);
+  color:var(--md-sys-color-primary);box-shadow:var(--md-sys-elevation-level1)}
+.btn--elevated:hover,.btn--elevated.s-hover{box-shadow:var(--md-sys-elevation-level2)}
+.btn--danger{background:var(--md-sys-color-error);color:var(--md-sys-color-on-error)}
+.btn--icon{width:40px;height:40px;padding:0;color:var(--md-sys-color-on-surface-variant)}
+.btn--fab{width:56px;height:56px;padding:0;border-radius:var(--md-sys-shape-corner-large);
+  background:var(--md-sys-color-primary-container);color:var(--md-sys-color-on-primary-container);
+  box-shadow:var(--md-sys-elevation-level3)}
+.btn--fab-sm{width:40px;height:40px;border-radius:var(--md-sys-shape-corner-medium)}
+.btn--fab-lg{width:96px;height:96px;border-radius:var(--md-sys-shape-corner-extra-large)}
+.btn--fab-ext{width:auto;height:56px;padding:0 20px;
+  border-radius:var(--md-sys-shape-corner-large);
+  background:var(--md-sys-color-primary-container);color:var(--md-sys-color-on-primary-container);
+  box-shadow:var(--md-sys-elevation-level3)}
+.btn[disabled],.btn.s-disabled{cursor:default;box-shadow:none;border-color:transparent;
+  background:color-mix(in srgb,var(--md-sys-color-on-surface) 12%,transparent);
+  color:color-mix(in srgb,var(--md-sys-color-on-surface) 38%,transparent)}
+.btn--text[disabled],.btn--icon[disabled],.btn--outlined[disabled],
+.btn--text.s-disabled,.btn--icon.s-disabled,.btn--outlined.s-disabled{background:transparent}
+.btn--outlined[disabled],.btn--outlined.s-disabled{
+  border:1px solid color-mix(in srgb,var(--md-sys-color-on-surface) 12%,transparent)}
+.btn[disabled]::after,.btn.s-disabled::after{opacity:0}
+/* Every icon-only control keeps a 48px target even at a 40px box. */
+.btn--icon::before{content:"";position:absolute;left:50%;top:50%;
+  width:var(--wds-target-min);height:var(--wds-target-min);transform:translate(-50%,-50%)}
+
+/* ---- glyphs: inline SVG only, never an icon font or a network image --- */
+.i{width:18px;height:18px;flex:none;display:block;fill:none;stroke:currentColor;
+   stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.i--sm{width:14px;height:14px}
+.i--lg{width:24px;height:24px}
+
+/* ---- text fields ------------------------------------------------------ */
+.field{display:flex;flex-direction:column;gap:4px;min-width:0}
+.field__box{position:relative;display:flex;align-items:center;gap:8px;min-height:56px;
+  padding:8px 16px;font-size:var(--md-sys-typescale-body-large-size);
+  color:var(--md-sys-color-on-surface)}
+.field--filled .field__box{background:var(--md-sys-color-surface-container-highest);
+  border-radius:var(--md-sys-shape-corner-extra-small) var(--md-sys-shape-corner-extra-small) 0 0;
+  border-bottom:1px solid var(--md-sys-color-on-surface-variant)}
+.field--outlined .field__box{border:1px solid var(--md-sys-color-outline);
+  border-radius:var(--md-sys-shape-corner-extra-small);background:transparent}
+.field__label{font-size:var(--md-sys-typescale-body-small-size);
+  color:var(--md-sys-color-on-surface-variant);padding:0 4px}
+.field__val{flex:1;min-width:0;color:var(--md-sys-color-on-surface)}
+.field__ph{flex:1;min-width:0;color:var(--md-sys-color-on-surface-variant)}
+.field__aff{color:var(--md-sys-color-on-surface-variant);flex:none}
+.field__help{font-size:var(--md-sys-typescale-body-small-size);
+  color:var(--md-sys-color-on-surface-variant);padding:0 16px}
+.field.is-focus .field__box{border-color:var(--md-sys-color-primary);border-width:2px;
+  padding:7px 15px}
+.field.is-focus .field__label,.field.is-focus .field__aff{color:var(--md-sys-color-primary)}
+.field.is-error .field__box{border-color:var(--md-sys-color-error)}
+.field.is-error .field__label,.field.is-error .field__help{color:var(--md-sys-color-error)}
+.field.is-disabled{opacity:.38}
+.field--filled.is-focus .field__box{border-bottom-width:2px;padding:8px 16px 7px}
+
+/* ---- chips ----------------------------------------------------------- */
+.chip{position:relative;overflow:hidden;display:inline-flex;align-items:center;gap:8px;
+  height:32px;padding:0 16px;border-radius:var(--md-sys-shape-corner-small);
+  border:1px solid var(--md-sys-color-outline);background:transparent;
+  color:var(--md-sys-color-on-surface-variant);font-family:inherit;
+  font-size:var(--md-sys-typescale-label-large-size);
+  font-weight:var(--md-sys-typescale-label-large-weight);
+  letter-spacing:var(--md-sys-typescale-label-large-tracking);cursor:pointer;white-space:nowrap}
+.chip::after{content:"";position:absolute;inset:0;background:currentColor;opacity:0;
+  pointer-events:none;transition:opacity var(--md-sys-motion-duration-short3)}
+.chip:hover::after,.chip.s-hover::after{opacity:var(--md-sys-state-hover-opacity)}
+.chip:focus-visible,.chip.s-focus{outline:3px solid var(--md-sys-color-secondary);outline-offset:2px}
+.chip.is-sel{background:var(--md-sys-color-secondary-container);
+  color:var(--md-sys-color-on-secondary-container);border-color:transparent}
+.chip[disabled],.chip.s-disabled{cursor:default;
+  border-color:color-mix(in srgb,var(--md-sys-color-on-surface) 12%,transparent);
+  color:color-mix(in srgb,var(--md-sys-color-on-surface) 38%,transparent)}
+.chip--elev{border-color:transparent;background:var(--md-sys-color-surface-container-low);
+  box-shadow:var(--md-sys-elevation-level1)}
+
+/* status chips carry a shape as well as a colour, so state does not
+   depend on hue alone */
+.status{display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 10px;
+  border-radius:var(--md-sys-shape-corner-full);
+  font-size:var(--md-sys-typescale-label-medium-size);
+  font-weight:var(--md-sys-typescale-label-medium-weight);
+  letter-spacing:var(--md-sys-typescale-label-medium-tracking);white-space:nowrap}
+.status .dot{width:8px;height:8px;border-radius:50%;background:currentColor;flex:none}
+.status--run{background:var(--md-sys-color-primary-container);
+  color:var(--md-sys-color-on-primary-container)}
+.status--stop{background:var(--md-sys-color-surface-container-highest);
+  color:var(--md-sys-color-on-surface-variant)}
+.status--err{background:var(--md-sys-color-error-container);
+  color:var(--md-sys-color-on-error-container)}
+.status--warn{background:var(--md-sys-color-tertiary-container);
+  color:var(--md-sys-color-on-tertiary-container)}
+
+/* ---- cards / lists --------------------------------------------------- */
+.card{border-radius:var(--md-sys-shape-corner-medium);padding:16px;min-width:0;
+  background:var(--md-sys-color-surface-container-low)}
+.card--elev{background:var(--md-sys-color-surface-container-low);
+  box-shadow:var(--md-sys-elevation-level1)}
+.card--fill{background:var(--md-sys-color-surface-container-highest)}
+.card--out{background:var(--md-sys-color-surface);
+  border:1px solid var(--md-sys-color-outline-variant)}
+.list{display:flex;flex-direction:column;margin:0;padding:0;list-style:none}
+.li{display:flex;align-items:center;gap:16px;min-height:var(--wds-density-row-height);
+  padding:8px 16px;position:relative;min-width:0}
+.li__t{flex:1;min-width:0}
+.li__h{font-size:var(--md-sys-typescale-body-large-size);
+  color:var(--md-sys-color-on-surface)}
+.li__s{font-size:var(--md-sys-typescale-body-medium-size);
+  color:var(--md-sys-color-on-surface-variant)}
+.li.is-sel{background:var(--md-sys-color-secondary-container);
+  color:var(--md-sys-color-on-secondary-container)}
+.li.is-sel .li__s{color:var(--md-sys-color-on-secondary-container);opacity:.85}
+.avatar{width:40px;height:40px;border-radius:50%;flex:none;display:grid;place-items:center;
+  background:var(--md-sys-color-primary-container);color:var(--md-sys-color-on-primary-container);
+  font-size:var(--md-sys-typescale-title-medium-size)}
+.divider{height:1px;background:var(--md-sys-color-outline-variant);border:0;margin:0}
+
+/* ---- switch / checkbox / radio --------------------------------------- */
+.switch{display:inline-flex;align-items:center;width:52px;height:32px;padding:2px;flex:none;
+  border-radius:var(--md-sys-shape-corner-full);
+  border:2px solid var(--md-sys-color-outline);
+  background:var(--md-sys-color-surface-container-highest);cursor:pointer;
+  transition:background var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard)}
+.switch .knob{width:16px;height:16px;margin:6px;border-radius:50%;
+  background:var(--md-sys-color-outline);
+  transition:all var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-emphasized)}
+.switch.is-on{background:var(--md-sys-color-primary);border-color:var(--md-sys-color-primary)}
+.switch.is-on .knob{width:24px;height:24px;margin:2px;margin-left:22px;
+  background:var(--md-sys-color-on-primary)}
+.switch.s-disabled{opacity:.38;cursor:default}
+.switch:focus-visible,.switch.s-focus{outline:3px solid var(--md-sys-color-secondary);
+  outline-offset:2px}
+.cbx{width:18px;height:18px;border-radius:2px;flex:none;
+  border:2px solid var(--md-sys-color-on-surface-variant);display:grid;place-items:center;
+  background:transparent;cursor:pointer;color:transparent}
+.cbx.is-on{background:var(--md-sys-color-primary);border-color:var(--md-sys-color-primary);
+  color:var(--md-sys-color-on-primary)}
+.cbx.s-disabled{opacity:.38;cursor:default}
+.cbx:focus-visible,.cbx.s-focus{outline:3px solid var(--md-sys-color-secondary);outline-offset:3px}
+.rad{width:20px;height:20px;border-radius:50%;flex:none;
+  border:2px solid var(--md-sys-color-on-surface-variant);display:grid;place-items:center;
+  cursor:pointer}
+.rad.is-on{border-color:var(--md-sys-color-primary)}
+.rad.is-on::after{content:"";width:10px;height:10px;border-radius:50%;
+  background:var(--md-sys-color-primary)}
+.rad.s-disabled{opacity:.38;cursor:default}
+/* control + label pairs keep the 48px target even when the glyph is 18px */
+.ctl{display:inline-flex;align-items:center;gap:12px;min-height:var(--wds-target-min);
+  cursor:pointer;padding-right:8px}
+
+/* ---- progress -------------------------------------------------------- */
+.lin{height:4px;border-radius:var(--md-sys-shape-corner-full);overflow:hidden;
+  background:var(--md-sys-color-secondary-container);width:100%}
+.lin > i{display:block;height:100%;background:var(--md-sys-color-primary);
+  border-radius:inherit}
+
+/* ---- surfaces -------------------------------------------------------- */
+.sheet{background:var(--md-sys-color-surface-container-high);
+  border-radius:var(--md-sys-shape-corner-extra-large);
+  box-shadow:var(--md-sys-elevation-level3);padding:24px;min-width:0}
+.menu{background:var(--md-sys-color-surface-container);
+  border-radius:var(--md-sys-shape-corner-extra-small);
+  box-shadow:var(--md-sys-elevation-level2);padding:8px 0;min-width:220px;
+  border:1px solid var(--md-sys-color-outline-variant)}
+.menu__i{display:flex;align-items:center;gap:12px;min-height:48px;padding:0 12px;
+  font-size:var(--md-sys-typescale-label-large-size);cursor:pointer;position:relative}
+.menu__i:hover{background:color-mix(in srgb,var(--md-sys-color-on-surface) 8%,transparent)}
+.menu__i .sc{margin-left:auto;color:var(--md-sys-color-on-surface-variant);
+  font-family:var(--md-sys-typeface-mono);
+  font-size:var(--md-sys-typescale-label-medium-size)}
+.menu__hd{padding:4px 8px 8px;border-bottom:1px solid var(--md-sys-color-outline-variant);
+  margin-bottom:8px}
+
+/* the filter field that every menu and dropdown opens with */
+.filter{display:flex;align-items:center;gap:6px;height:40px;padding:0 8px 0 12px;
+  border-radius:var(--md-sys-shape-corner-full);
+  background:var(--md-sys-color-surface-container-highest);margin:0 8px}
+.filter .field__ph{font-size:var(--md-sys-typescale-body-medium-size)}
+.rex{display:inline-flex;align-items:center;justify-content:center;flex:none;
+  width:32px;height:32px;border-radius:var(--md-sys-shape-corner-small);border:none;
+  background:var(--md-sys-color-secondary-container);
+  color:var(--md-sys-color-on-secondary-container);font-family:var(--md-sys-typeface-mono);
+  font-size:12px;font-weight:600;cursor:pointer;position:relative}
+.rex::before{content:"";position:absolute;left:50%;top:50%;width:48px;height:48px;
+  transform:translate(-50%,-50%)}
+.rex:focus-visible{outline:3px solid var(--md-sys-color-secondary);outline-offset:2px}
+
+/* ---- tables ---------------------------------------------------------- */
+.tbl{width:100%;border-collapse:collapse;font-size:var(--md-sys-typescale-body-medium-size)}
+.tbl th{text-align:left;font-size:var(--md-sys-typescale-label-large-size);
+  font-weight:var(--md-sys-typescale-label-large-weight);
+  color:var(--md-sys-color-on-surface-variant);padding:12px 16px;
+  border-bottom:1px solid var(--md-sys-color-outline-variant);white-space:nowrap}
+.tbl td{padding:12px 16px;border-bottom:1px solid var(--md-sys-color-outline-variant);
+  vertical-align:middle}
+.tbl tr.is-sel td{background:var(--md-sys-color-secondary-container);
+  color:var(--md-sys-color-on-secondary-container)}
+.scrollx{overflow-x:auto;max-width:100%}
+
+/* ---- snackbar -------------------------------------------------------- */
+.snack{display:flex;align-items:center;gap:8px;min-height:48px;padding:8px 8px 8px 16px;
+  border-radius:var(--md-sys-shape-corner-extra-small);
+  background:var(--md-sys-color-inverse-surface);color:var(--md-sys-color-inverse-on-surface);
+  box-shadow:var(--md-sys-elevation-level3);max-width:560px}
+.snack .msg{flex:1;min-width:0;font-size:var(--md-sys-typescale-body-medium-size)}
+.snack .act{color:var(--md-sys-color-inverse-primary);background:transparent;border:none;
+  font-family:inherit;font-size:var(--md-sys-typescale-label-large-size);
+  font-weight:var(--md-sys-typescale-label-large-weight);padding:0 12px;height:36px;
+  border-radius:var(--md-sys-shape-corner-full);cursor:pointer}
+
+/* ---- window chrome --------------------------------------------------- */
+.win{border-radius:var(--md-sys-shape-corner-medium);overflow:hidden;
+  border:1px solid var(--md-sys-color-outline-variant);
+  box-shadow:var(--md-sys-elevation-level3);background:var(--md-sys-color-surface);
+  display:flex;flex-direction:column;min-width:0}
+.titlebar{display:flex;align-items:center;gap:8px;height:var(--wds-titlebar-height);
+  padding-left:12px;background:var(--md-sys-color-surface-container);flex:none;
+  border-bottom:1px solid var(--md-sys-color-outline-variant)}
+.titlebar .tt{font-size:var(--md-sys-typescale-label-large-size);
+  font-weight:var(--md-sys-typescale-label-large-weight);
+  color:var(--md-sys-color-on-surface);white-space:nowrap;overflow:hidden;
+  text-overflow:ellipsis}
+.wctl{margin-left:auto;display:flex;height:100%}
+.wctl button{width:46px;height:100%;border:none;background:transparent;
+  color:var(--md-sys-color-on-surface-variant);display:grid;place-items:center;cursor:pointer}
+.wctl button:hover{background:color-mix(in srgb,var(--md-sys-color-on-surface) 8%,transparent)}
+.wctl button.close:hover{background:var(--md-sys-color-error);
+  color:var(--md-sys-color-on-error)}
+
+@media (max-width:760px){
+  .wrap{padding:20px 16px 64px}
+  .pair{grid-template-columns:1fr}
+  h1{font-size:var(--md-sys-typescale-headline-small-size);
+     line-height:var(--md-sys-typescale-headline-small-line-height)}
+}
+
+
+.fgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:20px}
+.fgrid .field{width:100%}
+.cw{max-width:420px}
+
+</style>
+<div class="wrap">
+<h1>Text fields</h1>
+<p class="lede">Filled and outlined, every state, with supporting text that says what to do rather than that something is wrong.</p>
+<div class="banner"><b>Static design specimen.</b> Every control below is a rendering of a state, laid out so the states can be compared side by side. Nothing on this page responds to input, and no element here is wired to behaviour &mdash; the state captions say which state each one shows.</div>
+
+<h2>Filled</h2>
+<p class="vuse" style="font-size:14px;color:var(--md-sys-color-on-surface-variant);max-width:74ch;margin:0 0 12px">
+The default. Its filled box gives the field an edge without a full border, which
+keeps a dense form quiet.</p>
+<div class="fgrid"><div class="st" style="width:100%"><span class="cap">Empty, with placeholder</span><div class="field field--filled "><span class="field__label">Server address</span><span class="field__box"><span class="field__ph">play.example.net</span></span><span class="field__help">Host name or IP address</span></div></div><div class="st" style="width:100%"><span class="cap">Filled</span><div class="field field--filled "><span class="field__label">Server address</span><span class="field__box"><span class="field__val">andyville.example.net</span></span><span class="field__help">Host name or IP address</span></div></div><div class="st" style="width:100%"><span class="cap">Focused</span><div class="field field--filled is-focus"><span class="field__label">Server address</span><span class="field__box"><span class="field__val">andyville.example.net</span></span><span class="field__help">Host name or IP address</span></div></div><div class="st" style="width:100%"><span class="cap">Error</span><div class="field field--filled is-error"><span class="field__label">Server address</span><span class="field__box"><span class="field__val">andyville .example</span><span class="field__aff"><svg class="i i--sm" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3l9 16H3z"/><path d="M12 9v5M12 17h.01"/></svg></span></span><span class="field__help">Not a valid host name &mdash; remove the space</span></div></div><div class="st" style="width:100%"><span class="cap">Disabled</span><div class="field field--filled is-disabled"><span class="field__label">Server address</span><span class="field__box"><span class="field__val">andyville.example.net</span></span><span class="field__help">Set by the active profile</span></div></div><div class="st" style="width:100%"><span class="cap">Prefix and suffix</span><div class="field field--filled "><span class="field__label">Port</span><span class="field__box"><span class="field__aff">tcp://</span><span class="field__val">25565</span></span><span class="field__help">Default for Java Edition is 25565</span></div></div><div class="st" style="width:100%"><span class="cap">Trailing action</span><div class="field field--filled "><span class="field__label">World folder</span><span class="field__box"><span class="field__val">C:\Worlds\Andyville</span><span class="field__aff"><svg class="i" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></span></span><span class="field__help">Where chunks are written</span></div></div></div>
+
+<h2>Outlined</h2>
+<p class="vuse" style="font-size:14px;color:var(--md-sys-color-on-surface-variant);max-width:74ch;margin:0 0 12px">
+For fields on an already-filled surface, where a second fill would muddy the
+layering &mdash; inside a card, or in a dialog.</p>
+<div class="fgrid"><div class="st" style="width:100%"><span class="cap">Empty, with placeholder</span><div class="field field--outlined "><span class="field__label">Server address</span><span class="field__box"><span class="field__ph">play.example.net</span></span><span class="field__help">Host name or IP address</span></div></div><div class="st" style="width:100%"><span class="cap">Filled</span><div class="field field--outlined "><span class="field__label">Server address</span><span class="field__box"><span class="field__val">andyville.example.net</span></span><span class="field__help">Host name or IP address</span></div></div><div class="st" style="width:100%"><span class="cap">Focused</span><div class="field field--outlined is-focus"><span class="field__label">Server address</span><span class="field__box"><span class="field__val">andyville.example.net</span></span><span class="field__help">Host name or IP address</span></div></div><div class="st" style="width:100%"><span class="cap">Error</span><div class="field field--outlined is-error"><span class="field__label">Server address</span><span class="field__box"><span class="field__val">andyville .example</span><span class="field__aff"><svg class="i i--sm" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3l9 16H3z"/><path d="M12 9v5M12 17h.01"/></svg></span></span><span class="field__help">Not a valid host name &mdash; remove the space</span></div></div><div class="st" style="width:100%"><span class="cap">Disabled</span><div class="field field--outlined is-disabled"><span class="field__label">Server address</span><span class="field__box"><span class="field__val">andyville.example.net</span></span><span class="field__help">Set by the active profile</span></div></div><div class="st" style="width:100%"><span class="cap">Prefix and suffix</span><div class="field field--outlined "><span class="field__label">Port</span><span class="field__box"><span class="field__aff">tcp://</span><span class="field__val">25565</span></span><span class="field__help">Default for Java Edition is 25565</span></div></div><div class="st" style="width:100%"><span class="cap">Trailing action</span><div class="field field--outlined "><span class="field__label">World folder</span><span class="field__box"><span class="field__val">C:\Worlds\Andyville</span><span class="field__aff"><svg class="i" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></span></span><span class="field__help">Where chunks are written</span></div></div></div>
+
+<h2>Text area</h2>
+<div class="cw"><div class="field field--outlined "><span class="field__label">Notes</span><span class="field__box" style="min-height:112px;align-items:flex-start;padding-top:12px"><span class="field__val" style="align-self:flex-start">Kept the nether portal at -412, 68, 220 so the overworld link lines up. Re-download after the next server restart.</span></span><span class="field__help">Stored with the profile. Never sent anywhere.</span></div></div>
+
+<h2>Both themes</h2>
+<div class="pair"><section class="panel" data-theme="light"><p class="ph">Light</p><div class="col" style="max-width:340px"><div class="field field--filled is-focus"><span class="field__label">Server address</span><span class="field__box"><span class="field__val">andyville.example.net</span></span><span class="field__help">Host name or IP address</span></div><div class="field field--outlined "><span class="field__label">Port</span><span class="field__box"><span class="field__val">25565</span></span><span class="field__help">Default for Java Edition is 25565</span></div></div></section><section class="panel" data-theme="dark"><p class="ph">Dark</p><div class="col" style="max-width:340px"><div class="field field--filled is-focus"><span class="field__label">Server address</span><span class="field__box"><span class="field__val">andyville.example.net</span></span><span class="field__help">Host name or IP address</span></div><div class="field field--outlined "><span class="field__label">Port</span><span class="field__box"><span class="field__val">25565</span></span><span class="field__help">Default for Java Edition is 25565</span></div></div></section></div>
+
+<p class="note"><b>Supporting text is part of the field, not decoration.</b> It
+holds the format, the constraint, or the reason &mdash; and in the error state it
+says what to do, not that something is wrong. "Not a valid host name &mdash;
+remove the space" is actionable; "Invalid input" is not.</p>
+
+<p class="note"><b>Error state is never colour alone.</b> The border, the label,
+the supporting text and a leading icon all change together, so the state survives
+a monochrome display and a red-green colour vision deficiency.</p>
+
+<p class="note"><b>Every path field gets a browse control.</b> The world folder
+field above carries a trailing folder button. A typed path and a browsed path run
+through exactly the same validation &mdash; a value that arrived through a picker
+is not more trustworthy than one that was typed.</p>
+
+<p class="note warn"><b>Do not put a real value in a placeholder.</b> A greyed
+example inside an empty field is read as filled by a good number of people, who
+then submit the example. Put the example in the supporting text where it cannot
+be mistaken for input.</p>
+
+</div>

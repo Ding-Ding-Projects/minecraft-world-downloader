@@ -1,0 +1,314 @@
+/*
+ * Material Design 3 design tokens.
+ *
+ * EVERY colour token is defined once, here, on a bare `:root`. The dark blocks
+ * below only REDEFINE that same set. A token whose only definition sits inside a
+ * media query has no value at all when the query does not match, which produces
+ * an interface with no colours and no error to explain it.
+ *
+ * The values below are the light baseline. `core/theme.ts` overwrites the colour
+ * roles at runtime from the user's seed colour, in both schemes, so this file is
+ * what paints the first frame and what a token falls back to if generation ever
+ * fails.
+ *
+ * Sizes are CSS pixels. Nothing here is in points.
+ */
+
+:root {
+  color-scheme: light dark;
+
+  /* ---------------------------------------------------------------- */
+  /* Colour roles — light baseline                                     */
+  /* ---------------------------------------------------------------- */
+  --md-sys-color-primary: #4a5bbe;
+  --md-sys-color-on-primary: #ffffff;
+  --md-sys-color-primary-container: #dee0ff;
+  --md-sys-color-on-primary-container: #00105c;
+  --md-sys-color-inverse-primary: #bcc2ff;
+
+  --md-sys-color-secondary: #5b5d72;
+  --md-sys-color-on-secondary: #ffffff;
+  --md-sys-color-secondary-container: #e0e0f9;
+  --md-sys-color-on-secondary-container: #181a2c;
+
+  --md-sys-color-tertiary: #77536d;
+  --md-sys-color-on-tertiary: #ffffff;
+  --md-sys-color-tertiary-container: #ffd7f1;
+  --md-sys-color-on-tertiary-container: #2d1228;
+
+  --md-sys-color-error: #ba1a1a;
+  --md-sys-color-on-error: #ffffff;
+  --md-sys-color-error-container: #ffdad6;
+  --md-sys-color-on-error-container: #410002;
+
+  --md-sys-color-background: #fbf8ff;
+  --md-sys-color-on-background: #1b1b21;
+  --md-sys-color-surface: #fbf8ff;
+  --md-sys-color-on-surface: #1b1b21;
+  --md-sys-color-surface-variant: #e3e1ec;
+  --md-sys-color-on-surface-variant: #46464f;
+  --md-sys-color-surface-dim: #dbd9e0;
+  --md-sys-color-surface-bright: #fbf8ff;
+  --md-sys-color-surface-container-lowest: #ffffff;
+  --md-sys-color-surface-container-low: #f5f2fa;
+  --md-sys-color-surface-container: #efedf4;
+  --md-sys-color-surface-container-high: #eae7ef;
+  --md-sys-color-surface-container-highest: #e4e1e9;
+  --md-sys-color-inverse-surface: #303036;
+  --md-sys-color-inverse-on-surface: #f2eff7;
+
+  --md-sys-color-outline: #777680;
+  --md-sys-color-outline-variant: #c7c5d0;
+  --md-sys-color-shadow: #000000;
+  --md-sys-color-scrim: #000000;
+  --md-sys-color-surface-tint: #4a5bbe;
+
+  /* Semantic aliases used by notifications and status chips. They are colour
+     roles, not new colours, so they follow the generated scheme automatically. */
+  --md-sys-color-success: #1f6d3a;
+  --md-sys-color-on-success: #ffffff;
+  --md-sys-color-success-container: #a8f5bf;
+  --md-sys-color-on-success-container: #002110;
+  --md-sys-color-warning: #7a5900;
+  --md-sys-color-on-warning: #ffffff;
+  --md-sys-color-warning-container: #ffdf9a;
+  --md-sys-color-on-warning-container: #261a00;
+
+  /* ---------------------------------------------------------------- */
+  /* Typography                                                        */
+  /* ---------------------------------------------------------------- */
+  --md-sys-typeface-plain: 'Segoe UI Variable Text', 'Segoe UI', Roboto, 'Noto Sans',
+    'Noto Sans CJK HK', 'Microsoft JhengHei UI', 'PingFang HK', system-ui, sans-serif;
+  --md-sys-typeface-mono: 'Cascadia Mono', Consolas, 'Courier New', ui-monospace, monospace;
+  --md-sys-typescale-factor: 1;
+  --md-sys-typescale-weight: 400;
+
+  --md-sys-typescale-display-large-size: 57px;
+  --md-sys-typescale-display-large-line: 64px;
+  --md-sys-typescale-display-medium-size: 45px;
+  --md-sys-typescale-display-medium-line: 52px;
+  --md-sys-typescale-display-small-size: 36px;
+  --md-sys-typescale-display-small-line: 44px;
+
+  --md-sys-typescale-headline-large-size: 32px;
+  --md-sys-typescale-headline-large-line: 40px;
+  --md-sys-typescale-headline-medium-size: 28px;
+  --md-sys-typescale-headline-medium-line: 36px;
+  --md-sys-typescale-headline-small-size: 24px;
+  --md-sys-typescale-headline-small-line: 32px;
+
+  --md-sys-typescale-title-large-size: 22px;
+  --md-sys-typescale-title-large-line: 28px;
+  --md-sys-typescale-title-medium-size: 16px;
+  --md-sys-typescale-title-medium-line: 24px;
+  --md-sys-typescale-title-small-size: 14px;
+  --md-sys-typescale-title-small-line: 20px;
+
+  --md-sys-typescale-body-large-size: 16px;
+  --md-sys-typescale-body-large-line: 24px;
+  --md-sys-typescale-body-medium-size: 14px;
+  --md-sys-typescale-body-medium-line: 20px;
+  --md-sys-typescale-body-small-size: 12px;
+  --md-sys-typescale-body-small-line: 16px;
+
+  --md-sys-typescale-label-large-size: 14px;
+  --md-sys-typescale-label-large-line: 20px;
+  --md-sys-typescale-label-medium-size: 12px;
+  --md-sys-typescale-label-medium-line: 16px;
+  --md-sys-typescale-label-small-size: 11px;
+  --md-sys-typescale-label-small-line: 16px;
+
+  /* ---------------------------------------------------------------- */
+  /* Shape                                                             */
+  /* ---------------------------------------------------------------- */
+  --md-sys-shape-corner-none: 0px;
+  --md-sys-shape-corner-extra-small: 4px;
+  --md-sys-shape-corner-small: 8px;
+  --md-sys-shape-corner-medium: 12px;
+  --md-sys-shape-corner-large: 16px;
+  --md-sys-shape-corner-extra-large: 28px;
+  --md-sys-shape-corner-full: 9999px;
+
+  /* ---------------------------------------------------------------- */
+  /* Elevation                                                         */
+  /* ---------------------------------------------------------------- */
+  --md-sys-elevation-0: none;
+  --md-sys-elevation-1: 0 1px 2px 0 rgb(0 0 0 / 0.3), 0 1px 3px 1px rgb(0 0 0 / 0.15);
+  --md-sys-elevation-2: 0 1px 2px 0 rgb(0 0 0 / 0.3), 0 2px 6px 2px rgb(0 0 0 / 0.15);
+  --md-sys-elevation-3: 0 4px 8px 3px rgb(0 0 0 / 0.15), 0 1px 3px 0 rgb(0 0 0 / 0.3);
+  --md-sys-elevation-4: 0 6px 10px 4px rgb(0 0 0 / 0.15), 0 2px 3px 0 rgb(0 0 0 / 0.3);
+  --md-sys-elevation-5: 0 8px 12px 6px rgb(0 0 0 / 0.15), 0 4px 4px 0 rgb(0 0 0 / 0.3);
+
+  /* ---------------------------------------------------------------- */
+  /* State layers                                                      */
+  /* ---------------------------------------------------------------- */
+  --md-sys-state-hover-opacity: 0.08;
+  --md-sys-state-focus-opacity: 0.1;
+  --md-sys-state-pressed-opacity: 0.1;
+  --md-sys-state-dragged-opacity: 0.16;
+  --md-sys-state-disabled-content-opacity: 0.38;
+  --md-sys-state-disabled-container-opacity: 0.12;
+
+  /* ---------------------------------------------------------------- */
+  /* Motion                                                            */
+  /* ---------------------------------------------------------------- */
+  --md-sys-motion-easing-emphasized: cubic-bezier(0.2, 0, 0, 1);
+  --md-sys-motion-easing-emphasized-decelerate: cubic-bezier(0.05, 0.7, 0.1, 1);
+  --md-sys-motion-easing-emphasized-accelerate: cubic-bezier(0.3, 0, 0.8, 0.15);
+  --md-sys-motion-easing-standard: cubic-bezier(0.2, 0, 0, 1);
+  --md-sys-motion-easing-standard-decelerate: cubic-bezier(0, 0, 0, 1);
+  --md-sys-motion-easing-standard-accelerate: cubic-bezier(0.3, 0, 1, 1);
+  --md-sys-motion-easing-linear: linear;
+
+  --md-sys-motion-duration-short1: 50ms;
+  --md-sys-motion-duration-short2: 100ms;
+  --md-sys-motion-duration-short3: 150ms;
+  --md-sys-motion-duration-short4: 200ms;
+  --md-sys-motion-duration-medium1: 250ms;
+  --md-sys-motion-duration-medium2: 300ms;
+  --md-sys-motion-duration-medium3: 350ms;
+  --md-sys-motion-duration-medium4: 400ms;
+  --md-sys-motion-duration-long1: 450ms;
+  --md-sys-motion-duration-long2: 500ms;
+  --md-sys-motion-duration-long3: 550ms;
+  --md-sys-motion-duration-long4: 600ms;
+
+  /* ---------------------------------------------------------------- */
+  /* Density and layout                                                */
+  /* ---------------------------------------------------------------- */
+  --md-sys-density-scale: 0;
+  --md-sys-density-step: 4px;
+  --md-comp-row-height: calc(56px + var(--md-sys-density-scale) * var(--md-sys-density-step));
+  --md-comp-button-height: calc(40px + var(--md-sys-density-scale) * var(--md-sys-density-step));
+  --md-comp-field-height: calc(56px + var(--md-sys-density-scale) * var(--md-sys-density-step));
+  --md-comp-icon-button-size: calc(48px + var(--md-sys-density-scale) * var(--md-sys-density-step));
+  --md-comp-touch-target: 44px;
+  --md-comp-title-bar-height: 40px;
+  --md-comp-tab-strip-width: 224px;
+
+  --md-space-1: 4px;
+  --md-space-2: 8px;
+  --md-space-3: 12px;
+  --md-space-4: 16px;
+  --md-space-5: 20px;
+  --md-space-6: 24px;
+  --md-space-8: 32px;
+  --md-space-10: 40px;
+}
+
+/* -------------------------------------------------------------------- */
+/* Dark scheme: the system default, only when the user has not chosen.    */
+/* Every token below already exists on `:root` above.                     */
+/* -------------------------------------------------------------------- */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --md-sys-color-primary: #bcc2ff;
+    --md-sys-color-on-primary: #142285;
+    --md-sys-color-primary-container: #303f9f;
+    --md-sys-color-on-primary-container: #dee0ff;
+    --md-sys-color-inverse-primary: #4a5bbe;
+
+    --md-sys-color-secondary: #c4c5dd;
+    --md-sys-color-on-secondary: #2d2f42;
+    --md-sys-color-secondary-container: #434559;
+    --md-sys-color-on-secondary-container: #e0e0f9;
+
+    --md-sys-color-tertiary: #e6bad6;
+    --md-sys-color-on-tertiary: #44273d;
+    --md-sys-color-tertiary-container: #5d3d54;
+    --md-sys-color-on-tertiary-container: #ffd7f1;
+
+    --md-sys-color-error: #ffb4ab;
+    --md-sys-color-on-error: #690005;
+    --md-sys-color-error-container: #93000a;
+    --md-sys-color-on-error-container: #ffdad6;
+
+    --md-sys-color-background: #131318;
+    --md-sys-color-on-background: #e4e1e9;
+    --md-sys-color-surface: #131318;
+    --md-sys-color-on-surface: #e4e1e9;
+    --md-sys-color-surface-variant: #46464f;
+    --md-sys-color-on-surface-variant: #c7c5d0;
+    --md-sys-color-surface-dim: #131318;
+    --md-sys-color-surface-bright: #39383f;
+    --md-sys-color-surface-container-lowest: #0e0e13;
+    --md-sys-color-surface-container-low: #1b1b21;
+    --md-sys-color-surface-container: #1f1f25;
+    --md-sys-color-surface-container-high: #2a2930;
+    --md-sys-color-surface-container-highest: #35343b;
+    --md-sys-color-inverse-surface: #e4e1e9;
+    --md-sys-color-inverse-on-surface: #303036;
+
+    --md-sys-color-outline: #918f9a;
+    --md-sys-color-outline-variant: #46464f;
+    --md-sys-color-shadow: #000000;
+    --md-sys-color-scrim: #000000;
+    --md-sys-color-surface-tint: #bcc2ff;
+
+    --md-sys-color-success: #8cd8a4;
+    --md-sys-color-on-success: #00391d;
+    --md-sys-color-success-container: #00522c;
+    --md-sys-color-on-success-container: #a8f5bf;
+    --md-sys-color-warning: #f2c04b;
+    --md-sys-color-on-warning: #402d00;
+    --md-sys-color-warning-container: #5c4200;
+    --md-sys-color-on-warning-container: #ffdf9a;
+  }
+}
+
+/* -------------------------------------------------------------------- */
+/* Dark scheme: chosen explicitly. Wins in both directions.              */
+/* -------------------------------------------------------------------- */
+:root[data-theme='dark'] {
+  --md-sys-color-primary: #bcc2ff;
+  --md-sys-color-on-primary: #142285;
+  --md-sys-color-primary-container: #303f9f;
+  --md-sys-color-on-primary-container: #dee0ff;
+  --md-sys-color-inverse-primary: #4a5bbe;
+
+  --md-sys-color-secondary: #c4c5dd;
+  --md-sys-color-on-secondary: #2d2f42;
+  --md-sys-color-secondary-container: #434559;
+  --md-sys-color-on-secondary-container: #e0e0f9;
+
+  --md-sys-color-tertiary: #e6bad6;
+  --md-sys-color-on-tertiary: #44273d;
+  --md-sys-color-tertiary-container: #5d3d54;
+  --md-sys-color-on-tertiary-container: #ffd7f1;
+
+  --md-sys-color-error: #ffb4ab;
+  --md-sys-color-on-error: #690005;
+  --md-sys-color-error-container: #93000a;
+  --md-sys-color-on-error-container: #ffdad6;
+
+  --md-sys-color-background: #131318;
+  --md-sys-color-on-background: #e4e1e9;
+  --md-sys-color-surface: #131318;
+  --md-sys-color-on-surface: #e4e1e9;
+  --md-sys-color-surface-variant: #46464f;
+  --md-sys-color-on-surface-variant: #c7c5d0;
+  --md-sys-color-surface-dim: #131318;
+  --md-sys-color-surface-bright: #39383f;
+  --md-sys-color-surface-container-lowest: #0e0e13;
+  --md-sys-color-surface-container-low: #1b1b21;
+  --md-sys-color-surface-container: #1f1f25;
+  --md-sys-color-surface-container-high: #2a2930;
+  --md-sys-color-surface-container-highest: #35343b;
+  --md-sys-color-inverse-surface: #e4e1e9;
+  --md-sys-color-inverse-on-surface: #303036;
+
+  --md-sys-color-outline: #918f9a;
+  --md-sys-color-outline-variant: #46464f;
+  --md-sys-color-shadow: #000000;
+  --md-sys-color-scrim: #000000;
+  --md-sys-color-surface-tint: #bcc2ff;
+
+  --md-sys-color-success: #8cd8a4;
+  --md-sys-color-on-success: #00391d;
+  --md-sys-color-success-container: #00522c;
+  --md-sys-color-on-success-container: #a8f5bf;
+  --md-sys-color-warning: #f2c04b;
+  --md-sys-color-on-warning: #402d00;
+  --md-sys-color-warning-container: #5c4200;
+  --md-sys-color-on-warning-container: #ffdf9a;
+}

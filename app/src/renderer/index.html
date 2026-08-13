@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <!--
+      Content Security Policy.
+
+      Every asset this window loads is emitted by this build. There is no CDN
+      script, no remote stylesheet, no web font, no remote image and no
+      analytics, so `default-src 'self'` is the whole story and `connect-src`
+      is closed: outbound HTTP goes through the main process, which is deny by
+      default and allow-listed per feature.
+
+      The main process sets the same policy as a response header; this tag is
+      what applies when the page is loaded from the packaged file, where there
+      is no response to attach a header to.
+    -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self'; object-src 'none'; frame-src 'none'; base-uri 'none'; form-action 'none'"
+    />
+    <title>World Downloader Studio</title>
+  </head>
+  <body>
+    <!--
+      The shell is built in TypeScript rather than written here, so the title
+      bar, the tab strip and every panel go through the same component kit and
+      the same appearance overrides as everything else.
+    -->
+    <div id="app">
+      <noscript>
+        This application needs its own bundled script to run. Nothing was loaded from the network.
+      </noscript>
+    </div>
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>

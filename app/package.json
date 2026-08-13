@@ -1,0 +1,37 @@
+{
+  "name": "world-downloader-studio",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Desktop studio for the Minecraft world downloader: proxy control, world tools, live map, web console and automation in one Material Design 3 application.",
+  "license": "GPL-3.0-or-later",
+  "author": "World Downloader Studio contributors",
+  "homepage": "https://github.com/",
+  "main": "./out/main/index.js",
+  "engines": {
+    "node": ">=20.19.0"
+  },
+  "scripts": {
+    "ensure-electron": "node scripts/ensure-electron-binary.mjs",
+    "predev": "node scripts/ensure-electron-binary.mjs",
+    "prestart": "node scripts/ensure-electron-binary.mjs",
+    "predist": "node scripts/ensure-electron-binary.mjs",
+    "dev": "electron-vite dev",
+    "build": "electron-vite build",
+    "start": "electron-vite preview",
+    "typecheck": "tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p tsconfig.web.json",
+    "dist": "electron-vite build && electron-builder --win squirrel --config electron-builder.yml",
+    "dist:dir": "electron-vite build && electron-builder --win --dir --config electron-builder.yml"
+  },
+  "devDependencies": {
+    "@types/node": "22.20.1",
+    "electron": "39.8.10",
+    "electron-builder": "26.15.3",
+    "electron-builder-squirrel-windows": "26.15.3",
+    "electron-vite": "5.0.0",
+    "typescript": "5.9.3",
+    "vite": "7.3.6"
+  },
+  "dependencies": {
+    "mineflayer": "4.37.1"
+  }
+}

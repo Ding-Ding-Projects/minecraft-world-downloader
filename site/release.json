@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+
+  "_about": "Release manifest for the World Downloader Studio download button on this site. The button on index.html reads this file at load time from this same origin and renders one of two states from it: a real download, or an honest 'no verified release yet' state. It never guesses, constructs, or completes a URL of its own. This placeholder ships with verified:false and an empty asset list, so the honest state is what the site shows until a real published release rewrites this file.",
+
+  "verified": false,
+
+  "verifiedMeans": "true only when a release has actually been published, its assets have been downloaded and checked, and every asset entry below carries an immutable https URL, a byte size, and a sha256 digest that was computed from the published bytes rather than from a local build. A workflow that has not finished, a draft release, a tag with no assets, and a candidate build are all verified:false.",
+
+  "unverifiedReason": "No release has been published yet. This repository has never produced a published, downloadable installer, so there is no immutable asset URL to point at.",
+
+  "release": {
+    "version": null,
+    "tag": null,
+    "commit": null,
+    "publishedAt": null,
+    "notesUrl": null,
+    "codeName": null
+  },
+
+  "signing": {
+    "signed": false,
+    "note": "Installers for this project are unsigned. Code signing is out of scope, so Windows shows an unknown-publisher or SmartScreen warning on first run. The site states this beside the download rather than burying it, and never claims authenticity or signature verification."
+  },
+
+  "assets": [],
+
+  "fieldReference": {
+    "release.version": "string. The human version, for example \"1.4.0\". Shown on the button.",
+    "release.tag": "string. The immutable git tag the release was published from.",
+    "release.commit": "string. The full 40-character commit SHA the artifacts were built from.",
+    "release.publishedAt": "string. ISO 8601 with a timezone offset, for example \"2026-08-13T04:18:33-04:00\".",
+    "release.notesUrl": "string. Absolute https URL of the published release notes.",
+    "release.codeName": "string or null. The dim sum code name carried by this build, for example \"Classic Har Gow · 蝦餃\".",
+    "assets[].id": "string. Stable identifier, unique within this file.",
+    "assets[].kind": "string. One of \"installer\", \"update-feed\", \"package\", \"delta\", \"checksums\".",
+    "assets[].label": "string. What the button says this asset is, for example \"Windows installer\".",
+    "assets[].platform": "string. For example \"Windows 10 and 11, 64-bit\".",
+    "assets[].filename": "string. The published asset filename.",
+    "assets[].url": "string. The immutable https release asset URL. The site refuses anything that is not an absolute https URL and renders the honest state instead.",
+    "assets[].bytes": "number. Exact byte size of the published asset.",
+    "assets[].sha256": "string. Lowercase 64-character hex digest of the published bytes.",
+    "assets[].verified": "boolean. true only when this individual asset was downloaded from that URL and its digest matched. The site requires this on the asset as well as at the top level.",
+    "assets[].primary": "boolean. Marks the one asset the main download button offers. Everything else is listed beneath it."
+  },
+
+  "howThisIsUpdated": "The release workflow rewrites this file as part of publishing, after the assets exist and have been checked, and commits it alongside the release. Nothing else should edit it by hand: a manifest written ahead of a release is exactly the guessed URL this design exists to prevent."
+}

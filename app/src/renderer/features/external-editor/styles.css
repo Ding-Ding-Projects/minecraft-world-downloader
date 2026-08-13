@@ -1,0 +1,83 @@
+/*
+ * External editor.
+ *
+ * Layout only. Every colour, radius, spacing and duration comes from a token,
+ * so the surface follows the user's seed colour, density and contrast instead
+ * of quietly stopping at whatever was hard-coded here.
+ *
+ * Wide content — the two tables — scrolls inside its own container, so the
+ * panel itself never scrolls sideways at a narrow width or a high display
+ * scale. Every row wraps rather than pushing a button off the edge.
+ */
+
+.external-editor-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-3);
+  padding: var(--md-space-4);
+  margin-block-end: var(--md-space-4);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-corner-large);
+  background: var(--md-sys-color-surface-container-low);
+  max-width: 100%;
+  min-width: 0;
+}
+
+.external-editor-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--md-space-2);
+  min-width: 0;
+}
+
+.external-editor-picker {
+  flex: 1 1 16rem;
+  min-width: 0;
+}
+
+.external-editor-summary {
+  margin: 0;
+  color: var(--md-sys-color-on-surface);
+}
+
+.external-editor-note {
+  margin: 0;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.external-editor-bulk {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-2);
+  padding: var(--md-space-2) var(--md-space-3);
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: var(--md-sys-color-surface-container);
+  min-width: 0;
+}
+
+.external-editor-bulk__count {
+  margin: 0;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.external-editor-bulk__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-space-2);
+  min-width: 0;
+}
+
+/*
+ * The table is the one thing here that can genuinely be wider than the panel,
+ * so it gets its own scroll container rather than dragging the whole surface
+ * sideways with it.
+ */
+.external-editor-section .md-table-wrap {
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+.external-editor-section [hidden] {
+  display: none;
+}

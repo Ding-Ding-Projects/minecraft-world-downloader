@@ -1,0 +1,421 @@
+/*
+ * The offline documentation browser.
+ *
+ * Every colour, radius, spacing, duration and elevation below is a Material
+ * Design 3 system token, so both themes, every contrast level and the user's own
+ * seed colour follow along without this file knowing anything about them. A
+ * literal colour here would simply stop tracking the scheme the moment somebody
+ * changed it.
+ *
+ * Three layout rules are load-bearing rather than decorative:
+ *
+ *   - Wide content scrolls inside its own container. Articles contain tables and
+ *     code fences wider than any pane; each gets its own scroller so the page
+ *     itself never scrolls sideways.
+ *   - Nothing has a fixed height. Bilingual copy is the longest text this
+ *     interface ever renders, and a box sized for English clips it at exactly
+ *     the moment somebody is checking whether it clips.
+ *   - Below the stacking width the two panes stack rather than squeezing, and
+ *     the splitter disappears with them, because a splitter between two stacked
+ *     panes resizes nothing.
+ */
+
+.docs-browser__summary,
+.docs-browser__selection {
+  margin: 0;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+/* ------------------------------------------------------------------ */
+/* Bulk action bar                                                     */
+/* ------------------------------------------------------------------ */
+
+.docs-browser__bulk {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--md-space-2);
+  padding: var(--md-space-2) 0;
+}
+
+.docs-browser__bulk > hr {
+  align-self: stretch;
+}
+
+/* ------------------------------------------------------------------ */
+/* The two panes                                                       */
+/* ------------------------------------------------------------------ */
+
+.docs-browser__layout {
+  --docs-browser-index-width: 320px;
+
+  display: grid;
+  grid-template-columns: var(--docs-browser-index-width) auto minmax(0, 1fr);
+  align-items: stretch;
+  gap: 0;
+  min-height: 0;
+  min-width: 0;
+  margin-block-start: var(--md-space-3);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-corner-large);
+  background: var(--md-sys-color-surface-container-low);
+  overflow: hidden;
+}
+
+.docs-browser__index {
+  min-width: 0;
+  max-height: 68vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: var(--md-space-3);
+  background: var(--md-sys-color-surface-container);
+}
+
+.docs-browser__article {
+  min-width: 0;
+  max-height: 68vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: var(--md-space-5);
+}
+
+.docs-browser__article:focus-visible {
+  outline: 3px solid var(--md-sys-color-primary);
+  outline-offset: -3px;
+}
+
+/* ------------------------------------------------------------------ */
+/* Splitter                                                            */
+/* ------------------------------------------------------------------ */
+
+.docs-browser__splitter {
+  inline-size: var(--md-space-2);
+  cursor: col-resize;
+  background: var(--md-sys-color-outline-variant);
+  border: none;
+  position: relative;
+  transition: background var(--md-sys-motion-duration-short2) var(--md-sys-motion-easing-standard);
+}
+
+/*
+ * The visible bar is deliberately narrow and the grabbable area is not: the
+ * pseudo-element widens the pointer target to the platform minimum without
+ * widening the line the eye follows.
+ */
+.docs-browser__splitter::before {
+  content: '';
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 50%;
+  inline-size: var(--md-comp-touch-target, 44px);
+  transform: translateX(-50%);
+}
+
+.docs-browser__splitter:hover,
+.docs-browser__splitter:focus-visible {
+  background: var(--md-sys-color-primary);
+}
+
+.docs-browser__splitter:focus-visible {
+  outline: 3px solid var(--md-sys-color-primary);
+  outline-offset: 2px;
+}
+
+/* ------------------------------------------------------------------ */
+/* Index rows                                                          */
+/* ------------------------------------------------------------------ */
+
+.docs-browser__category {
+  margin: var(--md-space-4) 0 var(--md-space-2);
+  color: var(--md-sys-color-primary);
+}
+
+.docs-browser__category:first-child {
+  margin-block-start: 0;
+}
+
+.docs-browser__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-1, 4px);
+}
+
+.docs-browser__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--md-space-2);
+  padding: var(--md-space-2);
+  border-radius: var(--md-sys-shape-corner-medium);
+  min-block-size: var(--md-comp-row-height, 48px);
+}
+
+.docs-browser__row:hover {
+  background: color-mix(
+    in srgb,
+    var(--md-sys-color-on-surface) calc(var(--md-sys-state-hover-opacity, 0.08) * 100%),
+    transparent
+  );
+}
+
+.docs-browser__row--current {
+  background: var(--md-sys-color-secondary-container);
+  color: var(--md-sys-color-on-secondary-container);
+}
+
+/*
+ * Read and bookmarked states are never carried by colour alone: the read row
+ * carries its own checked checkbox and the bookmarked row its pressed toggle,
+ * both of which a screen reader announces. The marker below is an additional
+ * cue for a sighted reader scanning the list, not the only one.
+ */
+.docs-browser__row--bookmarked {
+  box-shadow: inset 3px 0 0 0 var(--md-sys-color-tertiary);
+}
+
+.docs-browser__row--read .docs-browser__row-title {
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.docs-browser__row-select {
+  flex: 0 0 auto;
+}
+
+.docs-browser__row-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1 1 12rem;
+  min-width: 0;
+}
+
+.docs-browser__row-title {
+  justify-content: flex-start;
+  text-align: start;
+  padding-inline: var(--md-space-2);
+  /* Bilingual titles are the longest strings here and must wrap, not clip. */
+  white-space: normal;
+  block-size: auto;
+  min-block-size: var(--md-comp-button-height, 40px);
+}
+
+.docs-browser__row-meta,
+.docs-browser__row-hits {
+  color: var(--md-sys-color-on-surface-variant);
+  padding-inline-start: var(--md-space-2);
+}
+
+.docs-browser__row-hits {
+  color: var(--md-sys-color-primary);
+}
+
+.docs-browser__row-read {
+  flex: 0 0 auto;
+}
+
+.docs-browser__more {
+  inline-size: 100%;
+  margin-block-start: var(--md-space-3);
+}
+
+/* ------------------------------------------------------------------ */
+/* Article                                                             */
+/* ------------------------------------------------------------------ */
+
+.docs-browser__article-head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-2);
+  padding-block-end: var(--md-space-3);
+  border-block-end: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.docs-browser__article-head h1 {
+  margin: 0;
+}
+
+.docs-browser__meta,
+.docs-browser__source {
+  margin: 0;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.docs-browser__source {
+  font-family: var(--md-sys-typeface-mono);
+  overflow-wrap: anywhere;
+}
+
+.docs-browser__article-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--md-space-3);
+}
+
+/* ------------------------------------------------------------------ */
+/* Outline                                                             */
+/* ------------------------------------------------------------------ */
+
+.docs-browser__outline {
+  margin-block: var(--md-space-4);
+  padding: var(--md-space-3);
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: var(--md-sys-color-surface-container-high);
+}
+
+.docs-browser__outline h2 {
+  margin: 0 0 var(--md-space-2);
+}
+
+.docs-browser__outline-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.docs-browser__outline-list li {
+  padding-inline-start: calc(var(--docs-browser-outline-level, 0) * var(--md-space-4));
+}
+
+.docs-browser__outline-link {
+  justify-content: flex-start;
+  text-align: start;
+  white-space: normal;
+  block-size: auto;
+  min-block-size: var(--md-comp-touch-target, 44px);
+}
+
+.docs-browser__outline-note {
+  margin: 0;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+/* ------------------------------------------------------------------ */
+/* Rendered prose                                                      */
+/* ------------------------------------------------------------------ */
+
+.docs-browser-prose {
+  min-width: 0;
+}
+
+.docs-browser-prose h2,
+.docs-browser-prose h3,
+.docs-browser-prose h4 {
+  margin-block: var(--md-space-5) var(--md-space-2);
+  scroll-margin-block-start: var(--md-space-4);
+}
+
+.docs-browser-prose p,
+.docs-browser-prose li {
+  overflow-wrap: anywhere;
+}
+
+.docs-browser-prose blockquote {
+  margin-inline: 0;
+  padding: var(--md-space-2) var(--md-space-4);
+  border-inline-start: 4px solid var(--md-sys-color-tertiary);
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+/* Code and tables are the two things wider than any pane, so each scrolls
+   inside itself rather than pushing the page sideways. */
+.docs-browser-prose pre {
+  overflow-x: auto;
+  max-inline-size: 100%;
+  padding: var(--md-space-3);
+  border-radius: var(--md-sys-shape-corner-small);
+  background: var(--md-sys-color-surface-container-highest);
+  font-family: var(--md-sys-typeface-mono);
+}
+
+.docs-browser-prose .md-table-wrap {
+  overflow-x: auto;
+  max-inline-size: 100%;
+}
+
+.docs-browser-prose table {
+  border-collapse: collapse;
+}
+
+.docs-browser-prose th,
+.docs-browser-prose td {
+  padding: var(--md-space-2) var(--md-space-3);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  text-align: start;
+  vertical-align: top;
+}
+
+.docs-browser-prose code {
+  font-family: var(--md-sys-typeface-mono);
+  overflow-wrap: anywhere;
+}
+
+.docs-browser-prose hr {
+  border: none;
+  border-block-start: 1px solid var(--md-sys-color-outline-variant);
+  margin-block: var(--md-space-5);
+}
+
+/* ------------------------------------------------------------------ */
+/* Suggested reading                                                   */
+/* ------------------------------------------------------------------ */
+
+.docs-browser__suggestions {
+  margin-block-start: var(--md-space-6);
+  padding-block-start: var(--md-space-4);
+  border-block-start: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.docs-browser__suggestions h2,
+.docs-browser__suggestions h3 {
+  margin: 0 0 var(--md-space-2);
+}
+
+.docs-browser__suggestions h3 {
+  margin-block-start: var(--md-space-4);
+}
+
+.docs-browser__export {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-3);
+  min-inline-size: min(28rem, 70vw);
+}
+
+/* ------------------------------------------------------------------ */
+/* Narrow layouts and high display scales                              */
+/* ------------------------------------------------------------------ */
+
+@media (max-width: 720px) {
+  .docs-browser__layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* A splitter between two stacked panes resizes nothing, so it goes away
+     rather than sitting there as a control that does not work. */
+  .docs-browser__splitter {
+    display: none;
+  }
+
+  .docs-browser__index,
+  .docs-browser__article {
+    max-height: none;
+  }
+
+  .docs-browser__index {
+    border-block-end: 1px solid var(--md-sys-color-outline-variant);
+  }
+
+  .docs-browser__article {
+    padding: var(--md-space-4);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .docs-browser__splitter {
+    transition: none;
+  }
+}
