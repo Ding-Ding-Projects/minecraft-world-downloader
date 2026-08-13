@@ -613,7 +613,9 @@ export function initSiblingBridge(ctx: AppContext, manager: BotManager): void {
       .catch(() => undefined);
   }, 1500);
 
-  void wireChatSibling(ctx, manager);
+  wireChatSibling(ctx, manager).catch((error) => {
+    console.error('Wiring the mineflayer-chat sibling bridge failed.', error);
+  });
 }
 
 export function disposeSiblingBridge(): void {

@@ -1184,6 +1184,7 @@
             el('div', { class: 'stack', style: { gap: '4px' } }, [el('span', { class: 't-label-small', text: t('logo.cornerLabel', '') }), cornerSlider]),
             el('label', { class: 'row', style: { 'align-items': 'center', gap: '8px' } }, [safeAreaSwitchEl, el('span', { class: 't-body-small', text: t('logo.safeAreaLabel', '') })])
           ]),
+          el('span', { class: 't-label-small', text: t('logo.focalLabel', '') }),
           el('p', { class: 'muted t-body-small', text: t('logo.focalNote', '') }),
           focalRow,
           contrastNote,
@@ -1344,6 +1345,7 @@
         }
       });
       var aboutPanel = el('div', { class: 'stack', style: { gap: '16px', 'min-width': '0' } }, [
+        el('h3', { text: t('logo.identityFactsHeading', '') }),
         el('p', { text: t('logo.identity', '') }),
         el('p', { text: t('logo.storageNote', '') }),
         el('p', { text: t('logo.privacyNote', '') }),
