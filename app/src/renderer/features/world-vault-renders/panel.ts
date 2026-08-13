@@ -6,7 +6,7 @@ import { buildCompareHtml, computeWordDiff, startServe, stopServe, type WordDiff
 import { BLUEMAP_RELEASES_URL, probeJava, validateRendererPath } from './probe';
 import { detectDimensions } from './renderConfig';
 import { ensureQueue } from './runtime';
-import { featureDirectories, SETTINGS } from './store';
+import { featureDirectories, SETTINGS, vaultDirName } from './store';
 import type { CompareMode, RenderRecord, RenderStatus } from './types';
 import {
   exportVaultCommit,
@@ -363,7 +363,7 @@ export function mountRendersPanel(host: HTMLElement, ctx: TabContext): void {
   compareCard.append(compareButton, compareResult);
 
   async function exportForCompare(commit: VaultCommit): Promise<string | null> {
-    const directory = joinPath(paths.exportRoot, commit.vaultId, commit.id);
+    const directory = joinPath(paths.exportRoot, vaultDirName(commit.vaultId), commit.id);
     const stat = await ctx.studio.fs.stat(directory);
     if (stat.ok && stat.value.exists) return directory;
     const exported = await exportVaultCommit(commit, directory);

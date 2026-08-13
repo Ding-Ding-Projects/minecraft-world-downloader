@@ -414,17 +414,45 @@ export function mountWorldVaultPanel(host: HTMLElement, ctx: TabContext, state: 
     const card = ctx.components.card({ variant: 'outlined' });
     card.classList.add('worldvault-publish');
     card.setAttribute('data-appearance-id', 'world-vault:publish');
-    card.append(
-      ctx.components.sectionHeading({ title: 'world-vault.publish.heading' }),
-      el('p', { className: 'md-typescale-body-medium worldvault-publish__risk', text: ctx.t('world-vault.publish.risk', 'Publishing sends the whole world to a remote you choose.') })
-    );
+
+    // At higher funny levels this string's ladder carries {size}/{files}
+    // placeholders (see strings.ts) that the lower levels don't — so `values`
+    // is always supplied, even before the real preflight numbers are in,
+    // rather than leaving the raw "{size}"/"{files}" tokens on screen for
+    // whichever level happens to use them.
+    const riskEl = el('p', {
+      className: 'md-typescale-body-medium worldvault-publish__risk',
+      text: ctx.t('world-vault.publish.risk', 'Publishing sends the whole world to a remote you choose.', {
+        values: { size: '…', files: '…' }
+      })
+    });
+    card.append(ctx.components.sectionHeading({ title: 'world-vault.publish.heading' }), riskEl);
 
     const preflightText = el('p', { className: 'md-typescale-body-small', attrs: { role: 'status' } });
     card.append(preflightText);
 
+    // Whether the push button may be pressed depends on two things that
+    // change independently: the async preflight's `hasRemote` (known once,
+    // resolved below) and whatever the user has actually typed into the
+    // field since (which can change any number of times). Recomputing only
+    // once, when the preflight resolves, leaves the button stuck disabled
+    // forever if the field was still empty at that moment — exactly the
+    // ordinary case, since preflight is a round trip and typing a URL takes
+    // longer. `refreshPushAvailability` is called both then and on every
+    // keystroke, so the two facts are never allowed to go stale together.
+    let preflightHasRemote = false;
+    const refreshPushAvailability = (): void => {
+      setButtonDisabled(
+        pushButton,
+        !preflightHasRemote && remoteField.get().trim() === '',
+        ctx.t('world-vault.publish.remoteUrl.label', 'Remote URL')
+      );
+    };
+
     const remoteField = ctx.components.textField({
       label: 'world-vault.publish.remoteUrl.label',
-      placeholder: 'https://github.com/you/world.git'
+      placeholder: 'https://github.com/you/world.git',
+      onChange: () => refreshPushAvailability()
     });
     const pushButton = ctx.components.button({
       label: 'world-vault.publish.push',
@@ -462,6 +490,9 @@ export function mountWorldVaultPanel(host: HTMLElement, ctx: TabContext, state: 
         return;
       }
       const preflight = result.value;
+      riskEl.textContent = ctx.t('world-vault.publish.risk', 'Publishing sends the whole world to a remote you choose.', {
+        values: { size: formatBytes(preflight.worldSizeBytes), files: preflight.fileCount }
+      });
       const lines: string[] = [
         ctx.t('world-vault.publish.preflight.summary', 'World: {size} · {files} files', {
           values: { size: formatBytes(preflight.worldSizeBytes), files: preflight.fileCount }
@@ -473,11 +504,8 @@ export function mountWorldVaultPanel(host: HTMLElement, ctx: TabContext, state: 
       preflightText.textContent = lines.join(' · ');
 
       if (preflight.remoteUrl) remoteField.set(preflight.remoteUrl);
-      setButtonDisabled(
-        pushButton,
-        !preflight.hasRemote && remoteField.get().trim() === '',
-        ctx.t('world-vault.publish.remoteUrl.label', 'Remote URL')
-      );
+      preflightHasRemote = preflight.hasRemote;
+      refreshPushAvailability();
       setButtonDisabled(
         createRepoButton,
         !preflight.ghAvailable || !preflight.ghAuthenticated,
@@ -502,7 +530,7 @@ export function mountWorldVaultPanel(host: HTMLElement, ctx: TabContext, state: 
       return;
     }
     const approved = await ctx.confirm.request({
-      action: ctx.t('world-vault.publish.pushConfirmAction', 'Push the vault to {url}', { values: { url } }),
+      action: ctx.t('world-vault.publish.pushConfirmAction', 'Push the vault to {url}', { values: { url, size, files } }),
       affected: [ctx.t('world-vault.publish.preflight.summary', 'World: {size} · {files} files', { values: { size, files } })],
       irreversible: ctx.t('world-vault.publish.pushIrreversible', 'Every committed file becomes visible to anyone who can reach {url}.', { values: { url } }),
       anchor
@@ -536,7 +564,7 @@ export function mountWorldVaultPanel(host: HTMLElement, ctx: TabContext, state: 
     const size = preflight.ok ? formatBytes(preflight.value.worldSizeBytes) : '?';
     const files = preflight.ok ? preflight.value.fileCount : 0;
     const approved = await ctx.confirm.request({
-      action: ctx.t('world-vault.publish.createRepoConfirmAction', 'Create "{name}" ({visibility}) and push {size}', { values: { name: trimmedName, visibility, size } }),
+      action: ctx.t('world-vault.publish.createRepoConfirmAction', 'Create "{name}" ({visibility}) and push {size}', { values: { name: trimmedName, visibility, size, files } }),
       affected: [ctx.t('world-vault.publish.preflight.summary', 'World: {size} · {files} files', { values: { size, files } })],
       irreversible: ctx.t('world-vault.publish.createRepoIrreversible', 'A new repository is created and the vault is pushed to it.', { values: { name: trimmedName, visibility } }),
       anchor

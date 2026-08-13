@@ -29,6 +29,7 @@ import { detectDimensions, renderArguments, writeRenderConfig, type RenderPlan }
 import { isErrorLine, parseProgressLine, stripLogPrefix } from './logParsing';
 import { probeJava, rendererLauncher, validateRendererPath } from './probe';
 import { exportVaultCommit, type VaultCommit } from './vaultLink';
+import { vaultDirName } from './store';
 import { newRenderRecord, type JavaState, type RenderRecord, type RenderStatus } from './types';
 
 const LOG_LINES = 150;
@@ -268,7 +269,7 @@ export class RenderQueue {
 
     this.setRecord(commitId, { status: 'exporting', startedAt: new Date().toISOString(), progressTask: '' });
 
-    const exportDirectory = joinPath(this.paths.exportRoot, commit.vaultId, commit.id);
+    const exportDirectory = joinPath(this.paths.exportRoot, vaultDirName(commit.vaultId), commit.id);
     const alreadyExported = await this.studio.fs.stat(exportDirectory);
     let exportedPath = exportDirectory;
     if (!alreadyExported.ok || !alreadyExported.value.exists) {
@@ -325,7 +326,7 @@ export class RenderQueue {
     }
 
     const dimensions = await detectDimensions(this.studio, exportedPath);
-    const outputDirectory = joinPath(this.paths.outputRoot, commit.vaultId, commit.id);
+    const outputDirectory = joinPath(this.paths.outputRoot, vaultDirName(commit.vaultId), commit.id);
     const plan: RenderPlan = {
       exportDirectory: exportedPath,
       outputDirectory,
