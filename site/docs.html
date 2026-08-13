@@ -10,6 +10,13 @@
 <link rel="stylesheet" href="assets/material.css">
 <link rel="stylesheet" href="assets/site.css">
 <script defer src="assets/articles.js"></script>
+<script>
+// The page bootstrap below is an inline script, so it runs at parse position — before the
+// deferred site.js has defined Studio. Without this stub it throws ReferenceError and the entire
+// interface never builds, which presents as a page whose controls all do nothing.
+// This queues the callbacks; site.js adopts the queue when it loads, so defer is kept.
+window.Studio = window.Studio || { __pendingReady: [], ready: function (fn) { this.__pendingReady.push(fn); } };
+</script>
 <script defer src="assets/site.js"></script>
 <script defer src="assets/schedule.js"></script>
 <script defer src="assets/narrator.js"></script>

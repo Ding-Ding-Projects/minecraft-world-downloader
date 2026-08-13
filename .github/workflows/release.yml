@@ -62,6 +62,13 @@ jobs:
           cache: npm
           cache-dependency-path: app/package-lock.json
 
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
       # ------------------------------------------------------------------------------------------
       # Timing: measured from the workflow's own first-job start, read back from the API rather than
       # from a clock started inside this job, so the recorded figure covers queueing too. Never
@@ -100,6 +107,37 @@ jobs:
             exit 1
           fi
           echo "${tag} is free"
+
+      # ------------------------------------------------------------------------------------------
+      # The Java engine. The desktop application is not a second product beside this jar — it is
+      # the UI that spawns it as the actual world-download engine, so a release of the application
+      # without the engine it runs would ship half a thing.
+      #
+      # -DskipTests is correct and required here, not an oversight. This whole pipeline runs NO
+      # test, lint, type-check, coverage or screenshot gate anywhere, on purpose (see the header
+      # comment at the top of this file): that is the repository owner's explicit standing
+      # decision, and running the Java test suite in this one step would quietly reintroduce
+      # exactly the gate that was deliberately removed everywhere else. A failing Java test is
+      # still a defect to fix locally, in the task that changed the code; it simply never blocks
+      # this build or this release.
+      # ------------------------------------------------------------------------------------------
+      - name: Build the Java engine (jar)
+        run: mvn -B -ntp clean package -DskipTests
+
+      - name: Confirm the jar Maven produced
+        run: |
+          set -euo pipefail
+          jar="target/world-downloader.jar"
+          if [ ! -f "${jar}" ]; then
+            echo "::error title=No jar produced::mvn package exited 0 but ${jar} does not exist. pom.xml pins <finalName>world-downloader</finalName> on the shade plugin; if that changed, this check and app/electron-builder.yml's extraResources entry both need updating together."
+            exit 1
+          fi
+          bytes=$(stat -c %s "${jar}")
+          if [ "${bytes}" -lt 1048576 ]; then
+            echo "::error title=Jar too small::${jar} is only ${bytes} bytes, which looks like a packaging stub rather than the shaded jar with its dependencies. Refusing to ship it as the download engine."
+            exit 1
+          fi
+          echo "Built ${jar} (${bytes} bytes)."
 
       - name: Install dependencies
         working-directory: app
@@ -212,6 +250,24 @@ jobs:
             echo "::error title=No full package::Squirrel packaging produced no full .nupkg. The update feed would be unusable."
             exit 1
           fi
+
+          # The Java engine the application spawns, added explicitly and by name — never by
+          # widening the sweep above. This is the same jar the "Build the Java engine (jar)" step
+          # already verified exists and is non-trivially sized; it is copied into staging again
+          # here (not moved) rather than assumed, so a release that silently lost the engine fails
+          # this assertion instead of shipping quietly incomplete.
+          jar_source="target/world-downloader.jar"
+          if [ ! -f "${jar_source}" ]; then
+            echo "::error title=No engine jar::${jar_source} does not exist. The Java engine build step should have produced it before packaging ran."
+            exit 1
+          fi
+          cp -f "${jar_source}" "${staging}/world-downloader.jar"
+          jar_bytes=$(stat -c %s "${staging}/world-downloader.jar")
+          if [ "${jar_bytes}" -lt 1048576 ]; then
+            echo "::error title=Engine jar too small::staging/world-downloader.jar is only ${jar_bytes} bytes. Refusing to publish a release whose engine looks like a stub."
+            exit 1
+          fi
+          echo "Collected the engine jar into staging/ (${jar_bytes} bytes)."
 
           echo "delta_count=${delta_count}" >> "$GITHUB_OUTPUT"
           echo "staging=${staging}" >> "$GITHUB_OUTPUT"
@@ -443,8 +499,10 @@ jobs:
             echo "## World Downloader Studio ${version}"
             echo ''
             echo 'The Minecraft world downloader proxy, the world tools, the live map pipeline, the web console'
-            echo 'and the automation bot, combined into one Material Design 3 desktop application. This is the'
-            echo 'only artifact this repository releases.'
+            echo 'and the automation bot, combined into one Material Design 3 desktop application, together with'
+            echo 'the Java engine (`world-downloader.jar`) the application spawns to actually do the downloading.'
+            echo 'The jar is not a second product: it is the engine this application drives, so this release'
+            echo 'carries it alongside the installer rather than shipping an application with no engine.'
             echo ''
             echo '> [!WARNING]'
             echo '> **These artifacts are unsigned.** Code signing is permanently out of scope for this project:'
@@ -462,6 +520,20 @@ jobs:
             echo 'The application checks this feed for updates on startup and on a bounded background schedule,'
             echo 'stages an update in the background, and shows a non-blocking banner offering to restart. It'
             echo 'never restarts on its own.'
+            echo ''
+            echo '### The engine (`world-downloader.jar`)'
+            echo ''
+            echo 'This is **not** a second application to install. It is the Java process the desktop application'
+            echo 'spawns to speak the Minecraft protocol and write the world to disk; the desktop application is'
+            echo 'the UI on top of it. It requires a Java 21+ runtime on your machine (the application checks for'
+            echo 'one and links to https://adoptium.net/temurin/releases/ if none is found).'
+            echo ''
+            echo 'You do not need to download `world-downloader.jar` yourself for a normal install: the Windows'
+            echo 'installer bundles it inside the packaged application as the default engine, and the'
+            echo "application's own \"Jar path\" setting only needs to point somewhere else if you want to run a"
+            echo 'different build of the jar than the one bundled with this release. It is attached to this'
+            echo 'release separately so it can be run standalone (`java -jar world-downloader.jar --help`) or'
+            echo 'inspected without installing the desktop application at all.'
             echo ''
             echo '### Checks that were run'
             echo ''
@@ -581,6 +653,7 @@ jobs:
             if (!names.some((name) => name.toLowerCase().endsWith(".exe"))) problems.push("no installer is attached");
             if (!names.includes("RELEASES")) problems.push("no RELEASES index is attached");
             if (!names.some((name) => name.toLowerCase().endsWith("-full.nupkg"))) problems.push("no full package is attached");
+            if (!names.includes("world-downloader.jar")) problems.push("no engine jar is attached");
             console.log("Published " + release.tagName + " with " + names.length + " assets:");
             for (const name of names) console.log("  " + name);
             if (problems.length > 0) {

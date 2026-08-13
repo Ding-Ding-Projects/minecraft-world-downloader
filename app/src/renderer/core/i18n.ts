@@ -134,6 +134,46 @@ const CORE: Catalogue = {
     ladder('Evaluation stopped after {ms} ms to keep the window responsive. The pattern is probably backtracking.'),
     ladder('行咗 {ms} 毫秒就停手，唔想個窗死咗。個圖樣好可能喺度不停回頭試。')
   ),
+  'core.regex.sampleCapped': entry(
+    ladder(
+      'Only the first {chars} characters of the sample were evaluated.',
+      'Only the first {chars} characters of the sample were evaluated.',
+      'Only the first {chars} characters of the sample were evaluated, to keep this bounded.',
+      'Trimmed to the first {chars} characters before running it — on purpose.',
+      'Trimmed to the first {chars} characters before running it — on purpose.'
+    ),
+    ladder(
+      '淨係試驗咗試驗文字頭 {chars} 個字。',
+      '淨係試驗咗試驗文字頭 {chars} 個字。',
+      '淨係試驗咗試驗文字頭 {chars} 個字，控制範圍嘛。',
+      '特登淨係剪咗頭 {chars} 個字先攞去試，講明係特登嘅。',
+      '特登淨係剪咗頭 {chars} 個字先攞去試，講明係特登嘅。'
+    )
+  ),
+  'core.regex.riskNestedQuantifier': entry(
+    ladder(
+      'This repeats a group that can already repeat itself without limit: {snippet}. That shape can force an exploding number of ways to fail to match, which can freeze on even a short sample. Evaluation stays bounded, but treat this pattern with care.',
+      'This repeats a group that can already repeat itself without limit: {snippet}. That is the classic catastrophic-backtracking shape. Evaluation is bounded here, but treat it with care against real input.',
+      'Careful — {snippet} repeats a group that already repeats itself. That combination is the textbook way to make a regex engine freeze. Evaluation here is kept on a short leash, but do not ship this pattern as-is.'
+    ),
+    ladder(
+      '呢度有個組合自己識不停重複，仲畀外面嗰個再逼多一次：{snippet}。呢種寫法可以逼到引擎試到爆咁多組合，就算試驗文字好短都可能卡死。呢度已經做咗限制，但都係小心啲好。',
+      '呢度有個組合自己識不停重複，仲畀外面再逼多一次：{snippet}。呢個就係經典嘅「災難性回溯」寫法。呢度有做限制，但真係用嘅時候要小心。',
+      '小心喇，{snippet} 呢個組合自己識重複，仲畀人喺外面再逼一次重複。呢個就係教科書級令 regex 引擎死機嘅寫法。呢度已經拉住咗佢，但唔好照抄去正式用。'
+    )
+  ),
+  'core.regex.riskAmbiguousAlternation': entry(
+    ladder(
+      'This repeats a choice between overlapping options: {snippet}. When the branches can match the same text in more than one way, the engine can try every combination before giving up. Evaluation stays bounded, but treat this pattern with care.',
+      'This repeats a choice between overlapping options: {snippet}. The branches can match the same text more than one way, which multiplies the backtracking. Evaluation is bounded here, but treat it with care against real input.',
+      'Careful — {snippet} repeats a choice between options that overlap. The engine can shuffle through every combination before admitting defeat. Evaluation here is kept on a short leash, but do not ship this pattern as-is.'
+    ),
+    ladder(
+      '呢度重複緊一個「二揀一」，但兩邊揀嘅嘢有重疊：{snippet}。如果兩個分支可以用唔同方法配對到同一段文字，引擎就可能試晒所有組合先放棄。呢度已經做咗限制，但都係小心啲好。',
+      '呢度重複緊一個「二揀一」，但兩邊分支有重疊：{snippet}。分支可以用多過一種方法配對到同一段文字，令回溯次數倍增。呢度有做限制，但真係用嘅時候要小心。',
+      '小心喇，{snippet} 重複緊嘅二揀一，兩邊嘢重疊埋一齊。引擎可以慢慢試晒每個組合先認輸。呢度已經拉住咗佢，但唔好照抄去正式用。'
+    )
+  ),
   'core.regex.insertLiteral': entry(ladder('Literal text'), ladder('原文字')),
   'core.regex.insertClass': entry(ladder('Character class'), ladder('字元類')),
   'core.regex.insertAnchor': entry(ladder('Anchor'), ladder('錨點')),
@@ -510,7 +550,54 @@ const CORE: Catalogue = {
   'core.home.shortcuts.none': entry(
     ladder('No shortcuts are registered yet.'),
     ladder('暫時未有登記任何快速鍵。')
-  )
+  ),
+
+  /* --- recovery (core/recovery.ts) --- */
+  'core.recovery.reason': entry(
+    ladder('This did not work: {reason}'),
+    ladder('呢個唔得：{reason}')
+  ),
+  'core.recovery.retry': entry(ladder('Retry'), ladder('再試一次')),
+  'core.recovery.reauthenticate': entry(
+    ladder('Sign in again', 'Sign in again', 'Sign in again', 'Sign in again — the credential got refused', 'Sign in again — the credential got refused'),
+    ladder('再登入一次', '再登入一次', '再登入一次', '再登入一次啦，個密碼俾人拒絕咗', '再登入一次啦，個密碼俾人拒絕咗')
+  ),
+  'core.recovery.dismiss': entry(ladder('Dismiss this recovery message'), ladder('唔理呢個復原提示')),
+
+  /* --- bulk actions (core/bulk.ts) --- */
+  'core.bulk.selectShown': entry(ladder('Select all {count} shown'), ladder('全揀顯示緊嘅 {count} 個')),
+  'core.bulk.selectAll': entry(ladder('Select all {count} matching'), ladder('全揀符合嘅 {count} 個')),
+  'core.bulk.invert': entry(ladder('Invert selection'), ladder('反轉揀嘅嘢')),
+  'core.bulk.clear': entry(ladder('Clear selection'), ladder('清晒揀選')),
+  'core.bulk.count': entry(ladder('{count} selected'), ladder('揀咗 {count} 個')),
+  'core.bulk.skippedDetail': entry(ladder('{count} skipped: {detail}'), ladder('跳過咗 {count} 個：{detail}')),
+  'core.confirm.irreversibleUnknown': entry(ladder('This cannot be undone.'), ladder('呢個做咗就冇得返轉頭。')),
+
+  /* --- presets (core/presets.ts) --- */
+  'core.presets.title': entry(ladder('Start from a preset'), ladder('揀個現成設定開始')),
+  'core.presets.hint': entry(
+    ladder('Every value shown is what would really be set — nothing here is invented.'),
+    ladder('度度顯示緊嘅都係真係會套用嘅值 —— 呢度冇一個係作出嚟。')
+  ),
+  'core.presets.applied': entry(ladder('Applied "{name}"'), ladder('用咗「{name}」')),
+  'core.presets.none': entry(ladder('No presets are offered here yet.'), ladder('呢度暫時未有現成設定。')),
+  'core.presets.valueUnset': entry(ladder('not set'), ladder('未設定')),
+  'core.presets.valueEmpty': entry(ladder('an empty string'), ladder('一個空字串')),
+  'core.presets.valueOn': entry(ladder('on'), ladder('開咗')),
+  'core.presets.valueOff': entry(ladder('off'), ladder('閂咗')),
+
+  /* --- guided forms (core/forms.ts) --- */
+  'core.forms.suggested': entry(ladder('Suggested: {value}'), ladder('建議：{value}')),
+  'core.forms.useSuggested': entry(ladder('Use this'), ladder('用呢個')),
+  'core.forms.noOptions': entry(
+    ladder('There is nothing real to choose from yet.'),
+    ladder('暫時未有真係嘅選項俾你揀。')
+  ),
+
+  /* --- collapsible panels (core/collapse.ts) --- */
+  'core.collapse.filterActive': entry(ladder('Filter active'), ladder('篩選緊')),
+  'core.collapse.expanded': entry(ladder('{name} expanded'), ladder('{name} 展開咗')),
+  'core.collapse.collapsed': entry(ladder('{name} collapsed'), ladder('{name} 摺埋咗'))
 };
 
 /* ------------------------------------------------------------------ */
@@ -820,4 +907,4 @@ export function initI18n(): void {
   });
 }
 
-export { DEFAULT_SCHOOL_NAME, VOCABULARY_LIMITS };
+export { CORE, DEFAULT_SCHOOL_NAME, VOCABULARY_LIMITS };

@@ -19,6 +19,8 @@
     "build": "electron-vite build",
     "start": "electron-vite preview",
     "typecheck": "tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p tsconfig.web.json",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "dist": "electron-vite build && electron-builder --win squirrel --config electron-builder.yml",
     "dist:dir": "electron-vite build && electron-builder --win --dir --config electron-builder.yml"
   },
@@ -28,8 +30,10 @@
     "electron-builder": "26.15.3",
     "electron-builder-squirrel-windows": "26.15.3",
     "electron-vite": "5.0.0",
+    "jsdom": "27.4.0",
     "typescript": "5.9.3",
-    "vite": "7.3.6"
+    "vite": "7.3.6",
+    "vitest": "4.1.10"
   },
   "dependencies": {
     "mineflayer": "4.37.1"

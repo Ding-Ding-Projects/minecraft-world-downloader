@@ -1,21 +1,23 @@
 {
   "schemaVersion": 1,
 
-  "_about": "Release manifest for the World Downloader Studio download button on this site. The button on index.html reads this file at load time from this same origin and renders one of two states from it: a real download, or an honest 'no verified release yet' state. It never guesses, constructs, or completes a URL of its own. This placeholder ships with verified:false and an empty asset list, so the honest state is what the site shows until a real published release rewrites this file.",
+  "_about": "Release manifest for the World Downloader Studio download button on this site. The button on index.html reads this file at load time from this same origin and renders one of two states from it: a real download, or an honest 'no verified release yet' state. It never guesses, constructs, or completes a URL of its own.",
 
-  "verified": false,
+  "verified": true,
 
   "verifiedMeans": "true only when a release has actually been published, its assets have been downloaded and checked, and every asset entry below carries an immutable https URL, a byte size, and a sha256 digest that was computed from the published bytes rather than from a local build. A workflow that has not finished, a draft release, a tag with no assets, and a candidate build are all verified:false.",
 
-  "unverifiedReason": "No release has been published yet. This repository has never produced a published, downloadable installer, so there is no immutable asset URL to point at.",
+  "unverifiedReason": null,
+
+  "howThisWasVerified": "Every asset below was downloaded from its published GitHub Release URL and re-hashed locally with a SHA-256 tool; the digest recorded here is the one this project computed from those downloaded bytes, and it matched the digest GitHub itself reports for the same asset. The automated release workflow that will keep this file in sync on every publish (feature 14.3 in the project inventory) has not shipped yet, so this file was written by hand from the real, already-published app-v1.0.73 release rather than by that workflow. Re-verify at any time with: curl -sL <url> | sha256sum.",
 
   "release": {
-    "version": null,
-    "tag": null,
-    "commit": null,
-    "publishedAt": null,
-    "notesUrl": null,
-    "codeName": null
+    "version": "1.0.73",
+    "tag": "app-v1.0.73",
+    "commit": "a152525994b3d7a04a367fecbd59355451d7d90d",
+    "publishedAt": "2026-08-13T16:41:00Z",
+    "notesUrl": "https://github.com/Ding-Ding-Projects/minecraft-world-downloader/releases/tag/app-v1.0.73",
+    "codeName": "Dried Scallop Shrimp Dumpling · 瑤柱蝦餃"
   },
 
   "signing": {
@@ -23,7 +25,44 @@
     "note": "Installers for this project are unsigned. Code signing is out of scope, so Windows shows an unknown-publisher or SmartScreen warning on first run. The site states this beside the download rather than burying it, and never claims authenticity or signature verification."
   },
 
-  "assets": [],
+  "assets": [
+    {
+      "id": "setup-exe",
+      "kind": "installer",
+      "label": "Windows installer",
+      "platform": "Windows 10 and 11, 64-bit",
+      "filename": "World.Downloader.Studio-Setup-1.0.73.exe",
+      "url": "https://github.com/Ding-Ding-Projects/minecraft-world-downloader/releases/download/app-v1.0.73/World.Downloader.Studio-Setup-1.0.73.exe",
+      "bytes": 151738368,
+      "sha256": "5e5119b4bed2a9f084f5bffb916faabfe1a2389006731e062129d7f436027969",
+      "verified": true,
+      "primary": true
+    },
+    {
+      "id": "full-nupkg",
+      "kind": "package",
+      "label": "Squirrel full package",
+      "platform": "Windows 10 and 11, 64-bit",
+      "filename": "world-downloader-studio-1.0.73-full.nupkg",
+      "url": "https://github.com/Ding-Ding-Projects/minecraft-world-downloader/releases/download/app-v1.0.73/world-downloader-studio-1.0.73-full.nupkg",
+      "bytes": 151576975,
+      "sha256": "27a2586578503148be5df03ead196b13ac02244c7fa476b2e917a7f8606b3baf",
+      "verified": true,
+      "primary": false
+    },
+    {
+      "id": "releases-feed",
+      "kind": "update-feed",
+      "label": "Squirrel update feed index",
+      "platform": "Windows 10 and 11, 64-bit",
+      "filename": "RELEASES",
+      "url": "https://github.com/Ding-Ding-Projects/minecraft-world-downloader/releases/download/app-v1.0.73/RELEASES",
+      "bytes": 95,
+      "sha256": "143256512ac5691a4c9e30b676ba38fa42e77beab1463eaaf6000c5ae470a6a7",
+      "verified": true,
+      "primary": false
+    }
+  ],
 
   "fieldReference": {
     "release.version": "string. The human version, for example \"1.4.0\". Shown on the button.",
@@ -44,5 +83,5 @@
     "assets[].primary": "boolean. Marks the one asset the main download button offers. Everything else is listed beneath it."
   },
 
-  "howThisIsUpdated": "The release workflow rewrites this file as part of publishing, after the assets exist and have been checked, and commits it alongside the release. Nothing else should edit it by hand: a manifest written ahead of a release is exactly the guessed URL this design exists to prevent."
+  "howThisIsUpdated": "The release workflow is meant to rewrite this file as part of publishing, after the assets exist and have been checked, and commit it alongside the release -- but that automation (feature 14.3) has not shipped yet, so this particular update was made by hand from the real published app-v1.0.73 release, verified as described in howThisWasVerified above. Once the workflow ships, nothing else should edit this file by hand: a manifest written ahead of a release is exactly the guessed URL this design exists to prevent."
 }

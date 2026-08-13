@@ -6824,7 +6824,15 @@
     }
   };
 
+  // Each page's own bootstrap is an inline script and therefore runs at parse position, which is
+  // BEFORE this deferred file executes. A tiny stub in the page head stands in for Studio until
+  // now and queues those callbacks here. Adopt them before anything else, or every page's
+  // interface silently fails to build while the page itself looks fine.
+  var pendingReady = (window.Studio && window.Studio.__pendingReady) || [];
+
   window.Studio = Studio;
+
+  for (var pi = 0; pi < pendingReady.length; pi += 1) ready(pendingReady[pi]);
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', function () { boot(); flushReady(); });

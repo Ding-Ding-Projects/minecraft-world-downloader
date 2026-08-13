@@ -16,9 +16,15 @@
 
     Mode 'app'       installs dependencies, builds the application, verifies the
                      build output, and (interactively) offers to run it.
-    Mode 'installer' does everything 'app' does except running, then packages the
-                     Squirrel.Windows installer through the project's own
-                     supported packaging path and verifies the artifact.
+    Mode 'installer' does everything 'app' does except running, then additionally
+                     obtains a JDK and Maven, builds the Java engine
+                     (world-downloader.jar) the application spawns to actually
+                     download a world, packages the Squirrel.Windows installer
+                     (which bundles that jar as its default engine) through the
+                     project's own supported packaging path, and verifies the
+                     artifact. This is the same artifact set the release
+                     workflow publishes, so a locally built installer and a
+                     released one are the same thing.
 
 .PARAMETER Mode
     'app' or 'installer'.
@@ -91,11 +97,40 @@ $ToolchainRoot = Join-Path $env:LOCALAPPDATA 'world-downloader-studio\toolchain'
 # installer, and is reported as such rather than passed off as success.
 $MinimumInstallerBytes = 20MB
 
+# pom.xml declares <java.version>21</java.version> for both source and target.
+# Any JDK at or above this compiles it (verified locally with JDK 25), so this
+# is a floor, not a pin — exactly the same shape as $NodeMinimumVersion below.
+$JdkMinimumVersion = [version]'21.0.0'
+$JdkWingetId = 'EclipseAdoptium.Temurin.21.JDK'
+
+# Used only when a JDK has to be fetched portably. Eclipse Temurin's own API
+# always resolves to its current 21 GA build, so no version number is pinned
+# here the way it is for Node and Maven below.
+$JdkAdoptiumAssetsUrl = 'https://api.adoptium.net/v3/assets/latest/21/hotspot?vendor=eclipse&os=windows&architecture=x64&image_type=jdk&heap_size=normal&project=jdk'
+
+# The version used when Maven has to be installed portably. There is no Maven
+# wrapper committed to this repository, so unlike Node (which has a winget
+# fallback) this is the only route when `mvn` is not already on the machine.
+# archive.apache.org (not dlcdn.apache.org) is used because it retains every
+# past release permanently; dlcdn only mirrors current releases and an older
+# pin would eventually 404 there.
+$MavenPortableVersion = '3.9.9'
+$MavenDistBase = 'https://archive.apache.org/dist/maven/maven-3'
+
+# pom.xml's shade plugin pins <finalName>world-downloader</finalName>, so the
+# artifact `mvn package` produces is always target/world-downloader.jar.
+# Verified locally: 14,055,418 bytes for the fully-shaded jar with its
+# dependencies. Anything under this floor is a packaging stub, not the engine.
+$JarFinalName = 'world-downloader.jar'
+$MinimumJarBytes = 1MB
+
 $script:Phases = @()
 $script:PhaseIndex = 0
-$script:PhaseTotal = if ($Mode -eq 'installer') { 7 } else { 8 }
+$script:PhaseTotal = if ($Mode -eq 'installer') { 11 } else { 8 }
 $script:NodeExe = $null
 $script:NpmCmd = $null
+$script:JavaHome = $null
+$script:MvnCmd = $null
 $script:StartedAt = Get-Date
 
 # --------------------------------------------------------------------------- #
@@ -598,6 +633,397 @@ function Resolve-NpmToolchain {
 }
 
 # --------------------------------------------------------------------------- #
+# Java Development Kit and Maven
+#
+# Only used in 'installer' mode, to build the Java engine (world-downloader.jar)
+# that gets bundled into the packaged application. Mirrors the Node.js section
+# above: check well-known locations and PATH first, prefer a user-scoped
+# winget install when something is missing, and fall back to a checksum-
+# verified portable extraction into the same per-user toolchain directory.
+# --------------------------------------------------------------------------- #
+
+function Get-CandidateJdkDirectories {
+    $candidates = @()
+    if ($env:JAVA_HOME) { $candidates += $env:JAVA_HOME }
+    if ($env:ProgramFiles) {
+        foreach ($vendor in @('Eclipse Adoptium', 'Java', 'Microsoft', 'Amazon Corretto', 'Zulu')) {
+            $vendorDir = Join-Path $env:ProgramFiles $vendor
+            if (Test-Path -LiteralPath $vendorDir) {
+                foreach ($dir in Get-ChildItem -LiteralPath $vendorDir -Directory -ErrorAction SilentlyContinue) {
+                    $candidates += $dir.FullName
+                }
+            }
+        }
+    }
+    if (Test-Path -LiteralPath $ToolchainRoot) {
+        foreach ($dir in Get-ChildItem -LiteralPath $ToolchainRoot -Directory -Filter 'jdk-*' -ErrorAction SilentlyContinue) {
+            $candidates += $dir.FullName
+        }
+    }
+    return $candidates
+}
+
+function Get-JdkVersion {
+    param([string]$JavaExe)
+    $result = Invoke-Capture -File $JavaExe -Arguments @('-version')
+    if ($result.ExitCode -ne 0) { return $null }
+    $match = [regex]::Match($result.Output, 'version\s+"(\d+(?:\.\d+)*)')
+    if (-not $match.Success) { return $null }
+    try { return [version]$match.Groups[1].Value } catch { return $null }
+}
+
+# A JDK is a JRE plus javac. Accepting a bare JRE would pass this check and
+# then fail confusingly deep inside the Maven compiler plugin, so javac is
+# required to sit right beside java in the same bin directory.
+function Find-UsableJdk {
+    Update-ProcessPath -ExtraDirectories (Get-CandidateJdkDirectories | ForEach-Object { Join-Path $_ 'bin' })
+
+    $seen = New-Object 'System.Collections.Generic.HashSet[string]' ([StringComparer]::OrdinalIgnoreCase)
+    $candidates = New-Object System.Collections.Generic.List[string]
+
+    foreach ($command in (Get-Command java.exe, java -CommandType Application -ErrorAction SilentlyContinue)) {
+        if ($command.Source -and $seen.Add($command.Source)) { $candidates.Add($command.Source) }
+    }
+    foreach ($dir in (Get-CandidateJdkDirectories)) {
+        $exe = Join-Path $dir 'bin\java.exe'
+        if ((Test-Path -LiteralPath $exe) -and $seen.Add($exe)) { $candidates.Add($exe) }
+    }
+
+    foreach ($candidate in $candidates) {
+        $javac = Join-Path (Split-Path -Parent $candidate) 'javac.exe'
+        if (-not (Test-Path -LiteralPath $javac)) { continue }
+        $version = Get-JdkVersion -JavaExe $candidate
+        if (-not $version) { continue }
+        if ($version -lt $JdkMinimumVersion) { continue }
+        # JAVA_HOME is the bin directory's parent: <jdkHome>\bin\java.exe.
+        # (Named $jdkHome rather than $home -- $home is a read-only PowerShell
+        # automatic variable for the user's profile directory.)
+        $jdkHome = Split-Path -Parent (Split-Path -Parent $candidate)
+        return [pscustomobject]@{ JavaExe = $candidate; JavaHome = $jdkHome; Version = $version }
+    }
+    return $null
+}
+
+function Install-JdkWithWinget {
+    $winget = Get-Command winget.exe -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
+    if (-not $winget) {
+        return [pscustomobject]@{ Installed = $false; Attempt = 'winget: not present on this machine' }
+    }
+
+    $arguments = @(
+        'install', '--exact', '--id', $JdkWingetId,
+        '--source', 'winget',
+        '--scope', 'user',
+        '--silent',
+        '--disable-interactivity',
+        '--accept-package-agreements',
+        '--accept-source-agreements'
+    )
+    Write-Step ("winget install --exact --id $JdkWingetId --scope user")
+    $result = Invoke-Capture -File $winget.Source -Arguments $arguments
+    if ($result.ExitCode -ne 0) {
+        $summary = (($result.Output -split "`n" | Where-Object { $_.Trim() } | Select-Object -Last 3) -join ' / ')
+        return [pscustomobject]@{
+            Installed = $false
+            Attempt   = ("winget user-scope install exited {0}: {1}" -f $result.ExitCode, $summary)
+        }
+    }
+
+    Update-ProcessPath -ExtraDirectories (Get-CandidateJdkDirectories | ForEach-Object { Join-Path $_ 'bin' })
+    return [pscustomobject]@{ Installed = $true; Attempt = 'winget user-scope install succeeded' }
+}
+
+function Install-JdkPortable {
+    Write-Step ("resolving the current Temurin 21 build from $JdkAdoptiumAssetsUrl")
+    try {
+        $releases = Invoke-RestMethod -Uri $JdkAdoptiumAssetsUrl -UseBasicParsing
+    } catch {
+        Stop-WithFailure -Dependency 'Java Development Kit' `
+            -Constraint ">= $JdkMinimumVersion (Temurin 21)" `
+            -Source $JdkAdoptiumAssetsUrl `
+            -Problem $_.Exception.Message `
+            -Attempts @('winget user-scope install', "portable resolution from $JdkAdoptiumAssetsUrl")
+    }
+    if (-not $releases -or $releases.Count -eq 0) {
+        Stop-WithFailure -Dependency 'Java Development Kit' `
+            -Constraint ">= $JdkMinimumVersion (Temurin 21)" `
+            -Source $JdkAdoptiumAssetsUrl `
+            -Problem 'the Adoptium API returned no matching release'
+    }
+
+    $package = $releases[0].binary.package
+    $downloadUrl = $package.link
+    $expectedSha256 = $package.checksum
+    $archiveName = $package.name
+    if (-not $downloadUrl -or -not $expectedSha256 -or -not $archiveName) {
+        Stop-WithFailure -Dependency 'Java Development Kit' `
+            -Constraint 'the Adoptium API response must include a download link, checksum and archive name' `
+            -Source $JdkAdoptiumAssetsUrl `
+            -Problem 'the response JSON did not have the expected shape'
+    }
+
+    $downloadDir = Join-Path $ToolchainRoot '.download'
+    New-Item -ItemType Directory -Force -Path $downloadDir | Out-Null
+    $archivePath = Join-Path $downloadDir $archiveName
+
+    Write-Step ("downloading $downloadUrl")
+    try {
+        Invoke-WebRequest -Uri $downloadUrl -OutFile $archivePath -UseBasicParsing
+    } catch {
+        Stop-WithFailure -Dependency 'Java Development Kit' `
+            -Constraint ">= $JdkMinimumVersion (Temurin 21)" `
+            -Source $downloadUrl `
+            -Problem $_.Exception.Message `
+            -Attempts @('winget user-scope install', "portable download from $downloadUrl")
+    }
+
+    $actual = (Get-FileHash -LiteralPath $archivePath -Algorithm SHA256).Hash.ToLowerInvariant()
+    if ($actual -ne $expectedSha256.ToLowerInvariant()) {
+        Remove-Item -LiteralPath $archivePath -Force -ErrorAction SilentlyContinue
+        Stop-WithFailure -Dependency 'Java Development Kit checksum' `
+            -Constraint "SHA-256 $expectedSha256" `
+            -Source $downloadUrl `
+            -Problem "the downloaded archive hashed to $actual; it has been deleted rather than extracted"
+    }
+    Write-Info ("SHA-256 verified: $actual")
+
+    $staging = Join-Path $ToolchainRoot (".staging-" + [guid]::NewGuid().ToString('N'))
+    New-Item -ItemType Directory -Force -Path $staging | Out-Null
+    $target = $null
+    try {
+        Write-Step ("extracting to $ToolchainRoot")
+        Expand-Archive -LiteralPath $archivePath -DestinationPath $staging -Force
+        # Adoptium archives contain one top-level jdk-<version>+<build> directory.
+        $extracted = Get-ChildItem -LiteralPath $staging -Directory -Filter 'jdk-*' -ErrorAction SilentlyContinue | Select-Object -First 1
+        if (-not $extracted -or -not (Test-Path -LiteralPath (Join-Path $extracted.FullName 'bin\javac.exe'))) {
+            Stop-WithFailure -Dependency 'Java Development Kit' `
+                -Constraint "a jdk-* directory containing bin\javac.exe" `
+                -Source $downloadUrl `
+                -Problem "the archive extracted but no such directory was found under $staging"
+        }
+        $target = Join-Path $ToolchainRoot $extracted.Name
+        if (Test-Path -LiteralPath $target) { Remove-Item -LiteralPath $target -Recurse -Force }
+        Move-Item -LiteralPath $extracted.FullName -Destination $target
+    } finally {
+        if (Test-Path -LiteralPath $staging) { Remove-Item -LiteralPath $staging -Recurse -Force -ErrorAction SilentlyContinue }
+    }
+
+    Update-ProcessPath -ExtraDirectories @((Join-Path $target 'bin'))
+    return $target
+}
+
+function Resolve-JdkToolchain {
+    $phase = Start-Phase 'Java Development Kit'
+
+    $existing = Find-UsableJdk
+    if ($existing) {
+        Write-Found ("JDK {0} at {1}" -f $existing.Version, $existing.JavaHome)
+        $script:JavaHome = $existing.JavaHome
+    } else {
+        Write-Info ("no JDK >= $JdkMinimumVersion on this machine; obtaining Temurin 21 now")
+        $attempts = @()
+
+        $winget = Install-JdkWithWinget
+        $attempts += $winget.Attempt
+        if ($winget.Installed) {
+            $found = Find-UsableJdk
+            if ($found) {
+                Write-Added ("JDK {0} at {1} (winget, user scope)" -f $found.Version, $found.JavaHome)
+                $script:JavaHome = $found.JavaHome
+            } else {
+                $attempts += 'winget reported success but no qualifying javac appeared on the refreshed PATH'
+            }
+        } else {
+            Write-Warn $winget.Attempt
+        }
+
+        if (-not $script:JavaHome) {
+            Write-Info 'falling back to a portable, user-scoped Temurin 21 JDK (no administrator rights needed)'
+            $portableHome = Install-JdkPortable
+            $portableJava = Join-Path $portableHome 'bin\java.exe'
+            $version = Get-JdkVersion -JavaExe $portableJava
+            if (-not $version -or $version -lt $JdkMinimumVersion) {
+                Stop-WithFailure -Dependency 'Java Development Kit' `
+                    -Constraint ">= $JdkMinimumVersion" `
+                    -Source $JdkAdoptiumAssetsUrl `
+                    -Problem ("the portable JDK at $portableJava reported version '{0}'" -f $version) `
+                    -Attempts $attempts
+            }
+            Write-Added ("JDK {0} at {1} (portable, user toolchain)" -f $version, $portableHome)
+            $script:JavaHome = $portableHome
+        }
+    }
+
+    # Maven's own launcher script looks for JAVA_HOME; setting it here is the
+    # same thing actions/setup-java does in CI, and is more robust than relying
+    # on mvn's own PATH-search fallback.
+    $env:JAVA_HOME = $script:JavaHome
+    Complete-Phase $phase
+}
+
+function Get-CandidateMavenDirectories {
+    $candidates = @()
+    if ($env:MAVEN_HOME) { $candidates += (Join-Path $env:MAVEN_HOME 'bin') }
+    if ($env:M2_HOME) { $candidates += (Join-Path $env:M2_HOME 'bin') }
+    if ($env:ProgramFiles) {
+        $apacheDir = Join-Path $env:ProgramFiles 'Apache'
+        if (Test-Path -LiteralPath $apacheDir) {
+            foreach ($dir in Get-ChildItem -LiteralPath $apacheDir -Directory -Filter 'apache-maven-*' -ErrorAction SilentlyContinue) {
+                $candidates += (Join-Path $dir.FullName 'bin')
+            }
+        }
+    }
+    if (Test-Path -LiteralPath $ToolchainRoot) {
+        foreach ($dir in Get-ChildItem -LiteralPath $ToolchainRoot -Directory -Filter 'apache-maven-*' -ErrorAction SilentlyContinue) {
+            $candidates += (Join-Path $dir.FullName 'bin')
+        }
+    }
+    return $candidates
+}
+
+function Find-UsableMaven {
+    Update-ProcessPath -ExtraDirectories (Get-CandidateMavenDirectories)
+
+    $seen = New-Object 'System.Collections.Generic.HashSet[string]' ([StringComparer]::OrdinalIgnoreCase)
+    $candidates = New-Object System.Collections.Generic.List[string]
+
+    foreach ($command in (Get-Command mvn.cmd, mvn -CommandType Application -ErrorAction SilentlyContinue)) {
+        if ($command.Source -and $seen.Add($command.Source)) { $candidates.Add($command.Source) }
+    }
+    foreach ($dir in (Get-CandidateMavenDirectories)) {
+        $exe = Join-Path $dir 'mvn.cmd'
+        if ((Test-Path -LiteralPath $exe) -and $seen.Add($exe)) { $candidates.Add($exe) }
+    }
+
+    foreach ($candidate in $candidates) {
+        $result = Invoke-Capture -File $candidate -Arguments @('--version')
+        if ($result.ExitCode -ne 0) { continue }
+        $firstLine = ($result.Output -split "`n" | Where-Object { $_.Trim() } | Select-Object -First 1)
+        return [pscustomobject]@{ MvnCmd = $candidate; VersionLine = $firstLine.Trim() }
+    }
+    return $null
+}
+
+function Install-MavenPortable {
+    $archiveName = "apache-maven-$MavenPortableVersion-bin.zip"
+    $folderName = "apache-maven-$MavenPortableVersion"
+    $target = Join-Path $ToolchainRoot $folderName
+    $mvnCmd = Join-Path $target 'bin\mvn.cmd'
+
+    if (Test-Path -LiteralPath $mvnCmd) {
+        Write-Found ("portable Maven already extracted at $target")
+        Update-ProcessPath -ExtraDirectories @((Join-Path $target 'bin'))
+        return $target
+    }
+
+    New-Item -ItemType Directory -Force -Path $ToolchainRoot | Out-Null
+    $downloadDir = Join-Path $ToolchainRoot '.download'
+    New-Item -ItemType Directory -Force -Path $downloadDir | Out-Null
+
+    $archivePath = Join-Path $downloadDir $archiveName
+    $archiveUrl = "$MavenDistBase/$MavenPortableVersion/binaries/$archiveName"
+    $sumUrl = "$archiveUrl.sha512"
+    $sumPath = Join-Path $downloadDir "$archiveName.sha512"
+
+    Write-Step ("downloading $archiveUrl")
+    try {
+        Invoke-WebRequest -Uri $archiveUrl -OutFile $archivePath -UseBasicParsing
+    } catch {
+        Stop-WithFailure -Dependency 'Maven build tool' `
+            -Constraint "Apache Maven $MavenPortableVersion" `
+            -Source $archiveUrl `
+            -Problem $_.Exception.Message
+    }
+
+    Write-Step ("verifying SHA-512 against $sumUrl")
+    try {
+        Invoke-WebRequest -Uri $sumUrl -OutFile $sumPath -UseBasicParsing
+    } catch {
+        Stop-WithFailure -Dependency 'Maven build tool checksum' `
+            -Constraint "official $archiveName.sha512" `
+            -Source $sumUrl `
+            -Problem $_.Exception.Message `
+            -Attempts @("downloaded $archiveName but could not fetch its checksum")
+    }
+
+    # Apache publishes the sha512 file as the bare hex digest, optionally with
+    # trailing whitespace or a filename — take the first hex-looking token.
+    $sumContent = (Get-Content -LiteralPath $sumPath -Raw).Trim()
+    $expected = ([regex]::Match($sumContent, '[0-9a-fA-F]{128}')).Value.ToLowerInvariant()
+    if (-not $expected) {
+        Stop-WithFailure -Dependency 'Maven build tool checksum' `
+            -Constraint 'a 128-character SHA-512 hex digest' `
+            -Source $sumUrl `
+            -Problem "the checksum file did not contain one: '$sumContent'"
+    }
+
+    $actual = (Get-FileHash -LiteralPath $archivePath -Algorithm SHA512).Hash.ToLowerInvariant()
+    if ($actual -ne $expected) {
+        Remove-Item -LiteralPath $archivePath -Force -ErrorAction SilentlyContinue
+        Stop-WithFailure -Dependency 'Maven build tool checksum' `
+            -Constraint "SHA-512 $expected" `
+            -Source $archiveUrl `
+            -Problem "the downloaded archive hashed to $actual; it has been deleted rather than extracted"
+    }
+    Write-Info ("SHA-512 verified: $actual")
+
+    $staging = Join-Path $ToolchainRoot (".staging-" + [guid]::NewGuid().ToString('N'))
+    New-Item -ItemType Directory -Force -Path $staging | Out-Null
+    try {
+        Write-Step ("extracting to $target")
+        Expand-Archive -LiteralPath $archivePath -DestinationPath $staging -Force
+        $extracted = Join-Path $staging $folderName
+        if (-not (Test-Path -LiteralPath (Join-Path $extracted 'bin\mvn.cmd'))) {
+            Stop-WithFailure -Dependency 'Maven build tool' `
+                -Constraint "bin\mvn.cmd inside $folderName" `
+                -Source $archiveUrl `
+                -Problem "the archive extracted but contained no bin\mvn.cmd at $extracted"
+        }
+        if (Test-Path -LiteralPath $target) { Remove-Item -LiteralPath $target -Recurse -Force }
+        Move-Item -LiteralPath $extracted -Destination $target
+    } finally {
+        if (Test-Path -LiteralPath $staging) { Remove-Item -LiteralPath $staging -Recurse -Force -ErrorAction SilentlyContinue }
+    }
+
+    Update-ProcessPath -ExtraDirectories @((Join-Path $target 'bin'))
+    return $target
+}
+
+function Resolve-MavenToolchain {
+    $phase = Start-Phase 'Maven build tool'
+
+    $existing = Find-UsableMaven
+    if ($existing) {
+        Write-Found $existing.VersionLine
+        $script:MvnCmd = $existing.MvnCmd
+    } else {
+        Write-Info 'no mvn on this machine; obtaining a portable, user-scoped Apache Maven now'
+        $portableDir = Install-MavenPortable
+        $portableMvn = Join-Path $portableDir 'bin\mvn.cmd'
+        $found = Find-UsableMaven
+        if (-not $found -or $found.MvnCmd -ne $portableMvn) {
+            # Fall back to invoking the freshly extracted copy directly even if
+            # Find-UsableMaven's PATH-based search did not pick it up for some
+            # reason: it was just verified to exist and to have the right shape.
+            if (Test-Path -LiteralPath $portableMvn) {
+                Write-Added ("Maven at $portableMvn (portable, user toolchain)")
+                $script:MvnCmd = $portableMvn
+            } else {
+                Stop-WithFailure -Dependency 'Maven build tool' `
+                    -Constraint "bin\mvn.cmd must exist after extraction" `
+                    -Source $portableDir `
+                    -Problem "extraction reported success but $portableMvn is missing"
+            }
+        } else {
+            Write-Added $found.VersionLine
+            $script:MvnCmd = $found.MvnCmd
+        }
+    }
+
+    Complete-Phase $phase
+}
+
+# --------------------------------------------------------------------------- #
 # Application dependencies and build
 # --------------------------------------------------------------------------- #
 
@@ -731,6 +1157,66 @@ function Confirm-BuildOutput {
             -Source (Join-Path $AppDir 'out') `
             -Problem ('npm run build exited 0 but these files are absent: ' + ($missing -join ', '))
     }
+    Complete-Phase $phase
+}
+
+# --------------------------------------------------------------------------- #
+# The Java engine
+#
+# The desktop application is not a second product beside world-downloader.jar
+# -- it is the UI that spawns that jar to actually download a world. Packaging
+# an installer without it would ship an application with no engine, so this
+# runs before Build-Installer and its output is what
+# app/electron-builder.yml's extraResources entry bundles in.
+# --------------------------------------------------------------------------- #
+
+function Build-JavaEngine {
+    $phase = Start-Phase 'Build the Java engine (jar)'
+
+    Write-Info 'Building through the project''s own supported path: mvn -B -ntp clean package -DskipTests'
+    Write-Info '  (from the repository root, not app/ -- this is Maven, not npm)'
+    Write-Line ''
+    Write-Line '  -DskipTests is correct and required here, not an oversight. Just like the' 'DarkGray'
+    Write-Line '  release workflow, this script runs no test, lint or type-check gate anywhere;' 'DarkGray'
+    Write-Line '  running the Java tests here would quietly reintroduce exactly the gate that' 'DarkGray'
+    Write-Line '  was deliberately left out everywhere else in this project.' 'DarkGray'
+    Write-Line ''
+
+    Write-Step 'mvn -B -ntp clean package -DskipTests  (in repository root)'
+    $code = Invoke-Stream -File $script:MvnCmd -Arguments @('-B', '-ntp', 'clean', 'package', '-DskipTests') -WorkingDirectory $RepoRoot
+    if ($code -ne 0) {
+        Stop-WithFailure -Dependency 'Java engine build' `
+            -Constraint 'mvn -B -ntp clean package -DskipTests must exit 0' `
+            -Source (Join-Path $RepoRoot 'pom.xml') `
+            -Problem ("mvn exited {0}; its output is immediately above this message" -f $code)
+    }
+    Complete-Phase $phase
+}
+
+function Confirm-JavaEngine {
+    $phase = Start-Phase 'Verify the Java engine artifact'
+
+    $jarPath = Join-Path $RepoRoot "target\$JarFinalName"
+    if (-not (Test-Path -LiteralPath $jarPath)) {
+        Stop-WithFailure -Dependency 'Java engine artifact' `
+            -Constraint "target\$JarFinalName must exist (pom.xml pins <finalName>world-downloader</finalName> on the shade plugin)" `
+            -Source (Join-Path $RepoRoot 'target') `
+            -Problem 'mvn package exited 0 but the shaded jar is not where the shade plugin configuration says it will be'
+    }
+
+    $jar = Get-Item -LiteralPath $jarPath
+    if ($jar.Length -lt $MinimumJarBytes) {
+        Stop-WithFailure -Dependency 'Java engine artifact' `
+            -Constraint ("at least {0}" -f (Format-Bytes $MinimumJarBytes)) `
+            -Source $jarPath `
+            -Problem ("the jar is only {0}, which looks like a packaging stub rather than the shaded jar with its dependencies" -f (Format-Bytes $jar.Length))
+    }
+
+    $hash = (Get-FileHash -LiteralPath $jarPath -Algorithm SHA256).Hash.ToLowerInvariant()
+    Write-Found ("$jarPath  ({0}, SHA-256 {1})" -f (Format-Bytes $jar.Length), $hash)
+    Write-Info 'This is the DEFAULT engine app/electron-builder.yml bundles into the packaged'
+    Write-Info 'application at resources/engine/world-downloader.jar. The application''s own'
+    Write-Info '"Jar path" setting still wins over the bundled default when a user sets one.'
     Complete-Phase $phase
 }
 
@@ -949,6 +1435,13 @@ Install-AppDependencies
 Confirm-ElectronRuntime
 
 if ($Mode -eq 'installer') {
+    # The Java engine is built and verified before the application is packaged,
+    # so app/electron-builder.yml's extraResources entry has something real to
+    # bundle when electron-builder runs inside Build-Installer.
+    Resolve-JdkToolchain
+    Resolve-MavenToolchain
+    Build-JavaEngine
+    Confirm-JavaEngine
     Build-Installer
     Confirm-Installer
 } else {
