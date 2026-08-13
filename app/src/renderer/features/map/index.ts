@@ -355,7 +355,9 @@ export default defineFeature({
       id: TAB_ID,
       title: 'map.tab',
       icon: 'map',
-      order: 220,
+      // Ungrouped, on top: one of the product's own surfaces, sitting right
+      // beside the downloader rather than buried in a collapsed group.
+      order: 1,
       mount: (host, tabCtx) => {
         mountMapTab(host, tabCtx);
       }

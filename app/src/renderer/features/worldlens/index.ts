@@ -275,7 +275,8 @@ export default defineFeature({
       id: 'worldlens.main',
       title: 'worldlens.tab',
       icon: 'map',
-      order: 260,
+      // Ungrouped, on top: one of the product's own surfaces.
+      order: 6,
       mount: (host, tabCtx) => {
         const current = requireState();
         if (!current) return;

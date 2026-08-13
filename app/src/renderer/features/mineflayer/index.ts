@@ -185,6 +185,7 @@ export default defineFeature({
       id: 'mineflayer.bots',
       title: 'mineflayer.tab.bots',
       icon: 'world',
+      group: 'group.bot-control',
       order: 400,
       mount(host: HTMLElement, ctx: TabContext) {
         if (!manager || !profiles) {
@@ -203,6 +204,7 @@ export default defineFeature({
       id: 'mineflayer.events',
       title: 'mineflayer.tab.events',
       icon: 'terminal',
+      group: 'group.bot-control',
       order: 401,
       mount(host: HTMLElement, ctx: TabContext) {
         if (!manager) {

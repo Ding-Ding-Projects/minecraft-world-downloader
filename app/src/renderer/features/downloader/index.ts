@@ -4,6 +4,8 @@ import './styles.css';
 import { DOWNLOADER_DOCS } from './docs';
 import { mountDownloaderPanel } from './panel';
 import {
+  CHUNKS_SAVED_AT_SETTING_ID,
+  CHUNKS_SAVED_SETTING_ID,
   DEFAULT_EXPORT_FORMAT,
   DEFAULT_JAVA_COMMAND,
   DEFAULT_MAX_LOG_LINES,
@@ -344,7 +346,12 @@ export default defineFeature({
       id: MAIN_TAB_ID,
       title: 'downloader.tab.title',
       icon: 'download',
-      order: 110,
+      // The world downloader is what this product IS. It is the lowest order
+      // in the whole application, so it is the fresh-profile default tab, and
+      // it is permanent because closing the reason the app exists makes no
+      // sense — every other surface here supports this one.
+      order: 0,
+      permanent: true,
       mount: (host, tabCtx) => {
         const current = requireState();
         if (!current) return;
@@ -353,6 +360,11 @@ export default defineFeature({
     }
   ],
   init(ctx: AppContext) {
+    // Plain data, not a user-configurable setting: the status bar's own
+    // shared-namespace read of the last real chunk count (see `state.ts`).
+    ctx.settings.declareDefault(CHUNKS_SAVED_SETTING_ID, null);
+    ctx.settings.declareDefault(CHUNKS_SAVED_AT_SETTING_ID, null);
+
     state = new FeatureState(ctx);
     void state.refreshAll();
 

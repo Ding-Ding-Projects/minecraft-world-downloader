@@ -260,6 +260,7 @@ export default defineFeature({
       id: TAB_ID,
       title: 'supportTickets.title',
       icon: 'lockOpen',
+      group: 'group.security',
       order: 860,
       mount: mountDesk
     }

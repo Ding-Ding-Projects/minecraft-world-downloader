@@ -164,6 +164,7 @@ const feature: FeatureModule = defineFeature({
       id: APPEARANCE_TAB_ID,
       title: 'appearance.tab.title',
       icon: 'palette',
+      group: 'group.personalisation',
       order: 100,
       mount: mountAppearance
     }

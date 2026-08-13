@@ -469,6 +469,7 @@ export default defineFeature({
       id: OVERVIEW_TAB,
       title: 'models.tab.overview',
       icon: 'terminal',
+      group: 'group.tools',
       order: 500,
       mount: (host, tabCtx) => {
         const current = requireRuntime();
@@ -480,6 +481,7 @@ export default defineFeature({
       id: STORE_TAB,
       title: 'models.tab.store',
       icon: 'download',
+      group: 'group.tools',
       order: 501,
       mount: (host, tabCtx) => {
         const current = requireRuntime();
@@ -491,6 +493,7 @@ export default defineFeature({
       id: CHAT_TAB,
       title: 'models.tab.chat',
       icon: 'terminal',
+      group: 'group.tools',
       order: 502,
       mount: (host, tabCtx) => {
         const current = requireRuntime();
@@ -502,6 +505,7 @@ export default defineFeature({
       id: HARNESS_TAB,
       title: 'models.tab.harness',
       icon: 'play',
+      group: 'group.tools',
       order: 503,
       mount: (host, tabCtx) => {
         const current = requireRuntime();

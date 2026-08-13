@@ -171,6 +171,7 @@ export default defineFeature({
       id: TAB_ID,
       title: 'externalEditor.title',
       icon: 'code',
+      group: 'group.tools',
       order: 470,
       mount: mountEditorTab
     }

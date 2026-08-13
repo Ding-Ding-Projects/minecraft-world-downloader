@@ -276,6 +276,7 @@ export default defineFeature({
       id: 'narrator.home',
       title: 'narrator.tab.title',
       icon: 'play',
+      group: 'group.personalisation',
       order: 140,
       mount: mountNarratorPanel
     }

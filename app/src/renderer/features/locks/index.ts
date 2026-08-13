@@ -173,6 +173,7 @@ export default defineFeature({
       id: 'locks.manager',
       title: 'locks.title',
       icon: 'lock',
+      group: 'group.security',
       order: 860,
       mount: (host, ctx) => mountLockManager(host, ctx, guard)
     }

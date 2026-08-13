@@ -224,6 +224,7 @@ export default defineFeature({
       id: TAB_ID,
       title: 'mineflayerWorld.tab.title',
       icon: 'world',
+      group: 'group.bot-control',
       order: 402,
       mount(host, ctx) {
         mountWorldTab(host, ctx);

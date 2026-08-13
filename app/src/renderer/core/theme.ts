@@ -235,8 +235,12 @@ class ThemeImpl implements ThemeService {
   }
 
   private density(): number {
-    const raw = Number(settings.get<number>(THEME_DENSITY_ID, 0));
-    if (!Number.isFinite(raw)) return 0;
+    // -2 is the shipped default: a desktop application packs more per row than
+    // a document does. 0 is the roomiest a user can dial it back up to; -3 is
+    // the most compact. The user's own choice always wins over this default —
+    // this is only what a fresh profile starts at.
+    const raw = Number(settings.get<number>(THEME_DENSITY_ID, -2));
+    if (!Number.isFinite(raw)) return -2;
     return Math.min(0, Math.max(-3, Math.round(raw)));
   }
 

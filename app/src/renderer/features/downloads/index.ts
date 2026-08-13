@@ -243,6 +243,7 @@ export default defineFeature({
       id: DOWNLOADS_TAB_ID,
       title: 'downloads.tab.title',
       icon: 'download',
+      group: 'group.tools',
       order: 400,
       mount: (host, tabCtx) => {
         mountDownloadsPanel(host, tabCtx);

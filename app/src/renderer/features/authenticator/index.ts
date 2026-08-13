@@ -204,13 +204,11 @@ const authenticator: FeatureModule = {
   docs: AUTHENTICATOR_DOCS,
   settings: [settingsSection()],
   tabs: [
-    // No `group` is declared here on purpose: the tab strip renders only groups
-    // that already exist as records, so naming one that has not been created
-    // would hide the tab entirely. Grouping stays the user's own action.
     {
       id: TAB_ENTRIES,
       title: 'authenticator.title',
       icon: 'key',
+      group: 'group.tools',
       order: 300,
       mount: mountEntries
     },
@@ -218,6 +216,7 @@ const authenticator: FeatureModule = {
       id: TAB_CHECKS,
       title: 'authenticator.checks.title',
       icon: 'check',
+      group: 'group.tools',
       order: 301,
       mount: mountChecks
     }

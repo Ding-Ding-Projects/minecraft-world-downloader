@@ -390,6 +390,7 @@ export default defineFeature({
       id: 'history.panel',
       title: 'history.panel.title',
       icon: 'history',
+      group: 'group.records',
       order: 300,
       mount: (host, tabCtx) => {
         const current = requireState();
@@ -401,6 +402,7 @@ export default defineFeature({
       id: 'history.protected',
       title: 'history.protected.title',
       icon: 'lock',
+      group: 'group.records',
       order: 301,
       mount: (host, tabCtx) => {
         const current = requireState();

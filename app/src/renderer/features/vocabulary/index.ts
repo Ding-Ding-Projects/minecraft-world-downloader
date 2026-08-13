@@ -180,6 +180,7 @@ export default defineFeature({
       id: VOCABULARY_TAB_ID,
       title: 'vocabulary.tab.title',
       icon: 'world',
+      group: 'group.personalisation',
       order: 210,
       mount(host, ctx) {
         mountVocabularyPanel(host, ctx, ensureStore(ctx));

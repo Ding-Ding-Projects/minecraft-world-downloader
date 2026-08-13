@@ -220,7 +220,7 @@ export default defineFeature({
       id: 'mineflayer-chat.chat',
       title: 'mineflayer-chat.tab.title',
       icon: 'terminal',
-      group: 'mineflayer-chat',
+      group: 'group.bot-control',
       order: 220,
       mount: (host, tabCtx) => {
         const current = requireState();
@@ -232,7 +232,7 @@ export default defineFeature({
       id: 'mineflayer-chat.rules',
       title: 'mineflayer-chat.section.rules',
       icon: 'filter',
-      group: 'mineflayer-chat',
+      group: 'group.bot-control',
       order: 221,
       mount: (host, tabCtx) => {
         const current = requireState();
@@ -244,7 +244,7 @@ export default defineFeature({
       id: 'mineflayer-chat.server',
       title: 'mineflayer-chat.section.server',
       icon: 'world',
-      group: 'mineflayer-chat',
+      group: 'group.bot-control',
       order: 222,
       mount: (host, tabCtx) => {
         const current = requireState();

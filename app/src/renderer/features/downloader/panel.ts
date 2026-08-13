@@ -40,6 +40,8 @@ import {
 } from './runtime';
 import { LOG_SEVERITIES, type ConnectionState, type LogLine, type LogSeverity, type SessionPhase } from './session';
 import {
+  CHUNKS_SAVED_AT_SETTING_ID,
+  CHUNKS_SAVED_SETTING_ID,
   DEFAULT_EXPORT_FORMAT,
   DEFAULT_VISIBLE_LOG_LINES,
   EXPORT_FORMAT_SETTING_ID,
@@ -642,6 +644,15 @@ function mountStatusCard(ctx: TabContext, state: FeatureState): { root: HTMLElem
               () => cancelled
             );
             scanning = false;
+            // Publish the real, just-counted figure to the shared settings
+            // namespace so the persistent status bar can show it. Never
+            // published on a cancelled or errored count — a partial figure
+            // stays inside this panel's own "partial" label rather than
+            // becoming an unlabelled number in chrome the user only glances at.
+            if (chunkResult && !chunkResult.cancelled && !chunkResult.error) {
+              ctx.settings.set(CHUNKS_SAVED_SETTING_ID, chunkResult.chunks);
+              ctx.settings.set(CHUNKS_SAVED_AT_SETTING_ID, chunkResult.countedAt);
+            }
             refresh();
           }
         })

@@ -249,7 +249,7 @@ export default defineFeature({
       id: TAB_CONVERT,
       title: 'converter.tab.convert',
       icon: 'upload',
-      group: 'converter',
+      group: 'group.tools',
       order: 400,
       mount(host: HTMLElement, ctx: TabContext) {
         mountConvertTab(host, ctx);
@@ -259,7 +259,7 @@ export default defineFeature({
       id: TAB_CATALOG,
       title: 'converter.tab.catalog',
       icon: 'file',
-      group: 'converter',
+      group: 'group.tools',
       order: 410,
       mount(host: HTMLElement, ctx: TabContext) {
         mountCatalogTab(host, ctx);
@@ -269,7 +269,7 @@ export default defineFeature({
       id: TAB_PDFTOOLS,
       title: 'converter.tab.pdftools',
       icon: 'file',
-      group: 'converter',
+      group: 'group.tools',
       order: 420,
       mount(host: HTMLElement, ctx: TabContext) {
         mountPdfToolsTab(host, ctx);

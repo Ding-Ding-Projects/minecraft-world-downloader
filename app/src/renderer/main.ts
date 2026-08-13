@@ -22,7 +22,7 @@ import { loadSettings, settings } from './core/settings';
 import { tabs } from './core/tabs';
 import { initTheme, theme } from './core/theme';
 import type { AppContext, FeatureModule } from './core/types';
-import type { DimSumDraw, WindowState } from '../shared/api';
+import type { DimSumDraw, ProcessSummary, WindowState } from '../shared/api';
 
 /**
  * The boot sequence.
@@ -36,6 +36,140 @@ import type { DimSumDraw, WindowState } from '../shared/api';
  * and its default export registered, so adding a feature is adding one directory
  * and touching nothing else in the core.
  */
+
+/* ---------------------------------------------------------------- */
+/* The persistent bottom status bar                                  */
+/* ---------------------------------------------------------------- */
+
+/**
+ * A handful of live facts kept in one glance, the way a real desktop
+ * application's status bar does. It is never the primary channel for
+ * anything — that is what the notification service is for — and it never
+ * shows a fabricated or stale-looking figure: a value that has not genuinely
+ * been measured yet says so honestly (e.g. "not counted yet") rather than
+ * inventing one.
+ *
+ * This is core chrome, so it reads only from the substrate every part of the
+ * application already shares — the settings store (by well-known key) and the
+ * privileged process bridge — rather than importing a specific feature's own
+ * types. `downloader.status.chunksSaved` / `...chunksSavedAt` are published by
+ * `features/downloader/panel.ts`; the literal keys are duplicated there and
+ * here on purpose, the same way `APP_DISPLAY_NAME_ID` above is a well-known
+ * settings key rather than a live import across the core/feature boundary.
+ */
+const DOWNLOADER_CHUNKS_SAVED_KEY = 'downloader.status.chunksSaved';
+const DOWNLOADER_CHUNKS_SAVED_AT_KEY = 'downloader.status.chunksSavedAt';
+
+function formatElapsed(ms: number): string {
+  const totalSeconds = Math.max(0, Math.floor(ms / 1000));
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+  const pad = (value: number): string => String(value).padStart(2, '0');
+  return hours > 0 ? `${hours}h ${pad(minutes)}m ${pad(seconds)}s` : `${minutes}m ${pad(seconds)}s`;
+}
+
+function formatRelative(iso: string): string {
+  const then = Date.parse(iso);
+  if (!Number.isFinite(then)) return iso;
+  const seconds = Math.max(0, Math.floor((Date.now() - then) / 1000));
+  if (seconds < 60) return `${seconds}s ago`;
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  return new Date(then).toLocaleDateString();
+}
+
+function buildStatusBar(ctx: AppContext): HTMLElement {
+  const bar = el('footer', {
+    className: 'md-statusbar',
+    attrs: { 'data-appearance-id': 'chrome:statusbar', 'aria-label': ctx.t('core.statusbar.label', 'Application status') }
+  });
+
+  // Destination, session and chunk count change only occasionally, so they
+  // sit inside a `status` region that announces the change; the ticking clock
+  // below deliberately does not, or a screen reader would narrate it every
+  // second.
+  const live = el('div', { className: 'md-statusbar__live', attrs: { role: 'status' } });
+  const viewing = el('span', { className: 'md-statusbar__item' });
+  const divider1 = el('span', { className: 'md-statusbar__divider', attrs: { 'aria-hidden': 'true' } });
+  const processesItem = el('span', { className: 'md-statusbar__item' });
+  const divider2 = el('span', { className: 'md-statusbar__divider', attrs: { 'aria-hidden': 'true' } });
+  const chunksItem = el('span', { className: 'md-statusbar__item' });
+  live.append(viewing, divider1, processesItem, divider2, chunksItem);
+
+  const spacer = el('span', { className: 'md-statusbar__spacer' });
+  const elapsed = el('span', { className: 'md-statusbar__elapsed' });
+
+  bar.append(live, spacer, elapsed);
+
+  const refreshDestination = (): void => {
+    const activeId = ctx.tabs.activeId();
+    const definition = activeId ? ctx.registry.tab(activeId) : null;
+    viewing.textContent = definition
+      ? ctx.t('core.statusbar.viewing', 'Viewing: {tab}', { values: { tab: ctx.t(definition.title, definition.title) } })
+      : ctx.t('core.statusbar.noActiveTab', 'No destination open');
+  };
+
+  const refreshProcesses = async (): Promise<void> => {
+    const result = await ctx.studio.process.list();
+    if (!result.ok) return;
+    const running = result.value.filter((process: ProcessSummary) => process.running);
+    if (running.length === 0) {
+      processesItem.textContent = ctx.t('core.statusbar.processes.none', 'No background processes running');
+    } else if (running.length === 1) {
+      processesItem.textContent = ctx.t('core.statusbar.processes.one', '1 process running: {command}', {
+        values: { command: running[0].command }
+      });
+    } else {
+      processesItem.textContent = ctx.t('core.statusbar.processes.many', '{count} processes running', {
+        values: { count: running.length }
+      });
+    }
+  };
+
+  const refreshChunks = (): void => {
+    const count = ctx.settings.get<number | null>(DOWNLOADER_CHUNKS_SAVED_KEY, null);
+    const at = ctx.settings.get<string | null>(DOWNLOADER_CHUNKS_SAVED_AT_KEY, null);
+    chunksItem.textContent =
+      count === null || at === null
+        ? ctx.t('core.statusbar.chunks.none', 'Chunks saved: not counted yet')
+        : ctx.t('core.statusbar.chunks.value', 'Chunks saved: {count} (counted {when})', {
+            values: { count: new Intl.NumberFormat().format(count), when: formatRelative(at) }
+          });
+  };
+
+  const refreshElapsed = (): void => {
+    elapsed.textContent = ctx.t('core.statusbar.elapsed', 'Up {duration}', {
+      values: { duration: formatElapsed(Date.now() - ctx.studio.info.startedAt) }
+    });
+  };
+
+  refreshDestination();
+  void refreshProcesses();
+  refreshChunks();
+  refreshElapsed();
+
+  ctx.tabs.onChange(refreshDestination);
+  ctx.i18n.onChange(() => {
+    refreshDestination();
+    void refreshProcesses();
+    refreshChunks();
+    refreshElapsed();
+  });
+  ctx.settings.onChange((change) => {
+    if (change.id === DOWNLOADER_CHUNKS_SAVED_KEY || change.id === DOWNLOADER_CHUNKS_SAVED_AT_KEY) refreshChunks();
+  });
+  ctx.studio.events.on('process:event', () => void refreshProcesses());
+  // A push event can only report on a process that has already sent output; a
+  // short bounded poll is the honest way to notice one that has just started
+  // and catch a missed exit, the same tradeoff the downloader's own poll makes.
+  window.setInterval(() => void refreshProcesses(), 5000);
+  window.setInterval(refreshElapsed, 1000);
+
+  return bar;
+}
 
 async function boot(): Promise<void> {
   await loadSettings();
@@ -206,6 +340,7 @@ async function boot(): Promise<void> {
   installLockCommands();
   palette.attach(ctx);
   tabs.mount(shell, strip, content, ctx);
+  root.append(buildStatusBar(ctx));
 
   attachSettingsHistory(settings, (id) => {
     const control = registry.settingControl(id);

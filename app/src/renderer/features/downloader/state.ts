@@ -40,6 +40,18 @@ export const VISIBLE_LOG_LINES_SETTING_ID = 'downloader.settings.visibleLogLines
 export const POLL_SECONDS_SETTING_ID = 'downloader.settings.pollSeconds';
 export const EXPORT_FORMAT_SETTING_ID = 'downloader.settings.exportFormat';
 
+/**
+ * The last real chunk count, published to the shared settings store so the
+ * application's persistent status bar (`core/main.ts`) can show it without the
+ * core depending on this feature's own types — settings are the one namespace
+ * every part of the application already shares. Written only from a genuine,
+ * on-disk count (see `panel.ts`'s "Count now" action); the status bar shows
+ * "not counted yet" rather than a fabricated live figure until then, exactly
+ * as the panel itself already does.
+ */
+export const CHUNKS_SAVED_SETTING_ID = 'downloader.status.chunksSaved';
+export const CHUNKS_SAVED_AT_SETTING_ID = 'downloader.status.chunksSavedAt';
+
 export const DEFAULT_JAVA_COMMAND = 'java';
 export const DEFAULT_MAX_LOG_LINES = 5000;
 export const DEFAULT_VISIBLE_LOG_LINES = 200;

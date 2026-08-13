@@ -142,7 +142,7 @@ export default defineFeature({
       id: 'mineflayerInventory.inventory',
       title: 'mineflayerInventory.tab.inventory',
       icon: 'folder',
-      group: 'mineflayer-inventory',
+      group: 'group.bot-control',
       order: 430,
       mount(host: HTMLElement, ctx: TabContext) {
         mountInventoryTab(host, ctx);
@@ -152,7 +152,7 @@ export default defineFeature({
       id: 'mineflayerInventory.containers',
       title: 'mineflayerInventory.tab.containers',
       icon: 'dock',
-      group: 'mineflayer-inventory',
+      group: 'group.bot-control',
       order: 431,
       mount(host: HTMLElement, ctx: TabContext) {
         mountContainersTab(host, ctx);
@@ -162,7 +162,7 @@ export default defineFeature({
       id: 'mineflayerInventory.crafting',
       title: 'mineflayerInventory.tab.crafting',
       icon: 'tune',
-      group: 'mineflayer-inventory',
+      group: 'group.bot-control',
       order: 432,
       mount(host: HTMLElement, ctx: TabContext) {
         mountCraftingTab(host, ctx);
@@ -172,7 +172,7 @@ export default defineFeature({
       id: 'mineflayerInventory.workstations',
       title: 'mineflayerInventory.tab.workstations',
       icon: 'bolt',
-      group: 'mineflayer-inventory',
+      group: 'group.bot-control',
       order: 433,
       mount(host: HTMLElement, ctx: TabContext) {
         mountWorkstationsTab(host, ctx);
@@ -182,7 +182,7 @@ export default defineFeature({
       id: 'mineflayerInventory.villagers',
       title: 'mineflayerInventory.tab.villagers',
       icon: 'book',
-      group: 'mineflayer-inventory',
+      group: 'group.bot-control',
       order: 434,
       mount(host: HTMLElement, ctx: TabContext) {
         mountVillagersTab(host, ctx);

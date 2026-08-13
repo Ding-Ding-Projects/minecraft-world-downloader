@@ -32,6 +32,26 @@ const GROUPS_KEY = 'tabs.groups';
 const MEMBERSHIP_KEY = 'tabs.membership';
 const CLOSED_KEY = 'tabs.closed';
 const ACTIVE_KEY = 'tabs.active';
+const GROUPS_SEEDED_KEY = 'tabs.groups.seeded';
+
+/**
+ * The default groups a fresh profile opens with, all of them collapsed so the
+ * strip opens quiet with the product's own surfaces on top of it. `name` is an
+ * i18n key (or literal text — the same "key or literal" contract every other
+ * translated field in this application uses), resolved through `groupLabel`
+ * wherever it is displayed, never printed raw.
+ *
+ * This seeds the group ONCE. A user who renames, recolours, reorders or
+ * collapses/expands a group afterwards owns that state permanently — the seed
+ * never runs again and never overwrites what is already on disk.
+ */
+const DEFAULT_GROUPS: ReadonlyArray<{ id: string; name: string; color: string; order: number }> = [
+  { id: 'group.bot-control', name: 'core.tabs.group.botControl', color: 'var(--md-sys-color-tertiary)', order: 10 },
+  { id: 'group.tools', name: 'core.tabs.group.tools', color: 'var(--md-sys-color-secondary)', order: 20 },
+  { id: 'group.personalisation', name: 'core.tabs.group.personalisation', color: 'var(--md-sys-color-primary)', order: 30 },
+  { id: 'group.records', name: 'core.tabs.group.records', color: 'var(--md-sys-color-success)', order: 40 },
+  { id: 'group.security', name: 'core.tabs.group.security', color: 'var(--md-sys-color-error)', order: 50 }
+];
 
 interface MountedPanel {
   host: HTMLElement;
@@ -90,6 +110,40 @@ class TabsImpl implements TabService {
     this.render();
   }
 
+  /**
+   * Seeds the default collapsed groups exactly once, and only onto a profile
+   * that has never had any group at all. A later run — after the user has
+   * created, renamed or removed a group of their own — is a no-op, because the
+   * seeded flag is set the first time this runs regardless of outcome. This is
+   * what keeps "the user's own arrangement wins" true across an update: a
+   * migration that silently rearranged somebody's workspace would be worse
+   * than shipping the old flat list.
+   */
+  private ensureDefaultGroups(): void {
+    if (settings.get<boolean>(GROUPS_SEEDED_KEY, false)) return;
+    settings.set(GROUPS_SEEDED_KEY, true);
+    if (this.groups().length > 0) return;
+    const seeded: TabGroup[] = DEFAULT_GROUPS.map((spec) => ({
+      id: spec.id,
+      name: spec.name,
+      color: spec.color,
+      collapsed: true,
+      order: spec.order
+    }));
+    settings.set(GROUPS_KEY, seeded);
+  }
+
+  /** `TabGroup.name` is an i18n key or literal text, exactly like every other
+   * "key or literal" field in this application (see `label()` in
+   * `core/components.ts`). A user-typed name never matches a catalogue key, so
+   * it resolves to itself unchanged; a seeded name resolves to the localized,
+   * funny-level-styled group label. Every place a group's name is displayed —
+   * the header, the searches, the pickers, the rename prompt — reads it
+   * through here rather than the raw field. */
+  private groupLabel(group: TabGroup): string {
+    return i18n.t(group.name, group.name);
+  }
+
   /* ---------------- records ---------------- */
 
   list(): TabRecord[] {
@@ -123,6 +177,7 @@ class TabsImpl implements TabService {
     this.strip = strip;
     this.content = content;
     this.ctx = ctx;
+    this.ensureDefaultGroups();
     const stored = settings.get<string>(ACTIVE_KEY, '');
     const available = this.list();
     this.active = available.some((record) => record.id === stored) ? stored : (available[0]?.id ?? null);
@@ -404,7 +459,7 @@ class TabsImpl implements TabService {
       });
       const swatch = el('span', { className: 'md-tabgroup__swatch' });
       swatch.style.background = group.color;
-      header.append(swatch, el('span', { className: 'md-typescale-label-large', text: group.name }));
+      header.append(swatch, el('span', { className: 'md-typescale-label-large', text: this.groupLabel(group) }));
       header.append(components.icon(group.collapsed ? 'chevronRight' : 'chevronDown', { size: 16 }));
       header.addEventListener('click', () => this.setGroupCollapsed(group.id, !group.collapsed));
       header.addEventListener('contextmenu', (event) => {
@@ -568,7 +623,7 @@ class TabsImpl implements TabService {
         },
         ...groups.map((group) => ({
           id: group.id,
-          label: `${group.name} (${this.list().filter((record) => record.group === group.id).length})`,
+          label: `${this.groupLabel(group)} (${this.list().filter((record) => record.group === group.id).length})`,
           icon: 'folder',
           separatorBefore: group === groups[0],
           run: () => this.moveToGroup(tabId, group.id)
@@ -580,7 +635,7 @@ class TabsImpl implements TabService {
   private openGroupMenu(group: TabGroup, anchor: HTMLElement): void {
     components.menu({
       anchor,
-      label: group.name,
+      label: this.groupLabel(group),
       items: [
         {
           id: 'collapse',
@@ -593,7 +648,10 @@ class TabsImpl implements TabService {
           label: 'core.tabs.renameGroup',
           icon: 'edit',
           run: () => {
-            const value = window.prompt(i18n.t('core.tabs.renameGroup', 'Rename group…'), group.name);
+            // Renaming a seeded group replaces its i18n key with the user's own
+            // literal text from here on — the prefill shows the resolved label,
+            // never the raw key, so what they see is what they are editing.
+            const value = window.prompt(i18n.t('core.tabs.renameGroup', 'Rename group…'), this.groupLabel(group));
             if (value) this.renameGroup(group.id, value);
           }
         },
@@ -674,7 +732,7 @@ class TabsImpl implements TabService {
       sample: this.list().map((record) => record.title).join('\n'),
       onChange: (query) => {
         results.textContent = '';
-        const groups = new Map(this.groups().map((group) => [group.id, group.name]));
+        const groups = new Map(this.groups().map((group) => [group.id, this.groupLabel(group)]));
         const matched = this.list().filter((record) => query.matches(record.title));
         if (matched.length === 0) {
           results.append(components.emptyState({ title: 'core.search.noMatches' }));
@@ -721,10 +779,10 @@ class TabsImpl implements TabService {
     const results = components.list({ label: 'core.tabs.searchGroups' });
     const search = createSearchBar({
       label: 'core.tabs.searchGroups',
-      sample: this.groups().map((group) => group.name).join('\n'),
+      sample: this.groups().map((group) => this.groupLabel(group)).join('\n'),
       onChange: (query) => {
         results.textContent = '';
-        const matched = this.groups().filter((group) => query.matches(group.name));
+        const matched = this.groups().filter((group) => query.matches(this.groupLabel(group)));
         if (matched.length === 0) {
           results.append(components.emptyState({ title: 'core.search.noMatches' }));
           return;
@@ -733,7 +791,7 @@ class TabsImpl implements TabService {
           const members = this.list().filter((record) => record.group === group.id);
           results.append(
             components.listItem({
-              headline: group.name,
+              headline: this.groupLabel(group),
               supporting: `${members.length} tabs${group.collapsed ? ' · collapsed' : ''}`,
               leadingIcon: 'folder',
               onActivate: () => {

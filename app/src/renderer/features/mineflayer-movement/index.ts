@@ -368,6 +368,7 @@ const mineflayerMovement: FeatureModule = {
       id: TAB_ID,
       title: 'mineflayerMovement.tab.title',
       icon: 'map',
+      group: 'group.bot-control',
       order: 420,
       mount: (host, tabCtx) => {
         mountMovementTab(host, tabCtx);

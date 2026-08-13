@@ -265,7 +265,8 @@ export default defineFeature({
       id: TAB_ID,
       title: 'bot.tab',
       icon: 'terminal',
-      order: 250,
+      // Ungrouped, on top: one of the product's own surfaces.
+      order: 4,
       mount(host, tabCtx) {
         const current = requireState();
         if (!current) return;

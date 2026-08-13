@@ -186,7 +186,7 @@ pre {
 
 .md-app {
   display: grid;
-  grid-template-rows: var(--md-comp-title-bar-height) 1fr;
+  grid-template-rows: var(--md-comp-title-bar-height) 1fr var(--md-comp-status-bar-height);
   height: 100vh;
   width: 100vw;
   overflow: hidden;
@@ -263,6 +263,62 @@ pre {
   overflow: hidden;
 }
 
+/* ================================================================== */
+/* Status bar — persistent chrome, not page furniture                  */
+/* ================================================================== */
+
+.md-statusbar {
+  display: flex;
+  align-items: center;
+  gap: var(--md-space-3);
+  padding-inline: var(--md-space-3);
+  background: var(--md-sys-color-surface-container);
+  color: var(--md-sys-color-on-surface-variant);
+  border-top: 1px solid var(--md-sys-color-outline-variant);
+  font-family: var(--md-sys-typeface-plain);
+  font-size: 11px;
+  line-height: 1;
+  user-select: none;
+  overflow: hidden;
+  white-space: nowrap;
+  block-size: var(--md-comp-status-bar-height);
+}
+
+.md-statusbar__live {
+  display: flex;
+  align-items: center;
+  gap: var(--md-space-3);
+  min-width: 0;
+  overflow: hidden;
+}
+
+.md-statusbar__item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--md-space-1);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 34ch;
+}
+
+.md-statusbar__divider {
+  inline-size: 1px;
+  block-size: 14px;
+  flex: 0 0 auto;
+  background: var(--md-sys-color-outline-variant);
+}
+
+.md-statusbar__spacer {
+  flex: 1 1 auto;
+  min-width: var(--md-space-2);
+}
+
+.md-statusbar__elapsed {
+  flex: 0 0 auto;
+  font-variant-numeric: tabular-nums;
+}
+
 .md-shell[data-dock='left'] {
   flex-direction: row;
 }
@@ -289,9 +345,16 @@ pre {
 }
 
 .md-panel {
-  padding: var(--md-space-6);
-  max-width: 1200px;
-  margin-inline: auto;
+  /* A desktop application fills its window rather than centring a reading
+     column inside it. This used to be `padding: var(--md-space-6)` (24px)
+     with `max-width: 1200px; margin-inline: auto` — a web-page layout that
+     left wide gutters either side of every tab on anything wider than
+     1200px, and gave every screen the same generous whitespace a landing
+     page uses. A workspace someone keeps open all day packs more per row and
+     lets its panes stretch to the frame instead. */
+  padding: var(--md-space-4);
+  min-height: 100%;
+  box-sizing: border-box;
 }
 
 .md-panel__header {
@@ -2247,7 +2310,10 @@ textarea.md-field__input {
   justify-content: space-between;
   gap: var(--md-space-4);
   flex-wrap: wrap;
-  margin-bottom: var(--md-space-5);
+  /* Was --md-space-5 (20px): a document-style gap under a hero heading. The
+     title is already shown in the tab strip, so this panel header is a
+     compact toolbar row, not a page banner. */
+  margin-bottom: var(--md-space-3);
 }
 
 .md-topbar__text {

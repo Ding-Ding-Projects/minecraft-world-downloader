@@ -387,7 +387,8 @@ const console_: FeatureModule = {
       id: CONSOLE_TAB_ID,
       title: 'console.tab',
       icon: 'terminal',
-      order: 260,
+      // Ungrouped, on top: one of the product's own surfaces.
+      order: 5,
       mount: mountConsole
     }
   ]

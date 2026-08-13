@@ -269,9 +269,9 @@ function appearanceSection(): SettingsSection {
         id: THEME_DENSITY_ID,
         label: 'core.appearance.density',
         description:
-          'Tightens the height of rows, buttons and fields. 0 is the shipped spacing; -3 is the most compact. Touch targets stay at their accessible minimum at every level.',
+          'Tightens the height of rows, buttons and fields. -2 is the shipped desktop-application spacing — this application packs more per row than a document does; 0 is the roomiest setting and -3 is the most compact. Touch targets stay at their accessible minimum at every level.',
         kind: 'slider',
-        defaultValue: 0,
+        defaultValue: -2,
         min: -3,
         max: 0,
         step: 1
@@ -1086,7 +1086,12 @@ export function coreFeature(): FeatureModule {
     name: 'Core',
     description: 'The shell: tabs, settings, documentation, history, notifications and the pattern builder.',
     tabs: [
-      { id: 'core.home', title: 'core.home.title', icon: 'home', order: 0, permanent: true, mount: mountHome },
+      // `core.home` is the build-info/about reference page — useful, but not
+      // the reason anyone opens this application. The world downloader is what
+      // this product IS, so it takes the lowest order (and therefore the
+      // fresh-profile default tab, per `TabsImpl.mount`) and Home moves down to
+      // sit with the other reference destinations near the tail of the strip.
+      { id: 'core.home', title: 'core.home.title', icon: 'home', order: 896, permanent: true, mount: mountHome },
       { id: 'core.settings', title: 'core.settings.title', icon: 'settings', order: 900, permanent: true, mount: mountSettings },
       { id: 'core.docs', title: 'core.docs.title', icon: 'book', order: 910, permanent: true, mount: mountDocs },
       { id: 'core.history', title: 'core.history.title', icon: 'history', order: 920, mount: mountHistory },

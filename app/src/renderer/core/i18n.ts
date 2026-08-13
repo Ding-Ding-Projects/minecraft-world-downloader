@@ -212,6 +212,55 @@ const CORE: Catalogue = {
   'core.tabs.dock.bottom': entry(ladder('Bottom'), ladder('下面')),
   'core.tabs.includePinned': entry(ladder('Include pinned tabs'), ladder('連釘住嘅一齊')),
 
+  /* --- default tab-group names (seeded once on a fresh profile; the user's
+     own rename always wins afterwards) --- */
+  'core.tabs.group.botControl': entry(
+    ladder('Bot control', 'Bot control — steer the little automaton'),
+    ladder('機械人控制', '機械人控制 —— 出嚟玩下你隻機械人')
+  ),
+  'core.tabs.group.tools': entry(
+    ladder('Tools', 'Tools — the toolbox drawer'),
+    ladder('工具', '工具 —— 百寶袋喺呢度')
+  ),
+  'core.tabs.group.personalisation': entry(
+    ladder('Personalisation', 'Personalisation — make it yours'),
+    ladder('個人化', '個人化 —— 扮靚呢頭')
+  ),
+  'core.tabs.group.records': entry(
+    ladder('Records', 'Records — the paper trail'),
+    ladder('記錄', '記錄 —— 留低啲底')
+  ),
+  'core.tabs.group.security': entry(
+    ladder('Security', 'Security — the (toy) vault'),
+    ladder('安全', '安全 —— (得意)保險箱')
+  ),
+
+  /* --- the persistent bottom status bar --- */
+  'core.statusbar.label': entry(ladder('Application status'), ladder('程式狀態')),
+  'core.statusbar.viewing': entry(ladder('Viewing: {tab}'), ladder('睇緊：{tab}')),
+  'core.statusbar.noActiveTab': entry(ladder('No destination open'), ladder('未開任何分頁')),
+  'core.statusbar.processes.none': entry(
+    ladder('No background processes running', 'All quiet — nothing running in the background'),
+    ladder('後台冇嘢跑緊', '靜晒 —— 後台乜都冇跑緊')
+  ),
+  'core.statusbar.processes.one': entry(
+    ladder('1 process running: {command}'),
+    ladder('1 個程序跑緊：{command}')
+  ),
+  'core.statusbar.processes.many': entry(
+    ladder('{count} processes running'),
+    ladder('{count} 個程序跑緊')
+  ),
+  'core.statusbar.chunks.none': entry(
+    ladder('Chunks saved: not counted yet'),
+    ladder('已存區塊：仲未計過')
+  ),
+  'core.statusbar.chunks.value': entry(
+    ladder('Chunks saved: {count} (counted {when})'),
+    ladder('已存區塊：{count}（{when} 計過）')
+  ),
+  'core.statusbar.elapsed': entry(ladder('Up {duration}'), ladder('開咗 {duration}')),
+
   /* --- command palette --- */
   'core.palette.title': entry(ladder('Command palette'), ladder('指令板')),
   'core.palette.placeholder': entry(

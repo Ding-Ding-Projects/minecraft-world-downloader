@@ -252,6 +252,7 @@ export default defineFeature({
       id: 'school-mode.main',
       title: 'schoolMode.tab.title',
       icon: 'lock',
+      group: 'group.personalisation',
       order: 120,
       mount: mountTab
     }

@@ -114,6 +114,7 @@ export default defineFeature({
       id: CHANGELOG_TAB_ID,
       title: 'changelog.title',
       icon: 'history',
+      group: 'group.records',
       order: 820,
       mount: mountChangelog
     }

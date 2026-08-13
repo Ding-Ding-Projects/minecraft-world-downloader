@@ -49,6 +49,7 @@ const exportFeature: FeatureModule = {
       id: EXPORT_TAB_ID,
       title: 'export.tab.title',
       icon: 'download',
+      group: 'group.records',
       order: 300,
       mount(host, ctx) {
         mountExportPanel(host, ctx);

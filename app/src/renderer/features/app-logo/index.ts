@@ -53,6 +53,7 @@ export default defineFeature({
       id: TAB_ID,
       title: 'appLogo.tab',
       icon: 'palette',
+      group: 'group.personalisation',
       order: 210,
       mount(host: HTMLElement, ctx: TabContext) {
         mountLogoTab(host, ctx);

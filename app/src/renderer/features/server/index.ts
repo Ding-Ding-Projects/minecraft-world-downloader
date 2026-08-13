@@ -330,7 +330,8 @@ export default defineFeature({
       id: CONTAINERS_TAB_ID,
       title: 'server.tab.containers',
       icon: 'dock',
-      order: 400,
+      // Ungrouped, on top: one of the product's own surfaces.
+      order: 2,
       mount: (host, tabCtx) => {
         const current = requireState();
         if (!current) return;
@@ -341,7 +342,7 @@ export default defineFeature({
       id: LOGS_TAB_ID,
       title: 'server.tab.logs',
       icon: 'terminal',
-      order: 401,
+      order: 3,
       mount: (host, tabCtx) => {
         const current = requireState();
         if (!current) return;

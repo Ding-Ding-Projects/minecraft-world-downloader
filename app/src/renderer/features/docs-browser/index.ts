@@ -114,6 +114,7 @@ export default defineFeature({
       id: TAB_ID,
       title: 'docs-browser.tab',
       icon: 'book',
+      group: 'group.records',
       order: 110,
       mount(host: HTMLElement, ctx: TabContext) {
         // Re-asserted on every mount so that, while this surface is the one the

@@ -131,6 +131,7 @@ export default defineFeature({
       id: 'status.panel',
       title: 'status.tab.title',
       icon: 'success',
+      group: 'group.records',
       order: 340,
       mount: (host, tabCtx) => {
         const current = requireState();

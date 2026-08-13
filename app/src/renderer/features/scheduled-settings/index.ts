@@ -63,6 +63,7 @@ export default defineFeature({
       id: TAB_ID,
       title: 'schedule.tab.title',
       icon: 'calendar',
+      group: 'group.personalisation',
       order: 140,
       mount(host: HTMLElement, ctx: TabContext) {
         if (!engine) {

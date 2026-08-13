@@ -773,7 +773,11 @@ function navigationRail(options: TabBarOptions): HTMLElement {
 function topAppBar(options: { title: string; subtitle?: string; actions?: HTMLElement[] }): HTMLElement {
   const root = el('header', { className: 'md-topbar' });
   const text = el('div', { className: 'md-topbar__text' });
-  text.append(el('h1', { className: 'md-typescale-headline-small', text: label(options.title) }));
+  // A workspace shows this same title in its tab already, so the in-panel
+  // repeat is a compact `title-large` (22px) heading rather than a
+  // document-style `headline-small` (24px, hero-sized in a document but the
+  // single biggest line on a screen that is otherwise packed with data).
+  text.append(el('h1', { className: 'md-typescale-title-large', text: label(options.title) }));
   if (options.subtitle) {
     text.append(el('p', { className: 'md-typescale-body-medium md-setting__secondary', text: label(options.subtitle) }));
   }

@@ -176,7 +176,12 @@
   /* ---------------------------------------------------------------- */
   /* Density and layout                                                */
   /* ---------------------------------------------------------------- */
-  --md-sys-density-scale: 0;
+  /* -2 is the shipped default (a desktop application packs more per row
+     than a document does): 56/40/56/48px step down to 48/32/48/40px. 0 is
+     the roomiest a user can dial back up to; -3 is the most compact. This is
+     only the pre-boot fallback — `core/theme.ts` applies the user's own
+     persisted choice, or this same -2 default, over it immediately at boot. */
+  --md-sys-density-scale: -2;
   --md-sys-density-step: 4px;
   --md-comp-row-height: calc(56px + var(--md-sys-density-scale) * var(--md-sys-density-step));
   --md-comp-button-height: calc(40px + var(--md-sys-density-scale) * var(--md-sys-density-step));
@@ -184,7 +189,11 @@
   --md-comp-icon-button-size: calc(48px + var(--md-sys-density-scale) * var(--md-sys-density-step));
   --md-comp-touch-target: 44px;
   --md-comp-title-bar-height: 40px;
-  --md-comp-tab-strip-width: 224px;
+  --md-comp-tab-strip-width: 208px;
+  /* The persistent bottom status bar — one of the clearest signals that a
+     window is an application rather than a page. Deliberately thinner than
+     the title bar: it carries a few short live facts, not controls. */
+  --md-comp-status-bar-height: 26px;
 
   --md-space-1: 4px;
   --md-space-2: 8px;

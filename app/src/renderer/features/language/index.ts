@@ -163,6 +163,7 @@ const feature: FeatureModule = {
       id: TAB_ID,
       title: 'language.tab.title',
       icon: 'world',
+      group: 'group.personalisation',
       order: 120,
       mount: (host, ctx) => {
         if (ctx.i18n.schoolModeActive()) {

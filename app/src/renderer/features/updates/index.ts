@@ -477,6 +477,7 @@ export default defineFeature({
       id: UPDATES_TAB_ID,
       title: 'updates.tab',
       icon: 'download',
+      group: 'group.tools',
       order: 500,
       mount(host, ctx) {
         mountUpdates(host, ctx);

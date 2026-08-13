@@ -85,6 +85,7 @@ export default defineFeature({
       id: TAB_ID,
       title: 'app-identity.tab',
       icon: 'info',
+      group: 'group.personalisation',
       order: 800,
       mount: mountAbout
     }
