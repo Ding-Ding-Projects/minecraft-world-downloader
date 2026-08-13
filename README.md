@@ -162,10 +162,59 @@ Real captures of the built application (`app/`), taken at the commit this README
 | Overview — build info, installed modules, docs | World downloader — Java/jar setup, session, command line |
 | ![The World downloader tab scrolled to Live status and the searchable Supported game versions table listing protocol and data versions from 1.8 through 26.x.](docs/images/captures/readme-supported-versions.png) | ![The Appearance tab showing Material Design 3 colour tokens (primary, secondary, tertiary, surface, outline, etc.) with their hex values, plus colour scheme, accent colour, contrast and density controls.](docs/images/captures/readme-appearance.png) |
 | World downloader — live status & supported versions | Appearance — M3 colour tokens and theme controls |
-| ![The command palette open over the Overview page, searching every command, setting and destination; the result count reads 1299 of 1299 shown.](docs/images/captures/readme-command-palette.png) | ![The Bots tab: start-runtime control, a searchable list of saved profiles and live bots, and New profile / Quick connect / Delete / Export actions, in its honest empty state.](docs/images/captures/05-mineflayer-bots.png) |
+| ![The command palette open over the Overview page, searching every command, setting and destination; the result count reads 1293 of 1293 shown.](docs/images/captures/readme-command-palette.png) | ![The Bots tab: start-runtime control, a searchable list of saved profiles and live bots, and New profile / Quick connect / Delete / Export actions, in its honest empty state.](docs/images/captures/05-mineflayer-bots.png) |
 | Command palette — `Ctrl+Shift+F`, searches everything | Bots — mineflayer profiles and live connections |
-| ![The command palette filtered to "Local models", listing matching settings destinations such as Model runtime address, Request timeout, and Catalog source.](docs/images/captures/06-models.png) | |
-| Local models — settings reachable from the palette | |
+| ![The command palette filtered to "Local models", listing matching settings destinations such as Model runtime address, Request timeout, and Catalog source.](docs/images/captures/06-models.png) | ![The Console tab's live Connection card, showing Server address, Proxy port and a Disable SRV lookup toggle with explanatory text.](docs/images/captures/readme-console-connection.png) |
+| Local models — settings reachable from the palette | Console — connection settings, scrolled |
+| ![The Live map tab: no world folder chosen yet, with the Layers panel (render mode, follow player, markers, region grid) and Position panel on the right.](docs/images/captures/readme-live-map.png) | ![The Worldlens destination: the detected Worldlens desktop application, its headless renderer status, and the downloaded-worlds picker.](docs/images/captures/03-worldlens.png) |
+| Live map — tile viewer, layers, position | Worldlens — the companion renderer app |
+| ![The Server tab mid-check: "Checking whether Docker is here", running `docker version` to find the daemon, with the container filters and bulk-action row beneath it.](docs/images/captures/02-server.png) | ![The Console tab's own panel: Service status Not configured with net::ERR_CONNECTION_REFUSED, and the Configuration section with its search field.](docs/images/captures/04-console.png) |
+| Server — Docker container management | Console — service status and configuration |
+| ![The Changelog viewer: 142 versions and 1323 commits, category filters (Added, Changed, Fixed, Security, …), a release date-range picker, and the Unreleased entry with its commit hash.](docs/images/captures/08-changelog.png) | ![The Settings surface: language, per-language humour-level sliders, and the row of settings-category icons above the search field.](docs/images/captures/09-settings.png) |
+| Changelog — every release, linked to its commit | Settings — language, humour levels, categories |
+| ![The Version history panel: a local Git-backed log of real settings changes from this capture session, with action-type filters and a date-range picker.](docs/images/captures/10-history.png) | ![The Notifications centre: severity and source filters, an All / Still showing / Dismissed toggle, and session statistics for the one real toast raised.](docs/images/captures/11-notifications.png) |
+| Version history — local, Git-backed, filterable | Notification centre — filters and statistics |
+| ![The Appearance Studio's Theme tab: colour-role swatches with hex values, and the Light / Dark / Follow the system segmented control.](docs/images/captures/12-appearance-studio.png) | ![The destructive-confirmation gate for "Reset every setting": the affected-keys list, the irreversible-action sentence, two independent keys, and the confirmation slider.](docs/images/captures/17-destructive-gate.png) |
+| Appearance editor — theme tokens and controls | Destructive-action super-confirmation gate |
+| ![The World downloader tab rendered in the light colour scheme.](docs/images/captures/13-theme-light.png) | ![The same World downloader tab rendered in the dark colour scheme.](docs/images/captures/14-theme-dark.png) |
+| Light theme | Dark theme |
+| ![The Overview page at a 400×900 viewport: the navigation rail has collapsed to icons only and the info cards keep their own horizontal scroll.](docs/images/captures/15-narrow-layout.png) | ![A non-blocking error notification anchored bottom-left, raised through the application's real `window.onerror` handler, with its message and a Dismiss action.](docs/images/captures/18-error-state.png) |
+| Narrow layout — collapsed navigation rail | Error state — real error-handling path, not a mock |
+| ![The Authenticator destination with no accounts registered: "Nothing in here yet — there is no sample data: an empty list means the list really is empty," beside a disabled bulk-action row.](docs/images/captures/19-empty-state.png) | |
+| Authenticator — a second honest empty state | |
+
+</details>
+
+<details>
+<summary><strong>Capture method and commit</strong></summary>
+
+Every image above is a real screenshot of the packaged desktop application (`electron-builder --win --dir`),
+launched on an off-screen Windows desktop and driven over the Chrome DevTools Protocol — no mockups, no
+design-system pages, no hand-edited pixels. The build was made from commit
+[`d5b9501`](https://github.com/cafepromenade/minecraft-world-downloader/commit/d5b9501ae7ae8682663f439bb63b6fde2478595)
+plus the `core/coreFeature.ts` edit that was already in the working tree at build time (since landed on the
+branch); the packaged executable's timestamp is `2026-08-13 12:36:37 -0400`. Several unrelated commits from
+other lanes have landed on this branch after that build finished; this capture matrix does not reflect them,
+and a later capture pass should refresh it against the branch's current tip.
+
+The first launch of a fresh `electron-builder --dir` package failed immediately with
+`ERROR:base\i18n\icu_util.cc:223] Invalid file descriptor to ICU data received.` (exit `-2147483645`) on
+every subsequent attempt: the packaged `release/win-unpacked/` directory was missing `icudtl.dat`,
+`locales/`, `chrome_100_percent.pak`, `chrome_200_percent.pak`, `resources.pak`, `snapshot_blob.bin`,
+`version`, `vk_swiftshader_icd.json`, `vulkan-1.dll`, `LICENSE` and `LICENSES.chromium.html` — normal
+Electron `dist/` resource files that a `--dir` package should always carry. Copying them from
+`node_modules/electron/dist/` into `release/win-unpacked/` made the packaged app launch reliably. This
+looked like packaging-cache or antivirus interference rather than a source defect (the very first launch,
+before the userData reset in this session, did succeed against the same directory), but the missing-files
+symptom and the fix are recorded here in case a future packaging run hits it again.
+
+Two small existing UI defects surfaced incidentally while driving the app for these captures, unrelated to
+the capture work itself: the Changelog destination's palette subtitle renders the literal untranslated key
+`changelog.subtitle` instead of real copy (visible in the command-palette search results for "Changelog"),
+and one settings row in the desktop app's own Settings surface renders `{name}` as both its label and its
+description instead of the school-mode display-name copy (visible behind the destructive-confirmation gate
+capture and in the error-state capture). Neither was fixed here — this is the captures lane, not the i18n
+lane — but they are real, reproducible, and worth a follow-up fix.
 
 </details>
 
