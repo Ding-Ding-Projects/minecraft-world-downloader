@@ -116,7 +116,7 @@ Full guides are in [**`docs/wiki/`**](docs/wiki) (also published to the project
 [Building from source](docs/wiki/Building-From-Source.md) ·
 [FAQ](docs/wiki/FAQ.md)
 
-**Contributors / maintainers / agents:** see [**`handoff.md`**](handoff.md) (project state, architecture,
+**Contributors / maintainers / agents:** see [**`HANDOFF.md`**](HANDOFF.md) (project state, architecture,
 open items), [**`AGENTS.md`**](AGENTS.md) (build/test/run + conventions), and
 [**`docs/features/`**](docs/features/README.md) — a per-feature handoff index with one detailed document
 per feature. Third-party credits and dependency links are in [**`CREDITS.md`**](CREDITS.md).

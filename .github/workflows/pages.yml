@@ -1,0 +1,80 @@
+name: Documentation site
+
+# Publishes the static documentation site in site/ to GitHub Pages.
+#
+# This deploys a website. It is NOT a release: the only workflow that publishes a GitHub Release is
+# release.yml, and the only thing that workflow releases is the desktop application.
+#
+# There is deliberately no test, lint, type-check or link-check gate here. Checks run locally,
+# before the push, in the task that changes the code; their verdict never withholds a deploy.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'site/**'
+      - '.github/workflows/pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# A superseded documentation deploy is safe to cancel — the newer commit's deploy replaces it
+# wholesale, and nothing is left half-written. (release.yml deliberately does NOT do this: cancelling
+# a publish can strand a tag without its artifact.)
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Confirm the site directory has something in it
+        run: |
+          if [ ! -d site ]; then
+            echo "::error title=No site directory::site/ does not exist in this commit."
+            exit 1
+          fi
+          count=$(find site -type f | wc -l)
+          echo "site/ holds $count files"
+          if [ "$count" -eq 0 ]; then
+            echo "::error title=Empty site::site/ exists but holds no files; refusing to publish an empty site."
+            exit 1
+          fi
+          if [ ! -f site/index.html ]; then
+            echo "::error title=No landing page::site/index.html is missing; the site would 404 at its root."
+            exit 1
+          fi
+          # .nojekyll keeps Pages from running Jekyll over the output, which would drop any file or
+          # directory whose name begins with an underscore.
+          if [ ! -f site/.nojekyll ]; then
+            echo "::warning title=No .nojekyll::adding one so Pages serves underscore-prefixed paths unprocessed"
+            touch site/.nojekyll
+          fi
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+      - id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Report where it landed
+        run: |
+          echo "### Documentation site deployed" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Field | Value |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| --- | --- |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| URL | ${{ steps.deployment.outputs.page_url }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Commit | \`${{ github.sha }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Run | [${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) |" >> "$GITHUB_STEP_SUMMARY"
