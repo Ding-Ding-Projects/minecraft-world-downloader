@@ -9,6 +9,9 @@
 <link rel="stylesheet" href="assets/material.css">
 <link rel="stylesheet" href="assets/site.css">
 <script defer src="assets/site.js"></script>
+<script defer src="assets/schedule.js"></script>
+<script defer src="assets/narrator.js"></script>
+<script defer src="assets/logo.js"></script>
 <style>
 /* Page-scoped layout only. Nothing here restyles a .wds- runtime class,
    and every colour comes from a token. */
@@ -80,6 +83,9 @@
     <nav class="row" aria-label="Site" style="gap:2px;flex:1;min-width:0">
       <a class="btn btn--text" href="index.html">Home</a>
       <a class="btn btn--text" href="docs/index.html">Documentation</a>
+      <a class="btn btn--text" href="downloads.html">Downloads</a>
+      <a class="btn btn--text" href="converter.html">Converter</a>
+      <a class="btn btn--text" href="models.html">Local models</a>
       <a class="btn btn--text" href="changelog.html">Changelog</a>
       <a class="btn btn--text" href="settings.html" aria-current="page">Settings</a>
     </nav>
@@ -106,7 +112,7 @@
       <p>Free, for everyone, with no purchase of any kind.</p>
     </div>
     <div>
-      <p><a href="index.html">Home</a> · <a href="docs/index.html">Documentation</a> · <a href="changelog.html">Changelog</a></p>
+      <p><a href="index.html">Home</a> · <a href="docs/index.html">Documentation</a> · <a href="downloads.html">Downloads</a> · <a href="converter.html">Converter</a> · <a href="models.html">Local models</a> · <a href="changelog.html">Changelog</a></p>
       <p id="footer-privacy"></p>
     </div>
   </div>
@@ -241,6 +247,7 @@ Studio.ready(function (S) {
     'tab.navigation': same('Navigation', '導覽'),
     'tab.notifications': same('Notifications', '通知'),
     'tab.schedule': same('Scheduled settings', '排程設定'),
+    'tab.narrator': same('Narrator', '有聲讀出'),
     'tab.locks': same('Locks', '鎖'),
     'tab.authenticator': same('Authenticator', '驗證器'),
     'tab.history': same('History', '歷史'),
@@ -514,6 +521,7 @@ Studio.ready(function (S) {
     { id: 'navigation', labelKey: 'tab.navigation', icon: 'dock', keywords: 'tabs dock palette shortcut strip group' },
     { id: 'notifications', labelKey: 'tab.notifications', icon: 'bell', keywords: 'toast snackbar centre corner alerts' },
     { id: 'schedule', labelKey: 'tab.schedule', icon: 'calendar', keywords: 'rules time date weekday timezone home assistant api' },
+    { id: 'narrator', labelKey: 'tab.narrator', icon: 'text', keywords: 'speech voice tts speak read aloud accessibility narrator' },
     { id: 'locks', labelKey: 'tab.locks', icon: 'lock', keywords: 'password one-time code toy lock recovery' },
     { id: 'authenticator', labelKey: 'tab.authenticator', icon: 'key', keywords: 'totp otp qr two factor rfc 6238' },
     { id: 'history', labelKey: 'tab.history', icon: 'history', keywords: 'undo restore versions diff append only' },
@@ -1829,6 +1837,25 @@ Studio.ready(function (S) {
   }
 
   /* ================================================================
+   * 9b. Narrator
+   *
+   * The whole panel lives in assets/narrator.js (window.StudioNarrator).
+   * mount() tears itself down and rebuilds on every call, so calling it
+   * from this page's own render() on every language / funny-level /
+   * School-mode change is safe. searchEntries() is spliced into this
+   * page's own searchIndex so the narrator's rows are findable from the
+   * page's own search bar, not only the command palette.
+   * ================================================================ */
+  function renderNarrator(panel) {
+    if (!window.StudioNarrator) {
+      panel.appendChild(el('p', { class: 'note note--warn', text: 'The narrator module (assets/narrator.js) did not load on this page.' }));
+      return;
+    }
+    window.StudioNarrator.mount(panel, { page: 'settings.html', tabStrip: 'settings', tabId: 'narrator' });
+    Array.prototype.push.apply(searchIndex, window.StudioNarrator.searchEntries());
+  }
+
+  /* ================================================================
    * 10. Locks
    * ================================================================ */
   function renderLocks(panel) {
@@ -2582,6 +2609,7 @@ Studio.ready(function (S) {
     navigation: renderNavigation,
     notifications: renderNotifications,
     schedule: renderSchedule,
+    narrator: renderNarrator,
     locks: renderLocks,
     authenticator: renderAuthenticator,
     history: renderHistory,
@@ -2651,7 +2679,13 @@ Studio.ready(function (S) {
    * ================================================================ */
   S.palette.register([
     { id: 'page.settings', title: 'Settings', subtitle: 'This page', kind: 'page', page: 'settings.html', keywords: 'settings preferences options configure' },
-    { id: 'page.settings.search', title: 'Search every setting', subtitle: 'Settings', kind: 'command', run: function () { search.focus(); } }
+    { id: 'page.settings.search', title: 'Search every setting', subtitle: 'Settings', kind: 'command', run: function () { search.focus(); } },
+    { id: 'settings.gotoHome', title: 'Home', kind: 'page', keywords: 'landing overview', page: 'index.html' },
+    { id: 'settings.gotoDocs', title: 'Documentation', kind: 'page', keywords: 'articles help reference', page: 'docs/index.html' },
+    { id: 'settings.gotoDownloads', title: 'Downloads', kind: 'page', keywords: 'installer release unsigned', page: 'downloads.html' },
+    { id: 'settings.gotoConverter', title: 'Converter', kind: 'page', keywords: 'file convert pdf image audio video archive', page: 'converter.html' },
+    { id: 'settings.gotoModels', title: 'Local models', kind: 'page', keywords: 'ollama model manager chat', page: 'models.html' },
+    { id: 'settings.gotoChangelog', title: 'Changelog', kind: 'page', keywords: 'versions releases history', page: 'changelog.html' }
   ].concat(TABS.map(function (tb) {
     return {
       id: 'settings.tab.' + tb.id,

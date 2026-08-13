@@ -567,6 +567,10 @@ export const CHAT_STRINGS: Catalogue = {
     en: ['Message', 'Message', 'Message', 'Message', 'Message'],
     yue: ['訊息', '訊息', '訊息', '訊息', '訊息']
   },
+  'mineflayer-chat.column.fired': {
+    en: ['Fired', 'Fired', 'Fired', 'Fired', 'Fired'],
+    yue: ['觸發次數', '觸發次數', '觸發次數', '觸發次數', '觸發次數']
+  },
   'mineflayer-chat.sender.none': {
     en: [
       'No sender',

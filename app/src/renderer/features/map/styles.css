@@ -1,0 +1,298 @@
+/*
+ * The live map.
+ *
+ * Every colour, radius, spacing and duration comes from the Material Design 3
+ * tokens rather than a literal, so a seed-colour change, a density change or a
+ * contrast change reaches this feature without editing it.
+ *
+ * Two layout rules are deliberate, same as the rest of the application. The
+ * canvas and its side column sit in a two-column grid that collapses to one
+ * column at a narrow width, and nothing here is sized in a way that clips at
+ * 200% display scale or under the longest bilingual label: rows wrap their
+ * text and toolbars wrap their buttons.
+ */
+
+.map-root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-4);
+  min-inline-size: 0;
+}
+
+.map-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(18rem, 22rem);
+  align-items: start;
+  gap: var(--md-space-4);
+}
+
+/* ---------------- the stage ---------------- */
+
+.map-stage {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-2);
+  min-inline-size: 0;
+}
+
+.map-status {
+  margin: 0;
+  color: var(--md-sys-color-on-surface-variant);
+  overflow-wrap: anywhere;
+}
+
+.map-state {
+  min-block-size: 12rem;
+}
+
+.map-canvas-holder {
+  position: relative;
+  block-size: min(64vh, 42rem);
+  min-block-size: 20rem;
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-corner-large);
+  background: var(--md-sys-color-surface-container-lowest);
+  overflow: hidden;
+}
+
+.map-canvas-holder[hidden] {
+  display: none;
+}
+
+.map-viewport {
+  position: absolute;
+  inset: 0;
+}
+
+.map-viewport__canvas {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  touch-action: none;
+  cursor: grab;
+  outline: none;
+}
+
+.map-viewport__canvas:active {
+  cursor: grabbing;
+}
+
+.map-viewport__canvas:focus-visible {
+  outline: 3px solid var(--md-sys-color-primary);
+  outline-offset: -3px;
+}
+
+.map-help {
+  margin: 0;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+/* ---------------- the scale bar and pointer overlay ---------------- */
+
+.map-scalebar {
+  position: absolute;
+  inset-block-end: var(--md-space-3);
+  inset-inline-start: var(--md-space-3);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: var(--md-space-2) var(--md-space-3);
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: color-mix(in srgb, var(--md-sys-color-surface-container) 88%, transparent);
+  color: var(--md-sys-color-on-surface);
+  box-shadow: var(--md-sys-elevation-1);
+  pointer-events: none;
+}
+
+.map-scalebar__line {
+  display: block;
+  block-size: 3px;
+  min-inline-size: 1px;
+  max-inline-size: 16rem;
+  border-radius: var(--md-sys-shape-corner-full);
+  background: var(--md-sys-color-on-surface);
+}
+
+.map-scalebar__text {
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+/* ---------------- the side column ---------------- */
+
+.map-side {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-4);
+  min-inline-size: 0;
+}
+
+.map-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-1);
+  margin-block: var(--md-space-2);
+}
+
+.map-readout__row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--md-space-2);
+  padding-block: var(--md-space-1);
+  border-block-end: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.map-readout__row:last-child {
+  border-block-end: none;
+}
+
+.map-readout__key {
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.map-readout__value {
+  overflow-wrap: anywhere;
+  text-align: end;
+}
+
+.map-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-space-2);
+  margin-block-start: var(--md-space-2);
+}
+
+.map-actions--wrap {
+  align-items: center;
+}
+
+/* ---------------- jump to coordinates ---------------- */
+
+.map-jump__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(5.5rem, 1fr));
+  gap: var(--md-space-2);
+  margin-block: var(--md-space-2);
+}
+
+.map-jump__error {
+  margin: 0;
+  min-block-size: 1.25em;
+  color: var(--md-sys-color-error);
+}
+
+/* ---------------- the Worldlens status card ---------------- */
+
+.map-worldlens__status {
+  margin-block: var(--md-space-2);
+  color: var(--md-sys-color-on-surface-variant);
+  overflow-wrap: anywhere;
+}
+
+/* ---------------- markers ---------------- */
+
+.map-markers__summary {
+  margin: var(--md-space-2) 0;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.map-markers__list {
+  min-inline-size: 0;
+}
+
+.map-markers__page {
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.map-marker {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--md-space-3);
+  padding-block: var(--md-space-2);
+  border-block-end: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.map-marker[aria-selected='true'] {
+  background: var(--md-sys-color-secondary-container);
+  color: var(--md-sys-color-on-secondary-container);
+}
+
+.map-marker__select {
+  flex: 0 0 auto;
+}
+
+.map-marker__dot {
+  inline-size: 12px;
+  block-size: 12px;
+  flex: 0 0 auto;
+  border-radius: var(--md-sys-shape-corner-full);
+  border: 1px solid var(--md-sys-color-outline);
+}
+
+.map-marker__name {
+  flex: 1 1 12rem;
+  min-inline-size: 9rem;
+}
+
+.map-marker__location {
+  flex: 1 1 11rem;
+  min-inline-size: 9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  color: var(--md-sys-color-on-surface-variant);
+  overflow-wrap: anywhere;
+}
+
+.map-marker__elsewhere {
+  color: var(--md-sys-color-warning, var(--md-sys-color-error));
+}
+
+.map-marker__colour {
+  flex: 0 0 auto;
+  inline-size: 9rem;
+  min-inline-size: 8rem;
+}
+
+.map-marker__visible {
+  flex: 0 0 auto;
+}
+
+.map-marker__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--md-space-1);
+  margin-inline-start: auto;
+}
+
+/* ---------------- narrow widths ---------------- */
+
+@media (max-width: 64rem) {
+  .map-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .map-canvas-holder {
+    block-size: min(56vh, 32rem);
+  }
+}
+
+@media (max-width: 30rem) {
+  .map-jump__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .map-marker {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .map-marker__actions {
+    margin-inline-start: 0;
+    justify-content: flex-end;
+  }
+}

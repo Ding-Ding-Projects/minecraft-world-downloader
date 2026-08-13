@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>File converter · World Downloader Studio</title>
+<meta name="description" content="Convert images, structured data, text encodings and binary encodings entirely inside this browser. Nothing is uploaded, and every format this page cannot genuinely convert offline is listed and disabled with the exact reason.">
+<meta name="color-scheme" content="light dark">
+<link rel="stylesheet" href="assets/tokens.css">
+<link rel="stylesheet" href="assets/material.css">
+<link rel="stylesheet" href="assets/site.css">
+<script defer src="assets/converter.js"></script>
+<script defer src="assets/site.js"></script>
+<script defer src="assets/schedule.js"></script>
+<script defer src="assets/narrator.js"></script>
+<script defer src="assets/logo.js"></script>
+<style>
+/* ==================================================================
+ * Page-scoped layout only. Nothing here restyles a .wds- runtime
+ * class, and every colour comes from a token -- there is not one
+ * literal colour value in this block, so both themes and a visitor's
+ * own seed colour reach it without a second definition.
+ * ================================================================== */
+.cv-drop {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  min-height: 96px; padding: 20px;
+  border: 2px dashed var(--md-sys-color-outline);
+  border-radius: var(--md-sys-shape-corner-large);
+  background: var(--md-sys-color-surface-container-low);
+  color: var(--md-sys-color-on-surface-variant);
+  cursor: pointer;
+  text-align: center;
+}
+.cv-drop:hover, .cv-drop.is-over { background: var(--md-sys-color-surface-container); border-color: var(--md-sys-color-primary); }
+.cv-drop:focus-visible { outline: var(--wds-focus-width) solid var(--md-sys-color-secondary); outline-offset: var(--wds-focus-offset); }
+.cv-drop__text { font: inherit; }
+.cv-file-list { margin-top: 12px; min-width: 0; }
+.cv-panel { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.cv-panel-body { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.cv-field { display: flex; flex-direction: column; gap: 6px; min-width: 0; max-width: 420px; }
+.cv-native {
+  min-height: var(--wds-target-min); width: 100%;
+  padding: 8px 12px; font: inherit; color: var(--md-sys-color-on-surface);
+  background: var(--md-sys-color-surface-container-highest);
+  border: 1px solid var(--md-sys-color-outline);
+  border-radius: var(--md-sys-shape-corner-extra-small);
+}
+.cv-native:focus-visible { outline: var(--wds-focus-width) solid var(--md-sys-color-secondary); outline-offset: var(--wds-focus-offset); }
+.cv-dims { align-items: center; }
+.cv-dims input { max-width: 110px; }
+#converter-host { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+#converter-host h2 { margin: 8px 0 0; }
+@media (max-width: 760px) {
+  .cv-field { max-width: none; }
+  .cv-drop { min-height: 76px; padding: 16px; }
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to the content</a>
+
+<header class="site-appbar">
+  <div class="appbar">
+    <a class="site-brand" href="index.html">
+      <svg class="site-brand__mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none"
+           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 4L3 7v13l6-3 6 3 6-3V4l-6 3z"></path><path d="M9 4v13M15 7v13"></path>
+      </svg>
+      <span class="site-brand__name">World Downloader Studio</span>
+    </a>
+    <nav class="row" aria-label="Site" style="gap:2px;flex:1;min-width:0">
+      <a class="btn btn--text" href="index.html">Home</a>
+      <a class="btn btn--text" href="docs.html">Documentation</a>
+      <a class="btn btn--text" href="downloads.html">Downloads</a>
+      <a class="btn btn--text" href="converter.html" aria-current="page" id="nav-converter">Converter</a>
+      <a class="btn btn--text" href="models.html">Local models</a>
+      <a class="btn btn--text" href="changelog.html">Changelog</a>
+      <a class="btn btn--text" href="settings.html">Settings</a>
+    </nav>
+    <div class="appbar__actions" id="appbar-actions"></div>
+  </div>
+</header>
+
+<main id="main" class="wrap wrap--wide">
+  <h1 id="page-title">File converter</h1>
+  <div id="converter-host"></div>
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer__inner">
+    <div>
+      <p><strong>World Downloader Studio</strong></p>
+      <p>Free, for everyone, with no purchase of any kind.</p>
+    </div>
+    <div>
+      <p>Every conversion on this page runs in this browser. Nothing is uploaded.</p>
+    </div>
+    <div>
+      <p><a href="index.html">Home</a> · <a href="docs.html">Documentation</a> · <a href="downloads.html">Downloads</a> · <a href="converter.html" aria-current="page">Converter</a> · <a href="models.html">Local models</a> · <a href="changelog.html">Changelog</a> · <a href="settings.html">Settings</a></p>
+      <p id="footer-privacy"></p>
+    </div>
+  </div>
+</footer>
+
+<script>
+Studio.ready(function (S) {
+  'use strict';
+
+  var el = S.el, icon = S.icon, t = S.t, clear = S.clear;
+
+  function same(en, zh) { return { en: [en, en, en, en, en], zh: [zh, zh, zh, zh, zh] }; }
+  S.i18n.define({
+    'convpage.title': same('File converter', '檔案轉換器'),
+    'convpage.nav': same('Converter', '轉換器')
+  });
+
+  S.label(document.getElementById('page-title'), 'convpage.title', 'File converter');
+  S.label(document.getElementById('nav-converter'), 'convpage.nav', 'Converter');
+  document.title = S.tBoth('convpage.title', 'File converter') + ' · World Downloader Studio';
+
+  var fp = document.getElementById('footer-privacy');
+  clear(fp);
+  fp.appendChild(document.createTextNode(S.privacy.note));
+
+  /* ================================================================
+   * The feature itself lives in assets/converter.js, registered as
+   * window.StudioConverter. This page only supplies its own chrome:
+   * the title, the nav link, and the shared appbar actions every
+   * other page on this site carries.
+   * ================================================================ */
+  if (window.StudioConverter) {
+    window.StudioConverter.mount(document.getElementById('converter-host'));
+  } else {
+    var fail = el('div', { class: 'note note--warn', role: 'alert' },
+      'The file converter could not load. Reload this page; if that does not help, this browser may be blocking a local script.');
+    document.getElementById('converter-host').appendChild(fail);
+  }
+
+  /* Cross-page destinations, so the command palette can reach every
+     other page on this site from here -- converter.js already
+     registers this page's own "converter.page" entry when it mounts. */
+  S.palette.register([
+    { id: 'converter.gotoHome', title: 'Home', kind: 'page', keywords: 'landing overview', page: 'index.html' },
+    { id: 'converter.gotoDocs', title: 'Documentation', kind: 'page', keywords: 'articles help reference', page: 'docs.html' },
+    { id: 'converter.gotoDownloads', title: 'Downloads', kind: 'page', keywords: 'installer release unsigned', page: 'downloads.html' },
+    { id: 'converter.gotoModels', title: 'Local models', kind: 'page', keywords: 'ollama model manager chat', page: 'models.html' },
+    { id: 'converter.gotoChangelog', title: 'Changelog', kind: 'page', keywords: 'versions releases history', page: 'changelog.html' },
+    { id: 'converter.gotoSettings', title: 'Settings', kind: 'page', keywords: 'settings preferences options configure', page: 'settings.html' }
+  ]);
+
+  /* ================================================================
+   * Shared appbar actions -- the same language, theme, notifications
+   * and command-palette icons every page on this site carries.
+   * ================================================================ */
+  function buildAppbarActions() {
+    var host = document.getElementById('appbar-actions');
+    clear(host);
+
+    var langBtn = el('button', {
+      class: 'btn btn--icon', type: 'button', 'aria-haspopup': 'menu',
+      'aria-label': t('lang.title', 'Language'), title: t('lang.title', 'Language'),
+      onclick: function () {
+        var items = [{
+          label: t('lang.en', 'English'), checked: S.i18n.mode() === 'en',
+          run: function () { S.i18n.setMode('en'); }
+        }];
+        if (!S.school.suppresses('cantonese')) {
+          items.push({ label: t('lang.zh', 'Cantonese'), checked: S.i18n.mode() === 'zh', run: function () { S.i18n.setMode('zh'); } });
+        }
+        if (!S.school.suppresses('bilingual')) {
+          items.push({ label: t('lang.both', 'Both'), checked: S.i18n.mode() === 'both', run: function () { S.i18n.setMode('both'); } });
+        }
+        items.push('-');
+        items.push({ label: t('lang.title', 'Language') + ' settings', icon: 'settings', run: function () { window.location.href = 'settings.html'; } });
+        S.createMenu({ anchor: langBtn, returnTo: langBtn, ariaLabel: t('lang.title', 'Language'), filterLabel: 'Filter languages', storageKey: 'appbar-language', items: items });
+      }
+    }, icon('globe'));
+    host.appendChild(langBtn);
+
+    var themeBtn = el('button', {
+      class: 'btn btn--icon', type: 'button', 'aria-haspopup': 'menu',
+      'aria-label': t('theme.mode', 'Theme'), title: t('theme.mode', 'Theme'),
+      onclick: function () {
+        S.createMenu({
+          anchor: themeBtn, returnTo: themeBtn, ariaLabel: t('theme.mode', 'Theme'),
+          filterLabel: 'Filter themes', storageKey: 'appbar-theme',
+          items: [
+            { label: t('theme.light', 'Light'), checked: S.theme.mode() === 'light', run: function () { S.theme.setMode('light'); } },
+            { label: t('theme.dark', 'Dark'), checked: S.theme.mode() === 'dark', run: function () { S.theme.setMode('dark'); } },
+            { label: t('theme.system', 'Follow the system'), checked: S.theme.mode() === 'system', run: function () { S.theme.setMode('system'); } },
+            '-',
+            { label: 'Appearance settings', icon: 'palette', run: function () { window.location.href = 'settings.html'; } }
+          ]
+        });
+      }
+    }, icon('eye'));
+    host.appendChild(themeBtn);
+
+    var bellBtn = el('button', {
+      class: 'btn btn--icon', type: 'button',
+      'aria-label': t('notify.centre', 'Notifications'), title: t('notify.centre', 'Notifications'),
+      onclick: function () { S.notifications.open(bellBtn); }
+    }, icon('bell'));
+    host.appendChild(bellBtn);
+
+    var palBtn = el('button', {
+      class: 'btn btn--icon', type: 'button',
+      'aria-label': t('palette.title', 'Command palette'),
+      title: t('palette.title', 'Command palette') + ' (' + S.palette.shortcut + ')',
+      'aria-keyshortcuts': 'Control+Shift+F',
+      onclick: function () { S.palette.open(); }
+    }, icon('grid'));
+    host.appendChild(palBtn);
+
+    var editBtn = el('button', {
+      class: 'btn btn--icon', type: 'button',
+      'aria-label': t('act.openEditor', 'Edit appearance'),
+      title: t('act.openEditor', 'Edit appearance') + ': the page heading',
+      onclick: function () { S.appearance.openEditor(document.getElementById('page-title'), 'converter:title', 'The file converter page heading'); }
+    }, icon('palette'));
+    host.appendChild(editBtn);
+  }
+  buildAppbarActions();
+  S.on('i18n', buildAppbarActions);
+});
+</script>
+</body>
+</html>

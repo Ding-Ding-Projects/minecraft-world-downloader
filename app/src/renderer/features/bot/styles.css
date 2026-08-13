@@ -1,0 +1,388 @@
+/*
+ * The scraper bot runner tab.
+ *
+ * Every colour, radius, spacing and duration comes from the Material Design 3
+ * tokens rather than a literal, so a seed-colour, density or contrast change
+ * reaches this feature without editing it. Wide content — the generated
+ * configuration preview, the run log — scrolls inside its own container, so
+ * the panel itself never scrolls sideways. Layouts wrap rather than clip at
+ * narrow widths, at 200% display scale, and under the longest bilingual
+ * labels.
+ */
+
+.bot-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-6);
+  padding-block-end: var(--md-space-8);
+}
+
+/* ---------------- shared form primitives ---------------- */
+
+.bot-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-5);
+  padding: var(--md-space-4);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-corner-large);
+  background: var(--md-sys-color-surface-container-low);
+}
+
+.bot-form__group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-3);
+  padding-block-start: var(--md-space-3);
+  border-block-start: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.bot-form__group:first-of-type {
+  padding-block-start: 0;
+  border-block-start: none;
+}
+
+.bot-form__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-space-3);
+  align-items: flex-start;
+}
+
+.bot-form__row > * {
+  flex: 1 1 14rem;
+  min-inline-size: 0;
+}
+
+.bot-form__note {
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.bot-form__ok {
+  color: var(--md-sys-color-success, var(--md-sys-color-primary));
+}
+
+.bot-form__problems {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-2);
+  padding: var(--md-space-3);
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: var(--md-sys-color-surface-container);
+}
+
+.bot-form__problem-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-1);
+  margin: 0;
+  padding-inline-start: var(--md-space-5);
+  color: var(--md-sys-color-error);
+}
+
+.bot-form__estimate {
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.bot-form__preview {
+  max-inline-size: 100%;
+  max-block-size: 20rem;
+  overflow: auto;
+  margin: 0;
+  padding: var(--md-space-3);
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: var(--md-sys-color-surface-container-highest);
+  color: var(--md-sys-color-on-surface);
+  font-family: var(--md-sys-typeface-mono);
+  white-space: pre;
+  tab-size: 2;
+}
+
+.bot-form__version {
+  flex: 1 1 14rem;
+  min-inline-size: 0;
+}
+
+.bot-form__accounts {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-3);
+}
+
+.bot-form__accounts-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-space-2);
+}
+
+.bot-form__account {
+  display: flex;
+  align-items: center;
+  gap: var(--md-space-2);
+  padding-block: var(--md-space-1);
+}
+
+.bot-form__account > *:nth-child(2) {
+  flex: 1 1 auto;
+  min-inline-size: 0;
+}
+
+.bot-form__area {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-3);
+}
+
+.bot-form__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-space-2);
+  padding-block-start: var(--md-space-3);
+  border-block-start: 1px solid var(--md-sys-color-outline-variant);
+}
+
+/* ---------------- presets ---------------- */
+
+.bot-presets {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-3);
+  margin-block-start: var(--md-space-4);
+}
+
+.bot-presets__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+  gap: var(--md-space-3);
+}
+
+.bot-presets__grid > * {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-2);
+  padding: var(--md-space-4);
+}
+
+.bot-presets__sets {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-1);
+  margin: 0;
+  padding-inline-start: var(--md-space-5);
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+/* ---------------- run controls ---------------- */
+
+.bot-run__picker {
+  max-inline-size: 28rem;
+}
+
+.bot-run__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-space-2);
+}
+
+.bot-run__status {
+  color: var(--md-sys-color-primary);
+}
+
+.bot-run__detail {
+  color: var(--md-sys-color-on-surface-variant);
+  overflow-wrap: anywhere;
+}
+
+.bot-run__error {
+  padding: var(--md-space-3);
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: var(--md-sys-color-error-container);
+  color: var(--md-sys-color-on-error-container);
+}
+
+.bot-run__device {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-2);
+  padding: var(--md-space-4);
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: var(--md-sys-color-tertiary-container);
+  color: var(--md-sys-color-on-tertiary-container);
+}
+
+.bot-run__code {
+  padding: var(--md-space-2) var(--md-space-3);
+  border-radius: var(--md-sys-shape-corner-small);
+  background: var(--md-sys-color-surface-container-highest);
+  color: var(--md-sys-color-on-surface);
+  font-family: var(--md-sys-typeface-mono);
+  inline-size: fit-content;
+  max-inline-size: 100%;
+  overflow-wrap: anywhere;
+  user-select: all;
+}
+
+/* ---------------- profiles ---------------- */
+
+.bot-profiles__toolbar,
+.bot-messages__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-space-2);
+  margin-block: var(--md-space-3);
+}
+
+.bot-profiles__list {
+  overflow-x: auto;
+}
+
+.bot-profiles__row-actions {
+  display: flex;
+  gap: var(--md-space-1);
+}
+
+.bot-profiles__editor {
+  margin-block-start: var(--md-space-4);
+}
+
+/* ---------------- run log ---------------- */
+
+.bot-log {
+  max-block-size: 24rem;
+  overflow-y: auto;
+  overflow-x: auto;
+  padding: var(--md-space-3);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: var(--md-sys-color-surface-container-lowest);
+  font-family: var(--md-sys-typeface-mono);
+}
+
+.bot-log__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--md-space-3);
+  margin-block-end: var(--md-space-3);
+}
+
+.bot-log__filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-space-2);
+}
+
+.bot-log__line {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-space-2);
+  padding-block: var(--md-space-1);
+  border-block-end: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.bot-log__line:last-child {
+  border-block-end: none;
+}
+
+.bot-log__time {
+  color: var(--md-sys-color-on-surface-variant);
+  flex: 0 0 auto;
+}
+
+.bot-log__stream {
+  color: var(--md-sys-color-tertiary);
+  flex: 0 0 auto;
+  text-transform: uppercase;
+}
+
+.bot-log__text {
+  flex: 1 1 20rem;
+  min-inline-size: 0;
+  overflow-wrap: anywhere;
+  color: var(--md-sys-color-on-surface);
+}
+
+.bot-log__line--warning .bot-log__text {
+  color: var(--md-sys-color-warning, var(--md-sys-color-tertiary));
+}
+
+.bot-log__line--error .bot-log__text {
+  color: var(--md-sys-color-error);
+}
+
+.bot-log__count {
+  margin-block-start: var(--md-space-2);
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+/* ---------------- captured messages ---------------- */
+
+.bot-messages__time {
+  white-space: nowrap;
+}
+
+.bot-messages__count {
+  margin-block-start: var(--md-space-2);
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.bot-messages__tag-dialog {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-3);
+  min-inline-size: min(24rem, 80vw);
+}
+
+/* ---------------- capture rules ---------------- */
+
+.bot-rules__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-space-2);
+  margin-block-end: var(--md-space-3);
+}
+
+.bot-rules__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-1);
+}
+
+.bot-rules__item {
+  list-style: none;
+}
+
+.bot-rules__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--md-space-2);
+  padding-block: var(--md-space-2);
+  border-block-end: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.bot-rules__row > * {
+  flex: 0 0 auto;
+}
+
+.bot-rules__row > *:nth-child(2) {
+  flex: 1 1 16rem;
+  min-inline-size: 0;
+}
+
+.bot-rules__error {
+  inline-size: 100%;
+  color: var(--md-sys-color-error);
+}
+
+/* ---------------- narrow widths ---------------- */
+
+@media (max-width: 640px) {
+  .bot-form__row > * {
+    flex-basis: 100%;
+  }
+
+  .bot-log {
+    max-block-size: 16rem;
+  }
+}

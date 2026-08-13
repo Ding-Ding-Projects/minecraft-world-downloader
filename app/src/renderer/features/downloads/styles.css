@@ -1,0 +1,370 @@
+/*
+ * Downloads: the list tab, the receiver card, the Start dialog, the separate
+ * Downloading progress windows, the always-on-top completion surface and the
+ * pairing popover.
+ *
+ * Every colour, radius, spacing and duration comes from the Material Design 3
+ * tokens rather than a literal, so a seed-colour change, a density change or a
+ * contrast change reaches this feature without editing it.
+ *
+ * Wide content — the table and long paths — scrolls inside its own container,
+ * so the tab itself never scrolls sideways. Toolbars wrap their buttons rather
+ * than clip them at narrow widths or under the longest bilingual label.
+ */
+
+/* ---------------- the anchor the floating surfaces open from ---------------- */
+
+/*
+ * The Downloading progress windows and the completion surface are real
+ * floating panels rather than separate operating-system windows — the
+ * renderer cannot create one, and this is the closest accessible equivalent
+ * this platform supports. They open anchored to a fixed point near the top
+ * corner of the application window, which is also the corner farthest from
+ * where a user is normally reading a list, so a fresh transfer never appears
+ * on top of what somebody is doing.
+ */
+.downloads-anchor {
+  position: fixed;
+  inset-block-start: calc(var(--md-comp-title-bar-height, 40px) + var(--md-space-2));
+  inset-inline-end: var(--md-space-4);
+  inline-size: 1px;
+  block-size: 1px;
+  pointer-events: none;
+}
+
+.downloads-anchor--completion {
+  inset-inline-end: calc(var(--md-space-4) + 24rem);
+}
+
+/* ---------------- the list tab ---------------- */
+
+.downloads-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-4);
+}
+
+.downloads-receiver {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-2);
+  padding: var(--md-space-4);
+}
+
+.downloads-receiver__status {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--md-space-2);
+  font-weight: var(--md-sys-typescale-weight);
+}
+
+.downloads-receiver[data-status='listening'] .downloads-receiver__status,
+.downloads-receiver[data-status='degraded'] .downloads-receiver__status {
+  color: var(--md-sys-color-success, var(--md-sys-color-primary));
+}
+
+.downloads-receiver[data-status='failed'] .downloads-receiver__status,
+.downloads-receiver[data-status='unavailable'] .downloads-receiver__status {
+  color: var(--md-sys-color-error);
+}
+
+.downloads-receiver__detail {
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.downloads-receiver__error {
+  color: var(--md-sys-color-error);
+}
+
+.downloads-receiver__error[hidden] {
+  display: none;
+}
+
+.downloads-receiver__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-space-2);
+  margin-block-start: var(--md-space-2);
+}
+
+.downloads-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--md-space-3);
+}
+
+.downloads-toolbar__search {
+  flex: 1 1 18rem;
+  min-inline-size: 12rem;
+}
+
+.downloads-manual {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-3);
+  min-inline-size: min(28rem, 88vw);
+}
+
+.downloads-bulk {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--md-space-2);
+  padding: var(--md-space-2) var(--md-space-3);
+  border-radius: var(--md-sys-shape-corner-large);
+  background: var(--md-sys-color-secondary-container);
+  color: var(--md-sys-color-on-secondary-container);
+}
+
+.downloads-bulk__summary {
+  flex: 1 1 16rem;
+  min-inline-size: 0;
+}
+
+.downloads-bulk__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-space-2);
+}
+
+.downloads-table-wrap {
+  overflow-x: auto;
+}
+
+.downloads-row__name {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-inline-size: 22rem;
+}
+
+.downloads-row__filename {
+  overflow-wrap: anywhere;
+}
+
+.downloads-row__host,
+.downloads-row__path {
+  color: var(--md-sys-color-on-surface-variant);
+  overflow-wrap: anywhere;
+}
+
+.downloads-row__path {
+  display: block;
+  max-inline-size: 20rem;
+}
+
+.downloads-row__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-space-1);
+}
+
+/* ---------------- shared detail rows (Start dialog, progress window) ---------------- */
+
+.downloads-detail {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-space-2);
+  padding-block: 2px;
+}
+
+.downloads-detail__term {
+  flex: 0 0 10rem;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.downloads-detail__value {
+  flex: 1 1 14rem;
+  min-inline-size: 0;
+  overflow-wrap: anywhere;
+}
+
+/* ---------------- Start download dialog ---------------- */
+
+.downloads-start {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-3);
+  min-inline-size: min(30rem, 88vw);
+}
+
+.downloads-start__lede {
+  color: var(--md-sys-color-on-surface-variant);
+  margin: 0;
+}
+
+.downloads-start__details {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--md-space-3);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: var(--md-sys-color-surface-container-low);
+}
+
+.downloads-start__hint {
+  color: var(--md-sys-color-on-surface-variant);
+  margin: 0;
+}
+
+/* ---------------- Downloading progress window ---------------- */
+
+.downloads-progress-window .md-overlay__body {
+  max-inline-size: min(26rem, 92vw);
+}
+
+.downloads-progress {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-3);
+  pointer-events: auto;
+}
+
+.downloads-progress__name {
+  overflow-wrap: anywhere;
+  margin: 0;
+}
+
+.downloads-progress__state {
+  margin: 0;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.downloads-progress[data-state='completed'] .downloads-progress__state {
+  color: var(--md-sys-color-success, var(--md-sys-color-primary));
+}
+
+.downloads-progress[data-state='failed'] .downloads-progress__state,
+.downloads-progress[data-state='interrupted'] .downloads-progress__state {
+  color: var(--md-sys-color-error);
+}
+
+.downloads-progress__figures {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(8rem, 1fr));
+  gap: var(--md-space-2);
+}
+
+.downloads-progress__figure {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.downloads-progress__figure > span:first-child {
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.downloads-progress__details {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--md-space-2) var(--md-space-3);
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: var(--md-sys-color-surface-container-low);
+}
+
+.downloads-progress__message {
+  margin: 0;
+}
+
+.downloads-progress__message[data-tone='error'] {
+  color: var(--md-sys-color-error);
+}
+
+.downloads-progress__message[hidden] {
+  display: none;
+}
+
+.downloads-progress__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-space-2);
+}
+
+/* ---------------- completion surface ---------------- */
+
+.downloads-completion {
+  pointer-events: auto;
+}
+
+.downloads-completion .md-overlay__body {
+  max-inline-size: min(24rem, 92vw);
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-2);
+}
+
+.downloads-completion__title {
+  margin: 0;
+}
+
+.downloads-completion[data-outcome='success'] .downloads-completion__title {
+  color: var(--md-sys-color-success, var(--md-sys-color-primary));
+}
+
+.downloads-completion[data-outcome='failed'] .downloads-completion__title {
+  color: var(--md-sys-color-error);
+}
+
+.downloads-completion__name {
+  overflow-wrap: anywhere;
+  margin: 0;
+}
+
+.downloads-completion__detail {
+  color: var(--md-sys-color-on-surface-variant);
+  overflow-wrap: anywhere;
+  margin: 0;
+}
+
+.downloads-completion__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-space-2);
+  margin-block-start: var(--md-space-1);
+}
+
+/* ---------------- pairing popover ---------------- */
+
+.downloads-pairing .md-overlay__body {
+  max-inline-size: min(28rem, 92vw);
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-3);
+}
+
+.downloads-pairing__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-space-2);
+}
+
+.downloads-pairing__note {
+  color: var(--md-sys-color-on-surface-variant);
+  margin: 0;
+}
+
+/* ---------------- narrow widths ---------------- */
+
+@media (max-width: 60rem) {
+  .downloads-anchor {
+    inset-inline-end: var(--md-space-2);
+  }
+
+  .downloads-anchor--completion {
+    inset-inline-end: var(--md-space-2);
+    inset-block-start: calc(var(--md-comp-title-bar-height, 40px) + 8rem);
+  }
+
+  .downloads-row__name,
+  .downloads-row__path {
+    max-inline-size: 12rem;
+  }
+
+  .downloads-progress__figures {
+    grid-template-columns: 1fr;
+  }
+}

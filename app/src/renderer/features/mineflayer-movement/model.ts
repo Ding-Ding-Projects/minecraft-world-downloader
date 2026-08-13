@@ -11,6 +11,28 @@ import type { ControlName, Vec3Like } from './session';
 export const FEATURE_ID = 'mineflayer-movement';
 export const TAB_ID = 'mineflayerMovement.pilot';
 
+/**
+ * The bridge that lets the "Stop all bot movement" palette command act
+ * immediately, without navigating anywhere first.
+ *
+ * The palette entry lives in `index.ts`, which has no access to the mounted
+ * tab's private state (held controls, a running walk, a running follow), and
+ * the tab may not even be mounted yet when the command is invoked. The tab
+ * registers its real stop function here while it is mounted and removes it
+ * when it is not, so the palette command can call the genuine thing when it
+ * exists and fall back to simply opening the tab when it does not.
+ *
+ * The `Window` augmentation itself lives in `session.ts`, alongside the
+ * pre-existing `mineflayerMovement` provider bridge, rather than in a second
+ * `declare global` block here — TypeScript's declaration-merge check across
+ * several `declare global { interface Window {...} }` blocks for the same
+ * interface is stricter than it looks, and one block per interface per
+ * feature is the reliable shape.
+ */
+export interface MovementControlsBridge {
+  stopAll(): void;
+}
+
 /* ---------------- setting ids ---------------- */
 
 export const ARRIVE_RADIUS_ID = 'mineflayerMovement.arriveRadius';

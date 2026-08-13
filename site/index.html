@@ -11,6 +11,9 @@
 <link rel="stylesheet" href="assets/material.css">
 <link rel="stylesheet" href="assets/site.css">
 <script defer src="assets/site.js"></script>
+<script defer src="assets/schedule.js"></script>
+<script defer src="assets/narrator.js"></script>
+<script defer src="assets/logo.js"></script>
 <style>
 /* ==================================================================
  * Landing-page-local styles.
@@ -348,6 +351,13 @@
       <strong>Documentation</strong><br>
       <a href="docs/index.html">Every feature, one article each</a><br>
       <a href="changelog.html">Changelog</a>
+    </div>
+    <div>
+      <strong>More on this site</strong><br>
+      <a href="downloads.html">Downloads</a> ·
+      <a href="converter.html">Converter</a> ·
+      <a href="models.html">Local models</a> ·
+      <a href="settings.html">Settings</a>
     </div>
   </div>
 </footer>
@@ -2006,6 +2016,9 @@ Studio.ready(function (S) {
           filterLabel: 'Filter actions', storageKey: 'appbar-more',
           items: [
             { label: 'Documentation', icon: 'doc', keywords: 'articles help', run: function () { window.location.href = 'docs/index.html'; } },
+            { label: 'Downloads', icon: 'download', keywords: 'installer release unsigned', run: function () { window.location.href = 'downloads.html'; } },
+            { label: 'Converter', icon: 'reset', keywords: 'file convert pdf image audio video archive', run: function () { window.location.href = 'converter.html'; } },
+            { label: 'Local models', icon: 'grid', keywords: 'ollama model manager chat', run: function () { window.location.href = 'models.html'; } },
             { label: 'Changelog', icon: 'history', keywords: 'versions releases', run: function () { window.location.href = 'changelog.html'; } },
             '-',
             { label: S.t('history.title'), icon: 'history', keywords: 'undo restore versions', run: function () { S.history.open(e.currentTarget); } },
@@ -2014,7 +2027,8 @@ Studio.ready(function (S) {
             { label: S.t('tickets.title'), icon: 'ticket', keywords: 'support help forgot', run: function () { S.support.open(e.currentTarget); } },
             '-',
             { label: S.t('palette.title'), icon: 'search', shortcut: S.palette.shortcut, run: function () { S.palette.open(); } },
-            { label: 'Settings for this site', icon: 'settings', keywords: 'language theme appearance', run: function () { strip.select('site'); } }
+            { label: 'Settings for this site', icon: 'settings', keywords: 'language theme appearance', run: function () { strip.select('site'); } },
+            { label: 'Settings (full page)', icon: 'settings', keywords: 'settings preferences options configure schedule narrator', run: function () { window.location.href = 'settings.html'; } }
           ]
         });
       }
@@ -2054,6 +2068,10 @@ Studio.ready(function (S) {
     { id: 'landing.palette', title: 'Open the command palette', kind: 'command', keywords: 'search everything',
       run: function () { S.palette.open(); } },
     { id: 'landing.docs', title: 'Documentation', kind: 'page', keywords: 'articles help reference', page: 'docs/index.html' },
+    { id: 'landing.downloads', title: 'Downloads', kind: 'page', keywords: 'installer release unsigned unverified', page: 'downloads.html' },
+    { id: 'landing.converter', title: 'Converter', kind: 'page', keywords: 'file convert pdf image audio video archive offline', page: 'converter.html' },
+    { id: 'landing.models', title: 'Local models', kind: 'page', keywords: 'ollama model manager chat harness', page: 'models.html' },
+    { id: 'landing.settingsPage', title: 'Settings (full page)', kind: 'page', keywords: 'settings preferences options configure schedule narrator', page: 'settings.html' },
     { id: 'landing.changelog', title: 'Changelog', kind: 'page', keywords: 'versions releases history', page: 'changelog.html' },
     { id: 'landing.dimsum', title: 'Show a dim sum dish now', kind: 'command', keywords: 'surprise food',
       run: function () { if (!S.dimSum.maybeShow(true)) S.notify.warn('The dim sum capability is not available right now.'); } },

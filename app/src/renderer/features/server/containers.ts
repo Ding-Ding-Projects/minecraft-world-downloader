@@ -1400,7 +1400,7 @@ export function mountContainersPanel(host: HTMLElement, ctx: TabContext, state: 
     unsubscribe();
     detach();
     search.destroy();
-    if (state.containersPanel && state.containersPanel.focusSearch) state.containersPanel = null;
+    state.containersPanel = null;
   });
 
   draw();

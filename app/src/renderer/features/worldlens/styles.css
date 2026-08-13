@@ -1,0 +1,74 @@
+/*
+ * The Worldlens pairing tab.
+ *
+ * Every colour, radius, spacing and duration comes from the Material Design 3
+ * tokens rather than a literal, so a seed-colour, density or contrast change
+ * reaches this feature without editing it. The two layout rules that matter:
+ * the renderer log and the worlds table scroll inside their own containers, so
+ * the page itself never scrolls sideways, and nothing here is sized in a way
+ * that clips at 200% display scale or under the longest bilingual label.
+ */
+
+.worldlens-sections {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-8);
+}
+
+.worldlens-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-3);
+}
+
+.worldlens-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-space-2);
+}
+
+.worldlens-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-space-2);
+}
+
+.worldlens-pager {
+  display: flex;
+  align-items: center;
+  gap: var(--md-space-3);
+}
+
+.worldlens-muted {
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.worldlens-error-text {
+  color: var(--md-sys-color-error);
+}
+
+.worldlens-explain {
+  margin-block-start: var(--md-space-1);
+  max-inline-size: 32rem;
+}
+
+.worldlens-dimensions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--md-space-3);
+}
+
+.worldlens-log {
+  max-block-size: 16rem;
+  overflow: auto;
+  padding: var(--md-space-3);
+  border-radius: var(--md-sys-shape-corner-small);
+  background: var(--md-sys-color-surface-container-low);
+  font-family: var(--md-sys-typeface-mono);
+}
+
+.worldlens-log-line {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}

@@ -850,7 +850,7 @@ function mountRegex(host: HTMLElement, ctx: TabContext): void {
   const builder = createRegexBuilder({
     anchor,
     initialFlags: 'g',
-    sample: 'World Downloader Studio\nchunk 12, 34\nseed = -428193\nplayer: ahsook\n',
+    sample: 'World Downloader Studio\nchunk 12, 34\nseed = -428193\nplayer: Steve\n',
     onApply: (state) => {
       ctx.notify.success('Pattern ready', `/${state.pattern}/${state.flags}`);
       void navigator.clipboard.writeText(`/${state.pattern}/${state.flags}`);

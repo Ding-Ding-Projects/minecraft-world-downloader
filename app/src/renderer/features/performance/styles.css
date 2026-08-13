@@ -1,0 +1,107 @@
+/*
+ * Performance tuning.
+ *
+ * Every colour, radius, spacing and duration comes from the Material Design 3
+ * tokens, so a seed-colour, density or contrast change reaches this feature
+ * without editing it. The reference table is the one piece of genuinely wide
+ * content here, so it — and only it — gets its own horizontal scroll
+ * container; the surrounding card never scrolls sideways itself.
+ */
+
+.performance-speed {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-3);
+  min-inline-size: 0;
+  inline-size: 100%;
+}
+
+.performance-speed__status {
+  color: var(--md-sys-color-on-surface);
+}
+
+.performance-speed__status--custom {
+  color: var(--md-sys-color-tertiary);
+}
+
+.performance-speed__values {
+  color: var(--md-sys-color-on-surface-variant);
+  overflow-wrap: anywhere;
+}
+
+.performance-speed__picker {
+  max-inline-size: 100%;
+  overflow-x: auto;
+}
+
+.performance-speed__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-space-2);
+}
+
+.performance-speed__tablewrap {
+  overflow-x: auto;
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-corner-medium);
+}
+
+.performance-speed__table {
+  border-collapse: collapse;
+  inline-size: 100%;
+  min-inline-size: 46rem;
+}
+
+.performance-speed__table caption {
+  caption-side: top;
+  text-align: start;
+  padding: var(--md-space-3) var(--md-space-4) var(--md-space-2);
+  color: var(--md-sys-color-on-surface-variant);
+  font: var(--md-sys-typescale-body-small-size) / var(--md-sys-typescale-body-small-line) var(--md-sys-typeface-plain);
+}
+
+.performance-speed__table th,
+.performance-speed__table td {
+  padding: var(--md-space-2) var(--md-space-4);
+  text-align: start;
+  white-space: nowrap;
+  border-block-end: 1px solid var(--md-sys-color-outline-variant);
+  font: var(--md-sys-typescale-body-small-size) / var(--md-sys-typescale-body-small-line) var(--md-sys-typeface-plain);
+}
+
+.performance-speed__table thead th {
+  font: var(--md-sys-typescale-label-large-size) / var(--md-sys-typescale-label-large-line) var(--md-sys-typeface-plain);
+  color: var(--md-sys-color-on-surface-variant);
+  background: var(--md-sys-color-surface-container-low);
+  position: sticky;
+  inset-block-start: 0;
+}
+
+.performance-speed__table tbody th {
+  font-weight: var(--md-sys-typescale-weight);
+  color: var(--md-sys-color-on-surface);
+}
+
+.performance-speed__table tbody tr:last-child th,
+.performance-speed__table tbody tr:last-child td {
+  border-block-end: none;
+}
+
+.performance-speed__row--current {
+  background: var(--md-sys-color-secondary-container);
+}
+
+.performance-speed__row--current th,
+.performance-speed__row--current td {
+  color: var(--md-sys-color-on-secondary-container);
+}
+
+.performance-speed__badge {
+  color: var(--md-sys-color-primary);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .performance-speed__row--current {
+    transition: none;
+  }
+}

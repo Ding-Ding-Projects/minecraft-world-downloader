@@ -1195,6 +1195,28 @@ export async function buildDocument(
     pageRefs.push({ kind: 'ref', num: target, gen: 0 });
   }
 
+  return assembleDocument(pageRefs, emitted, nextNumber, request.info, request.producer, limits, deadline);
+}
+
+/**
+ * Assembles the catalog, page tree and info dictionary around an already-copied
+ * set of page objects, then serializes the whole thing.
+ *
+ * Shared by `buildDocument` (one source) and `mergeDocuments` (several sources):
+ * both produce the same shape of `emitted` object table and page reference list,
+ * and only differ in how they got there.
+ */
+function assembleDocument(
+  pageRefs: PdfValue[],
+  emitted: Map<number, PdfValue>,
+  nextNumberStart: number,
+  info: Record<string, string>,
+  producer: string,
+  limits: ResourceLimits,
+  deadline: Deadline
+): DocumentBuildResult {
+  let nextNumber = nextNumberStart;
+
   const pagesNode = dict([
     ['Type', name('Pages')],
     ['Kids', array(pageRefs)],
@@ -1208,11 +1230,11 @@ export async function buildDocument(
   emitted.set(2, pagesNode);
 
   const infoEntries: Array<[string, PdfValue]> = [];
-  for (const [key, value] of Object.entries(request.info)) {
+  for (const [key, value] of Object.entries(info)) {
     if (value.length === 0) continue;
     infoEntries.push([key, pdfString(value)]);
   }
-  infoEntries.push(['Producer', pdfString(request.producer)]);
+  infoEntries.push(['Producer', pdfString(producer)]);
   const infoNumber = nextNumber;
   nextNumber += 1;
   emitted.set(infoNumber, dict(infoEntries));
@@ -1279,6 +1301,128 @@ export async function buildDocument(
   for (let index = 0; index < text.length; index += 1) bytes[index] = text.charCodeAt(index);
 
   return { text, byteLength: bytes.length, sha256: sha256Hex(bytes), pageCount: pageRefs.length };
+}
+
+/** One source document's contribution to a merge, with its own page selection. */
+export interface MergeSource {
+  doc: PdfDocument;
+  selection: PageSelection[];
+  /** Used only to name the source in an error message — never written into the output. */
+  label: string;
+}
+
+/**
+ * Merges pages from several source documents into one new document, in the
+ * order the sources and their selections are given.
+ *
+ * This is the same object-graph copy `buildDocument` performs, run once per
+ * source with its own renumbering table so that two sources whose object
+ * numbers collide (which is the normal case — most PDFs start numbering at 1)
+ * do not overwrite each other's objects in the merged result.
+ */
+export async function mergeDocuments(
+  sources: MergeSource[],
+  info: Record<string, string>,
+  producer: string,
+  limits: ResourceLimits,
+  deadline: Deadline
+): Promise<DocumentBuildResult> {
+  if (sources.length === 0) {
+    throw new ConverterBoundary('unsupported', 'No source document was given, so there is nothing to merge.');
+  }
+  let totalPages = 0;
+  for (const source of sources) {
+    if (source.doc.encrypted) {
+      throw new ConverterBoundary(
+        'encrypted',
+        `"${source.label}" is encrypted. This build cannot supply a password to it, so it cannot take part in a merge.`
+      );
+    }
+    if (source.selection.length === 0) {
+      throw new ConverterBoundary('unsupported', `"${source.label}" contributed no pages, so it cannot take part in a merge.`);
+    }
+    totalPages += source.selection.length;
+  }
+  if (totalPages > limits.pages) {
+    throw new ConverterBoundary('pages', `The merge would hold ${totalPages} pages, past the ${limits.pages} bound.`);
+  }
+
+  const emitted = new Map<number, PdfValue>();
+  let nextNumber = 3; // 1 = catalog, 2 = pages node.
+  const pageRefs: PdfValue[] = [];
+
+  for (const source of sources) {
+    const pages = await source.doc.pages();
+    for (const entry of source.selection) {
+      if (entry.page < 1 || entry.page > pages.length) {
+        throw new ConverterBoundary('unsupported', `Page ${entry.page} is outside "${source.label}"'s ${pages.length} pages.`);
+      }
+    }
+
+    /* Renumbering is per source: object numbers are only unique within one PDF. */
+    const assigned = new Map<number, number>();
+
+    const copy = async (value: PdfValue, depth: number): Promise<PdfValue> => {
+      deadline.check();
+      if (depth > limits.depth) {
+        throw new ConverterBoundary('depth', `The object graph in "${source.label}" nests deeper than the ${limits.depth}-level bound.`);
+      }
+      switch (value.kind) {
+        case 'ref': {
+          const existing = assigned.get(value.num);
+          if (existing !== undefined) return { kind: 'ref', num: existing, gen: 0 };
+          const target = nextNumber;
+          nextNumber += 1;
+          if (nextNumber > limits.entries) {
+            throw new ConverterBoundary('entries', `The merged result would hold more than ${limits.entries} objects, past the bound.`);
+          }
+          assigned.set(value.num, target);
+          const resolved = await source.doc.resolve(value);
+          emitted.set(target, await copy(resolved, depth + 1));
+          return { kind: 'ref', num: target, gen: 0 };
+        }
+        case 'array': {
+          const items: PdfValue[] = [];
+          for (const item of value.items) items.push(await copy(item, depth + 1));
+          return { kind: 'array', items };
+        }
+        case 'dict': {
+          const map = new Map<string, PdfValue>();
+          for (const [key, entry] of value.map) map.set(key, await copy(entry, depth + 1));
+          return { kind: 'dict', map };
+        }
+        case 'stream': {
+          const map = new Map<string, PdfValue>();
+          for (const [key, entry] of value.dict.map) {
+            if (key === 'Filter' || key === 'DecodeParms' || key === 'Length') continue;
+            map.set(key, await copy(entry, depth + 1));
+          }
+          return { kind: 'stream', dict: { kind: 'dict', map }, raw: value.raw };
+        }
+        default:
+          return value;
+      }
+    };
+
+    for (const entry of source.selection) {
+      const sourcePage = pages[entry.page - 1];
+      const clone = new Map<string, PdfValue>();
+      for (const [key, value] of sourcePage.page.map) {
+        if (key === 'Parent') continue;
+        clone.set(key, await copy(value, 1));
+      }
+      clone.set('Type', name('Page'));
+      clone.set('Rotate', num(normaliseRotation(entry.rotation)));
+      clone.set('Parent', { kind: 'ref', num: 2, gen: 0 });
+
+      const target = nextNumber;
+      nextNumber += 1;
+      emitted.set(target, { kind: 'dict', map: clone });
+      pageRefs.push({ kind: 'ref', num: target, gen: 0 });
+    }
+  }
+
+  return assembleDocument(pageRefs, emitted, nextNumber, info, producer, limits, deadline);
 }
 
 const NAME_SAFE = /^[A-Za-z0-9._\-+]*$/;

@@ -1,0 +1,193 @@
+/* Every rule here is prefixed converter- so nothing collides with a sibling feature. */
+
+.converter-catalog-summary {
+  color: var(--md-sys-color-on-surface-variant);
+  padding: 0 var(--md-space-4);
+}
+
+.converter-catalog-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-8);
+  padding: 0 var(--md-space-4) var(--md-space-8);
+}
+
+.converter-catalog-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-3);
+  padding: var(--md-space-4);
+  border-radius: var(--md-sys-shape-corner-large);
+  background: var(--md-sys-color-surface-container-low);
+}
+
+.converter-route-panel,
+.converter-pdf-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-3);
+  padding: var(--md-space-4);
+  margin: var(--md-space-3) var(--md-space-4);
+  border-radius: var(--md-sys-shape-corner-large);
+  background: var(--md-sys-color-surface-container-low);
+}
+
+.converter-route-panel__description {
+  color: var(--md-sys-color-on-surface-variant);
+  padding: 0 var(--md-space-4);
+}
+
+.converter-route-panel__description.is-error {
+  color: var(--md-sys-color-error);
+}
+
+.converter-route-panel__options,
+.converter-pdf-section__options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-space-3);
+}
+
+.converter-disclosure {
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-corner-medium);
+  padding: var(--md-space-3);
+  background: var(--md-sys-color-surface-container);
+}
+
+.converter-disclosure__title {
+  margin: 0 0 var(--md-space-2);
+  color: var(--md-sys-color-on-surface);
+}
+
+.converter-disclosure__list {
+  margin: 0 0 var(--md-space-2);
+  padding-left: var(--md-space-5);
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.converter-disclosure__meta {
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.converter-queue-controls,
+.converter-queue-bulk {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-space-2);
+  padding: 0 var(--md-space-4);
+}
+
+.converter-queue-progress {
+  padding: var(--md-space-2) var(--md-space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-2);
+}
+
+.converter-queue-progress__text {
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.converter-queue-search {
+  padding: var(--md-space-2) var(--md-space-4);
+}
+
+.converter-pdf-section__chooser {
+  display: flex;
+  align-items: center;
+  gap: var(--md-space-3);
+  flex-wrap: wrap;
+}
+
+.converter-pdf-section__file {
+  color: var(--md-sys-color-on-surface-variant);
+  overflow-wrap: anywhere;
+}
+
+.converter-pdf-section__actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-3);
+}
+
+.converter-pdf-section__group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--md-space-2);
+  padding: var(--md-space-2);
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: var(--md-sys-color-surface-container);
+}
+
+.converter-pdf-section__results {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-2);
+}
+
+.converter-pdf-report {
+  max-width: 100%;
+  overflow-x: auto;
+  padding: var(--md-space-3);
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: var(--md-sys-color-surface-container-highest);
+  font-family: var(--md-sys-typeface-mono);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.converter-pdf-checks__summary.is-ok {
+  color: var(--md-sys-color-success);
+}
+
+.converter-pdf-checks__summary.is-failed {
+  color: var(--md-sys-color-error);
+}
+
+.converter-pdf-checks__list {
+  margin: 0;
+  padding-left: var(--md-space-5);
+}
+
+.converter-pdf-checks__list li.is-failed {
+  color: var(--md-sys-color-error);
+}
+
+.converter-pdf-notes {
+  margin: 0;
+  padding-left: var(--md-space-5);
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.converter-pdf-error {
+  color: var(--md-sys-color-error);
+}
+
+.converter-pdf-encrypted {
+  color: var(--md-sys-color-error);
+}
+
+.converter-pdf-merge-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-2);
+}
+
+.converter-pdf-merge-list__row {
+  display: flex;
+  align-items: center;
+  gap: var(--md-space-2);
+  padding: var(--md-space-2);
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: var(--md-sys-color-surface-container);
+}
+
+.converter-pdf-merge-list__row span {
+  flex: 1 1 auto;
+  overflow-wrap: anywhere;
+}

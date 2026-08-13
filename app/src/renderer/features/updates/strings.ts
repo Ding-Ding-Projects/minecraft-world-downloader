@@ -155,6 +155,9 @@ export const UPDATES_STRINGS: Catalogue = {
     'The server sent the whole package in one response, so there was no intermediate progress to report',
     '伺服器一次過送晒成個包落嚟，所以中途冇進度可以報'
   ),
+  'updates.hint.seconds': flat('seconds', '秒'),
+  'updates.hint.hours': flat('hours', '個鐘'),
+  'updates.hint.bytes': flat('bytes', '位元組'),
 
   /* ---------------------------------------------------------------- */
   /* Actions                                                           */

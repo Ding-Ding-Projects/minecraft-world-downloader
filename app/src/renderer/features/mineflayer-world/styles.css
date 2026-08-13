@@ -1,0 +1,132 @@
+/* Every class here is prefixed `mineflayer-world-` so nothing collides with a
+   sibling feature. Colours, radii, spacing and motion all come from the
+   shared design tokens -- never a literal value. */
+
+.mineflayer-world-root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-6);
+  padding: var(--md-space-4);
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+.mineflayer-world-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-3);
+  padding: var(--md-space-4);
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: var(--md-sys-color-surface-container-low);
+}
+
+.mineflayer-world-status {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-2);
+  padding: var(--md-space-4);
+  border-radius: var(--md-sys-shape-corner-large);
+  background: var(--md-sys-color-secondary-container);
+  color: var(--md-sys-color-on-secondary-container);
+}
+
+.mineflayer-world-status-title {
+  color: var(--md-sys-color-on-secondary-container);
+}
+
+.mineflayer-world-status-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
+  gap: var(--md-space-3);
+}
+
+.mineflayer-world-status-cell {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-1);
+  min-width: 0;
+}
+
+.mineflayer-world-status-label {
+  color: var(--md-sys-color-on-secondary-container);
+  opacity: 0.8;
+}
+
+.mineflayer-world-status-value {
+  color: var(--md-sys-color-on-secondary-container);
+  overflow-wrap: anywhere;
+}
+
+.mineflayer-world-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-3);
+  padding: var(--md-space-4);
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: var(--md-sys-color-surface-container);
+}
+
+.mineflayer-world-inline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--md-space-3);
+}
+
+.mineflayer-world-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(6rem, 1fr));
+  gap: var(--md-space-3);
+}
+
+.mineflayer-world-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-space-2);
+}
+
+.mineflayer-world-inspector {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-2);
+  padding: var(--md-space-3);
+  border-radius: var(--md-sys-shape-corner-small);
+  background: var(--md-sys-color-surface-container-high);
+}
+
+.mineflayer-world-property-list {
+  margin: 0;
+  padding-left: var(--md-space-5);
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.mineflayer-world-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-space-1);
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.mineflayer-world-pages {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-3);
+}
+
+.mineflayer-world-page-row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--md-space-2);
+}
+
+.mineflayer-world-page-row > *:first-child {
+  flex: 1;
+  min-width: 0;
+}
+
+@media (max-width: 640px) {
+  .mineflayer-world-row {
+    grid-template-columns: 1fr;
+  }
+}
