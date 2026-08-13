@@ -30,6 +30,38 @@ files:
 asar: true
 asarUnpack: []
 
+# The Java engine the desktop application actually spawns to download a world.
+# The application is not a second product beside the jar — it is the UI that
+# drives it, so a release of the application without the engine it runs ships
+# half a thing.
+#
+# The jar is built SEPARATELY by Maven (`mvn -B -ntp clean package -DskipTests`,
+# run from the repository root, i.e. one directory above this file) before this
+# packaging step runs. electron-builder only copies the artifact Maven already
+# produced; it does not build it and does not know how to. Both the release
+# workflow (.github/workflows/release.yml) and the local installer build engine
+# (scripts/windows-build.ps1) run the Maven build first for exactly this reason,
+# so a locally built installer carries the same jar a released one does.
+#
+# `world-downloader.jar` is the shaded jar's real name: pom.xml pins
+# `<finalName>world-downloader</finalName>` on the shade plugin, and the shade
+# plugin replaces target/world-downloader.jar with the fully-shaded artifact
+# during `package` — verified locally (mvn ... package -DskipTests produced
+# exactly target/world-downloader.jar, 14,055,418 bytes). If that finalName ever
+# changes, this path and the release workflow's collection step both need
+# updating together, or packaging will fail loudly on a missing source file
+# rather than silently shipping an application with no engine.
+#
+# Packaged location: resources/engine/world-downloader.jar, i.e.
+# `path.join(process.resourcesPath, 'engine', 'world-downloader.jar')` at
+# runtime. This is meant to become the renderer's DEFAULT jar location — the
+# user's own "Jar path" setting still wins when they set one. That renderer/main
+# change is NOT made in this file; see docs/features/deployment-ci.md for the
+# exact change a sibling owns.
+extraResources:
+  - from: ../target/world-downloader.jar
+    to: engine/world-downloader.jar
+
 electronLanguages:
   - en-US
 

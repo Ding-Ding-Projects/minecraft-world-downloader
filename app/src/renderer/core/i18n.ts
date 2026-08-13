@@ -510,7 +510,54 @@ const CORE: Catalogue = {
   'core.home.shortcuts.none': entry(
     ladder('No shortcuts are registered yet.'),
     ladder('暫時未有登記任何快速鍵。')
-  )
+  ),
+
+  /* --- recovery (core/recovery.ts) --- */
+  'core.recovery.reason': entry(
+    ladder('This did not work: {reason}'),
+    ladder('呢個唔得：{reason}')
+  ),
+  'core.recovery.retry': entry(ladder('Retry'), ladder('再試一次')),
+  'core.recovery.reauthenticate': entry(
+    ladder('Sign in again', 'Sign in again', 'Sign in again', 'Sign in again — the credential got refused', 'Sign in again — the credential got refused'),
+    ladder('再登入一次', '再登入一次', '再登入一次', '再登入一次啦，個密碼俾人拒絕咗', '再登入一次啦，個密碼俾人拒絕咗')
+  ),
+  'core.recovery.dismiss': entry(ladder('Dismiss this recovery message'), ladder('唔理呢個復原提示')),
+
+  /* --- bulk actions (core/bulk.ts) --- */
+  'core.bulk.selectShown': entry(ladder('Select all {count} shown'), ladder('全揀顯示緊嘅 {count} 個')),
+  'core.bulk.selectAll': entry(ladder('Select all {count} matching'), ladder('全揀符合嘅 {count} 個')),
+  'core.bulk.invert': entry(ladder('Invert selection'), ladder('反轉揀嘅嘢')),
+  'core.bulk.clear': entry(ladder('Clear selection'), ladder('清晒揀選')),
+  'core.bulk.count': entry(ladder('{count} selected'), ladder('揀咗 {count} 個')),
+  'core.bulk.skippedDetail': entry(ladder('{count} skipped: {detail}'), ladder('跳過咗 {count} 個：{detail}')),
+  'core.confirm.irreversibleUnknown': entry(ladder('This cannot be undone.'), ladder('呢個做咗就冇得返轉頭。')),
+
+  /* --- presets (core/presets.ts) --- */
+  'core.presets.title': entry(ladder('Start from a preset'), ladder('揀個現成設定開始')),
+  'core.presets.hint': entry(
+    ladder('Every value shown is what would really be set — nothing here is invented.'),
+    ladder('度度顯示緊嘅都係真係會套用嘅值 —— 呢度冇一個係作出嚟。')
+  ),
+  'core.presets.applied': entry(ladder('Applied "{name}"'), ladder('用咗「{name}」')),
+  'core.presets.none': entry(ladder('No presets are offered here yet.'), ladder('呢度暫時未有現成設定。')),
+  'core.presets.valueUnset': entry(ladder('not set'), ladder('未設定')),
+  'core.presets.valueEmpty': entry(ladder('an empty string'), ladder('一個空字串')),
+  'core.presets.valueOn': entry(ladder('on'), ladder('開咗')),
+  'core.presets.valueOff': entry(ladder('off'), ladder('閂咗')),
+
+  /* --- guided forms (core/forms.ts) --- */
+  'core.forms.suggested': entry(ladder('Suggested: {value}'), ladder('建議：{value}')),
+  'core.forms.useSuggested': entry(ladder('Use this'), ladder('用呢個')),
+  'core.forms.noOptions': entry(
+    ladder('There is nothing real to choose from yet.'),
+    ladder('暫時未有真係嘅選項俾你揀。')
+  ),
+
+  /* --- collapsible panels (core/collapse.ts) --- */
+  'core.collapse.filterActive': entry(ladder('Filter active'), ladder('篩選緊')),
+  'core.collapse.expanded': entry(ladder('{name} expanded'), ladder('{name} 展開咗')),
+  'core.collapse.collapsed': entry(ladder('{name} collapsed'), ladder('{name} 摺埋咗'))
 };
 
 /* ------------------------------------------------------------------ */
@@ -820,4 +867,4 @@ export function initI18n(): void {
   });
 }
 
-export { DEFAULT_SCHOOL_NAME, VOCABULARY_LIMITS };
+export { CORE, DEFAULT_SCHOOL_NAME, VOCABULARY_LIMITS };

@@ -25,10 +25,16 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const asJson = process.argv.includes('--json')
 
 // Only the paths the guard actually reads. Keeping this narrow keeps each mutation cheap.
+//
+// The whole `scripts/` directory is mirrored, not just `check-inventory.mjs` and
+// `count-lines.mjs` by name: several inventory rows (14.6, 14.7, 15.20, ...) name other scripts in
+// that same directory as their app-module column, and a mirror missing one of them makes the
+// UNMUTATED baseline fail for a reason that has nothing to do with any mutation -- which is exactly
+// the false INCONCLUSIVE this harness's own positive control exists to catch. Mirroring the whole
+// directory means a row naming any script in it is judged against a mirror that actually has it.
 const MIRROR_PATHS = [
   'FEATURE_INVENTORY.md',
-  'scripts/check-inventory.mjs',
-  'scripts/count-lines.mjs',
+  'scripts',
   'app/src/renderer',
   'docs/features',
   'build.bat',

@@ -58,6 +58,17 @@ function applyDisabled(element: HTMLButtonElement | HTMLInputElement, disabled: 
     const explanation = reason ? label(reason) : '';
     element.title = explanation;
     if (explanation) element.setAttribute('aria-description', explanation);
+    // Enforced here rather than hoped for, because this is the one function
+    // every disabled control in the application passes through. A disabled
+    // control with no explanation reads as broken rather than as blocked, so
+    // a development build says so at the exact call site that got it wrong.
+    if (!explanation && import.meta.env.DEV) {
+      console.warn(
+        `A control was disabled with no disabledReason (element: ${element.tagName.toLowerCase()}${
+          element.id ? `#${element.id}` : ''
+        }). Every disabled control must name the exact condition that is unmet.`
+      );
+    }
   } else {
     element.removeAttribute('title');
     element.removeAttribute('aria-description');

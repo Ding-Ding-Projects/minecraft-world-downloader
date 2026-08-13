@@ -16,9 +16,15 @@
 
     Mode 'app'       installs dependencies, builds the application, verifies the
                      build output, and (interactively) offers to run it.
-    Mode 'installer' does everything 'app' does except running, then packages the
-                     Squirrel.Windows installer through the project's own
-                     supported packaging path and verifies the artifact.
+    Mode 'installer' does everything 'app' does except running, then additionally
+                     obtains a JDK and Maven, builds the Java engine
+                     (world-downloader.jar) the application spawns to actually
+                     download a world, packages the Squirrel.Windows installer
+                     (which bundles that jar as its default engine) through the
+                     project's own supported packaging path, and verifies the
+                     artifact. This is the same artifact set the release
+                     workflow publishes, so a locally built installer and a
+                     released one are the same thing.
 
 .PARAMETER Mode
     'app' or 'installer'.
@@ -91,11 +97,40 @@ $ToolchainRoot = Join-Path $env:LOCALAPPDATA 'world-downloader-studio\toolchain'
 # installer, and is reported as such rather than passed off as success.
 $MinimumInstallerBytes = 20MB
 
+# pom.xml declares <java.version>21</java.version> for both source and target.
+# Any JDK at or above this compiles it (verified locally with JDK 25), so this
+# is a floor, not a pin — exactly the same shape as $NodeMinimumVersion below.
+$JdkMinimumVersion = [version]'21.0.0'
+$JdkWingetId = 'EclipseAdoptium.Temurin.21.JDK'
+
+# Used only when a JDK has to be fetched portably. Eclipse Temurin's own API
+# always resolves to its current 21 GA build, so no version number is pinned
+# here the way it is for Node and Maven below.
+$JdkAdoptiumAssetsUrl = 'https://api.adoptium.net/v3/assets/latest/21/hotspot?vendor=eclipse&os=windows&architecture=x64&image_type=jdk&heap_size=normal&project=jdk'
+
+# The version used when Maven has to be installed portably. There is no Maven
+# wrapper committed to this repository, so unlike Node (which has a winget
+# fallback) this is the only route when `mvn` is not already on the machine.
+# archive.apache.org (not dlcdn.apache.org) is used because it retains every
+# past release permanently; dlcdn only mirrors current releases and an older
+# pin would eventually 404 there.
+$MavenPortableVersion = '3.9.9'
+$MavenDistBase = 'https://archive.apache.org/dist/maven/maven-3'
+
+# pom.xml's shade plugin pins <finalName>world-downloader</finalName>, so the
+# artifact `mvn package` produces is always target/world-downloader.jar.
+# Verified locally: 14,055,418 bytes for the fully-shaded jar with its
+# dependencies. Anything under this floor is a packaging stub, not the engine.
+$JarFinalName = 'world-downloader.jar'
+$MinimumJarBytes = 1MB
+
 $script:Phases = @()
 $script:PhaseIndex = 0
-$script:PhaseTotal = if ($Mode -eq 'installer') { 7 } else { 8 }
+$script:PhaseTotal = if ($Mode -eq 'installer') { 11 } else { 8 }
 $script:NodeExe = $null
 $script:NpmCmd = $null
+$script:JavaHome = $null
+$script:MvnCmd = $null
 $script:StartedAt = Get-Date
 
 # --------------------------------------------------------------------------- #

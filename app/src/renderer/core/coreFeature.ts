@@ -1130,6 +1130,17 @@ export function coreFeature(): FeatureModule {
         const chosen = settings.get<string>(APP_DISPLAY_NAME_ID, '') || window.studio.info.productName;
         void window.studio.window.setTitle(chosen);
       });
+
+      // The hand-written coverage guard for the explanation and provenance
+      // contract (core/settings-ui.ts). Non-blocking: it reports, it never
+      // withholds a setting from the surface. `scripts/check-settings-coverage.mjs`
+      // runs the equivalent check statically from the command line.
+      const coverage = verifyCoreSettingsCoverage(ctx.registry.settingsSections());
+      if (!coverage.ok) {
+        for (const issue of coverage.issues) {
+          console.warn(`Settings coverage: "${issue.id}" ${issue.reason}.`);
+        }
+      }
     }
   };
 }

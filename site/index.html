@@ -703,7 +703,7 @@ Studio.ready(function (S) {
     ['9.1', 'Offline documentation inside the application', 'Every feature article bundled into the build, rendered through the one shared renderer, with article-to-article links resolving in-app and its own search. A build guard fails when an article on disk is missing from the bundle. A website is already online, so this row belongs to the application.', 'app', 'planned', 9],
     ['9.2', 'Changelog viewer', 'Every released version, with an advanced date filter, regular-expression-capable search, export and copy, and a link to the commit that made each change. A version with no recorded changes says so rather than being invented.', 'both', 'planned', 9],
     ['9.3', 'One shared markdown renderer', 'Release notes, issue bodies and commit messages are rendered as the markup they are, through one isolated renderer rather than a new one per surface. An honest empty state, never a blank region that reads as a loading failure.', 'both', 'planned', 9],
-    ['9.4', 'Landing page and documentation site', 'Every feature presented with its own article and suggested next articles, every asset bundled locally, mobile friendly from 320 pixels upward. You are looking at it.', 'both', 'building', 9],
+    ['9.4', 'Landing page and documentation site', 'Every feature presented with its own article and suggested next articles, every asset bundled locally, mobile friendly from 320 pixels upward. You are looking at it.', 'both', 'planned', 9],
 
     ['10.1', 'Guided forms', 'Where a value can be enumerated it is: pickers populated from real data, sanitized suggested defaults, inline validation in plain words, and a named reason on every disabled control. Free text stays available but is never the only path when a real list exists.', 'both', 'planned', 10],
     ['10.2', 'A browse control on every path field', 'Beside the free-text entry, with typed and browsed values running through exactly the same validation. A web page has no filesystem picker for host paths, so this site accepts typed values under the same validation and says why.', 'app', 'planned', 10],
@@ -800,6 +800,27 @@ Studio.ready(function (S) {
    * ================================================================ */
   var dlState = document.getElementById('download-state');
   var releaseInfo = { state: 'checking', why: '' };
+
+  /* Anything elsewhere on this page that describes whether a release
+     exists reads releaseInfo through this one function, and registers
+     here to be told when the manifest check finishes -- rather than
+     each writing its own guess at load time, which is what produced a
+     paragraph reading "No release has been published" printed before
+     the fetch that would have said otherwise had even resolved. */
+  var releaseInfoListeners = [];
+  function onReleaseInfo(fn) { releaseInfoListeners.push(fn); }
+  function notifyReleaseInfo() {
+    releaseInfoListeners.forEach(function (fn) { try { fn(releaseInfo); } catch (e) {} });
+  }
+  function releaseAvailabilitySentence() {
+    if (releaseInfo.state === 'ready') {
+      return 'A verified release is published: version ' + releaseInfo.version + '. The download panel above offers its installer directly.';
+    }
+    if (releaseInfo.state === 'checking') {
+      return 'This page is still reading the release manifest to find out whether a verified release exists.';
+    }
+    return 'No verified release is published yet, so the download panel above has nothing to offer you.';
+  }
 
   function readManifest() {
     return new Promise(function (resolve) {
@@ -955,12 +976,14 @@ Studio.ready(function (S) {
   function start() {
     releaseInfo = { state: 'checking', why: '' };
     renderChecking();
+    notifyReleaseInfo();
     readManifest().then(function (r) {
-      if (!r.ok) { releaseInfo = { state: 'none', why: r.why }; renderNone(r.why); return; }
+      if (!r.ok) { releaseInfo = { state: 'none', why: r.why }; renderNone(r.why); notifyReleaseInfo(); return; }
       var v = validate(r.manifest);
-      if (!v.ok) { releaseInfo = { state: 'none', why: v.why }; renderNone(v.why); return; }
+      if (!v.ok) { releaseInfo = { state: 'none', why: v.why }; renderNone(v.why); notifyReleaseInfo(); return; }
       releaseInfo = { state: 'ready', why: '', version: v.release.version };
       renderReady(v);
+      notifyReleaseInfo();
     });
   }
 
@@ -993,8 +1016,13 @@ Studio.ready(function (S) {
       ]),
 
       S.el('h2', { text: 'Where it currently stands' }),
-      S.el('p', { text: 'This is the honest number rather than a comfortable one. Of the ' + COUNTS.total + ' features in the project inventory, ' + COUNTS.shipped + ' is shipped, ' + COUNTS.building + ' is being built, and ' + COUNTS.planned + ' are planned and not built yet. No release has been published, so the download panel above has nothing to offer you.' }),
-      S.el('p', { class: 'muted', text: 'That state is read from the inventory each time this page is built, so it cannot quietly drift into a claim the project has not earned.' }),
+      S.el('p', { text: 'This is the honest number rather than a comfortable one. Of the ' + COUNTS.total + ' features in the project inventory, ' + COUNTS.shipped + ' is shipped, ' + COUNTS.building + ' is being built, and ' + COUNTS.planned + ' are planned and not built yet.' }),
+      (function () {
+        var p = S.el('p', { text: releaseAvailabilitySentence() });
+        onReleaseInfo(function () { p.textContent = releaseAvailabilitySentence(); });
+        return p;
+      })(),
+      S.el('p', { class: 'muted', text: 'Both of those states are read live -- the feature count from the project inventory this page was built from, and the release state from this site’s own release manifest -- so neither can quietly drift into a claim the project has not earned.' }),
 
       S.el('h2', { text: 'It costs nothing' }),
       S.el('div', { class: 'lp-callout' }, [
