@@ -357,6 +357,28 @@ pre {
   box-sizing: border-box;
 }
 
+/* `core/tabs.ts` hides every destination but the active one by setting the
+   `hidden` attribute on its top-level `.md-panel` host. That is normally
+   enough on its own — the browser's own stylesheet carries
+   `[hidden] { display: none }` — but it is a USER-AGENT rule, and the CSS
+   cascade lets ANY normal-importance AUTHOR rule that also sets `display`
+   beat it, regardless of that rule's selector specificity. Plenty of
+   features add their own class to this exact host element for their own
+   layout — `.mineflayer-chat-panel { display: flex; ... }` is one real
+   example that shipped this way — and every one of them was silently
+   cancelling `hidden` the moment it did, because nothing tied `display` back
+   to the `hidden` state for THAT selector. The result: a previous
+   destination's content stayed on screen, `offsetParent !== null`,
+   underneath whatever was opened next — a real, reproducible bug, not a
+   hypothetical one. This is the fix at its actual source rather than at
+   each call site: an explicit, `!important` `display: none` the moment a
+   `.md-panel` (or anything a feature further classes on top of it) carries
+   `hidden`, so no feature-local layout rule — present or future — can ever
+   cancel the one thing this attribute exists to guarantee. */
+.md-panel[hidden] {
+  display: none !important;
+}
+
 .md-panel__header {
   margin-bottom: var(--md-space-5);
 }

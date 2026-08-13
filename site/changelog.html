@@ -65,14 +65,23 @@ window.Studio = window.Studio || { __pendingReady: [], ready: function (fn) { th
 .cl-entry__sha code { font-family: var(--md-sys-typeface-mono); font-size: var(--md-sys-typescale-body-small-size); }
 /* A commit SHA is a real link, but it is also one of potentially
    hundreds on this page -- a release with a big commit history can
-   list every one of them. Forcing each to a full 44px row would
-   turn a scannable changelog into a very long scroll for no benefit
-   proportional to the cost, so this -- like the footer's prose
-   links -- gets real padding and a cancelling negative margin
-   (bigger, real separation; same visual position) rather than the
-   full touch minimum. */
+   list every one of them. Forcing each to a full 44px ROW would turn
+   a scannable changelog into a very long scroll for no benefit
+   proportional to the cost, so this -- like the footer's prose links
+   (assets/site.css, .site-footer__inner a) -- keeps its compact
+   visual size and instead grows its ACTUAL tap target with real
+   padding and a cancelling negative margin: the padding enlarges the
+   element's own clickable box, the matching negative margin pulls it
+   straight back to its original position in the flex row, so
+   surrounding siblings never move and the row height never grows.
+   That trick has no reason to stop short of the real 44px minimum --
+   12px top/bottom is exactly what the footer already uses to reach a
+   full 44px box from the same 20px line-height, so this now matches
+   it rather than stopping at a partial 36px. Horizontal stays at 4px:
+   even a short 7-character monospace SHA is already well past 44px
+   wide before any padding is added, so width was never the gap here. */
 .cl-entry__sha a, .cl-version__meta a {
-  display: inline-block; padding: 8px 4px; margin: -8px -4px;
+  display: inline-block; padding: 12px 4px; margin: -12px -4px;
 }
 /* Deliberately compact -- one row per commit, and a release can have
    a great many -- but still a real touch target once the screen is

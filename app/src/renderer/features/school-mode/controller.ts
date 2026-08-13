@@ -15,7 +15,7 @@ import {
   type ReadState,
   type SchoolRecord
 } from './shared-record';
-import { nameStrings } from './strings';
+import { nameStrings, pathStrings } from './strings';
 import { requestUnlock } from './unlock';
 
 /**
@@ -100,12 +100,18 @@ export class SchoolModeController {
     });
 
     // The name-bearing copy has to exist before the first surface renders, or a
-    // renamed mode shows its key instead of its name for one frame.
+    // renamed mode shows its key instead of its name for one frame. Same for
+    // the path-bearing copy: `folder()` is synchronous (derived from
+    // `userDataDir`, or the override setting below), so there is no reason
+    // for the settings action's description to ever show the literal
+    // `{path}` template even for one frame.
     this.registerNameStrings(this.name());
+    this.registerPathStrings();
 
     ctx.settings.onChange((change) => {
       if (change.id === SETTING_FOLDER || change.id === SETTING_WATCH_SECONDS) {
         this.store?.restart();
+        if (change.id === SETTING_FOLDER) this.registerPathStrings();
         void this.refreshNow();
         this.emit();
         return;
@@ -501,6 +507,16 @@ export class SchoolModeController {
 
   private registerNameStrings(name: string): void {
     i18n.register(nameStrings(name));
+  }
+
+  /**
+   * Keeps `schoolMode.toy.warning` resolved with the real shared-folder path
+   * rather than the literal `{path}` template — see `pathStrings()` for why
+   * this has to be a re-registered catalogue entry rather than an
+   * interpolation value nobody generic ever supplies.
+   */
+  private registerPathStrings(): void {
+    i18n.register(pathStrings(this.store?.folder() ?? ''));
   }
 
   /**

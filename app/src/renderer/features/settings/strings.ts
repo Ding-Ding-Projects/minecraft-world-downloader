@@ -30,21 +30,26 @@ function entry(en: FunnyLadder, yue: FunnyLadder): TranslationEntry {
 export const SETTINGS_STRINGS: Catalogue = {
   /* ---------------- the destination itself ---------------- */
 
+  // This is the full settings manager, distinct from the plain "Quick settings"
+  // jump target `core/coreFeature.ts` registers as `core.settings` — that one
+  // is where every "reveal this setting" link in the application lands; this
+  // one is where you come to search by value, select in bulk, and export or
+  // import. Two different destinations, so two different titles.
   'settings.tab.title': entry(ladder('Settings'), ladder('設定')),
   'settings.tab.subtitle': entry(
     ladder(
-      'Every setting in the application, grouped into tabs.',
-      'Every setting in the application, grouped into tabs.',
-      'Everything you can change, sorted into tabs so you are not scrolling for it.',
-      'Everything you can change, in tabs, because one endless scroll is how settings go missing.',
-      'Everything you can change, in tabs, because one endless scroll is how settings go missing.'
+      'Every setting in the application, grouped into tabs, with search by value, bulk actions, and import or export.',
+      'Every setting in the application, grouped into tabs, with search by value, bulk actions, and import or export.',
+      'Everything you can change, sorted into tabs, plus the search, bulk actions and import/export the quick jump target does not have.',
+      'Everything you can change, in tabs, with the value search, bulk actions and import/export that make this the manager rather than just a jump target.',
+      'Everything you can change, in tabs, with the value search, bulk actions and import/export that make this the manager rather than just a jump target.'
     ),
     ladder(
-      '程式入面所有設定，按分頁分好。',
-      '程式入面所有設定，按分頁分好。',
-      '所有可以改嘅嘢，分開分頁擺好，唔使你碌到天光。',
-      '所有可以改嘅嘢分晒頁，因為一條長到冇尾嘅捲軸就係設定失蹤嘅原因。',
-      '所有可以改嘅嘢分晒頁，因為一條長到冇尾嘅捲軸就係設定失蹤嘅原因。'
+      '程式入面所有設定，按分頁分好，仲可以搵值、批量處理、匯入匯出。',
+      '程式入面所有設定，按分頁分好，仲可以搵值、批量處理、匯入匯出。',
+      '所有可以改嘅嘢，分開分頁擺好，仲有搵值、批量同匯入匯出，快速跳轉嗰版冇呢啲。',
+      '所有可以改嘅嘢分晒頁，仲有搵值、批量處理、匯入匯出——呢啲先至叫做「管理」，唔淨係跳轉咁簡單。',
+      '所有可以改嘅嘢分晒頁，仲有搵值、批量處理、匯入匯出——呢啲先至叫做「管理」，唔淨係跳轉咁簡單。'
     )
   ),
   'settings.section.title': entry(ladder('The settings surface'), ladder('設定畫面本身')),

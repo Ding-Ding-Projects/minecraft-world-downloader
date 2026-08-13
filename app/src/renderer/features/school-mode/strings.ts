@@ -423,3 +423,36 @@ export function nameStrings(name: string): Catalogue {
     'schoolMode.state.switchLabel': entry(ladder(name), ladder(name))
   };
 }
+
+/* ------------------------------------------------------------------ */
+/* Path-bearing copy                                                   */
+/* ------------------------------------------------------------------ */
+
+/**
+ * `schoolMode.toy.warning` is declared above with a `{path}` template and is
+ * used two ways: `surface.ts` resolves it itself with `ctx.t(key, fallback,
+ * { values: { path } })`, which works fine, and `index.ts` also uses it as
+ * the plain `description` of the "reveal the shared folder" settings action
+ * — resolved generically by whichever settings surface is rendering it, with
+ * no `values` supplied, because a `SettingControl.description` is just a
+ * label to a generic renderer that has no way to know this one needs an
+ * interpolation value. Left alone, `{path}` renders literally there.
+ *
+ * This re-registers the catalogue entry itself with the resolved path baked
+ * in, the same way `nameStrings()` does for the mode's chosen name: called
+ * once at startup and again whenever the shared-folder override setting
+ * changes, so the description stays correct without every generic renderer
+ * needing to know about it.
+ */
+export function pathStrings(folder: string): Catalogue {
+  return {
+    'schoolMode.toy.warning': entry(
+      ladder(
+        `This is a user-experience lock, not a security boundary. It is not encryption, it protects nothing from anybody else using this computer, and anyone who can reach the disk can undo it. Deleting the shared record folder at ${folder} resets the mode completely.`
+      ),
+      ladder(
+        `呢個係體驗鎖，唔係保安。唔係加密，對其他用呢部電腦嘅人零防護，任何人掂到個硬碟都可以還原。刪咗 ${folder} 呢個共用紀錄資料夾，成個模式就會重設。`
+      )
+    )
+  };
+}

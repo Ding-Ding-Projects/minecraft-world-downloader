@@ -554,7 +554,14 @@ function mountHome(host: HTMLElement, ctx: TabContext): void {
 }
 
 function mountSettings(host: HTMLElement, ctx: TabContext): void {
-  host.append(components.topAppBar({ title: 'core.settings.title' }));
+  // This is the plain jump target every "reveal this setting" affordance in the
+  // application lands on — the per-setting palette rows, a locked setting's
+  // unlock target, the appearance editor's and history panel's "back to
+  // settings" links. It is deliberately simpler than, and titled differently
+  // from, the dedicated settings manager the `settings` feature module
+  // registers (search by value, bulk actions, import/export) — two real
+  // destinations, so two honest titles rather than one label on both.
+  host.append(components.topAppBar({ title: 'core.settings.title', subtitle: 'core.settings.subtitle' }));
 
   const sections = registry.settingsSections().filter((section) => {
     // While the named study mode is on, the language and humour controls are

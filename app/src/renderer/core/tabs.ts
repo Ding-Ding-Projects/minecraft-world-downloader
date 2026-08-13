@@ -216,8 +216,23 @@ class TabsImpl implements TabService {
         className: 'md-panel',
         attrs: { role: 'tabpanel', id: `md-panel-${tabId}`, 'aria-labelledby': `md-tab-${tabId}`, tabindex: '0' }
       });
+      // Registered in `this.panels` — and hidden — BEFORE `mount()` runs, not
+      // after. A feature's `mount()` can itself synchronously call
+      // `ctx.tabs.open()`/`teleport()` (a redirect, a "reveal this related
+      // destination" affordance); when it does, that nested call's own
+      // hide-everything-but-me step needs to already know this host exists,
+      // or the host sits in `this.content` unhidden and untracked for the
+      // whole time `mount()` is still running. Marking it hidden immediately,
+      // before it has any content, closes that window rather than relying on
+      // the outer call to clean up after a nested one — the outer call may
+      // never get the chance to, if `mount()` itself never returns
+      // synchronously (a thrown error, or work chained after the nested call
+      // that this function has no visibility into).
+      host.hidden = true;
       this.content.append(host);
       const disposers: Array<() => void> = [];
+      panel = { host, dispose: null };
+      this.panels.set(tabId, panel);
       const tabContext: TabContext = {
         ...this.ctx,
         tabId,
@@ -225,23 +240,28 @@ class TabsImpl implements TabService {
       };
       const returned = definition.mount(host, tabContext);
       if (typeof returned === 'function') disposers.push(returned);
-      panel = {
-        host,
-        dispose: () => {
-          for (const fn of disposers) {
-            try {
-              fn();
-            } catch (error) {
-              console.error(`Disposing the "${tabId}" tab threw:`, error);
-            }
+      panel.dispose = () => {
+        for (const fn of disposers) {
+          try {
+            fn();
+          } catch (error) {
+            console.error(`Disposing the "${tabId}" tab threw:`, error);
           }
         }
       };
-      this.panels.set(tabId, panel);
     }
 
-    for (const [id, mounted] of this.panels) {
-      mounted.host.hidden = id !== tabId;
+    // Authoritative over what is actually IN `this.content`, not just over
+    // `this.panels`' own bookkeeping of it. The two are supposed to mirror
+    // each other exactly, but a loop that only ever walks the cache repeats
+    // whatever the cache believes even when reality has drifted from it — the
+    // exact failure mode that let a previous destination's pane stay
+    // `offsetParent !== null` underneath the one just opened. Walking the
+    // host's real children instead means every element genuinely inside
+    // `this.content` is hidden except the one just opened, full stop, with no
+    // way for a currently-unaccounted-for child to be skipped.
+    for (const child of Array.from(this.content.children)) {
+      if (child instanceof HTMLElement) child.hidden = child !== panel.host;
     }
     this.render();
     this.emit();

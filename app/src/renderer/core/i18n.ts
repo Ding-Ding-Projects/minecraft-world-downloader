@@ -274,8 +274,27 @@ const CORE: Catalogue = {
   'core.palette.kind.setting': entry(ladder('Setting'), ladder('設定')),
   'core.palette.locked': entry(ladder('Locked'), ladder('鎖咗')),
 
-  /* --- settings --- */
-  'core.settings.title': entry(ladder('Settings'), ladder('設定')),
+  /* --- settings ---
+   *
+   * This is deliberately NOT titled "Settings". `features/settings/` owns that
+   * name: it is the dedicated settings manager, opened explicitly from the
+   * command palette's "Open settings" and offering search-by-value, bulk
+   * selection, and import/export. This tab is a different, narrower thing —
+   * the plain jump target every "reveal this setting" affordance in the whole
+   * application lands on (the per-setting palette rows, the appearance editor's
+   * "back to Settings" links, the history panel's link, a locked setting's
+   * unlock target, the updates panel, the external-editor project-folder
+   * setting). Giving both the same label is what made the tab rail show
+   * "Settings" twice; the fix is naming what each one actually is, not
+   * deleting either.
+   */
+  'core.settings.title': entry(ladder('Quick settings'), ladder('快速設定')),
+  'core.settings.subtitle': entry(
+    ladder(
+      'A plain view of every setting, for jumping straight to one. For search-by-value, bulk actions and import or export, use the Settings manager tab.'
+    ),
+    ladder('簡簡單單顯示晒所有設定，方便你直接跳去某一個。要搵值、批量處理、匯入匯出，就用「設定管理」嗰個分頁。')
+  ),
   'core.settings.search': entry(ladder('Search settings'), ladder('搵設定')),
   'core.settings.explain': entry(ladder('What this does'), ladder('呢樣做乜')),
   'core.settings.provenance.user': entry(
@@ -339,7 +358,28 @@ const CORE: Catalogue = {
   'core.language.vocabulary.invalid': entry(ladder('That file was refused: {reason}'), ladder('個檔案唔收：{reason}')),
   'core.language.vocabulary.clear': entry(ladder('Clear vocabulary'), ladder('清走詞彙')),
 
-  /* --- School mode --- */
+  /* --- School mode ---
+   *
+   * `core.school.title` and `core.school.description` are templates, kept
+   * here as the SHIPPED wording and as the source `refreshSchoolCopy()`
+   * re-resolves from below. They are used as a plain `SettingsSection.title`
+   * and a `SettingControl.label`/`description` in `coreFeature.ts`'s
+   * `schoolSection()` — resolved by generic renderers that call
+   * `i18n.t(key, key)` with no `values`, because nothing about a section
+   * title or a control label tells a generic renderer that THIS particular
+   * key needs one. Left as plain catalogue entries, `{name}` and `{path}`
+   * would render literally rather than being replaced — `interpolate()`
+   * leaves an unmatched placeholder untouched by design, so a genuinely
+   * missing value stays visible instead of silently vanishing.
+   *
+   * `refreshSchoolCopy()` below solves this the same way
+   * `features/school-mode/` keeps its own tab title in step with a rename:
+   * it re-registers the catalogue ENTRY itself with the resolved text,
+   * rather than leaving a template for a caller that will never supply
+   * `values`. It runs once at startup and again every time the mode's name
+   * changes, so the section title stays live without every caller of a
+   * generic settings renderer needing to know about it.
+   */
   'core.school.title': entry(ladder('{name}'), ladder('{name}')),
   'core.school.description': entry(
     ladder(
@@ -770,6 +810,38 @@ class I18nImpl implements I18n {
     return settings.get<boolean>(SCHOOL_ENABLED_ID, false) === true;
   }
 
+  /**
+   * Keeps `core.school.title` and `core.school.description` resolved with
+   * real values rather than the literal `{name}`/`{path}` placeholders they
+   * are declared with in `CORE` above. Both are consumed as a plain
+   * `SettingsSection.title` and `SettingControl.label`/`description`, through
+   * generic renderers that call `i18n.t(key, key)` with no `values` — so the
+   * fix has to live in the catalogue entry itself, re-registered here,
+   * exactly as `features/school-mode/` keeps its own tab title in step with
+   * a rename. `core.` keys are deliberately protected from the public
+   * `register()` (see there), so this mutates the catalogue directly instead.
+   *
+   * Called once at `initI18n()` and again every time `SCHOOL_NAME_ID`
+   * changes, so a rename reaches this section's title live rather than only
+   * on the next full restart.
+   */
+  refreshSchoolCopy(): void {
+    const name = settings.get<string>(SCHOOL_NAME_ID, DEFAULT_SCHOOL_NAME) || DEFAULT_SCHOOL_NAME;
+    const path = (typeof window !== 'undefined' ? window.studio?.info?.userDataDir : undefined) ?? '';
+
+    const title = CORE['core.school.title'];
+    this.catalogue['core.school.title'] = entry(
+      title.en.map((text) => this.interpolate(text, { name })) as FunnyLadder,
+      title.yue.map((text) => this.interpolate(text, { name })) as FunnyLadder
+    );
+
+    const description = CORE['core.school.description'];
+    this.catalogue['core.school.description'] = entry(
+      description.en.map((text) => this.interpolate(text, { path })) as FunnyLadder,
+      description.yue.map((text) => this.interpolate(text, { path })) as FunnyLadder
+    );
+  }
+
   private modeSetting(): LanguageMode {
     const raw = settings.get<string>(LANGUAGE_MODE_ID, 'en');
     return raw === 'yue' || raw === 'both' ? raw : 'en';
@@ -942,7 +1014,13 @@ export function t(key: string, fallbackEn?: string, options?: TranslateOptions):
 /** Wires the language settings so a change repaints without a restart. */
 export function initI18n(): void {
   i18n.restoreVocabularyCache();
+  // Resolves `core.school.title`/`core.school.description` with the name and
+  // path they were shipped as templates for, before anything reads them —
+  // window.studio.info is populated synchronously in the preload script, so
+  // the path half is available this early too.
+  i18n.refreshSchoolCopy();
   settings.onChange((change) => {
+    if (change.id === SCHOOL_NAME_ID) i18n.refreshSchoolCopy();
     if (
       change.id === LANGUAGE_MODE_ID ||
       change.id === FUNNY_EN_ID ||
