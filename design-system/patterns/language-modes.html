@@ -1,5 +1,5 @@
-<!-- @dsCard group="Components" -->
-<title>Tabs · World Downloader Studio</title>
+<!-- @dsCard group="Patterns" -->
+<title>Language modes · World Downloader Studio</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
 :root {
@@ -727,294 +727,154 @@ kbd{background:var(--md-sys-color-surface-container-highest);
 }
 
 
-.tdemo{display:flex;border:1px solid var(--md-sys-color-outline-variant);
-  border-radius:var(--md-sys-shape-corner-medium);overflow:hidden;min-height:330px;
-  background:var(--md-sys-color-surface)}
-.tdemo.top,.tdemo.bottom{flex-direction:column}
-.tdemo.right{flex-direction:row-reverse}
-.tdemo.bottom{flex-direction:column-reverse}
-.strip{background:var(--md-sys-color-surface-container);display:flex;flex-direction:column;
-  flex:none;width:var(--wds-tabstrip-width);padding:8px 0;gap:2px;min-width:0;
-  border-right:1px solid var(--md-sys-color-outline-variant)}
-.right .strip{border-right:none;border-left:1px solid var(--md-sys-color-outline-variant)}
-.top .strip,.bottom .strip{flex-direction:row;width:auto;height:auto;padding:6px 8px;
-  align-items:center;border-right:none;overflow:hidden}
-.top .strip{border-bottom:1px solid var(--md-sys-color-outline-variant)}
-.bottom .strip{border-bottom:none;border-top:1px solid var(--md-sys-color-outline-variant)}
-.tab{display:flex;align-items:center;gap:10px;min-height:40px;padding:0 12px;margin:0 8px;
-  border-radius:var(--md-sys-shape-corner-full);cursor:pointer;
-  color:var(--md-sys-color-on-surface-variant);
-  font-size:var(--md-sys-typescale-label-large-size);
-  font-weight:var(--md-sys-typescale-label-large-weight);min-width:0;position:relative}
-.tab .lb{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.tab:hover{background:color-mix(in srgb,var(--md-sys-color-on-surface) 8%,transparent)}
-.tab.is-act{background:var(--md-sys-color-secondary-container);
-  color:var(--md-sys-color-on-secondary-container)}
-.tab.is-focus{outline:3px solid var(--md-sys-color-secondary);outline-offset:2px}
-.top .tab,.bottom .tab{margin:0 2px;flex:none}
-.tgrp{margin:6px 0 2px}
-.tgrp__h{display:flex;align-items:center;gap:8px;padding:0 12px;margin:0 8px;min-height:32px;
-  border-radius:var(--md-sys-shape-corner-small);cursor:pointer;
-  font-size:var(--md-sys-typescale-label-medium-size);
-  font-weight:var(--md-sys-typescale-label-medium-weight);
-  letter-spacing:var(--md-sys-typescale-label-medium-tracking);text-transform:uppercase}
-.tgrp__h .gd{width:8px;height:8px;border-radius:2px;flex:none}
-.tgrp__h .ct{margin-left:auto;opacity:.7;font-variant-numeric:tabular-nums}
-.tgrp__b{border-left:2px solid var(--md-sys-color-outline-variant);margin-left:20px}
-.pinned{padding-bottom:6px;margin-bottom:4px;
-  border-bottom:1px solid var(--md-sys-color-outline-variant)}
-.pinhdr{padding:2px 20px 4px;font-size:var(--md-sys-typescale-label-small-size);
-  letter-spacing:var(--md-sys-typescale-label-small-tracking);text-transform:uppercase;
-  color:var(--md-sys-color-on-surface-variant);display:flex;align-items:center;gap:6px}
-.tbody{flex:1;padding:20px;min-width:0;display:flex;flex-direction:column;gap:8px}
-.tsearch{margin:0 8px 8px}
-.ovf{margin-left:auto;flex:none}
-/* the overflow control must never be the thing that gets pushed out */
-.top .strip .ovf,.bottom .strip .ovf{position:sticky;right:0;
-  background:var(--md-sys-color-surface-container)}
-.top .strip .tab,.bottom .strip .tab{min-width:0;flex:0 1 auto}
-.tdemo.top .strip .tab{max-width:170px}
-.collapsedbar{display:flex;flex-direction:column;align-items:center;gap:6px;
-  width:var(--wds-tabstrip-width-collapsed);padding:8px 0;flex:none;
-  background:var(--md-sys-color-surface-container);
-  border-right:1px solid var(--md-sys-color-outline-variant)}
-.collapsedbar .cb{width:40px;height:40px;border-radius:var(--md-sys-shape-corner-full);
-  display:grid;place-items:center;color:var(--md-sys-color-on-surface-variant)}
-.collapsedbar .cb.is-act{background:var(--md-sys-color-secondary-container);
-  color:var(--md-sys-color-on-secondary-container)}
-.dockrow{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+.three{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:16px}
+.mode{border:1px solid var(--md-sys-color-outline-variant);
+  border-radius:var(--md-sys-shape-corner-large);overflow:hidden;min-width:0;
+  background:var(--md-sys-color-surface-container-low)}
+.mode__h{padding:10px 16px;border-bottom:1px solid var(--md-sys-color-outline-variant);
+  display:flex;align-items:center;gap:8px;
+  background:var(--md-sys-color-surface-container-high)}
+.mode__h b{flex:1;font-size:var(--md-sys-typescale-label-large-size);
+  font-weight:var(--md-sys-typescale-label-large-weight)}
+.mode__b{padding:16px}
+.bi{display:flex;flex-direction:column;gap:1px}
+.bi .p{font-size:inherit;font-weight:inherit;line-height:1.25}
+.bi .s{font-size:var(--md-sys-typescale-body-small-size);
+  color:var(--md-sys-color-on-surface-variant);line-height:1.25;font-weight:400}
+.btn .bi .s{color:inherit;opacity:.82}
+.statline{display:flex;align-items:center;gap:10px;min-height:52px}
+.statline .t{flex:1;min-width:0}
+.narrow{max-width:300px;border:1px dashed var(--md-sys-color-error);
+  border-radius:var(--md-sys-shape-corner-medium);padding:12px}
+.narrowgrid{display:flex;gap:20px;flex-wrap:wrap}
+.zh{font-family:"Microsoft JhengHei","Noto Sans CJK HK","PingFang HK",
+  "Hiragino Sans CNS",sans-serif}
 
 </style>
 <div class="wrap wrap--wide">
-<h1>Tabs</h1>
-<p class="lede">Browser-style tabs docked to any edge, with pinning, groups, the overflow surface and the four searches. Left is the default.</p>
-<div class="banner"><b>Static design specimen.</b> Every control below is a rendering of a state, laid out so the states can be compared side by side. Nothing on this page responds to input, and no element here is wired to behaviour &mdash; the state captions say which state each one shows.</div>
+<h1>Language modes</h1>
+<p class="lede">One screen rendered in English, in playful Hong Kong Cantonese, and bilingually &mdash; and what bilingual does at the width where it is supposed to break.</p>
 
-<div class="banner"><b>Left is the default dock.</b> A screen is wider than it is
-tall and a tab label is wider than it is high, so a vertical strip shows more tabs
-legibly than a horizontal one. The dock is a per-surface setting that persists, and
-it is reachable from the strip's own right-click menu as well as from settings.</div>
 
-<h2>Docked left &mdash; the default</h2>
-<div class="tdemo left">
-  <div class="strip">
-    <div class="tsearch"><div class="filter" style="margin:0"><svg class="i i--sm" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
-      <span class="field__ph">Search tabs</span>
-      <button class="rex" aria-label="Open regular expression builder">.*</button></div></div>
-    <div class="pinned">
-      <div class="pinhdr"><svg class="i i--sm" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 17v5"/><path d="M9 3h6l-1 6 3 3v2H7v-2l3-3z"/></svg> Pinned</div>
-      <div class="tab is-act"><svg class="i i--sm" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 4v11"/><path d="M7 12l5 5 5-5"/><path d="M4 20h16"/></svg><span class="lb">Downloader</span></div>
-      <div class="tab"><svg class="i i--sm" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 4L3 7v13l6-3 6 3 6-3V4l-6 3z"/><path d="M9 4v13M15 7v13"/></svg><span class="lb">Live map</span></div>
-    </div>
-    <div class="tgrp">
-      <div class="tgrp__h" style="background:var(--md-sys-color-tertiary-container);
-        color:var(--md-sys-color-on-tertiary-container)">
-        <span class="gd" style="background:currentColor"></span><svg class="i i--sm" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6"/></svg>
-        <span>Andyville</span><span class="ct">3</span></div>
-      <div class="tgrp__b">
-        <div class="tab"><svg class="i i--sm" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="4" width="18" height="7" rx="2"/><rect x="3" y="13" width="18" height="7" rx="2"/><path d="M7 7.5h.01M7 16.5h.01"/></svg><span class="lb">Containers</span></div>
-        <div class="tab"><svg class="i i--sm" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg><span class="lb">Server log</span></div>
-        <div class="tab"><svg class="i i--sm" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M21 12a8 8 0 0 1-8 8H7l-4 3v-5.5A8 8 0 1 1 21 12z"/></svg><span class="lb">Chat capture</span></div>
-      </div>
-    </div>
-    <div class="tgrp">
-      <div class="tgrp__h" style="background:var(--md-sys-color-surface-container-highest);
-        color:var(--md-sys-color-on-surface-variant)">
-        <span class="gd" style="background:currentColor"></span><svg class="i i--sm" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 6l6 6-6 6"/></svg>
-        <span>Archived</span><span class="ct">7</span></div>
-    </div>
-    <div class="tab" style="margin-top:auto"><svg class="i i--sm" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1"/></svg><span class="lb">Settings</span></div>
-  </div><div class="tbody"><div style="font-size:var(--md-sys-typescale-title-medium-size)">Downloader</div>
-  <div class="spec">tab panel content</div></div></div>
-
-<h2>The other three edges</h2>
-<div class="dockrow">
-  <div><div class="cap" style="margin-bottom:6px">Right</div>
-    <div class="tdemo right" style="min-height:250px">
-  <div class="strip">
-    <div class="tsearch"><div class="filter" style="margin:0"><svg class="i i--sm" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
-      <span class="field__ph">Search tabs</span>
-      <button class="rex" aria-label="Open regular expression builder">.*</button></div></div>
-    <div class="pinned">
-      <div class="pinhdr"><svg class="i i--sm" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 17v5"/><path d="M9 3h6l-1 6 3 3v2H7v-2l3-3z"/></svg> Pinned</div>
-      <div class="tab is-act"><svg class="i i--sm" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 4v11"/><path d="M7 12l5 5 5-5"/><path d="M4 20h16"/></svg><span class="lb">Downloader</span></div>
-      <div class="tab"><svg class="i i--sm" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 4L3 7v13l6-3 6 3 6-3V4l-6 3z"/><path d="M9 4v13M15 7v13"/></svg><span class="lb">Live map</span></div>
-    </div>
-    <div class="tgrp">
-      <div class="tgrp__h" style="background:var(--md-sys-color-tertiary-container);
-        color:var(--md-sys-color-on-tertiary-container)">
-        <span class="gd" style="background:currentColor"></span><svg class="i i--sm" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6"/></svg>
-        <span>Andyville</span><span class="ct">3</span></div>
-      <div class="tgrp__b">
-        <div class="tab"><svg class="i i--sm" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="4" width="18" height="7" rx="2"/><rect x="3" y="13" width="18" height="7" rx="2"/><path d="M7 7.5h.01M7 16.5h.01"/></svg><span class="lb">Containers</span></div>
-        <div class="tab"><svg class="i i--sm" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg><span class="lb">Server log</span></div>
-        <div class="tab"><svg class="i i--sm" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M21 12a8 8 0 0 1-8 8H7l-4 3v-5.5A8 8 0 1 1 21 12z"/></svg><span class="lb">Chat capture</span></div>
-      </div>
-    </div>
-    <div class="tgrp">
-      <div class="tgrp__h" style="background:var(--md-sys-color-surface-container-highest);
-        color:var(--md-sys-color-on-surface-variant)">
-        <span class="gd" style="background:currentColor"></span><svg class="i i--sm" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 6l6 6-6 6"/></svg>
-        <span>Archived</span><span class="ct">7</span></div>
-    </div>
-    <div class="tab" style="margin-top:auto"><svg class="i i--sm" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1"/></svg><span class="lb">Settings</span></div>
-  </div><div class="tbody"><div style="font-size:var(--md-sys-typescale-title-medium-size)">Downloader</div>
-  <div class="spec">tab panel content</div></div></div></div>
-  <div><div class="cap" style="margin-bottom:6px">Top</div>
-    <div class="tdemo top" style="min-height:250px">
-  <div class="strip">
-    <div class="tab is-act"><svg class="i i--sm" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 4v11"/><path d="M7 12l5 5 5-5"/><path d="M4 20h16"/></svg><span class="lb">Downloader</span></div>
-    <div class="tab"><svg class="i i--sm" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 4L3 7v13l6-3 6 3 6-3V4l-6 3z"/><path d="M9 4v13M15 7v13"/></svg><span class="lb">Live map</span></div>
-    <button class="btn btn--icon ovf" aria-label="Show 8 more tabs"><svg class="i" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg></button>
-  </div><div class="tbody"><div style="font-size:var(--md-sys-typescale-title-medium-size)">Downloader</div>
-  <div class="spec">tab panel content</div></div></div></div>
-  <div><div class="cap" style="margin-bottom:6px">Bottom</div>
-    <div class="tdemo bottom" style="min-height:250px">
-  <div class="strip">
-    <div class="tab is-act"><svg class="i i--sm" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 4v11"/><path d="M7 12l5 5 5-5"/><path d="M4 20h16"/></svg><span class="lb">Downloader</span></div>
-    <div class="tab"><svg class="i i--sm" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 4L3 7v13l6-3 6 3 6-3V4l-6 3z"/><path d="M9 4v13M15 7v13"/></svg><span class="lb">Live map</span></div>
-    <button class="btn btn--icon ovf" aria-label="Show 8 more tabs"><svg class="i" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg></button>
-  </div><div class="tbody"><div style="font-size:var(--md-sys-typescale-title-medium-size)">Downloader</div>
-  <div class="spec">tab panel content</div></div></div></div>
-  <div><div class="cap" style="margin-bottom:6px">Left, collapsed at narrow width</div>
-    <div class="tdemo left" style="min-height:250px">
-      <div class="collapsedbar">
-        <div class="cb"><svg class="i" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 4v11"/><path d="M7 12l5 5 5-5"/><path d="M4 20h16"/></svg></div><div class="cb is-act"><svg class="i" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 4L3 7v13l6-3 6 3 6-3V4l-6 3z"/><path d="M9 4v13M15 7v13"/></svg></div><div class="cb"><svg class="i" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="4" width="18" height="7" rx="2"/><rect x="3" y="13" width="18" height="7" rx="2"/><path d="M7 7.5h.01M7 16.5h.01"/></svg></div>
-        <div class="cb"><svg class="i" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M21 12a8 8 0 0 1-8 8H7l-4 3v-5.5A8 8 0 1 1 21 12z"/></svg></div><div class="cb" style="margin-top:auto"><svg class="i" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1"/></svg></div>
-      </div><div class="tbody"><div style="font-size:var(--md-sys-typescale-title-medium-size)">Live map</div>
-  <div class="spec">tab panel content</div></div></div></div>
+<h2>The same screen, three ways</h2>
+<div class="three">
+  <div class="mode"><div class="mode__h"><svg class="i i--sm" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a15 15 0 0 1 0 18a15 15 0 0 1 0-18z"/></svg><b>English</b></div>
+<div class="mode__b">
+  <div style="font-size:var(--md-sys-typescale-title-medium-size);
+    font-weight:var(--md-sys-typescale-title-medium-weight);margin-bottom:10px">Downloader</div>
+  <div class="metrics" style="margin-bottom:14px">
+    <div class="metric"><span class="n">7,742</span><span class="l">chunks written</span></div>
+    <div class="metric"><span class="n">1.4</span><span class="l">MB per second</span></div>
+  </div>
+  <div class="statline">
+    <span class="status status--run"><span class="dot"></span>Downloading</span>
+    <span class="t"></span>
+  </div>
+  <div class="lin" style="margin:8px 0 14px"><i style="width:62%"></i></div>
+  <div class="row">
+    <button class="btn btn--filled">Pause</button>
+    <button class="btn btn--outlined">Stop and write</button>
+  </div>
+  <p class="hint" style="margin-top:12px">Stopping writes the 43 queued chunks first, which takes about two seconds.</p>
+</div></div>
+  <div class="mode"><div class="mode__h"><svg class="i i--sm" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a15 15 0 0 1 0 18a15 15 0 0 1 0-18z"/></svg><b>Cantonese &mdash; 廣東話</b></div>
+<div class="mode__b">
+  <div style="font-size:var(--md-sys-typescale-title-medium-size);
+    font-weight:var(--md-sys-typescale-title-medium-weight);margin-bottom:10px"><span class="zh">世界下載</span></div>
+  <div class="metrics" style="margin-bottom:14px">
+    <div class="metric"><span class="n">7,742</span><span class="l"><span class="zh">已寫入 chunk</span></span></div>
+    <div class="metric"><span class="n">1.4</span><span class="l"><span class="zh">MB / 秒</span></span></div>
+  </div>
+  <div class="statline">
+    <span class="status status--run"><span class="dot"></span><span class="zh">下載緊</span></span>
+    <span class="t"></span>
+  </div>
+  <div class="lin" style="margin:8px 0 14px"><i style="width:62%"></i></div>
+  <div class="row">
+    <button class="btn btn--filled"><span class="zh">暫停</span></button>
+    <button class="btn btn--outlined"><span class="zh">停止並寫入</span></button>
+  </div>
+  <p class="hint" style="margin-top:12px"><span class="zh">停止前會先寫入排緊隊嘅 43 個 chunk，大約需要兩秒。</span></p>
+</div></div>
+  <div class="mode"><div class="mode__h"><svg class="i i--sm" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a15 15 0 0 1 0 18a15 15 0 0 1 0-18z"/></svg><b>Bilingual</b></div>
+<div class="mode__b">
+  <div style="font-size:var(--md-sys-typescale-title-medium-size);
+    font-weight:var(--md-sys-typescale-title-medium-weight);margin-bottom:10px"><span class="bi"><span class="p">Downloader</span><span class="s zh">世界下載</span></span></div>
+  <div class="metrics" style="margin-bottom:14px">
+    <div class="metric"><span class="n">7,742</span><span class="l"><span class="bi"><span class="p">chunks written</span><span class="s zh">已寫入 chunk</span></span></span></div>
+    <div class="metric"><span class="n">1.4</span><span class="l"><span class="bi"><span class="p">MB per second</span><span class="s zh">MB / 秒</span></span></span></div>
+  </div>
+  <div class="statline">
+    <span class="status status--run"><span class="dot"></span><span class="bi"><span class="p">Downloading</span><span class="s zh">下載緊</span></span></span>
+    <span class="t"></span>
+  </div>
+  <div class="lin" style="margin:8px 0 14px"><i style="width:62%"></i></div>
+  <div class="row">
+    <button class="btn btn--filled"><span class="bi"><span class="p">Pause</span><span class="s zh">暫停</span></span></button>
+    <button class="btn btn--outlined"><span class="bi"><span class="p">Stop and write</span><span class="s zh">停止並寫入</span></span></button>
+  </div>
+  <p class="hint" style="margin-top:12px"><span class="bi"><span class="p">Stopping writes the 43 queued chunks first, which takes about two seconds.</span><span class="s zh">停止前會先寫入排緊隊嘅 43 個 chunk，大約需要兩秒。</span></span></p>
+</div></div>
 </div>
 
-<p class="note"><b>Docking is an orientation change, not a rotation.</b> Labels
-never turn ninety degrees &mdash; a sideways word is a word nobody reads. At a
-narrow width the strip collapses to icons or to an edge affordance rather than
-crowding the content it exists to reveal.</p>
-
-<p class="note warn"><b>Accessibility follows the axis, not the markup.</b> A
-vertical strip is <code>aria-orientation="vertical"</code>, and the arrow keys
-that move between tabs become up and down rather than left and right. Getting
-this wrong produces a strip that looks correct in every screenshot and is
-unusable by keyboard.</p>
-
-<h2>Overflow surface</h2>
-<p style="font-size:14px;color:var(--md-sys-color-on-surface-variant);max-width:74ch">
-When tabs exceed the space, they move into an overflow surface &mdash; they are
-never silently clipped. The surface measures height when the strip is vertical and
-width when it is horizontal, which is genuinely different arithmetic and the most
-common place a re-dock breaks.</p>
-<div style="max-width:320px">
-  <div class="menu menu--open">
-    <div class="menu__hd"><div class="filter"><svg class="i i--sm" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><span class="field__ph">Filter 6 hidden tabs</span>
-      <button class="rex" aria-label="Open regular expression builder">.*</button></div></div>
-    <div class="menu__count">6 tabs not visible in the strip</div>
-    <div class="menu__i"><svg class="i i--sm" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg><span>Backup log</span></div>
-    <div class="menu__i"><svg class="i i--sm" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 4L3 7v13l6-3 6 3 6-3V4l-6 3z"/><path d="M9 4v13M15 7v13"/></svg><span>Nether map</span></div>
-    <div class="menu__i"><svg class="i i--sm" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M21 12a8 8 0 0 1-8 8H7l-4 3v-5.5A8 8 0 1 1 21 12z"/></svg><span>Bot profiles</span></div>
-    <div class="menu__i"><svg class="i i--sm" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span>Version history</span></div>
+<h2>Bilingual at narrow width</h2>
+<p style="max-width:74ch;color:var(--md-sys-color-on-surface-variant)">
+The width where bilingual mode is supposed to fall apart. The primary label keeps
+its prominence and the secondary line sits beneath it, so neither is truncated and
+the row does not grow a horizontal scrollbar.</p>
+<div class="narrowgrid" style="margin-top:12px">
+  <div class="narrow">
+    <div class="cap" style="margin-bottom:8px">300px &mdash; bilingual</div>
+    <button class="btn btn--filled" style="width:100%;height:auto;padding:8px 20px">
+      <span class="bi"><span class="p">Stop and write</span>
+      <span class="s zh">停止並寫入</span></span></button>
+    <div style="height:10px"></div>
+    <div class="statline" style="min-height:44px">
+      <span class="status status--run" style="height:auto;padding:4px 10px">
+        <span class="dot"></span><span class="bi"><span class="p">Downloading</span>
+        <span class="s zh">下載緊</span></span></span></div>
+    <div style="height:6px"></div>
+    <div class="field field--outlined">
+      <span class="field__label"><span class="bi"><span class="p">Server address</span>
+        <span class="s zh">伺服器位址</span></span></span>
+      <span class="field__box" style="min-height:48px">
+        <span class="field__val" style="font-size:14px">andyville.example.net</span></span>
+    </div>
+  </div>
+  <div class="narrow" style="border-color:var(--md-sys-color-outline-variant)">
+    <div class="cap" style="margin-bottom:8px">300px &mdash; English, for comparison</div>
+    <button class="btn btn--filled" style="width:100%">Stop and write</button>
+    <div style="height:10px"></div>
+    <div class="statline" style="min-height:44px">
+      <span class="status status--run"><span class="dot"></span>Downloading</span></div>
+    <div style="height:6px"></div>
+    <div class="field field--outlined">
+      <span class="field__label">Server address</span>
+      <span class="field__box" style="min-height:48px">
+        <span class="field__val" style="font-size:14px">andyville.example.net</span></span>
+    </div>
   </div>
 </div>
 
-<h2>The four tab searches</h2>
-<p style="font-size:14px;color:var(--md-sys-color-on-surface-variant);max-width:74ch">
-Each has its own adjacent anchored regex builder, keeps plain text as the default,
-and never shares hidden state with another field.</p>
-<ol style="font-size:14px;color:var(--md-sys-color-on-surface-variant);max-width:74ch;
-  line-height:22px;padding-left:20px">
-  <li><b>Current strip</b> &mdash; the field at the head of the strip above.</li>
-  <li><b>Inside one group</b> &mdash; every group header opens its own field.</li>
-  <li><b>Groups by name</b> &mdash; in the group-management surface.</li>
-  <li><b>Master search</b> &mdash; every open tab across all windows and strips,
-      identifying the window, strip, group and pinned state of each result.</li>
-</ol>
+<p class="note"><b>Bilingual is a hierarchy, not two equal labels.</b> The primary
+label stays at its normal size and weight; the secondary drops to body-small in
+<code>on-surface-variant</code>. Two labels at the same weight fight each other and
+double the height of every row in the application.</p>
 
-<h2>Bulk close</h2>
-<div class="sec" style="max-width:560px">
-  <div style="font-size:var(--md-sys-typescale-title-medium-size);margin-bottom:8px">
-    Close tabs containing text</div>
-  <div class="filter" style="margin:0 0 12px"><svg class="i i--sm" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><span class="field__val">^log-</span>
-    <button class="rex" aria-label="Open regular expression builder">.*</button></div>
-  <div style="font-size:14px;color:var(--md-sys-color-on-surface-variant)">
-    Regular expression &middot; 4 of 13 tabs match &middot;
-    <b style="color:var(--md-sys-color-on-surface)">2 pinned tabs excluded</b></div>
-  <ul style="font-size:14px;margin:8px 0 0;padding-left:20px;
-    color:var(--md-sys-color-on-surface-variant)">
-    <li>log-paper</li><li>log-bluemap</li><li>log-backup</li><li>log-bot</li></ul>
-  <div class="row" style="margin-top:16px">
-    <button class="btn btn--outlined">Cancel</button>
-    <button class="btn btn--danger">Close 4 tabs</button></div>
-</div>
-<p class="note">The inverse action, <b>Close tabs not containing text</b>, negates
-this exact predicate, so flags, casing, Unicode handling and scope cannot drift
-between the two. Neither runs on an empty query or an invalid pattern, and both
-preview the affected tabs first.</p>
+<p class="note"><b>Numbers, identifiers and paths never translate.</b> 7,742 is
+7,742, <span class="mono">andyville.example.net</span> is itself, and
+<span class="mono">connection reset by peer</span> stays in the words the server
+actually said. Translating an error string makes it unsearchable, which is the one
+thing a user does with an error string.</p>
 
-<h2>Both themes</h2>
-<div class="pair"><section class="panel" data-theme="light"><p class="ph">Light</p><div class="tdemo left" style="min-height:260px">
-  <div class="strip">
-    <div class="tsearch"><div class="filter" style="margin:0"><svg class="i i--sm" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
-      <span class="field__ph">Search tabs</span>
-      <button class="rex" aria-label="Open regular expression builder">.*</button></div></div>
-    <div class="pinned">
-      <div class="pinhdr"><svg class="i i--sm" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 17v5"/><path d="M9 3h6l-1 6 3 3v2H7v-2l3-3z"/></svg> Pinned</div>
-      <div class="tab is-act"><svg class="i i--sm" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 4v11"/><path d="M7 12l5 5 5-5"/><path d="M4 20h16"/></svg><span class="lb">Downloader</span></div>
-      <div class="tab"><svg class="i i--sm" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 4L3 7v13l6-3 6 3 6-3V4l-6 3z"/><path d="M9 4v13M15 7v13"/></svg><span class="lb">Live map</span></div>
-    </div>
-    <div class="tgrp">
-      <div class="tgrp__h" style="background:var(--md-sys-color-tertiary-container);
-        color:var(--md-sys-color-on-tertiary-container)">
-        <span class="gd" style="background:currentColor"></span><svg class="i i--sm" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6"/></svg>
-        <span>Andyville</span><span class="ct">3</span></div>
-      <div class="tgrp__b">
-        <div class="tab"><svg class="i i--sm" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="4" width="18" height="7" rx="2"/><rect x="3" y="13" width="18" height="7" rx="2"/><path d="M7 7.5h.01M7 16.5h.01"/></svg><span class="lb">Containers</span></div>
-        <div class="tab"><svg class="i i--sm" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg><span class="lb">Server log</span></div>
-        <div class="tab"><svg class="i i--sm" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M21 12a8 8 0 0 1-8 8H7l-4 3v-5.5A8 8 0 1 1 21 12z"/></svg><span class="lb">Chat capture</span></div>
-      </div>
-    </div>
-    <div class="tgrp">
-      <div class="tgrp__h" style="background:var(--md-sys-color-surface-container-highest);
-        color:var(--md-sys-color-on-surface-variant)">
-        <span class="gd" style="background:currentColor"></span><svg class="i i--sm" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 6l6 6-6 6"/></svg>
-        <span>Archived</span><span class="ct">7</span></div>
-    </div>
-    <div class="tab" style="margin-top:auto"><svg class="i i--sm" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1"/></svg><span class="lb">Settings</span></div>
-  </div><div class="tbody"><div style="font-size:var(--md-sys-typescale-title-medium-size)">Downloader</div>
-  <div class="spec">tab panel content</div></div></div></section><section class="panel" data-theme="dark"><p class="ph">Dark</p><div class="tdemo left" style="min-height:260px">
-  <div class="strip">
-    <div class="tsearch"><div class="filter" style="margin:0"><svg class="i i--sm" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
-      <span class="field__ph">Search tabs</span>
-      <button class="rex" aria-label="Open regular expression builder">.*</button></div></div>
-    <div class="pinned">
-      <div class="pinhdr"><svg class="i i--sm" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 17v5"/><path d="M9 3h6l-1 6 3 3v2H7v-2l3-3z"/></svg> Pinned</div>
-      <div class="tab is-act"><svg class="i i--sm" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 4v11"/><path d="M7 12l5 5 5-5"/><path d="M4 20h16"/></svg><span class="lb">Downloader</span></div>
-      <div class="tab"><svg class="i i--sm" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 4L3 7v13l6-3 6 3 6-3V4l-6 3z"/><path d="M9 4v13M15 7v13"/></svg><span class="lb">Live map</span></div>
-    </div>
-    <div class="tgrp">
-      <div class="tgrp__h" style="background:var(--md-sys-color-tertiary-container);
-        color:var(--md-sys-color-on-tertiary-container)">
-        <span class="gd" style="background:currentColor"></span><svg class="i i--sm" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6"/></svg>
-        <span>Andyville</span><span class="ct">3</span></div>
-      <div class="tgrp__b">
-        <div class="tab"><svg class="i i--sm" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="4" width="18" height="7" rx="2"/><rect x="3" y="13" width="18" height="7" rx="2"/><path d="M7 7.5h.01M7 16.5h.01"/></svg><span class="lb">Containers</span></div>
-        <div class="tab"><svg class="i i--sm" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg><span class="lb">Server log</span></div>
-        <div class="tab"><svg class="i i--sm" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M21 12a8 8 0 0 1-8 8H7l-4 3v-5.5A8 8 0 1 1 21 12z"/></svg><span class="lb">Chat capture</span></div>
-      </div>
-    </div>
-    <div class="tgrp">
-      <div class="tgrp__h" style="background:var(--md-sys-color-surface-container-highest);
-        color:var(--md-sys-color-on-surface-variant)">
-        <span class="gd" style="background:currentColor"></span><svg class="i i--sm" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 6l6 6-6 6"/></svg>
-        <span>Archived</span><span class="ct">7</span></div>
-    </div>
-    <div class="tab" style="margin-top:auto"><svg class="i i--sm" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1"/></svg><span class="lb">Settings</span></div>
-  </div><div class="tbody"><div style="font-size:var(--md-sys-typescale-title-medium-size)">Downloader</div>
-  <div class="spec">tab panel content</div></div></div></section></div>
+<p class="note"><b>The CJK font is a stack ending in an installed face.</b> Nothing
+is downloaded, so Traditional Chinese resolves to whatever the machine has rather
+than to tofu boxes. Line heights in the type scale are already generous enough to
+hold both scripts without a separate bilingual scale.</p>
 
-<p class="note"><b>Pinned tabs are their own region.</b> They stay visible when
-ordinary tabs overflow, keep an accessible full name even in icon-only form, and
-are excluded from close-others and text-based bulk closes by default.</p>
-
-<p class="note"><b>Order, pins, groups, group order, collapsed state and membership
-all persist across restarts.</b> Revealing a search result inside a collapsed
-group must not destroy that collapsed preference.</p>
+<p class="note warn"><b>Test at the longest string, not the average one.</b>
+Bilingual mode is where labels are longest, so it is the mode that finds clipping
+&mdash; and it must be checked at every supported display scale, not only at 100
+percent.</p>
 
 </div>

@@ -172,7 +172,8 @@ directory and registers itself; it never edits a shared registration file.
 | # | Feature | App module | Site | Status | Notes |
 | --- | --- | --- | --- | --- | --- |
 | 13.1 | World downloader: connection settings, live status, chunk progress, activity log, and start/stop, driving the bundled Java core. | `features/downloader` | documented | ⬜ | Replaces the previous separate desktop manager. |
-| 13.2 | Live map viewer with layer controls, coordinate readout, and markers. | `features/map` | documented | ⬜ | Local tiles; no remote map service. |
+| 13.2 | Live map viewer with layer controls, coordinate readout, and markers, rendering what the companion renderer produces. | `features/map` | documented | ⬜ | Local tiles served over loopback only; no remote map service. |
+| 13.2a | Pairing with Worldlens, the companion Minecraft world renderer and 3D map viewer. | `features/worldlens` | yes | ⬜ | Detects an installed Worldlens, hands a downloaded world straight to it, and drives its headless renderer over loopback for the in-app map. Absence is an honest state with a real install route, never a faked map. The two applications are deliberately complementary: this one produces worlds, that one renders them. |
 | 13.3 | Server and container manager: container list with state, log stream, and gated start, stop, and restart. | `features/server` | documented | ⬜ | Destructive container actions run through the super-confirmation gate. |
 | 13.4 | Chat scraper bot runner: profiles, run controls, and a captured-message table with bulk actions. | `features/bot` | documented | ⬜ | |
 | 13.5 | The web console's capabilities surfaced in-app rather than requiring a separate browser session. | `features/console` | documented | ⬜ | |
@@ -189,6 +190,39 @@ directory and registers itself; it never edits a shared registration file.
 | 14.6 | An executable negative regression that removes one asserted item at a time from this inventory and must turn red. | `app/tests/inventory.test.ts` | n/a | ⬜ | Uses exact boundaries, never a descendant selector or a substring a rename can satisfy. |
 | 14.7 | This project is registered with the shared status hub, reporting its repository, branch, current state, evidence and next gates. | `scripts/report-status.mjs` | n/a | ✅ | Registered and confirmed by a `200` response. The enrollment token is read on the host where the hub runs and used in place — never printed, never written to a file, never entered into chat. |
 | 14.8 | The application ships its own status surface carrying the same states, evidence and honesty rules as the shared hub. | `features/status` | yes | ⬜ | A user looking at the application sees what the hub sees without leaving it. Emoji-bearing states, evidence behind every claim, and a check that has not run reported as unrun rather than passed. |
+
+## 15. The bot control surface
+
+The vendored bot library at `vendor/mineflayer` (version 4.37.1, 41 plugins) is a **code** API: every
+capability it has is a method you call or an event you subscribe to. This section turns all of it
+into an interface, so a person who cannot write JavaScript can do everything the library can do.
+
+"Everything, but in graphical form" is the whole requirement, and it is enumerated below rather than
+summarised, because a summary is exactly how three of these quietly fail to ship. Each row names the
+library plugin it covers, so a plugin gaining a capability upstream has a row to grow into.
+
+| # | Feature | App module | Site | Status | Notes |
+| --- | --- | --- | --- | --- | --- |
+| 15.1 | Connection and session: host, port, version, username, authentication mode, proxy, view distance, chat settings, and reconnect policy — as a guided form, never a blank box where an enumeration exists. | `features/mineflayer` | yes | ⬜ | Covers `settings`, `game`, `kick`. Credentials go to the credential vault, never to settings, exports, logs or history. Disconnect reasons are shown verbatim with a real recovery route. |
+| 15.2 | Live bot state: health, food, saturation, breath, experience level and progress, gamemode, dimension, position, velocity, yaw and pitch, and held item. | `features/mineflayer` | yes | ⬜ | Covers `health`, `breath`, `experience`, `physics`, `game`. Every value is the real event value; nothing is simulated while disconnected. |
+| 15.3 | Chat: a full chat surface with history, sender filtering, whisper, the message-position channels, and a pattern-matching rule editor built on the project's regex builder. | `features/mineflayer-chat` | yes | ⬜ | Covers `chat`, `title`, `tablist`, `boss_bar`, `scoreboard`, `team`. The chat log is a list, so it carries the full bulk-action contract and export in every format. |
+| 15.4 | Movement: directional controls, sprint, sneak, jump, look-at, walk-to-coordinates, follow-entity, and a path preview — operable by keyboard as well as pointer. | `features/mineflayer-movement` | yes | ⬜ | Covers `physics`, `ray_trace`. Continuous controls report that they are held, and releasing focus releases the control rather than leaving the bot walking. |
+| 15.5 | Inventory: the real window contents as a grid, drag and keyboard move, split and merge stacks, equip to each slot, drop and drop-stack, and quick-move. | `features/mineflayer-inventory` | yes | ⬜ | Covers `inventory`, `simple_inventory`. Item icons come from bundled resources; no remote texture fetch. |
+| 15.6 | Container windows: chest, dispenser, dropper, hopper, shulker, ender chest, and barrel — opened, browsed, transferred and closed. | `features/mineflayer-inventory` | yes | ⬜ | Covers `chest`, `block_actions`. Withdraw-all and deposit-all are bulk actions with an exact count and a preview. |
+| 15.7 | Crafting: a recipe browser searchable by result and ingredient, showing what is craftable now from current inventory and what is missing, with and without a table. | `features/mineflayer-inventory` | yes | ⬜ | Covers `craft`. Never claims a recipe is craftable without checking the real ingredient count. |
+| 15.8 | Workstations: furnace, blast furnace, smoker, anvil, enchanting table, brewing, and grindstone — each with its real slots, progress and fuel state. | `features/mineflayer-inventory` | yes | ⬜ | Covers `furnace`, `anvil`, `enchantment_table`. Enchantment choices show their real cost and the real level requirement. |
+| 15.9 | Villager trading: the trade list with inputs, outputs, uses remaining, disabled trades, and the profession and level. | `features/mineflayer-inventory` | yes | ⬜ | Covers `villager`. A trade that cannot be made says which condition fails. |
+| 15.10 | Block interaction: dig with tool selection and real progress, place, activate, and use-on, plus a target picker driven by ray tracing rather than typed coordinates alone. | `features/mineflayer-world` | yes | ⬜ | Covers `digging`, `place_block`, `place_entity`, `generic_place`, `block_actions`, `ray_trace`. Digging reports real progress, and the control refuses re-entry while a dig is in flight. |
+| 15.11 | World query: block lookup at a position, find-blocks by type within a radius with results as a rich list, and a block-state inspector. | `features/mineflayer-world` | yes | ⬜ | Covers `blocks`. Results are a list, so bulk actions and export apply. |
+| 15.12 | Entities: a live list of nearby entities with type, name, distance, health and equipment, with attack, mount, dismount, and use-on-entity. | `features/mineflayer-world` | yes | ⬜ | Covers `entities`. Attacking is gated when the target is a player, because that is a consequential action against another person. |
+| 15.13 | Fishing, sleeping, waking, spawn point, and respawn. | `features/mineflayer-world` | yes | ⬜ | Covers `fishing`, `bed`, `spawn_point`. Sleep failures report the real reason the game gave, not a generic message. |
+| 15.14 | Book writing and signing, with a page editor and a real character and page limit shown before it is hit. | `features/mineflayer-world` | yes | ⬜ | Covers `book`. |
+| 15.15 | Creative mode: give item, set block, fly, and instant break, clearly separated and disabled with a stated reason when the server is not in creative. | `features/mineflayer-world` | yes | ⬜ | Covers `creative`. |
+| 15.16 | World ambience read-outs: time of day, weather, sounds, particles, explosions, and command-block editing. | `features/mineflayer-world` | yes | ⬜ | Covers `time`, `rain`, `sound`, `particle`, `explosion`, `command_block`. |
+| 15.17 | Resource packs: the server's request surfaced honestly with accept and decline, and what each choice means. | `features/mineflayer-world` | yes | ⬜ | Covers `resource_pack`. Never accepts on the user's behalf. |
+| 15.18 | An event inspector listing every library event as it fires, with filtering, a regex-capable search, pause, and export. | `features/mineflayer` | yes | ⬜ | The honest catch-all: a capability with no dedicated control is still reachable and observable here. Bounded buffer with a stated retention. |
+| 15.19 | Saved bot profiles, multi-bot sessions, and a per-bot tab, so several bots run at once without their state mixing. | `features/mineflayer` | yes | ⬜ | Profiles are a list with the full bulk-action contract. Deleting one goes through the destructive-action gate. |
+| 15.20 | A coverage guard asserting every plugin in `vendor/mineflayer/lib/plugins` is named by a row in this section. | `scripts/check-mineflayer-coverage.mjs` | n/a | ⬜ | Driven by the directory listing, so a plugin added upstream fails the guard until it is given a home. This is the reverse direction from the inventory guard and is needed for the same reason. |
 
 ---
 
