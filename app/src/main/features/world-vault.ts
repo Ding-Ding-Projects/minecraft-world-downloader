@@ -570,7 +570,7 @@ export async function create(worldPath: string): Promise<WorldVaultStatus> {
     }
     await ensureGitignore(world);
     await git(world, ['add', '-A']);
-    const staged = await git(world, ['status', '--porcelain', '--cached']);
+    const staged = await git(world, ['diff', '--cached', '--name-only']);
     if (staged.trim().length > 0) {
       await commitStaged(
         world,
@@ -613,7 +613,7 @@ export async function commitNow(
   }
   return withLock(world, async () => {
     await git(world, ['add', '-A']);
-    const porcelain = await git(world, ['status', '--porcelain', '--cached']);
+    const porcelain = await git(world, ['diff', '--cached', '--name-only']);
     if (porcelain.trim().length === 0) return null;
     const subject = String(message || 'Captured a change').slice(0, 200);
     const commit = await commitStaged(world, subject, kind);
@@ -654,7 +654,7 @@ async function pollOnce(state: RunnerState): Promise<void> {
     if (decision.shouldCommit) {
       const commit = await withLock(world, async () => {
         await git(world, ['add', '-A']);
-        const porcelain = await git(world, ['status', '--porcelain', '--cached']);
+        const porcelain = await git(world, ['diff', '--cached', '--name-only']);
         if (porcelain.trim().length === 0) return null;
         const fileCount = porcelain.split('\n').filter((line) => line.trim().length > 0).length;
         return commitStaged(world, `Captured ${fileCount} changed file${fileCount === 1 ? '' : 's'} as they settled`, 'snapshot');
@@ -812,7 +812,7 @@ export async function restore(worldPath: string, hash: string): Promise<WorldVau
     // Nothing the download or a prior session left uncommitted is ever
     // silently discarded: it becomes its own commit first.
     await git(world, ['add', '-A']);
-    const pending = await git(world, ['status', '--porcelain', '--cached']);
+    const pending = await git(world, ['diff', '--cached', '--name-only']);
     if (pending.trim().length > 0) {
       await commitStaged(world, 'Captured pending changes before restoring', 'snapshot');
     }
@@ -1058,7 +1058,7 @@ export async function prune(worldPath: string, beforeHash: string): Promise<Worl
 
     // Ensure nothing uncommitted is silently lost by the rebase below.
     await git(world, ['add', '-A']);
-    const pending = await git(world, ['status', '--porcelain', '--cached']);
+    const pending = await git(world, ['diff', '--cached', '--name-only']);
     if (pending.trim().length > 0) {
       await commitStaged(world, 'Captured pending changes before pruning', 'snapshot');
     }
