@@ -14,12 +14,14 @@ import {
 } from './i18n';
 import { locks } from './locks';
 import { renderMarkdown } from './markdown';
+import { listShortcutsForDisplay } from './menu';
 import { notifications } from './notifications';
 import { createRegexBuilder } from './regexbuilder';
 import { registry } from './registry';
 import { createSearchBar } from './searchbar';
 import { renderSettingRow } from './settingcontrol';
 import { settings } from './settings';
+import { verifyCoreSettingsCoverage } from './settings-ui';
 import { hashPassword } from './totp';
 import {
   DEFAULT_SEED,
@@ -456,8 +458,8 @@ function mountHome(host: HTMLElement, ctx: TabContext): void {
 
   const grid = el('div', { className: 'md-appearance__grid' });
 
-  const shortcuts = components.card({ variant: 'outlined', title: 'core.home.paletteHint' });
-  shortcuts.append(
+  const shortcutsCard = components.card({ variant: 'outlined', title: 'core.home.paletteHint' });
+  shortcutsCard.append(
     components.button({
       label: 'core.palette.title',
       variant: 'tonal',
@@ -465,6 +467,26 @@ function mountHome(host: HTMLElement, ctx: TabContext): void {
       onClick: () => ctx.palette.open()
     })
   );
+  // The chord shown on every row here is read live from the shortcut
+  // registry (core/menu.ts), never typed as a copy — so this list can never
+  // say something the keyboard does not actually do.
+  const shortcutsButton = components.button({
+    label: 'core.home.shortcuts',
+    variant: 'text',
+    icon: 'code',
+    onClick: (event) => {
+      const live = listShortcutsForDisplay();
+      components.menu({
+        anchor: event.currentTarget as HTMLElement,
+        label: 'core.home.shortcuts',
+        items:
+          live.length === 0
+            ? [{ id: 'none', label: 'core.home.shortcuts.none', disabled: true, disabledReason: 'core.home.shortcuts.none' }]
+            : live.map((binding) => ({ id: binding.id, label: binding.label, shortcut: binding.chord }))
+      });
+    }
+  });
+  shortcutsCard.append(shortcutsButton);
 
   const identity = components.card({ variant: 'outlined', title: 'This build' });
   const rows: Array<[string, string]> = [
@@ -527,7 +549,7 @@ function mountHome(host: HTMLElement, ctx: TabContext): void {
     })
   );
 
-  grid.append(shortcuts, identity, featuresCard, docsCard);
+  grid.append(shortcutsCard, identity, featuresCard, docsCard);
   host.append(grid);
 }
 

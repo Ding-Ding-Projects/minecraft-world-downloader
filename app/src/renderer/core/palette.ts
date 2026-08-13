@@ -2,6 +2,7 @@ import { a11y, el } from './a11y';
 import { components } from './components';
 import { i18n } from './i18n';
 import { locks } from './locks';
+import { shortcuts } from './menu';
 import { registry } from './registry';
 import { createSearchBar } from './searchbar';
 import { renderSettingControl } from './settingcontrol';
@@ -34,12 +35,13 @@ class PaletteImpl implements PaletteService {
 
   attach(ctx: AppContext): void {
     this.ctx = ctx;
-    window.addEventListener('keydown', (event) => {
-      if (event.ctrlKey && event.shiftKey && (event.key === 'F' || event.key === 'f')) {
-        event.preventDefault();
-        this.toggle();
-      }
-    });
+    // Registered, not just listened for: this is the one live entry for the
+    // chord, so any menu that wants to show "Ctrl+Shift+F" reads it from here
+    // rather than typing a copy that could go stale.
+    shortcuts.register(
+      { id: 'core.palette.toggle', chord: 'Ctrl+Shift+F', label: 'core.palette.title' },
+      () => this.toggle()
+    );
   }
 
   add(entries: PaletteEntry[]): () => void {

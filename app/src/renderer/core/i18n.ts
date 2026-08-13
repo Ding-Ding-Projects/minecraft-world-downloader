@@ -496,6 +496,20 @@ const CORE: Catalogue = {
   'core.home.paletteHint': entry(
     ladder('Press Ctrl+Shift+F to search every command, setting and destination.'),
     ladder('撳 Ctrl+Shift+F 就可以搵晒所有指令、設定同去處。')
+  ),
+  'core.home.shortcuts': entry(
+    ladder(
+      'Keyboard shortcuts',
+      'Keyboard shortcuts',
+      'Keyboard shortcuts',
+      'Every chord that actually does something',
+      'Every chord that actually does something'
+    ),
+    ladder('鍵盤快速鍵', '鍵盤快速鍵', '鍵盤快速鍵', '每個真係郁到嘢嘅按鍵組合', '每個真係郁到嘢嘅按鍵組合')
+  ),
+  'core.home.shortcuts.none': entry(
+    ladder('No shortcuts are registered yet.'),
+    ladder('暫時未有登記任何快速鍵。')
   )
 };
 

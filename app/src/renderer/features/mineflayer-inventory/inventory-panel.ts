@@ -241,7 +241,9 @@ export function mountInventoryTab(host: HTMLElement, ctx: TabContext): void {
           disabled: !canAct,
           disabledReason,
           onClick: async () => {
-            if (!session) return;
+            if (!session || busy) return;
+            busy = true;
+            renderContent();
             try {
               await session.call('clickWindow', [slot, 0, 1]);
               window_ = await fetchInventory(session);
@@ -253,6 +255,7 @@ export function mountInventoryTab(host: HTMLElement, ctx: TabContext): void {
                 })
               );
             }
+            busy = false;
             renderContent();
           }
         })
@@ -267,7 +270,7 @@ export function mountInventoryTab(host: HTMLElement, ctx: TabContext): void {
           disabled: !canAct,
           disabledReason,
           onClick: async () => {
-            if (!session || !window_) return;
+            if (!session || !window_ || busy) return;
             const empty = findEmptyInventorySlot(window_, slot);
             if (empty === null) {
               ctx.notify.error(
@@ -277,6 +280,8 @@ export function mountInventoryTab(host: HTMLElement, ctx: TabContext): void {
               );
               return;
             }
+            busy = true;
+            renderContent();
             try {
               await session.call('clickWindow', [slot, 1, 0]);
               await session.call('clickWindow', [empty, 0, 0]);
@@ -289,6 +294,7 @@ export function mountInventoryTab(host: HTMLElement, ctx: TabContext): void {
                 })
               );
             }
+            busy = false;
             renderContent();
           }
         })
@@ -324,8 +330,11 @@ export function mountInventoryTab(host: HTMLElement, ctx: TabContext): void {
       cells,
       picker,
       getItem: itemAt,
-      enabled: () => Boolean(session?.spawned),
-      disabledReason: () => ctx.t('mineflayerInventory.disabled.notReady', 'The active bot is not spawned into the world right now, so nothing here can be moved.'),
+      enabled: () => Boolean(session?.spawned) && !busy,
+      disabledReason: () =>
+        busy
+          ? ctx.t('mineflayerInventory.disabled.actionPending', 'Another action on this window is still in flight — wait for it to finish before starting another.')
+          : ctx.t('mineflayerInventory.disabled.notReady', 'The active bot is not spawned into the world right now, so nothing here can be moved.'),
       onMove: (source, dest) => {
         void move(source, dest);
       }
