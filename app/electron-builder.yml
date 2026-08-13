@@ -35,8 +35,20 @@ electronLanguages:
 
 win:
   icon: build/icon.ico
+  # Skip signing, keep resource editing.
+  #
+  # `signAndEditExecutable: false` was here first and it skips BOTH — which packaged an executable
+  # carrying the default framework icon and no version metadata. electron-builder says so in its
+  # own log line: "executable resource editing and code signing skipped — signAndEditExecutable is
+  # false. To skip only code signing while keeping icon and metadata applied, use signExecutable:
+  # false instead."
+  #
+  # Code signing stays permanently out of scope, which `signExecutable: false` and
+  # `forceCodeSigning: false` above both state, and which the release workflow reinforces by
+  # clearing every CSC_* input and disabling certificate auto-discovery. Applying an icon and a
+  # version string to the executable is not signing it, and shipping the framework's default icon
+  # would fail this project's own requirement for a real packaged application icon.
   signExecutable: false
-  signAndEditExecutable: false
   target:
     - target: squirrel
       arch:
@@ -45,5 +57,11 @@ win:
 squirrelWindows:
   artifactName: ${productName}-Setup-${version}.${ext}
   msi: false
+  # Squirrel requires this and refuses to build without it: "squirrelWindows.iconUrl is not
+  # specified". It is fetched at INSTALL time for the Add/Remove Programs entry, not at build time,
+  # so it must be a public HTTPS URL rather than a local path. It points at the committed icon on
+  # the default branch; if it ever fails to resolve, the consequence is a missing icon in one
+  # Windows list, never a failed build or a failed install.
+  iconUrl: https://raw.githubusercontent.com/Ding-Ding-Projects/minecraft-world-downloader/main/app/build/icon.ico
 
 publish: null
