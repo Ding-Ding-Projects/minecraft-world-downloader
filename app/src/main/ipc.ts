@@ -19,6 +19,7 @@ import * as netService from './services/net';
 import * as processService from './services/processes';
 import { readSettings, writeSettings } from './services/settings';
 import * as vault from './services/vault';
+import * as worldVaultService from './features/world-vault';
 
 /* ------------------------------------------------------------------ */
 /* Registry                                                            */
@@ -412,4 +413,51 @@ export function registerAllHandlers(context: { startedAt: number; isDevelopment:
   registerHandler('http:revoke', (_event, host) => {
     netService.revoke(String(host));
   });
+
+  /* ---- world vault ---- */
+  registerHandler('worldvault:create', (_event, worldPath) => worldVaultService.create(String(worldPath)));
+  registerHandler('worldvault:status', (_event, worldPath) => worldVaultService.status(String(worldPath)));
+  registerHandler('worldvault:start-runner', (_event, worldPath, options) =>
+    worldVaultService.startRunner(
+      String(worldPath),
+      (options ?? {}) as Parameters<typeof worldVaultService.startRunner>[1]
+    )
+  );
+  registerHandler('worldvault:stop-runner', (_event, worldPath) => worldVaultService.stopRunner(String(worldPath)));
+  registerHandler('worldvault:commit-now', (_event, worldPath, message, kind) =>
+    worldVaultService.commitNow(
+      String(worldPath),
+      String(message),
+      kind as Parameters<typeof worldVaultService.commitNow>[2]
+    )
+  );
+  registerHandler('worldvault:commits', (_event, query) =>
+    worldVaultService.commits((query ?? {}) as Parameters<typeof worldVaultService.commits>[0])
+  );
+  registerHandler('worldvault:restore', (_event, worldPath, hash) =>
+    worldVaultService.restore(String(worldPath), String(hash))
+  );
+  registerHandler('worldvault:request-region-access', (_event, worldPath, relativePath) =>
+    worldVaultService.requestRegionAccess(String(worldPath), String(relativePath))
+  );
+  registerHandler('worldvault:publish-preflight', (_event, worldPath) =>
+    worldVaultService.publishPreflight(String(worldPath))
+  );
+  registerHandler('worldvault:set-remote', (_event, worldPath, url) =>
+    worldVaultService.setRemote(String(worldPath), String(url))
+  );
+  registerHandler('worldvault:push', (_event, worldPath) => worldVaultService.push(String(worldPath)));
+  registerHandler('worldvault:create-github-repo', (_event, worldPath, options) =>
+    worldVaultService.createGithubRepo(
+      String(worldPath),
+      (options ?? {}) as Parameters<typeof worldVaultService.createGithubRepo>[1]
+    )
+  );
+  registerHandler('worldvault:gc', (_event, worldPath) => worldVaultService.gc(String(worldPath)));
+  registerHandler('worldvault:prune', (_event, worldPath, beforeHash) =>
+    worldVaultService.prune(String(worldPath), String(beforeHash))
+  );
+  registerHandler('worldvault:export-commit-tree', (_event, worldPath, hash, destinationDirectory) =>
+    worldVaultService.exportCommitTree(String(worldPath), String(hash), String(destinationDirectory))
+  );
 }

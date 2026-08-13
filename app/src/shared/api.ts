@@ -316,6 +316,91 @@ export interface HttpAllowRule {
 }
 
 /* ------------------------------------------------------------------ */
+/* World vault (a version-controlled repository for a downloaded world) */
+/* ------------------------------------------------------------------ */
+
+/**
+ * One commit in a world's vault.
+ *
+ * `kind` is read back from a `Vault-Kind:` trailer this feature writes into
+ * every commit it makes itself, so the timeline can label a restore or a
+ * prune differently from an ordinary settled snapshot without guessing from
+ * the subject text. A commit with no trailer (foreign, or made before this
+ * convention existed) reads as `snapshot`.
+ */
+export type WorldVaultCommitKind = 'snapshot' | 'restore' | 'edit' | 'prune';
+
+export interface WorldVaultCommit {
+  hash: string;
+  shortHash: string;
+  /** ISO-8601, the commit's own committer date. */
+  timestampIso: string;
+  subject: string;
+  kind: WorldVaultCommitKind;
+  filesChanged: number;
+  /** Best-effort byte delta across the files this commit touched. */
+  bytesChanged: number;
+}
+
+export interface WorldVaultStatus {
+  exists: boolean;
+  worldPath: string;
+  /** Always equal to `worldPath`: the repository lives inside the world folder. */
+  repoRoot: string | null;
+  branch: string | null;
+  commitCount: number;
+  lastCommit: WorldVaultCommit | null;
+  runnerActive: boolean;
+  /** True from the first detected write until the quiet period commits it. */
+  waitingForSettle: boolean;
+  /** Milliseconds since the last detected write, when `waitingForSettle` is true. */
+  msSinceLastActivity: number | null;
+  quietPeriodMs: number;
+  pollIntervalMs: number;
+  /** Size of `.git`: the actual cost of retaining history. */
+  gitDirBytes: number;
+  /** Size of the working tree: the current world's own size. */
+  workingTreeBytes: number;
+  remoteUrl: string | null;
+  /** Set when `git` itself is unavailable or the repository could not be read. */
+  degradedReason: string | null;
+}
+
+export interface WorldVaultCommitQuery {
+  worldPath: string;
+  offset?: number;
+  limit?: number;
+}
+
+export interface WorldVaultPermission {
+  granted: boolean;
+  /** Always present when `granted` is false; names the exact region and cause. */
+  reason: string | null;
+}
+
+export interface WorldVaultPublishPreflight {
+  worldPath: string;
+  worldSizeBytes: number;
+  fileCount: number;
+  hasRemote: boolean;
+  remoteUrl: string | null;
+  gitAvailable: boolean;
+  ghAvailable: boolean;
+  ghAuthenticated: boolean;
+  ghAccountLogin: string | null;
+}
+
+export interface WorldVaultPruneResult {
+  removedCommitCount: number;
+  reclaimedBytes: number;
+}
+
+export type WorldVaultEvent =
+  | { worldPath: string; kind: 'status'; status: WorldVaultStatus }
+  | { worldPath: string; kind: 'commit'; commit: WorldVaultCommit; status: WorldVaultStatus }
+  | { worldPath: string; kind: 'permission-denied'; regionPath: string; reason: string };
+
+/* ------------------------------------------------------------------ */
 /* External editor                                                     */
 /* ------------------------------------------------------------------ */
 
@@ -363,6 +448,7 @@ export interface StudioEvents {
   'dimsum:surprise': DimSumDraw;
   'app:before-quit': { reason: string };
   'app:theme-source-changed': { shouldUseDarkColors: boolean };
+  'worldvault:event': WorldVaultEvent;
 }
 
 export type StudioEventName = keyof StudioEvents;
@@ -486,6 +572,59 @@ export interface StudioApi {
   events: {
     /** Subscribes to a push channel. Returns an unsubscribe function. */
     on<K extends StudioEventName>(name: K, handler: (payload: StudioEvents[K]) => void): () => void;
+  };
+
+  /**
+   * The version-controlled vault for a downloaded world.
+   *
+   * The repository lives inside the world folder (`<worldPath>/.git`) so it
+   * travels with it. Every mutating call is serialized per world path in the
+   * main process, so a background commit and a user-initiated restore can
+   * never interleave into a corrupt index.
+   */
+  worldVault: {
+    create(worldPath: string): Promise<Result<WorldVaultStatus>>;
+    status(worldPath: string): Promise<Result<WorldVaultStatus>>;
+    /** Starts (or reconfigures) the settle-and-commit background runner. */
+    startRunner(
+      worldPath: string,
+      options: { quietPeriodMs: number; pollIntervalMs: number }
+    ): Promise<Result<WorldVaultStatus>>;
+    stopRunner(worldPath: string): Promise<Result<WorldVaultStatus>>;
+    /** Commits the current state immediately. Used by the runner and by a
+     *  sibling feature that just finished an edit (a chunk copy or removal). */
+    commitNow(
+      worldPath: string,
+      message: string,
+      kind: WorldVaultCommitKind
+    ): Promise<Result<WorldVaultCommit | null>>;
+    commits(query: WorldVaultCommitQuery): Promise<Result<WorldVaultCommit[]>>;
+    /** Restores the working tree to a commit. Always records a NEW commit;
+     *  the state being replaced is committed first if it was not already. */
+    restore(worldPath: string, hash: string): Promise<Result<WorldVaultCommit>>;
+    /** Hazard 6: refuses access to a region file the downloader may still be
+     *  writing. Granted only once that file's writes have gone quiet. */
+    requestRegionAccess(worldPath: string, relativePath: string): Promise<Result<WorldVaultPermission>>;
+    publishPreflight(worldPath: string): Promise<Result<WorldVaultPublishPreflight>>;
+    setRemote(worldPath: string, url: string): Promise<Result<void>>;
+    push(worldPath: string): Promise<Result<{ output: string }>>;
+    /** Creates a new GitHub repository from the vault and pushes to it, via `gh`. */
+    createGithubRepo(
+      worldPath: string,
+      options: { name: string; visibility: 'public' | 'private' }
+    ): Promise<Result<{ url: string; output: string }>>;
+    /** Safe compaction. Never removes a commit. */
+    gc(worldPath: string): Promise<Result<{ gitDirBytes: number }>>;
+    /** Destructive: squashes every commit before `beforeHash` into one. Only
+     *  the detail is lost — the tree at `beforeHash` remains exactly intact. */
+    prune(worldPath: string, beforeHash: string): Promise<Result<WorldVaultPruneResult>>;
+    /**
+     * Checks one commit's tree out to `destinationDirectory` via
+     * `git worktree add --detach`, without touching the live world at all —
+     * for a sibling feature (a render) that needs a commit's files on disk
+     * but must never race the live, possibly-still-downloading world.
+     */
+    exportCommitTree(worldPath: string, hash: string, destinationDirectory: string): Promise<Result<{ path: string }>>;
   };
 }
 

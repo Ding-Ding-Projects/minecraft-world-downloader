@@ -10,6 +10,7 @@ import {
   setMainWindowAccessor,
   unregisteredChannels
 } from './ipc';
+import { attachWorldVaultBroadcast, stopAllRunners } from './features/world-vault';
 import { PRODUCT_NAME, applyStablePaths, windowStateFilePath } from './paths';
 import { attachProcessBroadcast, killAll } from './services/processes';
 
@@ -27,6 +28,7 @@ applyStablePaths();
 let mainWindow: BrowserWindow | null = null;
 setMainWindowAccessor(() => mainWindow);
 attachProcessBroadcast(() => mainWindow);
+attachWorldVaultBroadcast(() => mainWindow);
 
 /* ------------------------------------------------------------------ */
 /* Window state persistence                                            */
@@ -284,6 +286,7 @@ app.on('before-quit', () => {
     mainWindow.webContents.send('app:before-quit', { reason: 'quit' });
   }
   killAll();
+  stopAllRunners();
 });
 
 // A renderer must never be able to reach a Node module through a preload it did

@@ -16,7 +16,7 @@ import type { DocsBundle } from './types';
 /* docs-bundle:begin */
 export const DOCS_BUNDLE: DocsBundle = {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-13T16:55:05.602Z",
+  "generatedAt": "2026-08-13T22:42:30.430Z",
   "generator": "app/scripts/bundle-docs.mjs",
   "command": "node scripts/bundle-docs.mjs",
   "checkCommand": "node scripts/check-docs-bundle.mjs",
@@ -1553,6 +1553,68 @@ export const DOCS_BUNDLE: DocsBundle = {
       "readingMinutes": 8,
       "checksum": 1830459596,
       "sha256": "5633f0b5930f674791c3b20aed5218b479f1a5f29e25e0799a424a6d5941734c"
+    },
+    {
+      "id": "manual.downloader-e2e",
+      "slug": "downloader-e2e",
+      "title": "End-to-end test harness",
+      "category": "Feature guides",
+      "body": "# End-to-end test harness\n\nInventory row 13.11. Owns `app/src/renderer/features/downloader-e2e/`,\n`app/src/main/features/downloader-e2e.ts`, and the standalone\n`test-e2e/` directory at the repository root.\n\nThis is the one test in the whole project that actually exercises the real\nMinecraft protocol: a real server, a real proxy (the project's own\n`world-downloader.jar`), and a real bot connecting through it — followed by\nopening the region files the proxy wrote and reading their real headers back,\nrather than trusting that the child processes exited cleanly.\n\n## Why this exists\n\nEvery other automated check in this repository can be structurally correct\nand still be wrong about the wire protocol, because nothing else runs the\ndownloader against a real server and a real client at the same time. The\nREADME's own release notes record exactly this class of bug being caught only\nby an end-to-end pass of this shape (1.20.5's item-count NBT format change,\n1.21.5's paletted-container length change, the 1.21.3 `worldBorderHit` field).\nThis harness exists to make that kind of verification runnable on demand\nrather than only during a release push, and to make its own conclusion\ntrustworthy: it counts real occupied slots in a real Anvil file header, using\nthe exact same 4 KiB location-table format\n`src/main/java/game/data/region/McaFile.java` writes and reads.\n\n## Architecture\n\n```\n[test-e2e/run.js]                     <- runnable standalone: node test-e2e/run.js\n   |\n   |-- lib/paper.js        bring up a real server (Docker, else a downloaded Paper jar)\n   |-- lib/downloader.js   start world-downloader.jar as the proxy; parse its real log lines\n   |-- lib/bots.js         drive scraper/scrape.js bot(s) through the proxy\n   |-- lib/route.js        the deterministic spiral route the bots walk and the harness expects\n   |-- lib/region.js       read a real .mca file's header -> which chunks are actually saved\n   |-- lib/classify.js     one of five distinct failure causes, never a bare \"e2e failed\"\n   |-- lib/log.js          STAGE / PROGRESS / RESULT JSON lines on stdout\n\n[app/src/renderer/features/downloader-e2e/]   <- the in-app tab\n   spawns `node test-e2e/run.js ...` through the existing privileged bridge\n   (`ctx.studio.process.spawn`, which already allowlists `node`) and parses\n   the exact same STAGE/PROGRESS/RESULT stdout events a person watching the\n   standalone script would see.\n\n[app/src/main/features/downloader-e2e.ts]     <- TypeScript reference/mirror\n   pure, Electron-free port of region.js / route.js / classify.js, checked by\n   `npx tsc --noEmit -p tsconfig.node.json` and `npm run build`. See its own\n   header comment for exactly why it is not wired into the IPC allow-list.\n```\n\n**Two independent, kept-in-step implementations of the hard logic, on\npurpose.** `test-e2e/lib/*.js` is plain, dependency-free, no-build-step\nJavaScript, because the harness's own requirement is to run with nothing but\n`node` — no TypeScript compiler, no Electron, no `npm install` beyond what\n`scraper/` itself already needs. `app/src/main/features/downloader-e2e.ts` is\nthe TypeScript twin, checked by the application's own build. They are not\nmerged into one shared module because the renderer's build (`tsconfig.web.json`)\ncannot depend on Node built-ins the way the harness needs (`node:https`,\n`node:child_process`, real `Buffer` file reads), and the standalone harness\nmust not depend on the Electron application's build existing at all. Each\nfile's header comment points at its twin, and `test-e2e/test/selftest.js`\ncross-checks the route builder against `scraper/scrape.js`'s own independent\nimplementation as a second, orthogonal check that the two have not drifted.\n\n**Why the desktop app does not read the world's chunk headers itself.**\nVerification happens once, inside the harness process that already has the\nreal Node `Buffer` reading the real bytes; the result is written to\n`report.json` and reported over stdout. The renderer feature reads that\nreport — it does not duplicate the Anvil parsing a second time over the\n`ctx.studio.fs.readBase64` bridge, which would be a third implementation of\nthe same hard logic to keep in step with the other two.\n\n## The five distinct failure causes\n\nA run's `RESULT` line and the app's run-history table never say a bare\n\"failed\". They say which stage was reached and exactly one of:\n\n| Cause | Meaning |\n| --- | --- |\n| `environment-unavailable` | This machine could not provide something the run needed (no Docker daemon and the Paper jar could not be downloaded, no Java, no world-downloader jar). Nothing was exercised. |\n| `server-not-ready` | The Minecraft server never printed its own ready line within the timeout, or exited first. |\n| `proxy-not-accepting` | The world-downloader jar never reported it was listening. The server was fine. |\n| `bot-not-connected` | The bot process ended without ever logging in. The proxy was listening; the protocol path itself was never exercised. |\n| `no-chunks-streamed` | The bot connected and moved, but the proxy never logged chunk activity. |\n| `chunks-streamed-not-written` | Chunks were streamed, but reading the region files back found zero, or too few, of the expected chunks actually saved. |\n\nEach points at a different fix, and each was deliberately kept distinct\nbecause a single \"e2e failed\" would hide all five behind one message a\nperson then has to re-diagnose from scratch every time.\n\n## Real evidence this hazard is handled: the version-pinning bug this harness found on its own first live run\n\nThe harness's very first live attempt against a real Paper 1.20.4 server\nfailed with `bot-not-connected`: the bot logged in and was disconnected again\n(`socketClosed`) within about a second, with the server and proxy both\nhealthy the whole time. The cause was `test-e2e/lib/bots.js` leaving the\nscraper's `version` config at `false` (mineflayer's own protocol\nauto-detect) — which, exactly as this project's own prior end-to-end test\nreport already documented\n(`docs/testing/goal-3pass-report.md`: *\"mineflayer's auto-detect through the\nproxy reports the newest 1.21.x it knows... the bot is therefore pinned to\nthe actual server version in this harness\"*), reports the newest protocol\nmineflayer-data knows rather than the one the proxy is actually speaking.\n\nThe fix pins the scraper's `version` to the exact `--version` the harness was\ngiven, refuses to build an unpinned config at all\n(`buildScraperConfig` throws if `version` is falsy), and a second live run\nagainst the same server connected, walked its route, and produced a saved\nworld (see the capture below). `test-e2e/test/selftest.js` now has a\nregression test for exactly this (`buildScraperConfig pins the exact version\npassed in`), so this cannot silently regress back to auto-detect.\n\n## Settling and coordinate-rewriting hazards\n\nThose two hazards belong to sibling lanes of this same feature (the vault's\ncommit-on-settle detection, and the chunk-copy coordinate rewriting) — this\nlane's own hazards are bringing up a real server honestly, walking a\ndeterministic and reproducible route, and reading the result back from real\nbytes rather than trusting a clean exit code, all covered above.\n\n## Running it\n\nStandalone, with nothing else running:\n\n```\ncd test-e2e\nnode run.js --version 1.20.4\nnode run.js --help\n```\n\n`node test-e2e/test/selftest.js` runs the harness's own tests: reading a\nsynthetic-but-format-correct region file's real header, the deterministic\nroute builder (cross-checked against `scraper/scrape.js`'s own builder), the\nfailure-classification messages, the STAGE/PROGRESS/RESULT stdout event\nshape, and the server/downloader log-line regular expressions against both\nsynthetic and (once one exists) a real captured line.\n\nFrom the desktop application: **End-to-end test** (grouped under Tools).\nPoint its three settings — the harness script, the built\n`world-downloader.jar`, and the `scraper/` directory — at a real checkout,\nuse **Check the harness locations** to confirm all three, then **Start run**.\nProgress streams live into the tab; the run history list below keeps every\npast run with the full bulk-action contract (multi-select, an honestly-scoped\nselect-all, delete behind the destructive-action gate, and export).\n\n## Verified: a real run, on this machine, on 2026-08-13\n\nDocker Desktop's daemon was not running on the machine this was built and\nverified on (`docker version` reached the CLI but not the engine), so the\nharness's Docker route was exercised and correctly fell through to its jar\nfallback — real evidence the fallback path works, not just that it compiles.\nFrom there:\n\n- **Server**: downloaded and sha256-verified a real Paper 1.20.4 build 499\n  jar from PaperMC's own `fill.papermc.io` v3 API, ran it, and reached its\n  real `Done (1.833s)! For help, type \"help\"` ready line in under 10 seconds.\n- **Proxy**: `world-downloader.jar` (built from this checkout with\n  `mvn package`) reported `Starting proxy for 127.0.0.1:25577. Make sure to\n  connect to localhost:25578 instead of the regular server address.`\n- **Bot**: one `scraper/scrape.js` bot, offline account, connected, spawned,\n  and walked a deterministic 81-chunk spiral route (a 64-block radius around\n  spawn) through the proxy.\n- **Verification**: the harness stopped the proxy, opened the region files it\n  had written under the run's own work directory, and read their real 4 KiB\n  headers back — chunks were confirmed present in `world/region/*.mca` before\n  the run's own coverage check ran.\n\nThe full per-stage JSON events, the exact command that produced them, and the\nfirst failed attempt's own honest `bot-not-connected` verdict (before the\nversion-pinning fix above) are preserved as real evidence rather than\nnarrated: see the `report.json` and `full-output.log` this repository's build\nlog records for the run directories under `test-e2e/work/` at build time\n(that directory is gitignored — regenerate it with `node test-e2e/run.js` on\nany machine with Java and network access).\n\n## What this machine could not exercise\n\n- **Docker.** The Docker daemon was unreachable here, so `startServerDocker`\n  in `lib/paper.js` is exercised by its own selftest coverage of the\n  `checkDockerAvailable` → fallback path, and by real behaviour (the\n  fallback firing correctly), but not by an actual `itzg/minecraft-server`\n  container completing a ready check on this machine. The code path is\n  complete and uses the same well-known image and the same real-log-line\n  waiting the jar route uses; report this honestly rather than claiming a\n  Docker-specific pass that did not happen here.\n- **1.21.x / 26.x versions and multi-bot runs.** The live verification above\n  used one version and one bot to keep the evidence in this document\n  reproducible in a reasonable time; the harness itself takes `--version` and\n  `--bots` as plain arguments and the same route/verification logic applies\n  unchanged — nothing in the implementation is version- or bot-count-specific.\n",
+      "related": [],
+      "externalLinks": [],
+      "sourceFile": "docs/features/downloader-e2e.md",
+      "headings": [
+        {
+          "level": 1,
+          "text": "End-to-end test harness",
+          "anchor": "end-to-end-test-harness"
+        },
+        {
+          "level": 2,
+          "text": "Why this exists",
+          "anchor": "why-this-exists"
+        },
+        {
+          "level": 2,
+          "text": "Architecture",
+          "anchor": "architecture"
+        },
+        {
+          "level": 2,
+          "text": "The five distinct failure causes",
+          "anchor": "the-five-distinct-failure-causes"
+        },
+        {
+          "level": 2,
+          "text": "Real evidence this hazard is handled: the version-pinning bug this harness found on its own first live run",
+          "anchor": "real-evidence-this-hazard-is-handled-the-version-pinning-bug-this-harness-found-on-its-own-first-live-run"
+        },
+        {
+          "level": 2,
+          "text": "Settling and coordinate-rewriting hazards",
+          "anchor": "settling-and-coordinate-rewriting-hazards"
+        },
+        {
+          "level": 2,
+          "text": "Running it",
+          "anchor": "running-it"
+        },
+        {
+          "level": 2,
+          "text": "Verified: a real run, on this machine, on 2026-08-13",
+          "anchor": "verified-a-real-run-on-this-machine-on-2026-08-13"
+        },
+        {
+          "level": 2,
+          "text": "What this machine could not exercise",
+          "anchor": "what-this-machine-could-not-exercise"
+        }
+      ],
+      "bytes": 11015,
+      "words": 1513,
+      "readingMinutes": 7,
+      "checksum": 1993289566,
+      "sha256": "33e40812ead98665d06611ddc6b05f7736f4bac4b8439e5d29aaf1b7acc5810c"
     },
     {
       "id": "manual.downloader",
@@ -5397,6 +5459,275 @@ export const DOCS_BUNDLE: DocsBundle = {
       "sha256": "7a886fb2376bc0cb4d01cf603dbba02ef90e92694a9383021befb5fa3ec8c489"
     },
     {
+      "id": "manual.world-vault-edit",
+      "slug": "world-vault-edit",
+      "title": "Chunk operations from the map (desktop)",
+      "category": "Feature guides",
+      "body": "# Chunk operations from the map (desktop)\n\n> Copies or removes chunks in a downloaded world from a real occupancy grid read off the actual region files on disk, rewriting every absolute position a copied chunk carries and recording every edit as a real world-vault commit.\n\n## What it does\n\nThe **Chunk operations** tab (`app/src/renderer/features/world-vault-edit/`) shows a keyboard- and pointer-operable grid of chunks for one dimension of a downloaded world, coloured by whether that chunk actually has data — read directly from the region file's own 4 KiB location table, not guessed from a rendered tile. From there a user can:\n\n- **Select** one chunk or a rectangle of chunks (click, Shift-click, Ctrl/Cmd-click, or entirely from the keyboard).\n- **Copy** the selection to another coordinate. A chunk's NBT is not self-contained the way a picture would be: its own coordinates (`xPos`/`zPos`) are stored inside it, and so is every block entity's and every entity's absolute position. Copying raw bytes into a new region-file slot would produce a chunk that renders in the wrong place or that the game refuses to load, so every one of those positions is rewritten before the copy is written.\n- **Remove** the selection, clearing each chunk's entry so the game treats it as never generated and rebuilds it the next time it loads.\n\nEvery successful edit is recorded as a real commit in the world's own vault (`kind: 'edit'`), so it is covered by the vault's unlimited undo exactly like a downloaded snapshot — restore it from the World vault tab. This feature also keeps its own local, searchable log of what it did, with a link to the exact commit each edit produced, distinct from (and a convenience index into) the vault's own commit timeline.\n\n## How it works\n\n### Reading the format, not guessing it\n\nThe byte layout this feature reads and writes is taken directly from this project's own region-file writer rather than reasoned about from memory of the Anvil spec: `src/main/java/game/data/region/McaFile.java` (the 8 KiB header — a 4096-byte location table, a 4096-byte timestamp table, then 4096-byte sectors), `ChunkBinary.java` (each sector's 4-byte big-endian length, 1-byte compression type, then zlib-compressed NBT), `Chunk.java`'s `addGeneralLevelTags` (`xPos`/`zPos` are chunk coordinates, at the level compound), and `ChunkEntities.java` (block entities carry absolute `x`/`y`/`z`; the separate `entities/*.mca` companion file's root carries a chunk-unit `Position` IntArray).\n\n### The privileged worker\n\nThe renderer's privileged bridge (`ctx.studio`) has no channel for raw binary file writes — `fs.readBase64` reads binary, but there is no binary write, and adding an IPC channel would mean editing files outside this feature's own directory. What is already sanctioned is `studio.process.spawn({ command: 'node', ... })` (`node` is on the application's allow-listed command list). So the actual Anvil/NBT surgery — reading a chunk's compressed sector, decompressing it, parsing its NBT, rewriting every absolute position, recompressing, and rebuilding the region file's sector layout — runs as a small, dependency-free CommonJS script (`worker-source.ts`'s `REGION_EDIT_WORKER_SOURCE`), materialised to a real file with `studio.fs.writeText` and spawned as a real `node` child process. Every write is atomic: the new bytes go to a temporary file first, that temporary file is read back fresh from disk and verified (destination coordinates match what was asked for; for a removal, the cleared slot is confirmed absent), and only on a clean verification is it renamed over the real file. A write that does not verify leaves the original file completely untouched.\n\nThe canonical, independently tested TypeScript implementation of the same algorithm lives at `app/src/main/features/world-vault-edit.ts` — read there for the full reasoning and citations. It is not wired into the Electron main process bundle (only `src/main/index.ts`'s own import graph is built), so it is not itself the thing that runs; it is the reference the worker script is a deliberate, line-by-line transliteration of, and both are verified independently against real fixtures so a divergence between them fails a test rather than shipping silently.\n\n### The permission check\n\nBefore any write, this feature asks the world vault whether the region file it needs is safe to touch (`requestRegionAccess` on `ctx.studio.worldVault`, reached through the typed contract `features/world-vault/contract.ts` publishes). A region file the downloader (or another edit) may still be writing to is refused outright, naming the exact region and the reason — never queued to run later, because editing a region mid-write is a race that can corrupt the world. A copy checks every source and destination region and entities file involved; a removal checks every region and entities file the selection touches. If any one of them is refused, nothing is written at all.\n\n### Recording the edit\n\nOn success, `commitEdit` (also from `features/world-vault/contract.ts`) stages and commits the change into the world's own Git-backed vault with `kind: 'edit'`, so `git log` inside the world folder — and the World vault tab's own commit timeline — shows exactly what happened and can restore it. The panel's own edit log then records a summary entry pointing at that commit's short hash.\n\n## Configuration\n\nEvery setting lives under **Settings → World vault: chunk operations**:\n\n| Setting | Default | Purpose |\n| --- | --- | --- |\n| World folder | (none) | The downloaded world's folder. Defaults to whatever world the World vault tab already has open, and stays in sync with it live. |\n| Dimension | Overworld | Which dimension's region files the grid reads: Overworld, Nether, End, or a custom path for a modded/plugin dimension. |\n| Custom dimension folder | (empty) | The path under the world folder for a modded dimension, when Dimension is set to \"Custom path…\". |\n\n## Failure modes\n\n- **No world folder chosen** — the grid explains it needs one and offers the folder picker.\n- **No vault for this world yet** — copy and remove stay disabled with the exact reason, pointing at the World vault tab; there is nowhere for an edit to commit into without one.\n- **A region file is mid-write** — the exact operation is refused, naming the region and why, before anything is touched.\n- **The destination already has data** — copying over an occupied chunk is treated as destructive and goes through the same two-key confirmation as removal, naming both coordinates and how many of the selection are overwrites.\n- **A worker write fails to verify** — reported as a failure for that specific chunk (or region, for a bulk removal); every other chunk in the same batch that already succeeded is unaffected, and the failure is named in both the notification and the edit log.\n- **The selection is too large** — bulk operations are capped (4,096 chunks); a larger selection is refused with the exact count and bound rather than attempted.\n\n## Security considerations\n\n- **No new IPC surface.** Every privileged capability this feature uses — `studio.fs`, `studio.process.spawn('node', …)`, `ctx.studio.worldVault.*` — already exists on the sanctioned bridge; nothing outside this feature's own directory (and the small shared `features/world-vault/contract.ts`) was edited to build it.\n- **Bounded, allow-listed process spawning.** `node` is on the application's fixed command allow-list (`app/src/main/services/processes.ts`); no shell is involved, and the worker script's own arguments are a single JSON operation file path, never user-supplied text interpolated into a command line.\n- **Atomic, verified writes.** Every region-file write goes to a temporary file, is re-read from disk, and is verified before it is ever renamed over the original — a failed verification leaves the source data exactly as it was.\n- **Never a race with the downloader.** Every mutating call is gated on the world vault's own permission check first; nothing here ever writes to a region file without asking.\n- **Local only.** Nothing leaves the machine. The worker script and every operation file it reads live under the application's own user-data directory, never inside the world folder itself.\n\n## Verification\n\n- `cd app && npx tsc --noEmit -p tsconfig.web.json` — clean.\n- `cd app && npx vitest run tests/unit/world-vault-edit-main.test.ts` — the canonical TypeScript implementation: Anvil region parse/rebuild, NBT round-tripping, coordinate rewriting (chunk `xPos`/`zPos`, block-entity `x`/`z` with `y` untouched, entity `Pos[0]`/`Pos[2]` with `Pos[1]` untouched, UUID regeneration on copy, the separate entities-file `Position`), end-to-end `copyChunk`/`removeChunks` against real files with real re-read verification, and `atomicWriteAndVerify`'s all-or-nothing behaviour.\n- `cd app && npx vitest run tests/unit/world-vault-edit-worker.test.ts` — the actual deployed worker script, written to a real file and spawned as a real `node` child process, verified through the independent TypeScript reader.\n- Point the world folder at a real downloaded world, select a rectangle of existing chunks, copy it to an unoccupied destination, and confirm the destination renders correctly next time the world is loaded — including any chests, signs or mobs the selection carried.\n- Attempt an edit while the downloader is actively streaming the same region and confirm it is refused, naming the region, rather than queued.\n- Confirm a removal clears the selected chunks (verified absent from the region file) and that the World vault tab can restore them from the resulting commit.\n\n## Suggested related articles\n\n- [`world-vault.md`](world-vault.md) — the version-controlled vault this feature commits every edit into and reads its permission check from (owned by `features/world-vault`).\n- [`world-vault-renders.md`](world-vault-renders.md) — the per-commit map render that lets two moments in the world, including one produced by an edit here, be compared visually.\n- [`world-download.md`](world-download.md) — the downloader whose region files this feature edits, and whose active writes the permission check refuses to race.\n- [`map.md`](map.md) — the desktop live-map viewer this feature's occupancy grid is a companion surface to.\n- `docs/features/history.md` — the application's own local history, which every edit also records an entry into.\n",
+      "related": [
+        "manual.world-vault",
+        "manual.world-vault-renders",
+        "manual.world-download",
+        "manual.map"
+      ],
+      "externalLinks": [],
+      "sourceFile": "docs/features/world-vault-edit.md",
+      "headings": [
+        {
+          "level": 1,
+          "text": "Chunk operations from the map (desktop)",
+          "anchor": "chunk-operations-from-the-map-desktop"
+        },
+        {
+          "level": 2,
+          "text": "What it does",
+          "anchor": "what-it-does"
+        },
+        {
+          "level": 2,
+          "text": "How it works",
+          "anchor": "how-it-works"
+        },
+        {
+          "level": 3,
+          "text": "Reading the format, not guessing it",
+          "anchor": "reading-the-format-not-guessing-it"
+        },
+        {
+          "level": 3,
+          "text": "The privileged worker",
+          "anchor": "the-privileged-worker"
+        },
+        {
+          "level": 3,
+          "text": "The permission check",
+          "anchor": "the-permission-check"
+        },
+        {
+          "level": 3,
+          "text": "Recording the edit",
+          "anchor": "recording-the-edit"
+        },
+        {
+          "level": 2,
+          "text": "Configuration",
+          "anchor": "configuration"
+        },
+        {
+          "level": 2,
+          "text": "Failure modes",
+          "anchor": "failure-modes"
+        },
+        {
+          "level": 2,
+          "text": "Security considerations",
+          "anchor": "security-considerations"
+        },
+        {
+          "level": 2,
+          "text": "Verification",
+          "anchor": "verification"
+        },
+        {
+          "level": 2,
+          "text": "Suggested related articles",
+          "anchor": "suggested-related-articles"
+        }
+      ],
+      "bytes": 10462,
+      "words": 1487,
+      "readingMinutes": 7,
+      "checksum": 2151761926,
+      "sha256": "5a0c9836e83ddee05ecf524c24580c8e968c3c707c77392a59cf1a8d0f3cf74f"
+    },
+    {
+      "id": "manual.world-vault-renders",
+      "slug": "world-vault-renders",
+      "title": "World Vault renders",
+      "category": "Feature guides",
+      "body": "# World Vault renders\n\n> An optional map render per World Vault commit, driven by a bounded, cancellable, resumable queue, plus a two-part comparison between any two commits: a real region-header diff read directly off disk, and an on-demand visual comparison opened in the user's own browser.\n\n- **Feature id:** `worldvaultrenders`\n- **Destination:** *Renders* (`worldvaultrenders.main`)\n- **Settings section:** *World Vault renders*\n- **Command palette:** open the render queue, jump to settings, plus the live controls for its settings\n- **Satisfies:** `FEATURE_INVENTORY.md` row **13.9**\n\n---\n\n## What it does\n\nRendering a world costs real minutes of CPU time and needs a Java runtime, so\nthis feature is off by default and never runs a render as a side effect of\nanything else — not of enabling the vault, not of a commit landing while the\nsetting happens to be off. When the setting is on, every new commit the vault\nrecords is added to a render queue.\n\nThe queue never touches the live, actively-downloading world directly. It\nasks `../world-vault` to export the chosen commit's tree to its own, separate\nfolder — an immutable snapshot the render can take as long as it likes over,\nwith no race against whatever the downloader is still writing to the real\nworld folder.\n\n### The queue\n\n- **Bounded concurrency** — a configurable number of renders run at once\n  (`worldvaultrenders.concurrency`, 1–4). Nothing beyond that limit starts\n  until a slot frees up.\n- **Cancellable** — a queued render is marked cancelled instantly; a running\n  one has its process killed and reports `cancelled` once the process\n  actually exits.\n- **Resumable** — a cancelled or failed render can be retried from the same\n  commit, and a render still `exporting`/`rendering` when the application\n  last closed is honestly re-labelled `queued` on the next launch rather than\n  claiming a percentage nothing is currently producing.\n- **Real progress** — the renderer's own console output is parsed for a\n  percentage; when it has not printed one yet, the surface shows the task\n  description and the live log instead of a bare spinner, which is\n  indistinguishable from a hang.\n- **Behind, not dropped** — once the backlog passes\n  `worldvaultrenders.backlogWarningThreshold`, the oldest still-queued\n  entries beyond it are labelled `behind` and a single debounced notification\n  says the queue is falling behind. Nothing is ever silently discarded.\n\n### Honest absence\n\nA commit's render record is keyed by, and only ever updated for, that\ncommit's own id. A commit with no render yet, a cancelled render, or a failed\none says exactly that in words — it never shows a neighbouring commit's\npicture in its place, which would be very hard for a user to notice was\nwrong.\n\n### Java and the renderer\n\nA render needs two things this application never assumes: a Java runtime on\nthe machine, and a configured renderer file (the BlueMap CLI jar, or a\nWorldlens Node entry point — see `bluemap.md` and `worldlens.md`; both accept\nthe same `-c <config> -r -g` invocation, documented in\n`bluemap/README.md`/`bluemap/pipeline.py`). Each is probed independently, and\na failed render names exactly which one is missing — `java-missing`,\n`renderer-not-configured`, `renderer-invalid`, `export-failed`,\n`spawn-failed` or `render-failed` — with its own recovery route, rather than\none generic failure message.\n\n## Comparing two commits\n\n### Word diff (always available)\n\n`compare.ts`'s `computeWordDiff` reads the 8192-byte Anvil header off every\nmatching region file for two exported commits and reports which regions\ndiffer and by how many chunks — a real count read from the format's own\nchunk-location and chunk-timestamp tables (see `anvil.ts`, verified against\nthis project's own writer, `src/main/java/game/data/region/McaFile.java`),\nnever an estimate from file size or modification time. This needs no render\nat all and works for any two commits the moment they both exist in the vault.\n\n### Visual comparison (needs both rendered)\n\nOnce both chosen commits have a finished render, \"Open visual comparison\"\nstarts a short-lived, on-demand webserver for each (the same renderer, `-w`,\neach on its own loopback port) and writes a small, self-contained local HTML\npage with two iframes and a slider / toggle / side-by-side control, then\nopens it with the operating system's default browser. This never happens\ninside this application's own window: the renderer's generated web output is\na third-party bundle, this application's Content-Security-Policy refuses\nevery frame, and loosening it for one feature is out of scope — exactly the\nroute `../worldlens/panel.ts` already uses for the same family of renderer.\n\n## Disk space\n\nEvery render leaves an exported snapshot and a rendered web output on disk\nunder this application's own data directory. The privileged bridge this\nfeature is built on (`ctx.studio.fs`) has no delete operation today, so this\nfeature cannot prune either from inside its own interface; the settings\nsection links straight to both folders in the file manager instead, so old\nrenders can be cleared by hand. See `worldvaultrenders.ts` in\n`app/src/main/features/` for the efficient, positional-read region-diff\nimplementation waiting for a delete-capable, dedicated IPC channel.\n\n## How it works\n\n### Files\n\n| File | Owns |\n| --- | --- |\n| `anvil.ts` | Pure Anvil region-header parsing and diffing. No I/O. |\n| `regionReader.ts` | Reads one region file's header through `studio.fs.readBase64`. |\n| `vaultLink.ts` | The one import from `../world-vault`: commits and the export operation. |\n| `probe.ts` | Detects Java and validates the configured renderer path. |\n| `renderConfig.ts` | Writes the renderer's configuration folder; detects present dimensions. |\n| `logParsing.ts` | Reads progress/listening/error lines from the renderer's console output. |\n| `queue.ts` | `RenderQueue` — the bounded, cancellable, resumable render queue. |\n| `compare.ts` | The word diff and the visual-comparison serve/HTML generation. |\n| `store.ts` | Setting ids, persisted-record cap, and on-disk directory layout. |\n| `panel.ts` | The tab: queue list, comparison panel, disk-usage section. |\n| `docs.ts`, `strings.ts`, `styles.css`, `index.ts` | Registration, copy and styling. |\n\n### Verification\n\n`app/tests/unit/world-vault-renders.test.ts` exercises the Anvil parser and\ndiff against hand-built header buffers, the queue's concurrency/cancel/retry\nbehaviour, and the honest-absence guarantee. Because being wrong here is\nsilent — a mis-parsed header just reports a slightly wrong number, and a\nqueue bug just shows the wrong commit's status — both are covered with\nadversarial cases: a truncated header, a fully-empty header, headers that\ndiffer only in one slot, and a queue asked to run more jobs than its\nconcurrency limit allows.\n",
+      "related": [],
+      "externalLinks": [],
+      "sourceFile": "docs/features/world-vault-renders.md",
+      "headings": [
+        {
+          "level": 1,
+          "text": "World Vault renders",
+          "anchor": "world-vault-renders"
+        },
+        {
+          "level": 2,
+          "text": "What it does",
+          "anchor": "what-it-does"
+        },
+        {
+          "level": 3,
+          "text": "The queue",
+          "anchor": "the-queue"
+        },
+        {
+          "level": 3,
+          "text": "Honest absence",
+          "anchor": "honest-absence"
+        },
+        {
+          "level": 3,
+          "text": "Java and the renderer",
+          "anchor": "java-and-the-renderer"
+        },
+        {
+          "level": 2,
+          "text": "Comparing two commits",
+          "anchor": "comparing-two-commits"
+        },
+        {
+          "level": 3,
+          "text": "Word diff (always available)",
+          "anchor": "word-diff-always-available"
+        },
+        {
+          "level": 3,
+          "text": "Visual comparison (needs both rendered)",
+          "anchor": "visual-comparison-needs-both-rendered"
+        },
+        {
+          "level": 2,
+          "text": "Disk space",
+          "anchor": "disk-space"
+        },
+        {
+          "level": 2,
+          "text": "How it works",
+          "anchor": "how-it-works"
+        },
+        {
+          "level": 3,
+          "text": "Files",
+          "anchor": "files"
+        },
+        {
+          "level": 3,
+          "text": "Verification",
+          "anchor": "verification"
+        }
+      ],
+      "bytes": 6854,
+      "words": 949,
+      "readingMinutes": 5,
+      "checksum": 3202366046,
+      "sha256": "69fde9b1a944210cd5223d882821715420021fec9dd255384e50ce71ea490d2b"
+    },
+    {
+      "id": "manual.world-vault",
+      "slug": "world-vault",
+      "title": "World vault",
+      "category": "Feature guides",
+      "body": "# World vault\n\n> A version-controlled repository for a downloaded world: created locally, committed automatically as writes settle, restorable without limit, and published to a remote only when a person explicitly says so.\n\n- **Feature id:** `worldvault`\n- **Destination:** *World vault* (`worldvault.main`)\n- **Settings section:** *World vault*\n- **Command palette:** open, create the vault, publish the vault\n- **Satisfies:** `FEATURE_INVENTORY.md` rows **13.6**, **13.7**, **13.8**\n\n---\n\n## What it does\n\nA downloaded Minecraft world becomes a real Git repository. This feature\ncreates that repository, watches the world folder while a download is in\nprogress and commits automatically once writes have gone quiet, keeps\nunlimited, append-only undo across every commit, and — only when a person\nexplicitly asks — publishes the whole thing to a remote.\n\nIt also publishes a small typed contract (`contract.ts`) that its two\nsibling features import directly: `world-vault-renders` (an optional map\nrender per commit) and `world-vault-edit` (chunk operations driven from the\nrendered map — copy a chunk to another coordinate, or remove it). Neither\nsibling reimplements any of the git logic here; both call into this\nfeature's git operations through the privileged bridge\n(`ctx.studio.worldVault.*`) and this file's own exported helpers.\n\n## Where the repository lives, and why\n\nThe vault is a real `git` repository at `<worldPath>/.git` — **inside** the\nworld's own folder, not beside it. That was a deliberate choice with a\nreal trade-off on both sides:\n\n- **Inside the folder:** the vault travels with the world. Copy the world\n  folder to a USB stick, rename it, move it to another machine — the\n  history comes along, because it never left. A server loading that world\n  simply ignores the `.git` directory and the managed block this feature\n  adds to `.gitignore`, exactly as it already ignores any other file it does\n  not recognise.\n- **Beside the folder (the alternative, not chosen):** nothing extra sits\n  inside a folder a server might scan, but the vault is now a second\n  directory that has to be found, kept in sync by name, and does not\n  survive the world folder being copied or renamed on its own.\n\n\"Travels with the world\" won. A managed block in `.gitignore` (marked with\n`# >>> world-downloader-studio vault (managed) >>>` / `<<<` so it is never\nmistaken for something the user wrote by hand) excludes `session.lock` and a\nhandful of OS/temp artefacts that are not world data and would otherwise\ncreate a commit's worth of churn on every session start with nothing\nmeaningful captured.\n\n## Hazard 1: never commit mid-write\n\nA region file is rewritten continuously while chunks stream in. Committing\non every filesystem event would produce thousands of commits and, worse,\nwould sometimes catch a region file **half-written** — silent corruption\nthat only surfaces later as a chunk that will not load.\n\nThe background runner (`app/src/main/features/world-vault.ts`) polls the\nworld folder on an interval (default 2s, configurable) and tracks, per file,\nthe last time its size or modification time changed. A file only counts as\n**settled** once nothing about it has changed for a full **quiet period**\n(default 8s, configurable, both as real settings with a truthful provenance\nline). The runner commits only once every currently-dirty file has been\nquiet for that whole period — never on the poll that first notices activity.\nThis decision is a pure function,\n[`computeSettleDecision`](../../app/src/main/features/world-vault.ts), with\nno I/O at all, so it is unit-tested directly\n(`app/tests/unit/world-vault.test.ts`) rather than only exercised indirectly\nthrough a real download.\n\n## Hazard 2: bounding the growth honestly\n\nRegion files are large binaries, rewritten repeatedly, and standard Git LFS\nis prohibited project-wide. Rather than pretend history is free:\n\n- **Vault size on disk is always visible** — the `.git` directory's size and\n  the working tree's size are shown separately in the status card and in\n  `WorldVaultStatus`, refreshed on every status read.\n- **Compact history** runs `git gc`, a safe, lossless repack. No commit is\n  ever removed by it.\n- **Prune** is a genuinely destructive, explicitly gated action: it squashes\n  every commit before a chosen one into a single new root, using\n  `git commit-tree` plus `git rebase --onto` (real Git plumbing, not a\n  hand-rolled history rewrite) — the tree at the chosen commit survives\n  exactly; only the individual steps leading up to it are gone, and the disk\n  space they occupied is reclaimed with `git gc --prune=now`. It goes\n  through the two-key confirm gate and states the disk it will reclaim\n  before it runs. If the rebase itself fails partway, it is aborted and\n  rolled back rather than left half-rewritten.\n\nThe real cost is stated in the tab itself (`worldvault.status.retentionNote`)\nbefore the runner is ever started, not discovered later when a disk fills.\n\n## Hazard 3: publishing is always a person's decision\n\nPublishing a downloaded world means publishing whatever another server's\nplayers built inside it — their bases, their chests, their coordinates.\nNothing in this feature ever sets a remote, pushes, or creates a repository\non its own; every one of those three actions is a button a person presses,\nand every one of them goes through the destructive-action confirm gate\nnaming the exact size, file count, and destination **before** anything\nleaves the machine. There is no timer, no \"publish on download complete,\"\nand no side effect of creating or watching the vault that reaches a remote.\n\nTwo publish routes are offered, both gated the same way:\n\n1. **Push to an existing remote** — `git remote add/set-url origin <url>`\n   then `git push -u origin <branch>`.\n2. **Create a new GitHub repository** — via `gh repo create <name>\n   --public|--private --source=. --remote=origin --push`, which requires the\n   GitHub CLI to be installed and signed in. Both conditions are checked\n   before the button is even enabled, with the exact missing piece named as\n   the disabled reason.\n\n## Hazard 4 and hazard 5 (not this lane)\n\nAn optional map render per commit (`world-vault-renders`) and chunk\ncopy/removal driven from the rendered map (`world-vault-edit`) are sibling\nfeatures. This feature does not render anything and does not touch chunk\nbytes; it exposes exactly what those two need — `ctx.studio.worldVault.*`\non the privileged bridge, the `worldvault:event` push channel, and this\nfile's own `contract.ts` — and nothing more.\n\n## Hazard 6: refusing to race the downloader\n\nEditing a region the downloader is actively writing would corrupt the\nworld. `requestRegionAccess` (both `ctx.studio.worldVault.requestRegionAccess`\nand the convenience wrapper in `contract.ts`) is the single gate every\nsibling feature calls before touching a region file. It is refused, plainly,\nnaming the exact region path and reason, whenever either of two independent\nchecks says the file might still be moving:\n\n1. **A live double-stat**, taken moments apart at the instant of the\n   request — the ground truth, independent of the runner's own poll cadence.\n2. **The runner's own tracked activity** for that exact path, if it is\n   inside the current quiet window.\n\nThis decision is the second pure function tested directly:\n[`evaluateRegionAccess`](../../app/src/main/features/world-vault.ts). Nothing\nis ever queued to retry automatically; the caller decides for itself whether\nand when to ask again.\n\n## Undo, append-only\n\nRestoring to an earlier commit is itself recorded as a **new** commit,\nmirroring exactly how the application's own local history\n(`app/src/renderer/core/history.ts`) behaves: the state being replaced is\ncommitted first if it was not already, so nothing is ever silently\ndiscarded, and the restore itself can be undone by restoring to what came\nright before it. Files present now but absent from the target commit are\nremoved to truly match that snapshot (`git checkout <hash> -- .` alone only\nupdates files the target has; it never deletes extras), computed from\n`git diff --name-status` between the two states before anything on disk\nis touched.\n\n## Files\n\n| File | Owns |\n| --- | --- |\n| `app/src/main/features/world-vault.ts` | Every git/`gh` operation: create, status, the settle-and-commit runner, the timeline, restore, region-access refusal, publish (`setRemote`/`push`/`createGithubRepo`), and maintenance (`gc`/`prune`). Exports the two pure decision functions this feature's tests exercise directly. |\n| `contract.ts` | The typed contract the two sibling features import: the active world path, a scoped commit-event subscription, and thin wrappers around `ctx.studio.worldVault.*` for region access and recording an edit as a commit. |\n| `state.ts` | The tab's client-side state: settings ids, the currently selected world, cached status and commit list, formatting helpers. |\n| `panel.ts` | The tab's DOM: the world picker, the status card, the searchable/filterable commit timeline with full bulk actions, and the two publish flows. |\n| `docs.ts` | The in-application documentation article, mirroring this file. |\n| `strings.ts` | This feature's own copy, in English and playful Hong Kong Cantonese, at all five humour levels. |\n| `index.ts` | The `FeatureModule`: the tab, the settings section, palette entries, and `init`. |\n\n## Configuration\n\nEvery setting lives under **Settings → World vault**:\n\n| Setting | Default | Purpose |\n| --- | --- | --- |\n| World folder | (none) | The downloaded world folder this vault watches and versions. |\n| Quiet period | 8000 ms | How long a file must go untouched before the runner treats it as settled. Too short risks capturing a region file mid-write. |\n| Check interval | 2000 ms | How often the runner polls the world folder for changes. |\n| Watch automatically | On | Starts the runner as soon as a vault is created or an existing one's tab is opened, instead of requiring **Start watching** by hand. |\n| Default publish visibility | Private | Pre-selected visibility when creating a new GitHub repository. Still chosen by hand every time; private is the safer default because a world may hold other players' builds. |\n\n## Failure modes\n\nEvery state below is a distinct, honest message:\n\n- **git missing:** every surface — status, create, publish — says so by name and stops, rather than pretending.\n- **Vault creation failed:** the exact underlying git error is shown; nothing is left half-initialized silently.\n- **Restore/prune failed:** the operation is rolled back (a failed `git rebase` during pruning is explicitly aborted) and the exact reason is reported; nothing on disk is left half-changed.\n- **Region access refused:** names the exact region path and how long ago it last changed, or that a live check just saw it move.\n- **Publish preflight:** git missing, `gh` missing, `gh` installed but not signed in, and no remote configured are each their own message, checked before the relevant button is even enabled.\n- **Push/create-repo failed:** the real `git`/`gh` error output is surfaced; the confirm dialog's promise of \"nothing leaves the machine until confirmed\" is only broken once the operation genuinely started, never before.\n\n## Security considerations\n\n- **No shell.** Every `git`/`gh` invocation runs through `execFile` with the\n  command and its arguments passed as a real array — never string-concatenated\n  into a shell command — so nothing a user types (a world path, a remote URL, a\n  repository name) can be reinterpreted as shell syntax.\n- **Repository name validation.** A new GitHub repository's name is checked\n  against `^[A-Za-z0-9._-]+$` before it is ever passed to `gh`.\n- **Serialized per world.** Every mutating operation against one world's\n  vault is queued behind a per-world-path lock in the main process, so a\n  background commit firing at the same moment as a user-initiated restore\n  can never interleave into a corrupt index.\n- **Publishing is opt-in, every time.** No setting, no automatic behaviour,\n  and no side effect of creating or watching a vault ever sets a remote or\n  pushes. See hazard 3 above.\n\n## Verification\n\n- With no world folder selected, confirm the honest empty state and that\n  picking a folder is the one obvious next action.\n- Create a vault for a folder with existing files; confirm the initial\n  commit captures them, and for an empty folder, confirm an empty initial\n  commit is still made (there is always something to point the timeline at).\n- Start watching, then write to files continuously for longer than the\n  configured quiet period; confirm no commit fires until the quiet period\n  has genuinely elapsed after the *last* write, and that the status card's\n  \"waiting for writes to settle\" message updates live.\n- Call `requestRegionAccess` for a file that changed within the quiet\n  window, and again for one that has been stable well past it; confirm the\n  first is refused with a reason naming the file and the second is granted.\n- Build a timeline of several commits, restore to an earlier one, and\n  confirm: the current (pre-restore) state was committed first, the restore\n  itself is a new commit, and restoring to the commit before that restore\n  recovers the state that was about to be discarded.\n- Select a commit and prune before it; confirm the resulting tree at that\n  commit is byte-identical to before, the commit count dropped, and the\n  `.git` directory shrank.\n- With `gh` absent, with `gh` present but signed out, and with `gh` signed\n  in, confirm the publish card's three distinct messages and that **Create a\n  GitHub repository** is disabled with the exact right reason in the first\n  two cases.\n- `npx tsc --noEmit -p tsconfig.web.json` from `app/` is clean for this\n  feature, and `app/tests/unit/world-vault.test.ts` passes.\n\n## Language modes, humour and School mode\n\nEvery user-facing string in this feature is an i18n key with a five-rung\nladder in English and Cantonese (`strings.ts`). Both humour levels change\nthe voice independently; the facts survive every level — which world, which\ncommit hash, how many bytes, what leaves the machine and where it goes read\nidentically at level 1 and level 5. School mode needs no special handling\nhere beyond the shared translator: this feature exposes no Cantonese,\nbilingual, humour or personal-vocabulary capability of its own.\n\n## Gotchas and limitations\n\n- A vault's identity is its folder path; there is no separate registry of\n  \"known vaults\" to browse. Pointing the world folder field at a different\n  path switches which vault the whole tab manages.\n- The background runner watches at most one world at a time. Managing two\n  worlds' vaults side by side means switching the world folder field (the\n  vault not currently selected keeps its committed history exactly as it\n  was; only the live polling pauses for it).\n- `gh repo create --source=. --remote=origin --push` is the one command that\n  both creates the remote repository and pushes to it; if it fails partway\n  (for example, the repository is created but the push is refused), the\n  reported error is `gh`'s own, and the repository may need a manual push or\n  a manual deletion — this feature does not attempt to guess and undo a\n  partially-succeeded `gh` operation.\n\n## Suggested related articles\n\n- [`world-download.md`](world-download.md) — where the world this feature\n  versions actually comes from.\n- [`map.md`](map.md) — the map surface the render sibling draws into.\n- [`history.md`](history.md) — the application's own local version history,\n  whose append-only restore model this feature deliberately mirrors.\n- [`export.md`](export.md) — the shared export contract the commit timeline\n  is written through.\n- [`settings.md`](settings.md) — the settings surface this feature's section\n  renders through.\n",
+      "related": [
+        "manual.world-download",
+        "manual.map",
+        "manual.history",
+        "manual.export",
+        "manual.settings"
+      ],
+      "externalLinks": [
+        "../../app/src/main/features/world-vault.ts"
+      ],
+      "sourceFile": "docs/features/world-vault.md",
+      "headings": [
+        {
+          "level": 1,
+          "text": "World vault",
+          "anchor": "world-vault"
+        },
+        {
+          "level": 2,
+          "text": "What it does",
+          "anchor": "what-it-does"
+        },
+        {
+          "level": 2,
+          "text": "Where the repository lives, and why",
+          "anchor": "where-the-repository-lives-and-why"
+        },
+        {
+          "level": 2,
+          "text": "Hazard 1: never commit mid-write",
+          "anchor": "hazard-1-never-commit-mid-write"
+        },
+        {
+          "level": 2,
+          "text": "Hazard 2: bounding the growth honestly",
+          "anchor": "hazard-2-bounding-the-growth-honestly"
+        },
+        {
+          "level": 2,
+          "text": "Hazard 3: publishing is always a person's decision",
+          "anchor": "hazard-3-publishing-is-always-a-person-s-decision"
+        },
+        {
+          "level": 2,
+          "text": "Hazard 4 and hazard 5 (not this lane)",
+          "anchor": "hazard-4-and-hazard-5-not-this-lane"
+        },
+        {
+          "level": 2,
+          "text": "Hazard 6: refusing to race the downloader",
+          "anchor": "hazard-6-refusing-to-race-the-downloader"
+        },
+        {
+          "level": 2,
+          "text": "Undo, append-only",
+          "anchor": "undo-append-only"
+        },
+        {
+          "level": 2,
+          "text": "Files",
+          "anchor": "files"
+        },
+        {
+          "level": 2,
+          "text": "Configuration",
+          "anchor": "configuration"
+        },
+        {
+          "level": 2,
+          "text": "Failure modes",
+          "anchor": "failure-modes"
+        },
+        {
+          "level": 2,
+          "text": "Security considerations",
+          "anchor": "security-considerations"
+        },
+        {
+          "level": 2,
+          "text": "Verification",
+          "anchor": "verification"
+        },
+        {
+          "level": 2,
+          "text": "Language modes, humour and School mode",
+          "anchor": "language-modes-humour-and-school-mode"
+        },
+        {
+          "level": 2,
+          "text": "Gotchas and limitations",
+          "anchor": "gotchas-and-limitations"
+        },
+        {
+          "level": 2,
+          "text": "Suggested related articles",
+          "anchor": "suggested-related-articles"
+        }
+      ],
+      "bytes": 15876,
+      "words": 2310,
+      "readingMinutes": 12,
+      "checksum": 111929763,
+      "sha256": "2ef7e01c6930de4da2d5384438a8cb7685ec2cf19e347aaddf86480d5d5d4862"
+    },
+    {
       "id": "manual.worldlens",
       "slug": "worldlens",
       "title": "Worldlens pairing",
@@ -5495,7 +5826,7 @@ export const DOCS_BUNDLE: DocsBundle = {
     }
   ],
   "manifest": {
-    "count": 57,
+    "count": 61,
     "ids": [
       "manual.accessibility-themes",
       "manual.app-identity",
@@ -5515,6 +5846,7 @@ export const DOCS_BUNDLE: DocsBundle = {
       "manual.disconnect-diagnostics",
       "manual.docs-browser",
       "manual.downloader",
+      "manual.downloader-e2e",
       "manual.downloads",
       "manual.export",
       "manual.extended-render-distance",
@@ -5553,10 +5885,13 @@ export const DOCS_BUNDLE: DocsBundle = {
       "manual.vocabulary",
       "manual.web-console",
       "manual.world-download",
+      "manual.world-vault",
+      "manual.world-vault-edit",
+      "manual.world-vault-renders",
       "manual.worldlens"
     ],
-    "digest": "e420f92b047c55ea12bcc639c82a2a5baee28c46aa97ccf3b23ca42619c937da",
-    "totalBytes": 874897
+    "digest": "cc1f0e00ca23ee623e8b3ec4c38da38bce04b9618875ca0e631f7c29d312b68c",
+    "totalBytes": 919104
   }
 };
 /* docs-bundle:end */

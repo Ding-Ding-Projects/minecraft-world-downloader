@@ -1,0 +1,122 @@
+.wve-root {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.wve-layout {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-4);
+  padding: var(--md-space-4);
+}
+
+.wve-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--md-space-2);
+  flex-wrap: wrap;
+  margin-block: var(--md-space-2);
+}
+
+.wve-actions--wrap {
+  row-gap: var(--md-space-2);
+}
+
+.wve-vault-status,
+.wve-grid-status,
+.wve-error {
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.wve-error {
+  color: var(--md-sys-color-error);
+  min-height: 1.2em;
+}
+
+.wve-grid-wrap {
+  overflow: auto;
+  max-width: 100%;
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-corner-small);
+  padding: var(--md-space-2);
+}
+
+.wve-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--wve-grid-size, 16), minmax(44px, 1fr));
+  grid-auto-rows: minmax(44px, 1fr);
+  gap: 2px;
+  width: fit-content;
+}
+
+.wve-cell {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-corner-extra-small);
+  background: var(--md-sys-color-surface-container-low);
+  cursor: pointer;
+  padding: 0;
+  transition: background-color var(--md-sys-motion-duration-short2) var(--md-sys-motion-easing-standard);
+}
+
+.wve-cell--empty {
+  background: var(--md-sys-color-surface-container-lowest);
+}
+
+.wve-cell--occupied {
+  background: var(--md-sys-color-secondary-container);
+}
+
+.wve-cell--selected {
+  background: var(--md-sys-color-primary);
+  border-color: var(--md-sys-color-primary);
+}
+
+.wve-cell:focus-visible {
+  outline: 3px solid var(--md-sys-color-primary);
+  outline-offset: 2px;
+}
+
+.wve-grid-help {
+  color: var(--md-sys-color-on-surface-variant);
+  max-width: 60ch;
+}
+
+.wve-selection-summary {
+  font-weight: 500;
+}
+
+.wve-log-row {
+  display: flex;
+  align-items: center;
+  gap: var(--md-space-3);
+  padding: var(--md-space-2) 0;
+  border-bottom: 1px solid var(--md-sys-color-outline-variant);
+  flex-wrap: wrap;
+}
+
+.wve-log-row__detail {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.wve-log-row__meta {
+  color: var(--md-sys-color-on-surface-variant);
+  white-space: nowrap;
+}
+
+/*
+ * Cells stay at the 44px minimum touch target at every width. At narrow
+ * widths the grid itself scrolls horizontally inside `.wve-grid-wrap` (its
+ * own bounded container) rather than shrinking cells below the accessible
+ * minimum or letting the page scroll sideways.
+ */

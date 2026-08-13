@@ -1,0 +1,63 @@
+.worldvaultrenders-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-4);
+  padding: var(--md-space-4);
+  overflow-x: hidden;
+  overflow-y: auto;
+  max-width: 100%;
+}
+
+.worldvaultrenders-body > * {
+  max-width: 100%;
+}
+
+.worldvaultrenders-row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-space-1);
+  justify-content: flex-end;
+}
+
+.worldvaultrenders-progress-text {
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.worldvaultrenders-bulk-row,
+.worldvaultrenders-manual-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--md-space-2);
+  margin-top: var(--md-space-2);
+}
+
+.worldvaultrenders-select-slot {
+  min-width: 0;
+  flex: 1 1 240px;
+}
+
+.worldvaultrenders-compare-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-space-3);
+  margin: var(--md-space-2) 0;
+}
+
+.worldvaultrenders-compare-result {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-2);
+  margin-top: var(--md-space-3);
+  overflow-x: auto;
+}
+
+.worldvaultrenders-compare-warning {
+  color: var(--md-sys-color-error);
+}
+
+@media (max-width: 640px) {
+  .worldvaultrenders-compare-row {
+    flex-direction: column;
+  }
+}

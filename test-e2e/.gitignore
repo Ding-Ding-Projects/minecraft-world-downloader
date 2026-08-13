@@ -1,0 +1,5 @@
+# Downloaded/verified server jars — large binaries, re-fetched (and re-checksummed) on demand.
+.cache/
+
+# Per-run scratch: server data, downloaded worlds, logs, reports.
+work/

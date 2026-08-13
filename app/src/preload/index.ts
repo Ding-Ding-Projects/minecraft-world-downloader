@@ -21,7 +21,14 @@ import type {
   StudioEventName,
   StudioEvents,
   VaultStatus,
-  WindowState
+  WindowState,
+  WorldVaultCommit,
+  WorldVaultCommitKind,
+  WorldVaultCommitQuery,
+  WorldVaultPermission,
+  WorldVaultPruneResult,
+  WorldVaultPublishPreflight,
+  WorldVaultStatus
 } from '../shared/api';
 import { EVENT_CHANNELS, SYNC_INFO_CHANNEL, isEventChannel, type InvokeChannel } from '../shared/channels';
 
@@ -147,6 +154,31 @@ const api: StudioApi = {
         ipcRenderer.removeListener(name, listener as never);
       };
     }
+  },
+
+  worldVault: {
+    create: (worldPath: string) => invoke<WorldVaultStatus>('worldvault:create', worldPath),
+    status: (worldPath: string) => invoke<WorldVaultStatus>('worldvault:status', worldPath),
+    startRunner: (worldPath: string, options: { quietPeriodMs: number; pollIntervalMs: number }) =>
+      invoke<WorldVaultStatus>('worldvault:start-runner', worldPath, options),
+    stopRunner: (worldPath: string) => invoke<WorldVaultStatus>('worldvault:stop-runner', worldPath),
+    commitNow: (worldPath: string, message: string, kind: WorldVaultCommitKind) =>
+      invoke<WorldVaultCommit | null>('worldvault:commit-now', worldPath, message, kind),
+    commits: (query: WorldVaultCommitQuery) => invoke<WorldVaultCommit[]>('worldvault:commits', query),
+    restore: (worldPath: string, hash: string) => invoke<WorldVaultCommit>('worldvault:restore', worldPath, hash),
+    requestRegionAccess: (worldPath: string, relativePath: string) =>
+      invoke<WorldVaultPermission>('worldvault:request-region-access', worldPath, relativePath),
+    publishPreflight: (worldPath: string) =>
+      invoke<WorldVaultPublishPreflight>('worldvault:publish-preflight', worldPath),
+    setRemote: (worldPath: string, url: string) => invoke<void>('worldvault:set-remote', worldPath, url),
+    push: (worldPath: string) => invoke<{ output: string }>('worldvault:push', worldPath),
+    createGithubRepo: (worldPath: string, options: { name: string; visibility: 'public' | 'private' }) =>
+      invoke<{ url: string; output: string }>('worldvault:create-github-repo', worldPath, options),
+    gc: (worldPath: string) => invoke<{ gitDirBytes: number }>('worldvault:gc', worldPath),
+    prune: (worldPath: string, beforeHash: string) =>
+      invoke<WorldVaultPruneResult>('worldvault:prune', worldPath, beforeHash),
+    exportCommitTree: (worldPath: string, hash: string, destinationDirectory: string) =>
+      invoke<{ path: string }>('worldvault:export-commit-tree', worldPath, hash, destinationDirectory)
   }
 };
 

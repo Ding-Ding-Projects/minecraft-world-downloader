@@ -83,6 +83,7 @@ const CATEGORY_OF = {
   // the one article a reader starts at in a different group from everything it links to.
   'mineflayer': 'automation',
   'downloader': 'downloading',
+  'downloader-e2e': 'downloading',
   'world-download': 'downloading',
   'protocol-versions': 'downloading',
   'extended-render-distance': 'downloading',
@@ -145,7 +146,17 @@ const CATEGORY_OF = {
   'external-editor': 'records',
   'updates': 'records',
 
-  'dim-sum': 'delight'
+  'dim-sum': 'delight',
+
+  // The vault is a version-control record of a downloaded world, so it sits
+  // with history/export/changelog rather than under downloading or maps.
+  'world-vault': 'records',
+  // A render is a visualisation of a vault commit's world state, and belongs
+  // with the other map surfaces its output is consumed alongside.
+  'world-vault-renders': 'maps',
+  // Chunk copy/remove is driven from the same occupancy grid and belongs
+  // beside the other map-adjacent surfaces, not under downloading or records.
+  'world-vault-edit': 'maps'
 }
 
 /* The prerequisite and the natural next step, per article. Both are optional

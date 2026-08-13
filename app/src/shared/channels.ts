@@ -65,7 +65,23 @@ export const INVOKE_CHANNELS = [
   'http:request',
   'http:allow',
   'http:rules',
-  'http:revoke'
+  'http:revoke',
+
+  'worldvault:create',
+  'worldvault:status',
+  'worldvault:start-runner',
+  'worldvault:stop-runner',
+  'worldvault:commit-now',
+  'worldvault:commits',
+  'worldvault:restore',
+  'worldvault:request-region-access',
+  'worldvault:publish-preflight',
+  'worldvault:set-remote',
+  'worldvault:push',
+  'worldvault:create-github-repo',
+  'worldvault:gc',
+  'worldvault:prune',
+  'worldvault:export-commit-tree'
 ] as const;
 
 export type InvokeChannel = (typeof INVOKE_CHANNELS)[number];
@@ -84,7 +100,8 @@ export const EVENT_CHANNELS = [
   'process:event',
   'dimsum:surprise',
   'app:before-quit',
-  'app:theme-source-changed'
+  'app:theme-source-changed',
+  'worldvault:event'
 ] as const;
 
 export type EventChannel = (typeof EVENT_CHANNELS)[number];
