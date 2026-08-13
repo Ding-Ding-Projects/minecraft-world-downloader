@@ -11,6 +11,9 @@
 <link rel="stylesheet" href="assets/material.css">
 <link rel="stylesheet" href="assets/site.css">
 <script defer src="assets/site.js"></script>
+<script defer src="assets/schedule.js"></script>
+<script defer src="assets/narrator.js"></script>
+<script defer src="assets/logo.js"></script>
 <style>
 /* Page-scoped layout only. Nothing here restyles a .wds- runtime class,
    and every colour comes from a token. */
@@ -74,8 +77,10 @@
     <nav class="row" aria-label="Site" style="gap:2px;flex:1;min-width:0">
       <a class="btn btn--text" href="index.html">Home</a>
       <a class="btn btn--text" href="docs/index.html">Documentation</a>
-      <a class="btn btn--text" href="changelog.html">Changelog</a>
       <a class="btn btn--text" href="downloads.html" aria-current="page">Downloads</a>
+      <a class="btn btn--text" href="converter.html">Converter</a>
+      <a class="btn btn--text" href="models.html">Local models</a>
+      <a class="btn btn--text" href="changelog.html">Changelog</a>
       <a class="btn btn--text" href="settings.html">Settings</a>
     </nav>
     <div class="appbar__actions" id="appbar-actions"></div>
@@ -96,7 +101,7 @@
       <p>Free, for everyone, with no purchase of any kind.</p>
     </div>
     <div>
-      <p><a href="index.html">Home</a> · <a href="docs/index.html">Documentation</a> · <a href="changelog.html">Changelog</a> · <a href="settings.html">Settings</a></p>
+      <p><a href="index.html">Home</a> · <a href="docs/index.html">Documentation</a> · <a href="converter.html">Converter</a> · <a href="models.html">Local models</a> · <a href="changelog.html">Changelog</a> · <a href="settings.html">Settings</a></p>
       <p id="footer-privacy"></p>
     </div>
   </div>
@@ -598,7 +603,12 @@ Studio.ready(function (S) {
       { id: 'downloads.page', title: S.t('dl.title', 'Downloads'), kind: 'page', keywords: 'installer windows unsigned exe setup', page: 'downloads.html' },
       { id: 'downloads.tab.download', title: S.t('dl.tabDownload', 'Download'), subtitle: 'Downloads', kind: 'destination', tabStrip: 'downloads', tabId: 'download', target: '[data-wds-akey="downloads:hero"]', run: function () { strip.select('download'); } },
       { id: 'downloads.tab.about', title: S.t('dl.tabAbout', 'Cost, signing and updates'), subtitle: 'Downloads', kind: 'destination', tabStrip: 'downloads', tabId: 'about', run: function () { strip.select('about'); } },
-      { id: 'downloads.recheck', title: S.t('dl.recheck', 'Check again'), kind: 'command', keywords: 'refresh manifest release', run: function () { strip.select('download'); start(); } }
+      { id: 'downloads.recheck', title: S.t('dl.recheck', 'Check again'), kind: 'command', keywords: 'refresh manifest release', run: function () { strip.select('download'); start(); } },
+      { id: 'downloads.gotoDocs', title: 'Documentation', kind: 'page', keywords: 'articles help reference', page: 'docs/index.html' },
+      { id: 'downloads.gotoConverter', title: 'Converter', kind: 'page', keywords: 'file convert pdf image audio video archive', page: 'converter.html' },
+      { id: 'downloads.gotoModels', title: 'Local models', kind: 'page', keywords: 'ollama model manager chat', page: 'models.html' },
+      { id: 'downloads.gotoChangelog', title: 'Changelog', kind: 'page', keywords: 'versions releases history', page: 'changelog.html' },
+      { id: 'downloads.gotoSettings', title: 'Settings', kind: 'page', keywords: 'settings preferences options configure', page: 'settings.html' }
     ];
     FAQ.forEach(function (f) {
       items.push({ id: 'downloads.faq.' + f.id, title: f.q, subtitle: 'Downloads · question', kind: 'article', keywords: f.a, tabStrip: 'downloads', tabId: 'download', run: function () { strip.select('download'); } });

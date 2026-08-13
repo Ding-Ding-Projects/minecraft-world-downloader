@@ -328,6 +328,7 @@
           ok: true,
           state: 'reachable',
           baseUrl: baseUrl,
+          runtimeVersion: p.version || null,
           entries: entries,
           pageCount: tagsResult.pages,
           refreshedAt: new Date().toISOString(),

@@ -11,6 +11,9 @@
 <link rel="stylesheet" href="assets/material.css">
 <link rel="stylesheet" href="assets/site.css">
 <script defer src="assets/site.js"></script>
+<script defer src="assets/schedule.js"></script>
+<script defer src="assets/narrator.js"></script>
+<script defer src="assets/logo.js"></script>
 <script defer src="assets/models.js"></script>
 <style>
 /* Page-scoped layout only. Nothing here restyles a .wds- runtime class,
@@ -88,6 +91,8 @@
     <nav class="row" aria-label="Site" style="gap:2px;flex:1;min-width:0">
       <a class="btn btn--text" href="index.html">Home</a>
       <a class="btn btn--text" href="docs/index.html">Documentation</a>
+      <a class="btn btn--text" href="downloads.html">Downloads</a>
+      <a class="btn btn--text" href="converter.html">Converter</a>
       <a class="btn btn--text" href="models.html" aria-current="page">Local models</a>
       <a class="btn btn--text" href="changelog.html">Changelog</a>
       <a class="btn btn--text" href="settings.html">Settings</a>
@@ -115,7 +120,7 @@
       <p>Free, for everyone, with no purchase of any kind.</p>
     </div>
     <div>
-      <p><a href="index.html">Home</a> · <a href="docs/index.html">Documentation</a> · <a href="settings.html">Settings</a></p>
+      <p><a href="index.html">Home</a> · <a href="docs/index.html">Documentation</a> · <a href="downloads.html">Downloads</a> · <a href="converter.html">Converter</a> · <a href="changelog.html">Changelog</a> · <a href="settings.html">Settings</a></p>
       <p id="footer-privacy"></p>
     </div>
   </div>
@@ -360,6 +365,47 @@ Studio.ready(function (S) {
       'aria-label': 'Search this page', title: 'Search this page',
       onclick: function () { search.focus(); search.el.scrollIntoView({ block: 'center' }); }
     }, icon('search')));
+
+    var langBtn = el('button', {
+      class: 'btn btn--icon', type: 'button', 'aria-haspopup': 'menu',
+      'aria-label': t('lang.title', 'Language'), title: t('lang.title', 'Language'),
+      onclick: function () {
+        var items = [{
+          label: t('lang.en', 'English'), checked: S.i18n.mode() === 'en',
+          run: function () { S.i18n.setMode('en'); }
+        }];
+        if (!S.school.suppresses('cantonese')) {
+          items.push({ label: t('lang.zh', 'Cantonese'), checked: S.i18n.mode() === 'zh', run: function () { S.i18n.setMode('zh'); } });
+        }
+        if (!S.school.suppresses('bilingual')) {
+          items.push({ label: t('lang.both', 'Both'), checked: S.i18n.mode() === 'both', run: function () { S.i18n.setMode('both'); } });
+        }
+        items.push('-');
+        items.push({ label: t('lang.title', 'Language') + ' settings', icon: 'settings', run: function () { window.location.href = 'settings.html'; } });
+        S.createMenu({ anchor: langBtn, returnTo: langBtn, ariaLabel: t('lang.title', 'Language'), filterLabel: 'Filter languages', storageKey: 'appbar-language', items: items });
+      }
+    }, icon('globe'));
+    host.appendChild(langBtn);
+
+    var themeBtn = el('button', {
+      class: 'btn btn--icon', type: 'button', 'aria-haspopup': 'menu',
+      'aria-label': t('theme.mode', 'Theme'), title: t('theme.mode', 'Theme'),
+      onclick: function () {
+        S.createMenu({
+          anchor: themeBtn, returnTo: themeBtn, ariaLabel: t('theme.mode', 'Theme'),
+          filterLabel: 'Filter themes', storageKey: 'appbar-theme',
+          items: [
+            { label: t('theme.light', 'Light'), checked: S.theme.mode() === 'light', run: function () { S.theme.setMode('light'); } },
+            { label: t('theme.dark', 'Dark'), checked: S.theme.mode() === 'dark', run: function () { S.theme.setMode('dark'); } },
+            { label: t('theme.system', 'Follow the system'), checked: S.theme.mode() === 'system', run: function () { S.theme.setMode('system'); } },
+            '-',
+            { label: 'Appearance settings', icon: 'palette', run: function () { window.location.href = 'settings.html'; } }
+          ]
+        });
+      }
+    }, icon('eye'));
+    host.appendChild(themeBtn);
+
     var bellBtn = el('button', {
       class: 'btn btn--icon', type: 'button',
       'aria-label': t('notify.centre', 'Notifications'), title: t('notify.centre', 'Notifications'),
@@ -780,6 +826,7 @@ Studio.ready(function (S) {
         paintCatalogList();
         if (snap.ok) {
           statusLine.textContent = t('models.catalog.stale', 'Last refreshed') + ': ' + new Date(snap.refreshedAt).toLocaleTimeString() +
+            ' · runtime version: ' + (snap.runtimeVersion || 'not reported') +
             ' · ' + snap.entries.length + ' installed · pages read: ' + snap.pageCount + ' · ' + snap.completenessNote;
           S.notify.success('Catalog refreshed: ' + snap.entries.length + ' installed model(s).');
         } else {
@@ -1156,7 +1203,13 @@ Studio.ready(function (S) {
    * ================================================================ */
   function registerPalette() {
     var items = [
-      { id: 'page.models', title: t('models.title', 'Local models'), kind: 'page', keywords: 'ollama model runtime catalog pull chat harness', page: 'models.html' }
+      { id: 'page.models', title: t('models.title', 'Local models'), kind: 'page', keywords: 'ollama model runtime catalog pull chat harness', page: 'models.html' },
+      { id: 'models.gotoHome', title: 'Home', kind: 'page', keywords: 'landing overview', page: 'index.html' },
+      { id: 'models.gotoDocs', title: 'Documentation', kind: 'page', keywords: 'articles help reference', page: 'docs/index.html' },
+      { id: 'models.gotoDownloads', title: 'Downloads', kind: 'page', keywords: 'installer release unsigned', page: 'downloads.html' },
+      { id: 'models.gotoConverter', title: 'Converter', kind: 'page', keywords: 'file convert pdf image audio video archive', page: 'converter.html' },
+      { id: 'models.gotoChangelog', title: 'Changelog', kind: 'page', keywords: 'versions releases history', page: 'changelog.html' },
+      { id: 'models.gotoSettings', title: 'Settings', kind: 'page', keywords: 'settings preferences options configure', page: 'settings.html' }
     ];
     TABS.forEach(function (tb) {
       items.push({ id: 'models.tab.' + tb.id, title: TAB_LABELS[tb.id], kind: 'destination', keywords: tb.keywords, page: 'models.html', tabStrip: 'models', tabId: tb.id });

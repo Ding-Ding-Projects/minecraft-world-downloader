@@ -101,6 +101,8 @@ const CATEGORY_OF = {
   'chat-auto-reply': 'automation',
   'mineflayer-chat': 'automation',
   'mineflayer-movement': 'automation',
+  'mineflayer-inventory': 'automation',
+  'mineflayer-world': 'automation',
 
   'web-console': 'servers',
   'desktop-manager': 'servers',
@@ -108,26 +110,33 @@ const CATEGORY_OF = {
   'console': 'servers',
   'server': 'servers',
   'models': 'servers',
+  'site-models': 'servers',
 
   'language': 'language',
   'vocabulary': 'language',
   'school-mode': 'language',
   'narrator': 'language',
+  'site-narrator': 'language',
 
   'appearance': 'appearance',
   'app-identity': 'appearance',
   'app-logo': 'appearance',
+  'site-logo': 'appearance',
   'accessibility-themes': 'appearance',
 
   'settings': 'settings',
   'scheduled-settings': 'settings',
   'site-scheduled-settings': 'settings',
+  'performance': 'settings',
+
+  'status': 'servers',
 
   'history': 'records',
   'export': 'records',
   'changelog': 'records',
   'notification-centre': 'records',
   'docs-browser': 'records',
+  'site-converter': 'records',
 
   'locks': 'locks',
   'support-tickets': 'locks',
@@ -155,6 +164,8 @@ const PREREQ_OF = {
   'chat-auto-reply': 'scraper-bot',
   'bot': 'scraper-bot',
   'mineflayer-movement': 'mineflayer-chat',
+  'mineflayer-inventory': 'mineflayer',
+  'mineflayer-world': 'mineflayer-inventory',
   'console': 'web-console',
   'server': 'deployment-ci',
   'scheduled-settings': 'settings',

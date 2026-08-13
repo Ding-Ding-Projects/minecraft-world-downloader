@@ -11,6 +11,9 @@
 <link rel="stylesheet" href="assets/site.css">
 <script defer src="assets/articles.js"></script>
 <script defer src="assets/site.js"></script>
+<script defer src="assets/schedule.js"></script>
+<script defer src="assets/narrator.js"></script>
+<script defer src="assets/logo.js"></script>
 <style>
 /* ==================================================================
  * Page-scoped layout only. Nothing here restyles a .wds- runtime
@@ -84,6 +87,9 @@
     <nav class="row" aria-label="Site" style="gap:2px;flex:1;min-width:0">
       <a class="btn btn--text" href="index.html">Home</a>
       <a class="btn btn--text" href="docs.html" aria-current="page">Documentation</a>
+      <a class="btn btn--text" href="downloads.html">Downloads</a>
+      <a class="btn btn--text" href="converter.html">Converter</a>
+      <a class="btn btn--text" href="models.html">Local models</a>
       <a class="btn btn--text" href="changelog.html">Changelog</a>
       <a class="btn btn--text" href="settings.html">Settings</a>
     </nav>
@@ -113,7 +119,7 @@
       <p>Every article on this page is bundled into it. Reading them makes no network request.</p>
     </div>
     <div>
-      <p><a href="index.html">Home</a> · <a href="docs.html" aria-current="page">Documentation</a> · <a href="changelog.html">Changelog</a> · <a href="settings.html">Settings</a></p>
+      <p><a href="index.html">Home</a> · <a href="docs.html" aria-current="page">Documentation</a> · <a href="downloads.html">Downloads</a> · <a href="converter.html">Converter</a> · <a href="models.html">Local models</a> · <a href="changelog.html">Changelog</a> · <a href="settings.html">Settings</a></p>
       <p id="footer-privacy"></p>
     </div>
   </div>
@@ -689,7 +695,12 @@ Studio.ready(function (S) {
   }));
   S.palette.register([
     { id: 'docs.search', title: t('doc.searchLabel', 'Search the documentation'), subtitle: 'Documentation',
-      kind: 'command', keywords: 'find article text body', run: function () { search.focus(); } }
+      kind: 'command', keywords: 'find article text body', run: function () { search.focus(); } },
+    { id: 'docs.gotoDownloads', title: 'Downloads', kind: 'page', keywords: 'installer release unsigned', page: 'downloads.html' },
+    { id: 'docs.gotoConverter', title: 'Converter', kind: 'page', keywords: 'file convert pdf image audio video archive', page: 'converter.html' },
+    { id: 'docs.gotoModels', title: 'Local models', kind: 'page', keywords: 'ollama model manager chat', page: 'models.html' },
+    { id: 'docs.gotoChangelog', title: 'Changelog', kind: 'page', keywords: 'versions releases history', page: 'changelog.html' },
+    { id: 'docs.gotoSettings', title: 'Settings', kind: 'page', keywords: 'settings preferences options configure', page: 'settings.html' }
   ]);
 
   /* ================================================================

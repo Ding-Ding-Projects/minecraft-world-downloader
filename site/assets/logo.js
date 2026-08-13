@@ -968,7 +968,7 @@
       var cropHost = el('div', { class: 'stack', style: { gap: '16px', 'min-width': '0' } });
       var statusEl = el('p', { role: 'status', 'aria-live': 'polite' });
       var lossList = el('ul', { class: 'list' });
-      var generateBtn, replaceBtn, removeBtn, resetBtn, presetGrid, presetSearchHost, presetSearchResultsHost;
+      var generateBtn, replaceBtn, removeBtn, resetBtn, presetGrid;
 
       /* ---- presets tab ------------------------------------------- */
       function presetTile(kindLabel, describeText, thumb, isActive, onUse) {
@@ -1074,8 +1074,6 @@
         items.forEach(function (txt) { lossList.appendChild(el('li', { class: 'li', text: txt })); });
       }
 
-      var fitSelect, focalXField, focalYField, cornerRow, backgroundSwitch, backgroundColourRow, contrastNote, safeAreaSwitch, cropEditorWrap;
-
       function rebuildEditor() {
         clear(cropHost);
         if (!session.bitmap) {
@@ -1089,7 +1087,6 @@
         replaceBtn.hidden = false;
 
         var cropEditor = buildCropEditor(session, function () { syncNumericFields(); refreshLosses(); });
-        cropEditorWrap = cropEditor;
 
         var xF = percentField('logo.cropXLabel', 'Left', function () { return session.crop.x; }, function (v) { session.crop.x = v; cropEditor.refresh(); refreshLosses(); });
         var yF = percentField('logo.cropYLabel', 'Top', function () { return session.crop.y; }, function (v) { session.crop.y = v; cropEditor.refresh(); refreshLosses(); });
@@ -1097,7 +1094,7 @@
         var hF = percentField('logo.cropHLabel', 'Height', function () { return session.crop.h; }, function (v) { session.crop.h = v; cropEditor.refresh(); refreshLosses(); });
         function syncNumericFields() { xF.input.wdsRefresh(); yF.input.wdsRefresh(); wF.input.wdsRefresh(); hF.input.wdsRefresh(); }
 
-        fitSelect = S.createSelect({
+        var fitSelect = S.createSelect({
           ariaLabel: t('logo.fitLabel', 'Fit'), storageKey: 'logo-fit', value: session.fit,
           options: [
             { value: 'contain', label: t('logo.fitContain', ''), keywords: 'contain' },
@@ -1137,7 +1134,7 @@
             });
           }
         });
-        contrastNote = el('p', { class: 'field__help' });
+        var contrastNote = el('p', { class: 'field__help' });
         function refreshContrast() {
           clear(contrastNote);
           if (session.transparent) return;

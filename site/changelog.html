@@ -11,6 +11,9 @@
 <link rel="stylesheet" href="assets/material.css">
 <link rel="stylesheet" href="assets/site.css">
 <script defer src="assets/site.js"></script>
+<script defer src="assets/schedule.js"></script>
+<script defer src="assets/narrator.js"></script>
+<script defer src="assets/logo.js"></script>
 <style>
 /* Page-scoped layout only. Nothing here restyles a .wds- runtime class,
    and every colour comes from a token. */
@@ -75,8 +78,10 @@
     <nav class="row" aria-label="Site" style="gap:2px;flex:1;min-width:0">
       <a class="btn btn--text" href="index.html">Home</a>
       <a class="btn btn--text" href="docs/index.html">Documentation</a>
-      <a class="btn btn--text" href="changelog.html" aria-current="page">Changelog</a>
       <a class="btn btn--text" href="downloads.html">Downloads</a>
+      <a class="btn btn--text" href="converter.html">Converter</a>
+      <a class="btn btn--text" href="models.html">Local models</a>
+      <a class="btn btn--text" href="changelog.html" aria-current="page">Changelog</a>
       <a class="btn btn--text" href="settings.html">Settings</a>
     </nav>
     <div class="appbar__actions" id="appbar-actions"></div>
@@ -99,7 +104,7 @@
       <p>Free, for everyone, with no purchase of any kind.</p>
     </div>
     <div>
-      <p><a href="index.html">Home</a> · <a href="docs/index.html">Documentation</a> · <a href="downloads.html">Downloads</a> · <a href="settings.html">Settings</a></p>
+      <p><a href="index.html">Home</a> · <a href="docs/index.html">Documentation</a> · <a href="downloads.html">Downloads</a> · <a href="converter.html">Converter</a> · <a href="models.html">Local models</a> · <a href="settings.html">Settings</a></p>
       <p id="footer-privacy"></p>
     </div>
   </div>
@@ -799,7 +804,12 @@ Studio.ready(function (S) {
       { id: 'changelog.tab.timeline', title: S.t('cl.tabTimeline', 'Timeline'), subtitle: 'Changelog', kind: 'destination', tabStrip: 'changelog', tabId: 'timeline', run: function () { strip.select('timeline'); } },
       { id: 'changelog.tab.about', title: S.t('cl.tabAbout', 'About this changelog'), subtitle: 'Changelog', kind: 'destination', tabStrip: 'changelog', tabId: 'about', run: function () { strip.select('about'); } },
       { id: 'changelog.copy', title: S.t('cl.copyVisible', 'Copy the visible changelog'), kind: 'command', keywords: 'markdown export text', run: function () { strip.select('timeline'); var vis = visibleVersions(); S.copy(markdownFor(vis)).then(function () { S.notify.success(S.t('cl.copiedBody')); }); } },
-      { id: 'changelog.export', title: S.t('act.export') + ' the changelog', kind: 'command', keywords: 'csv json export download', run: function () { strip.select('timeline'); S.exportDialog(rowsFor(visibleVersions()), { name: 'changelog', omitted: rangeNote() }); } }
+      { id: 'changelog.export', title: S.t('act.export') + ' the changelog', kind: 'command', keywords: 'csv json export download', run: function () { strip.select('timeline'); S.exportDialog(rowsFor(visibleVersions()), { name: 'changelog', omitted: rangeNote() }); } },
+      { id: 'changelog.gotoDocs', title: 'Documentation', kind: 'page', keywords: 'articles help reference', page: 'docs/index.html' },
+      { id: 'changelog.gotoDownloads', title: 'Downloads', kind: 'page', keywords: 'installer release unsigned', page: 'downloads.html' },
+      { id: 'changelog.gotoConverter', title: 'Converter', kind: 'page', keywords: 'file convert pdf image audio video archive', page: 'converter.html' },
+      { id: 'changelog.gotoModels', title: 'Local models', kind: 'page', keywords: 'ollama model manager chat', page: 'models.html' },
+      { id: 'changelog.gotoSettings', title: 'Settings', kind: 'page', keywords: 'settings preferences options configure', page: 'settings.html' }
     ];
     VERSIONS.forEach(function (v) {
       var akey = 'changelog:version:' + (v.tag || ('unreleased-' + (v.tagCommit || 'head')));

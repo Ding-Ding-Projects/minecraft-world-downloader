@@ -1,0 +1,304 @@
+/*
+ * The Status tab.
+ *
+ * Every colour, radius, spacing and duration comes from the Material Design 3
+ * tokens, never a literal, so a seed-colour, density or contrast change reaches
+ * this feature without editing it. Wide content never forces the page itself to
+ * scroll sideways, and nothing here clips under the longest bilingual label or
+ * at 200% display scale — rows wrap their text and their action rows wrap their
+ * buttons.
+ */
+
+.status-banner {
+  margin-block-end: var(--md-space-3);
+}
+
+.status-store-status {
+  color: var(--md-sys-color-on-surface-variant);
+  margin-block-end: var(--md-space-3);
+}
+
+.status-store-status--bad {
+  color: var(--md-sys-color-error);
+}
+
+/* ---------------- filters ---------------- */
+
+.status-filters {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-3);
+  margin-block-end: var(--md-space-3);
+}
+
+.status-filters__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-space-2);
+}
+
+/* ---------------- bulk bar ---------------- */
+
+.status-bulk {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--md-space-3);
+  padding: var(--md-space-3) var(--md-space-4);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-corner-large);
+  background: var(--md-sys-color-secondary-container);
+  margin-block-end: var(--md-space-3);
+}
+
+.status-bulk__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-space-2);
+}
+
+/* ---------------- the list ---------------- */
+
+.status-lanes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-3);
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.status-lane {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-2);
+  padding: var(--md-space-4);
+}
+
+.status-lane--selected {
+  border-color: var(--md-sys-color-primary);
+  background: var(--md-sys-color-primary-container);
+}
+
+.status-lane__head {
+  display: flex;
+  align-items: center;
+  gap: var(--md-space-2);
+  flex-wrap: wrap;
+}
+
+.status-lane__select {
+  flex: 0 0 auto;
+}
+
+.status-lane__title {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--md-space-2);
+  flex: 1 1 12rem;
+  min-inline-size: 0;
+}
+
+.status-lane__title h3 {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.status-lane__status {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--md-space-1);
+  padding: var(--md-space-1) var(--md-space-2);
+  border-radius: var(--md-sys-shape-corner-full);
+  background: var(--md-sys-color-surface-container-high);
+  font: var(--md-sys-typescale-label-medium-size) / var(--md-sys-typescale-label-medium-line) var(--md-sys-typeface-plain);
+}
+
+.status-lane__status--running {
+  background: var(--md-sys-color-primary-container);
+  color: var(--md-sys-color-on-primary-container);
+}
+
+.status-lane__status--waiting {
+  background: var(--md-sys-color-surface-container-highest);
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.status-lane__status--blocked {
+  background: var(--md-sys-color-warning-container);
+  color: var(--md-sys-color-on-warning-container);
+}
+
+.status-lane__status--landed {
+  background: var(--md-sys-color-success-container);
+  color: var(--md-sys-color-on-success-container);
+}
+
+.status-lane__status--failed {
+  background: var(--md-sys-color-error-container);
+  color: var(--md-sys-color-on-error-container);
+}
+
+.status-lane__meta,
+.status-lane__attempt {
+  color: var(--md-sys-color-on-surface-variant);
+  margin: 0;
+}
+
+.status-lane__warning {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--md-space-2);
+  padding: var(--md-space-2) var(--md-space-3);
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: var(--md-sys-color-error-container);
+  color: var(--md-sys-color-on-error-container);
+}
+
+.status-lane__warning p {
+  margin: 0;
+  flex: 1 1 16rem;
+}
+
+.status-lane__summary {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.status-lane__summary--empty {
+  color: var(--md-sys-color-on-surface-variant);
+  font-style: italic;
+}
+
+.status-lane__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-space-2);
+}
+
+/* ---------------- expanded detail ---------------- */
+
+.status-lane__detail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-3);
+  padding: var(--md-space-3);
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: var(--md-sys-color-surface-container-low);
+  overflow-x: auto;
+}
+
+.status-lane__facts {
+  display: grid;
+  grid-template-columns: minmax(8rem, max-content) 1fr;
+  gap: var(--md-space-1) var(--md-space-3);
+  margin: 0;
+}
+
+.status-lane__facts dt {
+  color: var(--md-sys-color-on-surface-variant);
+  font: var(--md-sys-typescale-label-medium-size) / var(--md-sys-typescale-label-medium-line) var(--md-sys-typeface-plain);
+}
+
+.status-lane__facts dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.status-lane__worktree {
+  margin: 0;
+  font-family: var(--md-sys-typeface-mono);
+  overflow-wrap: anywhere;
+}
+
+.status-lane__evidence,
+.status-lane__gates {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-2);
+}
+
+.status-lane__evidence-item {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--md-space-2);
+}
+
+.status-lane__evidence-state {
+  flex: 0 0 auto;
+  padding: var(--md-space-1) var(--md-space-2);
+  border-radius: var(--md-sys-shape-corner-full);
+  background: var(--md-sys-color-surface-container-highest);
+  font: var(--md-sys-typescale-label-small-size) / var(--md-sys-typescale-label-small-line) var(--md-sys-typeface-plain);
+}
+
+.status-lane__evidence-state--verified {
+  background: var(--md-sys-color-success-container);
+  color: var(--md-sys-color-on-success-container);
+}
+
+.status-lane__evidence-state--failed {
+  background: var(--md-sys-color-error-container);
+  color: var(--md-sys-color-on-error-container);
+}
+
+.status-lane__evidence-label {
+  flex: 1 1 12rem;
+  min-inline-size: 0;
+  overflow-wrap: anywhere;
+}
+
+/* ---------------- empty state ---------------- */
+
+.status-empty {
+  padding-block: var(--md-space-6);
+}
+
+/* ---------------- the add/edit form ---------------- */
+
+.status-form__note {
+  color: var(--md-sys-color-on-surface-variant);
+  padding: var(--md-space-2) var(--md-space-3);
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: var(--md-sys-color-surface-container-low);
+}
+
+.status-form__rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-2);
+}
+
+.status-form__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--md-space-2);
+  padding: var(--md-space-2);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-corner-medium);
+}
+
+.status-form__row > * {
+  flex: 1 1 10rem;
+  min-inline-size: 0;
+}
+
+.status-form__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--md-space-2);
+  margin-block-start: var(--md-space-3);
+}
+
+.status-form__error {
+  color: var(--md-sys-color-error);
+  min-block-size: 1.2em;
+}
