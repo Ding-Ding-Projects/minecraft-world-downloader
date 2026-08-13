@@ -10,6 +10,13 @@
 <link rel="stylesheet" href="assets/tokens.css">
 <link rel="stylesheet" href="assets/material.css">
 <link rel="stylesheet" href="assets/site.css">
+<script>
+// The page bootstrap below is an inline script, so it runs at parse position — before the
+// deferred site.js has defined Studio. Without this stub it throws ReferenceError and the entire
+// interface never builds, which presents as a page whose controls all do nothing.
+// This queues the callbacks; site.js adopts the queue when it loads, so defer is kept.
+window.Studio = window.Studio || { __pendingReady: [], ready: function (fn) { this.__pendingReady.push(fn); } };
+</script>
 <script defer src="assets/site.js"></script>
 <script defer src="assets/schedule.js"></script>
 <script defer src="assets/narrator.js"></script>
@@ -388,6 +395,18 @@
 </svg>
 
 <script>
+/* This page's own inline script must not run until "Studio" (from the
+   deferred assets/site.js) genuinely exists. A <script defer> executes
+   only once the WHOLE document has finished parsing -- which is AFTER
+   an ordinary, non-deferred inline <script> like this one, wherever it
+   sits in the document. Calling Studio.ready(...) directly here threw
+   "Studio is not defined", because at that point in real parsing order
+   the deferred script had not run yet, which aborted this entire block
+   and left the page rendering nothing past the hero: no feature grid,
+   no download button, no tab host, no search wiring. Waiting for
+   DOMContentLoaded (which fires only after every deferred script has
+   already run) is what makes this safe. */
+window.addEventListener('DOMContentLoaded', function () {
 Studio.ready(function (S) {
   'use strict';
 
@@ -2130,6 +2149,7 @@ Studio.ready(function (S) {
   document.title = S.tBoth('lp.tagline', 'World Downloader Studio') + ' · World Downloader Studio';
   S.i18n.apply(document.body);
   start();
+});
 });
 </script>
 </body>
