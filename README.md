@@ -133,12 +133,12 @@ release — produced end-to-end through the dockerized downloader. See
 feature test (all features + combinations, world load-back, BlueMap, upgrade-playability).
 
 ### Basic usage
-[Download](https://github.com/cafepromenade/minecraft-world-downloader/releases/latest/download/WorldDownloaderManager-Setup.exe) the Windows desktop manager and run it. Enter the server address in the address field and press start.
+[Download](https://github.com/cafepromenade/minecraft-world-downloader/releases/latest/download/WorldDownloaderManager-Setup.exe) the Windows desktop application and run it. Enter the server address in the address field and press start.
 
-<img src="https://i.imgur.com/yH8SH5C.png">
+<img src="docs/images/captures/readme-console-start.png" width="80%" alt="The Console tab of World Downloader Studio: a Service card with Not configured status and a Start it up button, above a Configuration card with a search field.">
 
 Instead of connecting to the server itself, connect to `localhost` in Minecraft to start downloading the world.
-<img src="https://i.imgur.com/wKMnXfq.png">
+<img src="docs/images/captures/readme-console-connection.png" width="80%" alt="The Console tab's Connection card, showing the Server address and Proxy port (host) fields with the explanatory text describing which port your Minecraft client should connect to.">
 
 If you run into any problems, check the [FAQ](https://github.com/cafepromenade/minecraft-world-downloader/wiki/FAQ) page for some common issues. 
 
@@ -149,7 +149,25 @@ If you run into any problems, check the [FAQ](https://github.com/cafepromenade/m
 - Extend the client's render distance by sending chunks downloaded previously back to the client
 - Overview map of chunks that have been saved:
 
-<img src="https://i.imgur.com/7FIJ6fZ.png" width="80%" title="Example of the GUI showing all the downloaded chunks as white squares, which ones from a previous download greyed out.">
+<img src="docs/images/captures/readme-live-map.png" width="80%" alt="The Live map tab of World Downloader Studio, showing its marker/grid/crosshair toggles and position panel. This capture was taken with no world downloaded yet in this environment, so the map canvas itself is empty; once chunks are saved they render here as an explorable, pannable/zoomable overview.">
+
+<details>
+<summary><strong>More screenshots</strong> — Overview, World downloader, supported versions, appearance, command palette, bots, local models</summary>
+
+Real captures of the built application (`app/`), taken at the commit this README documents. No mockups, no design files.
+
+| | |
+|---|---|
+| ![Overview page listing the build's version, Electron/Chromium/Node versions, the 36 installed feature modules, and the bundled documentation count.](docs/images/captures/readme-overview.png) | ![The World downloader tab: Java runtime detection, the jar picker, session status, and the generated command line.](docs/images/captures/readme-world-downloader.png) |
+| Overview — build info, installed modules, docs | World downloader — Java/jar setup, session, command line |
+| ![The World downloader tab scrolled to Live status and the searchable Supported game versions table listing protocol and data versions from 1.8 through 26.x.](docs/images/captures/readme-supported-versions.png) | ![The Appearance tab showing Material Design 3 colour tokens (primary, secondary, tertiary, surface, outline, etc.) with their hex values, plus colour scheme, accent colour, contrast and density controls.](docs/images/captures/readme-appearance.png) |
+| World downloader — live status & supported versions | Appearance — M3 colour tokens and theme controls |
+| ![The command palette open over the Overview page, searching every command, setting and destination; the result count reads 1299 of 1299 shown.](docs/images/captures/readme-command-palette.png) | ![The Bots tab: start-runtime control, a searchable list of saved profiles and live bots, and New profile / Quick connect / Delete / Export actions, in its honest empty state.](docs/images/captures/05-mineflayer-bots.png) |
+| Command palette — `Ctrl+Shift+F`, searches everything | Bots — mineflayer profiles and live connections |
+| ![The command palette filtered to "Local models", listing matching settings destinations such as Model runtime address, Request timeout, and Catalog source.](docs/images/captures/06-models.png) | |
+| Local models — settings reachable from the palette | |
+
+</details>
 
 ### Requirements
 - Java 21 or higher

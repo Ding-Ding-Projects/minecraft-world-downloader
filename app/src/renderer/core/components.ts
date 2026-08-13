@@ -99,12 +99,20 @@ function iconButton(options: IconButtonOptions): HTMLButtonElement {
   const variant = options.variant ?? 'standard';
   const node = el('button', {
     className: `md-icon-btn md-icon-btn--${variant}`,
-    attrs: { type: 'button', 'aria-label': label(options.label), title: label(options.label) }
+    attrs: { type: 'button', 'aria-label': label(options.label) }
   });
   if (options.id) node.id = options.id;
   if (options.toggled !== undefined) node.setAttribute('aria-pressed', String(options.toggled));
   node.append(iconElement(options.icon));
   applyDisabled(node, options.disabled === true, options.disabledReason);
+  // `applyDisabled` clears `title` whenever the control is enabled (it uses
+  // that attribute to carry the disabled-reason explanation, and removes it
+  // once there is nothing to explain). An icon button's `title` is not only
+  // that explanation — it is the hover tooltip that stands in for the visible
+  // text label every other button has, so it is applied here, after
+  // `applyDisabled`, rather than up front where a call to `applyDisabled`
+  // would silently strip it from every icon button that is not disabled.
+  if (options.disabled !== true) node.title = label(options.label);
   if (options.onClick) node.addEventListener('click', options.onClick);
   a11y.assertTouchTarget(node, `icon-button:${options.label}`);
   return node;

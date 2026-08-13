@@ -1,6 +1,16 @@
-# Desktop manager (C# WPF)
+# Desktop manager (C# WPF) — retired
 
-> A Windows desktop GUI that configures and runs the world-downloader web console as a Docker container, and drives the optional BlueMap 3D-map and mineflayer auto-explore bot helpers.
+> **This component is retired.** `desktop/` was the original Windows-only WPF app; the unified
+> Electron + Material Design 3 application at [`app/`](../../app/README.md) has replaced it, and
+> `desktop/` is no longer what this project ships or documents with current screenshots. This
+> article is kept as historical reference for the WPF implementation only — every detail below
+> (the `DockerService` wrapper, the NSIS installer, the `.NET` regex builder, and so on) describes
+> that retired code, not `app/`. For the feature covered by this article in the current
+> application, see [World downloader](downloader.md), [Console](console.md),
+> [Live map](live-map.md), [Appearance](appearance.md), and the rest of the
+> [feature index](README.md). Current screenshots of the shipping application live in
+> [`docs/images/captures/`](../images/captures/) and are used from the root
+> [`README.md`](../../README.md).
 
 ## What it does
 
@@ -102,12 +112,15 @@ Build-time NSIS defines (`installer.nsi`): `APP_VERSION`, `SRC_DIR`, `OUT_FILE` 
 
 - `dotnet build desktop/WorldDownloaderManager.csproj -c Release` passes with zero warnings and zero errors.
 - `dotnet test desktop.tests/WorldDownloaderManager.Tests.csproj -c Release` passes 10/10 tests covering DPAPI/no-plaintext serialization, secret redaction, hostile YAML values, valid/invalid/Unicode/zero-width/adversarial regexes, capture groups, bounded output, and independent bilingual humour.
-- Lowlevel MCP launched the real WPF build on an off-screen desktop and captured Downloader, Settings, Regex builder, and forced dim-sum states under [`docs/images/desktop-global-memory/`](../images/desktop-global-memory/).
 - Docker, BlueMap and bot process integrations remain outside this unit-test boundary and require their external runtimes.
 
-| Downloader | Settings | Regex builder | Startup delight |
-|---|---|---|---|
-| ![Downloader tab](../images/desktop-global-memory/downloader-tab.png) | ![Settings tab](../images/desktop-global-memory/settings-tab.png) | ![Regex builder tab](../images/desktop-global-memory/regex-builder-tab.png) | ![Shrimp dumpling startup toast](../images/desktop-global-memory/dim-sum-toast.png) |
+**Screenshots removed.** This article previously carried four captures of the WPF build's
+Downloader, Settings, Regex builder and forced dim-sum states under
+`docs/images/desktop-global-memory/`. Those files, and their copies under
+`site/assets/docs-images/`, have been deleted: `desktop/` is retired and the images showed an
+interface this project no longer ships, so keeping them would misrepresent the current
+application. See [`docs/images/captures/`](../images/captures/) for real captures of `app/`, the
+application that replaced it.
 
 ## Gotchas & limitations
 

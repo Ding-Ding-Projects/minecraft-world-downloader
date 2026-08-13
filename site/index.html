@@ -1336,7 +1336,20 @@ Studio.ready(function (S) {
     var root = S.el('div', { class: 'lp-panel prose' });
     S.append(root, [
       S.el('h2', { text: 'Installing it' }),
-      S.el('p', { text: 'When a release exists, the button at the top of this page offers the Windows installer directly, at the immutable address recorded in this site’s release manifest. Until then there is nothing to install, and the two routes below are what is actually available.' }),
+      (function () {
+        function installIntroText() {
+          if (releaseInfo.state === 'ready') {
+            return 'The button at the top of this page offers the Windows installer directly, at the immutable address recorded in this site’s release manifest: version ' + releaseInfo.version + '. The two routes below are how to build it yourself instead, if you would rather not trust a downloaded binary.';
+          }
+          if (releaseInfo.state === 'checking') {
+            return 'This page is still reading the release manifest to find out whether the button at the top offers a real installer. The two routes below are what is available regardless.';
+          }
+          return 'There is no verified release at the moment, so the button at the top of this page has nothing to offer. The two routes below are what is actually available.';
+        }
+        var p = S.el('p', { text: installIntroText() });
+        onReleaseInfo(function () { p.textContent = installIntroText(); });
+        return p;
+      })(),
 
       S.el('h3', { text: 'What it will need' }),
       S.el('div', { class: 'scrollx' }, S.el('table', { class: 'tbl' }, [
