@@ -134,22 +134,14 @@ describe('the tonal palette produced from a seed matches the token set tokens.cs
     const css = readFileSync(TOKENS_CSS, 'utf8');
     const declared = new Set([...css.matchAll(/--md-sys-color-([a-z-]+):/g)].map((match) => match[1]));
 
-    // `success`/`warning` and their `on-`/`-container` siblings are static
-    // semantic aliases (see tokens.css's own comment): they stay whatever
-    // tokens.css says and theme.ts does not regenerate them from the seed.
-    // Every other declared colour role must come out of the real generator,
-    // and the real generator must not invent a role tokens.css does not know.
-    const STATIC_ALIASES = new Set([
-      'success',
-      'on-success',
-      'success-container',
-      'on-success-container',
-      'warning',
-      'on-warning',
-      'warning-container',
-      'on-warning-container'
-    ]);
-    const declaredGenerated = [...declared].filter((name) => !STATIC_ALIASES.has(name));
+    // `success` and `warning` (with their `on-`/`-container` siblings) used to
+    // be static literals that theme.ts never touched -- tokens.css carried the
+    // only definition, and a seed change could not reach them. They are now
+    // real generated roles, from their own fixed hue/chroma tonal palettes
+    // (the same construction `error` already used), so every declared colour
+    // role comes out of the real generator and the generator must not invent
+    // a role tokens.css does not know.
+    const declaredGenerated = [...declared];
 
     const missingFromGenerator = declaredGenerated.filter((name) => !generatedRoles.has(name));
     const extraInGenerator = [...generatedRoles].filter((name) => !declared.has(name));
