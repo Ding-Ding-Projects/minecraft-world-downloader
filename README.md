@@ -175,6 +175,101 @@ If you run into any problems, check the [FAQ](https://github.com/cafepromenade/m
 
 <img src="docs/images/captures/readme-live-map.png" width="80%" alt="The Live map tab of World Downloader Studio, showing its marker/grid/crosshair toggles and position panel. This capture was taken with no world downloaded yet in this environment, so the map canvas itself is empty; once chunks are saved they render here as an explorable, pannable/zoomable overview.">
 
+### World vault: version control, renders and chunk editing
+
+A downloaded world can also become a real, local Git repository. **World vault** watches the
+folder while it settles and commits automatically, keeps an unlimited, undoable commit timeline,
+and only ever leaves the machine through an explicit, two-key **publish** gate — nothing pushes
+on a timer or as a side effect of anything else.
+
+<img src="docs/images/captures/23-world-vault.png" width="80%" alt="The World vault tab: the status card showing 2 commits, the branch, last commit and on-disk size, plus Stop watching / Commit now / Compact history actions, and the commit timeline table below listing both real commits with their kind, files-changed and bytes-changed columns.">
+
+Publishing shows exactly what is about to leave the machine — size, file count and destination —
+behind the same two-key, slide-to-confirm gate every other destructive action in the app uses:
+
+<img src="docs/images/captures/24-world-vault-publish-confirm.png" width="80%" alt="The publish confirmation gate open over the World vault tab: the title reads 'This one is permanent: Push the vault (29.4 KB, 4 files) to https://github.com/example/scratch-vault-demo.git', with a What this affects list, a What cannot be undone paragraph, two independent First key / Second key controls, a disabled confirmation slider, and Emergency exit / Cancel actions.">
+
+**Renders** can turn any commit into a rendered map, queued and tracked with real per-row status —
+and it is honest when nothing has been rendered yet rather than inventing a placeholder:
+
+<img src="docs/images/captures/25-world-vault-renders-queue.png" width="80%" alt="The Renders tab in its honest empty state: 'Nothing rendered yet. Turn it on in settings, or start one for a commit below.' shown both as a page-level banner and as the render queue table's own empty row, with a commit picker and a disabled Render this commit button beneath it.">
+
+Two commits can be compared directly — which region files changed, and by how much:
+
+<img src="docs/images/captures/26-world-vault-renders-compare.png" width="80%" alt="The Renders tab's Compare two commits card with two different real commits chosen (Created the vault: initial snapshot on the left, Captured a manual snapshot on the right) and the real result 'No region files differ between these two commits.' beneath the Compare button, plus the Slider/Toggle/Side-by-side visual-comparison mode and the exported-snapshots folder card.">
+
+**Chunk operations** reads real region-file occupancy into a clickable grid, so a chunk — or a
+whole rectangle of them — can be copied to a new location or removed outright, with every edit
+recorded both in the vault's own commit history and in this feature's own edit log:
+
+<img src="docs/images/captures/27-world-vault-edit-chunk-grid.png" width="80%" alt="The Chunk operations tab: part of the 16x16 chunk grid with a 3x3 rectangle selection highlighted in purple, the Selection card reading '9 chunks selected, from (3, 2) to (5, 4)' with destination-X/Z fields and enabled Copy to destination / Remove selected chunks buttons, the tab-group sidebar expanded, and the Edit log's honest 'No edits recorded yet' empty state below.">
+
+Finally, **the end-to-end test harness** — the same one this README's verified-versions table is
+built from — has its own destination: launch a real Paper server, drive real bots through the
+downloader proxy, and verify the saved world by reading region files back:
+
+<img src="docs/images/captures/28-downloader-e2e.png" width="80%" alt="The End-to-end test tab: a Launch a run card with version, server-route, walk-radius, bot-count and pass-threshold controls and a Start the end-to-end run button, and a Current run card reading 'Nothing running — start one above.' — its honest idle state, since no harness is configured in this capture environment.">
+
+<details>
+<summary><strong>Capture method, commit, and defects fixed along the way</strong></summary>
+
+These six images are real screenshots of the packaged desktop application (`npm run build`, then
+`npx electron-builder --win --dir --config electron-builder.yml`, both exit `0`), launched on an
+off-screen Windows desktop and driven over the Chrome DevTools Protocol — the same method as every
+other capture in this README. The feature set was introduced at commit
+[`e9ace7b`](https://github.com/cafepromenade/minecraft-world-downloader/commit/e9ace7be983a176fa317b75482f83f32f059d6ee)
+("Version-control the downloaded world, render it, and edit chunks from the map"); this capture
+session's own working tree sits on top of that at
+[`72adf02`](https://github.com/cafepromenade/minecraft-world-downloader/commit/72adf0293243312530d1fcb7d586f48068a72b00).
+
+No world had actually been downloaded in this environment, so a real, throwaway folder outside the
+repository stood in for one — World vault doesn't know or care that it isn't Minecraft data, which
+is exactly why the vault, commit, and chunk-grid captures could be genuine rather than mocked. Two
+real commits were made to it (a create and a manual snapshot) so the commit timeline, the publish
+gate's size/file-count numbers, and the commit-comparison picker all show real, non-fabricated
+values. The renders queue and the end-to-end harness captures are shown in their honest not-yet-used
+states: no render is enabled in settings, and no harness script is configured in this environment,
+so "Nothing rendered yet" and "Nothing running — start one above" are what the real application
+actually says. **Every navigation for this pass — including expanding the collapsed "Tools" group
+to reach the End-to-end test tab — was driven through the real, visible interface** (a genuine
+click on the group's expand header, confirmed by checking the tab button's `offsetParent` before
+clicking it), never by mutating state directly. The single-visible-heading assertion from `c8ff5c0`
+was re-checked after every navigation and held throughout; no muddled multi-pane screen was ever a
+candidate for a capture.
+
+**Four real defects were found and fixed by driving the built application, not by its test suite:**
+
+- **The vault could never actually be created.** `git status --porcelain --cached` is not a valid
+  git invocation — `--cached` is not a `git status` option — so every one of the five call sites
+  that used it (create, commit-now, the background settle-runner, restore, and prune) failed at the
+  first hurdle. The feature was not degraded, it was inert: no repository was ever created and the
+  advertised unlimited undo had nothing to undo. Fixed by switching to `git diff --cached
+  --name-only`, the actual way to ask what is staged.
+- **The publish button could get stuck disabled after typing a remote URL.** Its enabled state was
+  computed once, when the async preflight resolved — usually before the user had finished typing —
+  and never recomputed afterward, so a URL typed a moment too late left "Set the remote and push"
+  permanently unusable. Fixed by recomputing on every keystroke as well as when the preflight
+  resolves.
+- **The publish gate's own safety copy could show literal `{size}`/`{files}` tokens instead of real
+  numbers**, because the higher funny-level variants of the risk paragraph and the confirmation
+  dialog's title carry those placeholders but the call sites never supplied the values — visible
+  directly in the screenshot this feature exists to make trustworthy. Fixed by threading the real
+  size and file count through both call sites.
+- **Every render and every commit comparison failed before it started.** The renders feature builds
+  its export/output directories by joining a commit's `vaultId` — which is the vault's own absolute
+  world path — in as a path *segment*. On Windows that is not a nested directory, it is an illegal
+  one: an absolute path carries its own drive-letter colon, and a colon is not valid anywhere in a
+  Windows path component except right after the drive letter. Fixed with a `vaultDirName()`
+  sanitizer that turns the raw path into one safe, stable, collision-resistant segment.
+
+The git-status fix above was independently found and committed by a concurrent pass during this
+same session (visible as its own commit in the history); the other three ship as part of this
+capture session's own working tree. None of the four were reachable without genuinely exercising
+the built application end to end — the project's unit suite covers the pure settle-detection and
+region-access-race logic and never once calls a real `git` binary or a real filesystem path.
+
+</details>
+
 <details>
 <summary><strong>More screenshots</strong> — every destination: Overview, World downloader, supported versions, appearance, command palette, bots, local models, console, live map, Worldlens, containers, changelog, settings, version history, notifications, destructive gate, both themes, narrow layout, error state, empty state</summary>
 
