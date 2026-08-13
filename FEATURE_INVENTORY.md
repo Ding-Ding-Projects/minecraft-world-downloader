@@ -187,6 +187,8 @@ directory and registers itself; it never edits a shared registration file.
 | 14.4 | Every release carries the project's line count, produced by the committed counter at the tagged commit. | `scripts/count-lines.mjs` | n/a | ⬜ | Broken down by area, stating exclusions, separating generated from hand-written, and reporting agent versus human authorship per surviving line. |
 | 14.5 | Every release carries end-to-end workflow timing and a dim sum photo asset with the dish named. | `.github/workflows/release.yml` | n/a | ⬜ | Timing measured, never estimated. |
 | 14.6 | An executable negative regression that removes one asserted item at a time from this inventory and must turn red. | `app/tests/inventory.test.ts` | n/a | ⬜ | Uses exact boundaries, never a descendant selector or a substring a rename can satisfy. |
+| 14.7 | This project is registered with the shared status hub, reporting its repository, branch, current state, evidence and next gates. | `scripts/report-status.mjs` | n/a | ✅ | Registered and confirmed by a `200` response. The enrollment token is read on the host where the hub runs and used in place — never printed, never written to a file, never entered into chat. |
+| 14.8 | The application ships its own status surface carrying the same states, evidence and honesty rules as the shared hub. | `features/status` | yes | ⬜ | A user looking at the application sees what the hub sees without leaving it. Emoji-bearing states, evidence behind every claim, and a check that has not run reported as unrun rather than passed. |
 
 ---
 
