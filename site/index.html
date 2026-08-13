@@ -115,6 +115,17 @@ window.Studio = window.Studio || { __pendingReady: [], ready: function (fn) { th
 .lp-dl__meta dt { color: var(--md-sys-color-on-surface); font-weight: 600; }
 .lp-dl__meta dd { margin: 0; overflow-wrap: anywhere; }
 .lp-dl__meta code { font-family: var(--md-sys-typeface-mono); font-size: 0.94em; }
+/* The disclosure toggle and the file/notes links below it are real
+   controls with a real job (expand a list, open a download), not
+   words inside a paragraph, so they get a genuine touch target
+   rather than the prose exemption footer links use. "Other files"
+   (details/summary/ul) and "Release notes for …" (its own
+   .lp-dl__meta <p>) are both direct descendants of the same .lp-dl
+   card, which is what these selectors reach them through. */
+.lp-dl details summary { padding: 12px 0; cursor: pointer; }
+.lp-dl details ul { list-style: none; margin: 6px 0 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+.lp-dl details ul li a,
+.lp-dl__meta > a { display: flex; align-items: center; min-height: var(--wds-target-min); }
 .lp-dl__unsigned {
   display: flex; gap: 8px; align-items: flex-start;
   padding: 10px 12px; border-radius: var(--md-sys-shape-corner-medium);

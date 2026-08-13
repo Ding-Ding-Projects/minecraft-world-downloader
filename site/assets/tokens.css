@@ -448,6 +448,35 @@
   }
 }
 
+/* The type scale steps down at narrow widths, through the same
+   tokens every heading and hero already reads -- never a one-off
+   font-size on the element that happens to be wrapping badly. A
+   57px display size and a 32px headline are set for a desktop
+   column; on a 360px phone they wrap into three and four lines
+   apiece and eat the whole first screen before any real content.
+   Only the large display/headline/title-large tiers move: body,
+   label and title-medium/small stay put, because those already sit
+   inside the touch-target minimum and shrinking them further would
+   hurt legibility on the exact controls a fingertip has to read. */
+@media (max-width: 599px) {
+  :root {
+    --md-sys-typescale-display-large-size: 40px;
+    --md-sys-typescale-display-large-line-height: 48px;
+    --md-sys-typescale-display-medium-size: 34px;
+    --md-sys-typescale-display-medium-line-height: 40px;
+    --md-sys-typescale-display-small-size: 30px;
+    --md-sys-typescale-display-small-line-height: 38px;
+    --md-sys-typescale-headline-large-size: 26px;
+    --md-sys-typescale-headline-large-line-height: 32px;
+    --md-sys-typescale-headline-medium-size: 23px;
+    --md-sys-typescale-headline-medium-line-height: 29px;
+    --md-sys-typescale-headline-small-size: 21px;
+    --md-sys-typescale-headline-small-line-height: 27px;
+    --md-sys-typescale-title-large-size: 20px;
+    --md-sys-typescale-title-large-line-height: 26px;
+  }
+}
+
 /* Reduced motion. Durations collapse to near-zero rather than to 0, so
    transitionend still fires and state machines that wait on it do not
    stall. Nothing else about the design changes. */

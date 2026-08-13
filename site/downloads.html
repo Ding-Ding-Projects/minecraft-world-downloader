@@ -51,6 +51,10 @@ window.Studio = window.Studio || { __pendingReady: [], ready: function (fn) { th
 .dl-meta dt { color: var(--md-sys-color-on-surface); font-weight: 600; }
 .dl-meta dd { margin: 0; overflow-wrap: anywhere; }
 .dl-meta code { font-family: var(--md-sys-typeface-mono); font-size: 0.94em; }
+/* The "Release notes for …" link is a real, standalone link (its own
+   paragraph, not a word inside running prose), so it gets a genuine
+   touch target rather than the prose exemption footer links use. */
+#download-state > p > a { display: flex; align-items: center; min-height: var(--wds-target-min); }
 .dl-unsigned {
   display: flex; gap: 8px; align-items: flex-start;
   padding: 10px 12px; border-radius: var(--md-sys-shape-corner-medium);
@@ -81,15 +85,18 @@ window.Studio = window.Studio || { __pendingReady: [], ready: function (fn) { th
       <svg class="site-brand__mark" viewBox="0 0 512 512" aria-hidden="true" focusable="false"><use href="#wds-logo"></use></svg>
       <span class="site-brand__name">World Downloader Studio</span>
     </a>
-    <nav class="row" aria-label="Site" style="gap:2px;flex:1;min-width:0">
-      <a class="btn btn--text" href="index.html">Home</a>
-      <a class="btn btn--text" href="docs/index.html">Documentation</a>
-      <a class="btn btn--text" href="downloads.html" aria-current="page">Downloads</a>
-      <a class="btn btn--text" href="converter.html">Converter</a>
-      <a class="btn btn--text" href="models.html">Local models</a>
-      <a class="btn btn--text" href="changelog.html">Changelog</a>
-      <a class="btn btn--text" href="settings.html">Settings</a>
+    <nav class="row site-nav" id="site-nav" aria-label="Site" style="gap:2px;flex:1;min-width:0">
+      <a class="btn btn--text" href="index.html" data-i18n="nav.home">Home</a>
+      <a class="btn btn--text" href="docs/index.html" data-i18n="nav.docs">Documentation</a>
+      <a class="btn btn--text" href="downloads.html" aria-current="page" data-i18n="nav.downloads">Downloads</a>
+      <a class="btn btn--text" href="converter.html" data-i18n="nav.converter">Converter</a>
+      <a class="btn btn--text" href="models.html" data-i18n="nav.models">Local models</a>
+      <a class="btn btn--text" href="changelog.html" data-i18n="nav.changelog">Changelog</a>
+      <a class="btn btn--text" href="settings.html" data-i18n="nav.settings">Settings</a>
     </nav>
+    <button type="button" class="btn btn--icon site-nav-toggle" aria-haspopup="menu" aria-controls="site-nav" aria-expanded="false" aria-label="Site navigation" title="Site navigation">
+      <svg class="i" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 6h16M4 12h16M4 18h16"></path></svg>
+    </button>
     <div class="appbar__actions" id="appbar-actions"></div>
   </div>
 </header>

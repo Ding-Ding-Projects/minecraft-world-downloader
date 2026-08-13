@@ -63,6 +63,29 @@ window.Studio = window.Studio || { __pendingReady: [], ready: function (fn) { th
 .cl-entry__tags { display: flex; flex-wrap: wrap; gap: 4px; grid-column: 1 / -1; }
 .cl-entry__sha { grid-column: 3; justify-self: end; display: flex; gap: 4px; align-items: center; }
 .cl-entry__sha code { font-family: var(--md-sys-typeface-mono); font-size: var(--md-sys-typescale-body-small-size); }
+/* A commit SHA is a real link, but it is also one of potentially
+   hundreds on this page -- a release with a big commit history can
+   list every one of them. Forcing each to a full 44px row would
+   turn a scannable changelog into a very long scroll for no benefit
+   proportional to the cost, so this -- like the footer's prose
+   links -- gets real padding and a cancelling negative margin
+   (bigger, real separation; same visual position) rather than the
+   full touch minimum. */
+.cl-entry__sha a, .cl-version__meta a {
+  display: inline-block; padding: 8px 4px; margin: -8px -4px;
+}
+/* Deliberately compact -- one row per commit, and a release can have
+   a great many -- but still a real touch target once the screen is
+   narrow enough that a finger, not a mouse, is doing the tapping.
+   This override has to live here rather than in the shared
+   assets/site.css: that file's link tag comes before this <style>
+   block in <head>, so an unconditional same-specificity rule declared
+   here would otherwise win over a conditional one declared there,
+   media query or not. */
+.cl-entry__copybtn { width: 28px; height: 28px; min-height: 28px; }
+@media (max-width: 899px) {
+  .cl-entry__copybtn { width: var(--wds-target-min); height: var(--wds-target-min); min-height: var(--wds-target-min); }
+}
 .cl-badge { font-size: var(--md-sys-typescale-label-small-size); padding: 2px 8px; border-radius: var(--md-sys-shape-corner-full); white-space: nowrap; }
 .cl-badge--breaking { background: var(--md-sys-color-error-container); color: var(--md-sys-color-on-error-container); }
 .cl-badge--agent { background: var(--md-sys-color-tertiary-container); color: var(--md-sys-color-on-tertiary-container); }
@@ -82,15 +105,18 @@ window.Studio = window.Studio || { __pendingReady: [], ready: function (fn) { th
       <svg class="site-brand__mark" viewBox="0 0 512 512" aria-hidden="true" focusable="false"><use href="#wds-logo"></use></svg>
       <span class="site-brand__name">World Downloader Studio</span>
     </a>
-    <nav class="row" aria-label="Site" style="gap:2px;flex:1;min-width:0">
-      <a class="btn btn--text" href="index.html">Home</a>
-      <a class="btn btn--text" href="docs/index.html">Documentation</a>
-      <a class="btn btn--text" href="downloads.html">Downloads</a>
-      <a class="btn btn--text" href="converter.html">Converter</a>
-      <a class="btn btn--text" href="models.html">Local models</a>
-      <a class="btn btn--text" href="changelog.html" aria-current="page">Changelog</a>
-      <a class="btn btn--text" href="settings.html">Settings</a>
+    <nav class="row site-nav" id="site-nav" aria-label="Site" style="gap:2px;flex:1;min-width:0">
+      <a class="btn btn--text" href="index.html" data-i18n="nav.home">Home</a>
+      <a class="btn btn--text" href="docs/index.html" data-i18n="nav.docs">Documentation</a>
+      <a class="btn btn--text" href="downloads.html" data-i18n="nav.downloads">Downloads</a>
+      <a class="btn btn--text" href="converter.html" data-i18n="nav.converter">Converter</a>
+      <a class="btn btn--text" href="models.html" data-i18n="nav.models">Local models</a>
+      <a class="btn btn--text" href="changelog.html" aria-current="page" data-i18n="nav.changelog">Changelog</a>
+      <a class="btn btn--text" href="settings.html" data-i18n="nav.settings">Settings</a>
     </nav>
+    <button type="button" class="btn btn--icon site-nav-toggle" aria-haspopup="menu" aria-controls="site-nav" aria-expanded="false" aria-label="Site navigation" title="Site navigation">
+      <svg class="i" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 6h16M4 12h16M4 18h16"></path></svg>
+    </button>
     <div class="appbar__actions" id="appbar-actions"></div>
   </div>
 </header>
@@ -441,8 +467,8 @@ Studio.ready(function (S) {
       el('span', { class: 'cl-entry__sha' }, [
         shaNode,
         el('button', {
-          class: 'btn btn--icon', type: 'button', 'aria-label': 'Copy the full commit SHA for ' + e.short,
-          title: 'Copy the full commit SHA', style: { width: '28px', height: '28px', 'min-height': '28px' },
+          class: 'btn btn--icon cl-entry__copybtn', type: 'button', 'aria-label': 'Copy the full commit SHA for ' + e.short,
+          title: 'Copy the full commit SHA',
           onclick: function () { S.copy(e.sha).then(function () { S.notify.success(t('act.copied', 'Copied.')); }); }
         }, icon('copy', 'i--sm'))
       ]),

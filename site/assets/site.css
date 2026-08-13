@@ -39,17 +39,49 @@ body { min-height: 100vh; display: flex; flex-direction: column; }
   background: var(--md-sys-color-surface-container);
 }
 .site-appbar .appbar { max-width: var(--wds-site-max-wide); margin: 0 auto; width: 100%; }
+/* Whatever sits between the brand and the actions -- the full text
+   nav, its collapsed menu button, a search field that hides itself
+   below 599px -- none of it is guaranteed to be a flex:1 element
+   that pushes the actions to the far end on its own. Give the
+   actions cluster that job directly so it stays pinned to the end
+   of the bar no matter what its neighbours do. On a wide bar the
+   flex:1 nav already claims the free space, so this is a no-op
+   there and only starts doing anything once that space is free. */
+.appbar__actions { margin-inline-start: auto; }
 .site-brand {
   display: inline-flex; align-items: center; gap: 10px; text-decoration: none;
   color: inherit; padding: 0 8px; min-height: var(--wds-target-min); border-radius: var(--md-sys-shape-corner-small);
+  /* A flex item's default min-width is auto (its content's own
+     width), not 0 -- without this, the brand refuses to shrink at
+     all, and something else in the bar (the nav toggle, the action
+     icons) gets squeezed to make room for it instead. Zero lets the
+     name itself truncate below when the row is genuinely tight. */
+  min-width: 0;
 }
 .site-brand:focus-visible { outline: var(--wds-focus-width) solid var(--md-sys-color-secondary); outline-offset: var(--wds-focus-offset); }
 .site-brand__mark { width: 28px; height: 28px; flex: none; border-radius: var(--md-sys-shape-corner-small); }
 .site-brand__name {
   font: var(--md-sys-typescale-title-medium-weight) var(--md-sys-typescale-title-medium-size)/var(--md-sys-typescale-title-medium-line-height) var(--md-sys-typeface-brand);
-  white-space: nowrap;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0;
 }
 .site-appbar__search { flex: 1; min-width: 0; max-width: 460px; }
+
+/* The text nav is the real navigation -- seven plain links, real
+   hrefs, works with no script at all. Below the width where seven
+   text buttons plus the brand plus the action icons can no longer
+   share one row without wrapping into a column that clips the last
+   link and covers the title, it is replaced by one menu button that
+   opens the exact same links (read straight off these anchors) as a
+   real anchored, keyboard-operable, dismissible menu. Both live in
+   the markup always; only one is ever visible. */
+.site-nav-toggle {
+  display: none;
+  /* A flex item's default flex-shrink is 1: without this, a tight
+     bar shrinks the toggle button itself down toward its icon's own
+     content width instead of shrinking the brand text, which is the
+     one thing here that can lose width and still make sense. */
+  flex: none;
+}
 
 .wrap { width: 100%; max-width: var(--wds-site-max); margin: 0 auto; padding: 32px var(--wds-site-gutter) 80px; min-width: 0; }
 .wrap--wide { max-width: var(--wds-site-max-wide); }
@@ -105,6 +137,17 @@ hr { border: 0; height: 1px; background: var(--md-sys-color-outline-variant); ma
 .site-footer__inner {
   max-width: var(--wds-site-max-wide); margin: 0 auto;
   display: flex; flex-wrap: wrap; gap: 24px; justify-content: space-between;
+}
+/* These links sit in running prose -- "Home · Documentation ·
+   Downloads · ..." -- so they are exempt from the 44px touch-target
+   minimum: forcing each word up to that height would break one
+   readable line into an ungainly stack. They still get real padding,
+   with a matching negative margin so the visual text position and
+   the gap around each middot do not move, so two adjacent links do
+   not collide under a fingertip even though neither one alone
+   reaches the full minimum. */
+.site-footer__inner a {
+  display: inline-block; padding: 12px 4px; margin: -12px -4px;
 }
 
 /* ==================================================================
@@ -587,6 +630,73 @@ hr { border: 0; height: 1px; background: var(--md-sys-color-outline-variant); ma
 
 /* ---- responsive: 320px upward ----------------------------------------- */
 @media (max-width: 899px) {
+  /* Below this width the seven-link text nav no longer fits beside
+     the brand and the action icons on one row -- it collapses to a
+     column that clips "Documentation" at the edge and covers the
+     title. Hide the real links and show the menu button that reads
+     them instead; see .site-nav-toggle above. */
+  .site-nav { display: none; }
+  .site-nav-toggle { display: inline-flex; }
+
+  /* Touch minimum. A control may still be DRAWN at the desktop
+     density (40px), but on a touch width that box is also the whole
+     hit target -- there is no mouse pointer to land precisely, and
+     no hover state to confirm a near-miss. --wds-density-control-height
+     backs both .btn and .btn--icon, so raising it once here lifts
+     every text button, icon button and dense field on the page to a
+     genuine 48px box instead of relying on the invisible ::before
+     hit-area alone, which a plain boundingClientRect measurement --
+     the only thing a fingertip or an automated check can see --
+     never credits. */
+  :root { --wds-density-control-height: var(--wds-target-min); }
+  /* An icon-only tab in a collapsed side strip is only as wide as
+     the strip lets it be; give it a floor so it never shrinks below
+     a real target on its short axis the way min-height alone does
+     on its long one. */
+  .wds-tab { min-width: var(--wds-target-min); }
+  .wds-tabgroup__head { min-height: var(--wds-target-min); min-width: var(--wds-target-min); }
+  /* The search box already carries a 48px minimum, but its children
+     are centred rather than stretched to fill it (so the caret does
+     not stretch to the box's full height), which left the input
+     itself -- the thing a tap actually has to land on -- sized to
+     its own text instead of the box around it. */
+  .wds-search__input { min-height: var(--wds-target-min); }
+  /* Every "What this does" / "N values changed" progressive-
+     disclosure toggle on the site is a bare <summary>, sized to its
+     one line of text. Padding (not a min-height + flex) is
+     deliberate: <summary>'s default `display: list-item` is what
+     draws its own disclosure triangle, and switching it to flex to
+     set a min-height would draw the control bigger while quietly
+     deleting the marker that says it is a toggle at all. */
+  summary { padding: 12px 0; cursor: pointer; }
+  /* A radio/checkbox `<input>` with no class -- the funny-level
+     picker's own native inputs -- draws at whatever the platform's
+     default control size is, which is well under 44px everywhere
+     it has been checked. Give the box itself real size and use the
+     same ::before hit-area technique as .btn--icon for anything the
+     box drawing still leaves short, without clipping it away. */
+  input[type="radio"], input[type="checkbox"] {
+    width: var(--wds-target-min); height: var(--wds-target-min);
+    margin: 0;
+  }
+  /* The switch's drawn track (.switch__track) stays the real 52x32
+     M3 spec size at every width -- that is not a bug to fix, it is
+     the component. The <button> around it (.switch) is a separate,
+     independently sized box that centres the track inside itself,
+     so it can grow to a real touch target on its own without
+     stretching the pill it draws. */
+  .switch { min-width: max(52px, var(--wds-target-min)); min-height: var(--wds-target-min); }
+  /* A range input's own drawn track is 4px, but the element's real
+     box (what a tap and this measurement both see) is its CSS
+     height, independent of the thin track painted inside it via
+     ::-webkit-slider-runnable-track. Growing it does not touch the
+     track's own drawn height. */
+  .slider input[type="range"] { height: var(--wds-target-min); }
+  /* A link inside a data-table cell is only as tall as its own text
+     -- the table's generous 12px cell padding belongs to the <td>,
+     not to the <a> a tap and this measurement actually see. */
+  .tbl td a { display: inline-flex; align-items: center; min-height: var(--wds-target-min); }
+
   .wds-tabsurface[data-dock="left"] > .wds-tabstrip,
   .wds-tabsurface[data-dock="right"] > .wds-tabstrip { width: var(--wds-tabstrip-width-collapsed); }
   /* The tools sit in a row while the strip is wide. Once it collapses
@@ -618,6 +728,15 @@ hr { border: 0; height: 1px; background: var(--md-sys-color-outline-variant); ma
   .btn { padding: 0 16px; }
   .btn--text { padding: 0 8px; }
   .wds-otp__code { font-size: var(--md-sys-typescale-headline-medium-size); }
+  /* At the very narrowest widths, a search box that already carries
+     two 48px trailing icon buttons (regex mode, regex builder) can
+     be squeezed enough that the input itself -- the thing actually
+     being typed into -- drops under the touch-target width even
+     though the box around it has not overflowed anything. Let the
+     row wrap so the mode and builder buttons drop to their own line
+     instead of shrinking the input to make room. */
+  .wds-search__box { flex-wrap: wrap; row-gap: 4px; }
+  .wds-search__input { flex-basis: 120px; }
 }
 
 /* ---- print ------------------------------------------------------------ */

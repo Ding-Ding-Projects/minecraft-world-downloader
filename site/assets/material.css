@@ -340,20 +340,33 @@ a.card:hover { background: color-mix(in srgb, var(--md-sys-color-on-surface) 5%,
 .divider--vertical { width: 1px; height: auto; align-self: stretch; }
 
 /* ---- switch / checkbox / radio ---------------------------------------- */
+/* The drawn track is a fixed 52x32 M3 switch at every density -- that
+   is the component's real spec, not a size to grow on a phone. The
+   BUTTON around it is a separate box: .switch is the real <button>
+   a tap has to land on, .switch__track is the pill it draws. State
+   (is-on, aria-checked) still lives on the button, exactly as
+   before; only the box that is centred inside it moved, so nothing
+   using this component had to change how it toggles. */
 .switch {
-  position: relative; display: inline-flex; align-items: center;
-  width: 52px; height: 32px; padding: 2px; flex: none;
+  position: relative; display: inline-flex; align-items: center; justify-content: center;
+  padding: 0; border: 0; background: transparent; flex: none; cursor: pointer;
+}
+.switch__track {
+  display: inline-flex; align-items: center; pointer-events: none;
+  width: 52px; height: 32px; padding: 2px;
   border-radius: var(--md-sys-shape-corner-full);
   border: 2px solid var(--md-sys-color-outline);
-  background: var(--md-sys-color-surface-container-highest); cursor: pointer;
+  background: var(--md-sys-color-surface-container-highest);
   transition: background var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);
 }
-.switch .knob {
+.switch__track .knob {
   width: 16px; height: 16px; margin: 6px; border-radius: 50%;
   background: var(--md-sys-color-outline);
   transition: all var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-emphasized);
 }
-.switch.is-on, .switch[aria-checked="true"] { background: var(--md-sys-color-primary); border-color: var(--md-sys-color-primary); }
+.switch.is-on .switch__track, .switch[aria-checked="true"] .switch__track {
+  background: var(--md-sys-color-primary); border-color: var(--md-sys-color-primary);
+}
 .switch.is-on .knob, .switch[aria-checked="true"] .knob {
   width: 24px; height: 24px; margin: 2px; margin-left: 22px;
   background: var(--md-sys-color-on-primary);

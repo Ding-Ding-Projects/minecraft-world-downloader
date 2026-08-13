@@ -263,6 +263,8 @@
     calendar: 'M4 6h16v15H4zM4 10h16M8 3v4M16 3v4',
     grid: 'M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z',
     list: 'M4 6h16M4 12h16M4 18h16',
+    menu: 'M4 6h16M4 12h16M4 18h16',
+    home: 'M4 11l8-7 8 7M6 10v10h5v-6h2v6h5V10',
     dock: 'M4 4h16v16H4zM9 4v16',
     bell: 'M12 4a5 5 0 0 0-5 5v4l-2 3h14l-2-3V9a5 5 0 0 0-5-5zM10 19a2 2 0 0 0 4 0',
     doc: 'M6 3h8l4 4v14H6zM14 3v4h4',
@@ -569,6 +571,19 @@
   D('tabs.pinnedExcluded',
     'Pinned tabs are excluded unless you include them.|Pinned tabs are excluded unless you include them.|Pinned tabs sit this one out unless you include them.|Pinned tabs sit this one out unless you deliberately include them.|Pinned tabs sit this one out entirely unless you deliberately, knowingly include them.',
     '除非你特別包括，否則釘住嘅分頁唔計。|除非你特別包括，否則釘住嘅分頁唔計。|釘住嘅分頁唔參加，除非你特別包括佢哋。|釘住嘅分頁唔參加，除非你特登包括佢哋。|釘住嘅分頁完全唔參加，除非你特登、清清楚楚咁包括佢哋。');
+
+  /* -- site navigation. Near-constant across levels, like the actions
+     above: these name real pages, so it is the surrounding messages
+     that carry the humour, not the destinations themselves. */
+  D('nav.home', 'Home|Home|Home|Home|Home', '首頁|首頁|首頁|首頁|首頁');
+  D('nav.docs', 'Documentation|Documentation|Documentation|Documentation|Documentation', '文檔|文檔|文檔|文檔|文檔');
+  D('nav.downloads', 'Downloads|Downloads|Downloads|Downloads|Downloads', '下載|下載|下載|下載|下載');
+  D('nav.converter', 'Converter|Converter|Converter|Converter|Converter', '轉換器|轉換器|轉換器|轉換器|轉換器');
+  D('nav.models', 'Local models|Local models|Local models|Local models|Local models', '本機模型|本機模型|本機模型|本機模型|本機模型');
+  D('nav.changelog', 'Changelog|Changelog|Changelog|Changelog|Changelog', '更新日誌|更新日誌|更新日誌|更新日誌|更新日誌');
+  D('nav.settings', 'Settings|Settings|Settings|Settings|Settings', '設定|設定|設定|設定|設定');
+  D('nav.site', 'Site navigation|Site navigation|Site navigation|Site navigation|Site navigation', '網站導覽|網站導覽|網站導覽|網站導覽|網站導覽');
+  D('nav.filter', 'Filter pages|Filter pages|Filter pages|Filter pages|Filter pages', '篩選頁面|篩選頁面|篩選頁面|篩選頁面|篩選頁面');
 
   /* -- palette */
   D('palette.title', 'Command palette|Command palette|Command palette|Command palette|Command palette',
@@ -2537,6 +2552,129 @@
     return { open: open };
   }
 
+  /* ================================================================
+   * Site navigation, collapsed for a phone.
+   *
+   * Six of this site's seven pages ship a real, static <nav
+   * class="site-nav"> full of plain <a href> links -- real
+   * navigation that works with no script at all. Below 899px that
+   * nav is hidden by CSS (site.css) because seven text links no
+   * longer fit beside the brand and the action icons on one row.
+   * This is what replaces it: one menu button, wired up once here
+   * for every page rather than copied into each page's own inline
+   * script, that reads the exact same links straight off the real
+   * anchors and opens them as the same anchored, keyboard-operable,
+   * dismissible menu every other menu on this site already uses.
+   *
+   * A page that ships no .site-nav-toggle (the landing page collapses
+   * its own actions a different way already) costs this nothing --
+   * the loop below simply finds no button and does nothing.
+   * ================================================================ */
+  function initSiteNav() {
+    var toggles = document.querySelectorAll('.site-nav-toggle');
+    for (var i = 0; i < toggles.length; i++) {
+      (function (btn) {
+        var navId = btn.getAttribute('aria-controls');
+        var nav = navId ? document.getElementById(navId) : null;
+        if (!nav) return;
+        function label() { return t('nav.site', 'Site navigation'); }
+        btn.setAttribute('aria-label', label());
+        btn.title = label();
+        on('i18n', function () {
+          btn.setAttribute('aria-label', label());
+          btn.title = label();
+        });
+        btn.addEventListener('click', function () {
+          var links = nav.querySelectorAll('a[href]');
+          var items = [];
+          for (var j = 0; j < links.length; j++) {
+            var a = links[j];
+            items.push({
+              label: (a.textContent || a.getAttribute('aria-label') || '').replace(/\s+/g, ' ').trim(),
+              checked: a.hasAttribute('aria-current'),
+              run: (function (href) { return function () { window.location.href = href; }; })(a.getAttribute('href'))
+            });
+          }
+          btn.setAttribute('aria-expanded', 'true');
+          openMenu({
+            anchor: btn, returnTo: btn, ariaLabel: label(),
+            filterLabel: t('nav.filter', 'Filter pages'), storageKey: 'site-nav',
+            onClose: function () { btn.setAttribute('aria-expanded', 'false'); },
+            items: items
+          });
+        });
+      })(toggles[i]);
+    }
+  }
+
+  /* ================================================================
+   * Action-icon overflow, for a phone.
+   *
+   * Several pages register five or six icon buttons in the app bar
+   * -- search, language, theme, notifications, command palette, edit
+   * appearance. At a desktop width that is an ordinary top app bar;
+   * once the site-nav toggle above also has to fit beside the brand
+   * on a 360px phone, six 48px targets plus a toggle simply do not
+   * fit, and without this something else gave: the brand's own
+   * min-width: 0 (needed so IT can shrink instead of squeezing a
+   * neighbour) let it shrink all the way to nothing, so the page's
+   * own title silently vanished.
+   *
+   * This keeps only the first action visible -- search, the one
+   * thing every page here actually differs on -- and folds
+   * everything after that into one "More" menu button that
+   * calls .click() on each real hidden button rather than
+   * reimplementing what any of it does. Only pages that ship the
+   * site-nav toggle get this at all: the landing page has its own,
+   * already-compact action set and was never the problem.
+   *
+   * It runs off a MutationObserver rather than a one-time scan at
+   * boot, because every page that has one rebuilds #appbar-actions
+   * from scratch on its own i18n and School-mode events -- a watcher
+   * that is not there when that happens goes stale immediately. */
+  function initActionOverflow() {
+    if (!document.querySelector('.site-nav-toggle')) return;
+    var host = document.getElementById('appbar-actions');
+    if (!host) return;
+    var KEEP = 1;
+    var mq = window.matchMedia('(max-width: 899px)');
+    var moreBtn = null;
+    var observer = new MutationObserver(function () { apply(); });
+    function apply() {
+      observer.disconnect();
+      var real = Array.prototype.filter.call(host.children, function (n) {
+        return !n.hasAttribute('data-overflow-more');
+      });
+      real.forEach(function (n) { n.style.display = ''; });
+      if (moreBtn && moreBtn.parentNode) moreBtn.parentNode.removeChild(moreBtn);
+      moreBtn = null;
+      if (mq.matches && real.length > KEEP) {
+        var hidden = real.slice(KEEP);
+        hidden.forEach(function (n) { n.style.display = 'none'; });
+        moreBtn = el('button', {
+          class: 'btn btn--icon', type: 'button', 'data-overflow-more': '',
+          'aria-haspopup': 'menu', 'aria-label': t('act.more', 'More'), title: t('act.more', 'More'),
+          onclick: function () {
+            openMenu({
+              anchor: moreBtn, returnTo: moreBtn, ariaLabel: t('act.more', 'More'),
+              filterLabel: t('nav.filter', 'Filter pages'),
+              items: hidden.map(function (n) {
+                return {
+                  label: n.getAttribute('aria-label') || n.title || t('act.more', 'More'),
+                  run: function () { n.click(); }
+                };
+              })
+            });
+          }
+        }, icon('more'));
+        host.appendChild(moreBtn);
+      }
+      observer.observe(host, { childList: true });
+    }
+    if (mq.addEventListener) mq.addEventListener('change', apply); else mq.addListener(apply);
+    apply();
+  }
+
   /* A select is a menu button plus the same filtered menu, so a select
      and a context menu cannot diverge on filtering or keyboard rules. */
   function createSelect(opts) {
@@ -3084,7 +3222,7 @@
             sw.classList.toggle('is-on', keys[which]);
             syncArm();
           }
-        }, el('span', { class: 'knob' }));
+        }, el('span', { class: 'switch__track' }, el('span', { class: 'knob' })));
         return el('div', { class: 'wds-gate__key' }, [
           el('label', { class: 'ctl', for: id }, [sw, el('span', { text: t(labelKey) })])
         ]);
@@ -6642,7 +6780,7 @@
         sw.classList.toggle('is-on', next);
         if (opts.onChange) opts.onChange(next);
       }
-    }, el('span', { class: 'knob' }));
+    }, el('span', { class: 'switch__track' }, el('span', { class: 'knob' })));
     return sw;
   }
   function makeSlider(opts) {
@@ -6724,6 +6862,8 @@
     ensureLive();
     ensureToastLayer();
     appearanceApplyAll();
+    initSiteNav();
+    initActionOverflow();
     registerCoreCommands();
     handleTeleportParam();
     if (!storageOk) notify.warn(t('msg.storageOff'));
