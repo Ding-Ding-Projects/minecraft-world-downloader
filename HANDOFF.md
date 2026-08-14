@@ -184,12 +184,16 @@ previously claimed no release of `app/` had ever been published, long after nine
   shell/`, nine destinations, ~9,300 lines) was written, typechecked and built, but no screenshot
   was taken and nobody has seen a pixel of it running. *Implemented and compiled is not verified*,
   and the screenshot matrix for it is the single largest outstanding item in this document.
-- **The bundled runtimes are not actually in the released installer.** `predist` fetches a Java
-  runtime and a portable Git into `app/resources/runtime/`, but `.github/workflows/release.yml`
-  never runs `npm run dist` — it calls `npm run build` and then `npx electron-builder` directly,
-  so `predist` never fires. Proof: `app-v1.0.91`'s setup was 164,772,864 bytes and `app-v1.0.93`'s
-  is 164,862,464 bytes, about 90 KB apart, when a JRE plus MinGit is roughly 88 MB. The resolution
-  code is correct; the pipeline never feeds it. A fix is in flight.
+- **The bundled runtimes reached no released installer up to and including `app-v1.0.93`.** `predist`
+  fetches a Java runtime and a portable Git, but the release workflow ran `npm run build` and
+  `electron-builder` directly, and an npm pre-script only fires for the script it is named after —
+  so `predist` never ran in CI. Proof: `app-v1.0.91`'s setup was 164,772,864 bytes and
+  `app-v1.0.93`'s is 164,862,464, about 90 KB apart, when a JRE plus MinGit is roughly 88 MB.
+  **Fixed in `ebda6fd`**, which also asserts against the *packaged output* that all five expected
+  paths exist before publishing — `extraResources` silently no-ops when its `from` directory is
+  absent, which is exactly how an installer carrying nothing passed a green packaging log.
+  **Still to confirm: that the first release after `ebda6fd` is roughly 88 MB larger.** Until that
+  number is read off a real artifact, this is a fix that has not yet been observed working.
 - **`FEATURE_INVENTORY.md` has not been re-checked against the shell.** Rows describing where a
   feature lives in the interface may now name the retired tab strip rather than a destination.
 - No accessibility pass, localization pass, or built-artifact capture has been run against the
@@ -201,11 +205,12 @@ In rough order of what would most change someone's confidence in this project:
 
 1. **Look at it.** Capture the nine destinations, both themes, the narrow layout and the empty and
    failed states from the real built artifact. Everything below is cheaper to judge once this exists.
-2. **Make the installer carry what the app resolves.** Wire the acquisition step into the release
-   workflow and assert against the *packaged output* that `resources/runtime/jre`,
-   `resources/runtime/git` and `resources/scraper` are present. A green packaging log proves a file
-   was copied, never that anything is inside the result — that mistake has now been made twice in
-   this repository, at two different layers.
+2. **Confirm the installer now carries what the app resolves.** `ebda6fd` wired the acquisition step
+   in and added the packaged-output assertion; what has *not* happened is anyone reading the size of
+   a release built after it. Roughly 88 MB larger is the cheapest possible proof. A green packaging
+   log proves a file was copied, never that anything is inside the result — that mistake has now
+   been made twice in this repository, at two different layers, so do not accept a third green log
+   as evidence.
 3. **Re-check `FEATURE_INVENTORY.md` against the shell**, row by row, and correct any that describe
    the old chrome.
 4. **Give the shell tests.** It shipped with none by explicit instruction, and its riskiest seam is
