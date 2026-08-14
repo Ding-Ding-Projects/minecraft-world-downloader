@@ -86,9 +86,22 @@ export function vocabularyCacheDir(): string {
  * process was launched from. Two levels up is `app/`. The directory is
  * created on first use so a `npm run dev` session finds bundled tools the
  * exact same way an installed build does, once they are dropped in place.
+ *
+ * Safe to call from a process that never ran inside Electron at all -- a
+ * plain-Node tool, or a test that imports this module without mocking
+ * `electron`. Outside a real Electron process the `electron` package's own
+ * entry point resolves to a bare string (the path to the Electron binary),
+ * so the named `app` import comes back `undefined` rather than throwing on
+ * import; reading `.isPackaged` straight off that used to throw
+ * `TypeError: Cannot read properties of undefined`. `app?.isPackaged` reads
+ * as `undefined` instead, which is falsy, so an Electron-less process simply
+ * takes the same branch an unpackaged development run already takes -- the
+ * `__dirname`-relative repository path -- rather than crashing. Nothing here
+ * decides whether a bundled tool is actually present; that is `bundled.ts`'s
+ * job, and it re-checks the result on disk regardless of which branch ran.
  */
 export function resourcesRoot(): string {
-  if (app.isPackaged) return process.resourcesPath;
+  if (app?.isPackaged) return process.resourcesPath;
   return ensure(join(__dirname, '..', '..', 'resources'));
 }
 

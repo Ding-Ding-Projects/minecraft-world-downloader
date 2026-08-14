@@ -103,7 +103,21 @@ const foundCache = new Map<Exclude<BundledTool, 'node'>, string>();
 
 /**
  * Absolute path to the bundled tool, or null when it is not present in this
- * build. Stats the file; never returns a guess.
+ * build. Stats the file; never returns a guess, and never throws.
+ *
+ * "Not present" covers two different failures on purpose, both folded into
+ * the same `catch` below: the ordinary case is that the file genuinely is
+ * not there yet (a dev checkout with no runtime dropped in, a build that
+ * shipped without one), and the other is that `candidatePath` could not even
+ * be computed -- `resourcesRoot()` throwing because `app` is not the real
+ * Electron `app` in this process (see its own doc comment), or any other
+ * failure resolving or creating that directory. Both answer the same
+ * question -- "is there a bundled copy right now" -- with the same honest
+ * "no", so `resolveTool` can fall through to its PATH lookup unchanged
+ * rather than the whole resolution chain crashing. Deliberately not cached
+ * either way: a fresh call always re-tries, so a tool that becomes
+ * resolvable later (the app finishes readying, a build step drops a file
+ * into place) is found without restarting the process.
  *
  * `node` is the one exception, and it is also the one place in this whole
  * module that `./processes.ts`'s `isKnownBundledExecutable` re-resolves
@@ -119,14 +133,16 @@ export function bundledToolPath(tool: BundledTool): string | null {
   const cached = foundCache.get(tool);
   if (cached !== undefined) return cached;
 
-  const path = candidatePath(tool);
   try {
+    const path = candidatePath(tool);
     if (statSync(path).isFile()) {
       foundCache.set(tool, path);
       return path;
     }
   } catch {
-    /* not present (yet) — deliberately not cached, see foundCache above */
+    /* not present (yet), or the resources root could not even be determined
+       — either way, honestly "no bundled tool", never an exception. See the
+       function comment above for why both are folded into one catch. */
   }
   return null;
 }

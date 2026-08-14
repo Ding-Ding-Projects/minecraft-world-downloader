@@ -81,10 +81,19 @@ extraResources:
   #   resources/runtime/git/cmd/git.exe
   #   resources/runtime/gh/bin/gh.exe   (only present when fetched with --with-gh)
   #
-  # electron-builder fails loudly on a missing `from` directory rather than
-  # silently skipping it, so a build that reaches this step without having
-  # run fetch-dependencies.mjs first stops right here -- run
-  # `node scripts/fetch-dependencies.mjs` in `app/` to populate it.
+  # electron-builder does NOT fail loudly on a missing `from` directory here --
+  # this was wrong the first time it was written, and it is exactly what let a
+  # release ship without these tools inside it. `copyFiles()` in
+  # app-builder-lib/out/fileMatcher.js does a plain `statOrNull` on `from`; a
+  # `null` result is a `log.warn("file source doesn't exist")` and the packaging
+  # step returns 0 as if nothing were wrong, silently producing an installer
+  # that resolves bundled tools it does not actually carry. A build that
+  # reaches this step without having run fetch-dependencies.mjs first will
+  # "succeed" with a missing runtime/ directory -- run
+  # `node scripts/fetch-dependencies.mjs` in `app/` to populate it, and see
+  # `.github/workflows/release.yml`'s "Confirm the packaged bundle actually
+  # carries its dependencies" step, which is the thing that actually catches a
+  # regression here now that the comment above cannot be trusted to.
   - from: resources/runtime
     to: runtime
   # The standalone Scraper bot project (`../scraper`, one directory above
@@ -97,15 +106,19 @@ extraResources:
   # actually needs to be IN the installer is the project's own files and its
   # own installed dependencies.
   #
-  # electron-builder fails loudly on a missing `from` directory exactly as
-  # it does for `runtime` above, but that alone is not enough here: it would
-  # still happily copy a `scraper/` whose own `npm install` was never run,
-  # producing an installer whose bot starts and immediately fails with
-  # "Cannot find module 'mineflayer'". `scripts/check-scraper-bundle.mjs`
-  # (wired as part of `predist` / `predist:dir` in package.json, run BEFORE
-  # this file is ever read) is what actually catches that: it fails the
+  # electron-builder does NOT fail loudly on a missing `from` directory here
+  # either -- see the correction on the `runtime` entry above; the same silent
+  # `log.warn` and exit-0 applies. It would just as happily copy nothing at all
+  # if `../scraper` did not exist, AND -- even when it exists -- it would still
+  # happily copy a `scraper/` whose own `npm install` was never run, producing
+  # an installer whose bot starts and immediately fails with "Cannot find
+  # module 'mineflayer'". `scripts/check-scraper-bundle.mjs` (wired as part of
+  # `predist` / `predist:dir` in package.json, run BEFORE this file is ever
+  # read) is what actually catches the node_modules half of that: it fails the
   # build loudly, naming the exact missing package, rather than letting a
-  # non-functional bot ship silently.
+  # non-functional bot ship silently. Catching the "directory does not exist
+  # at all" half is `.github/workflows/release.yml`'s post-packaging
+  # "Confirm the packaged bundle actually carries its dependencies" step.
   #
   # Packaged location: resources/scraper/scrape.js, matching the fixed path
   # contract `src/main/services/bundled.ts`'s `scraperScript` bundled tool

@@ -162,9 +162,59 @@ jobs:
           npm version --no-git-tag-version --allow-same-version '${{ steps.version.outputs.version }}'
           node -e 'process.stdout.write("package.json version is now " + require("./package.json").version + "\n")'
 
-      - name: Make sure the Electron binary is actually extracted
+      - name: Install the scraper bot's own dependencies
+        working-directory: scraper
+        run: |
+          set -euo pipefail
+          # scraper/ is a standalone Node project one directory above app/ that
+          # app/electron-builder.yml bundles into every installer (extraResources:
+          # ../scraper -> scraper) so the Scraper bot tab works on a machine that
+          # has never had Node.js installed. Nothing upstream of this step installs
+          # its dependencies. Without this, "Run predist" below fails loudly and
+          # correctly at check-scraper-bundle.mjs, naming exactly this gap, rather
+          # than letting a non-functional bot ship silently -- see
+          # app/scripts/check-scraper-bundle.mjs and
+          # scripts/download-dependencies.ps1's Resolve-ScraperDependencies (the
+          # PowerShell-only local equivalent of this step).
+          if [ -f package-lock.json ]; then
+            if ! npm ci; then
+              echo "::warning title=Scraper lockfile install failed::npm ci did not succeed in scraper/; falling back to npm install so the bundle guard can still pass."
+              rm -rf node_modules
+              npm install
+            fi
+          else
+            npm install
+          fi
+
+      # ------------------------------------------------------------------------------------------
+      # THE BUG THIS STEP FIXES: this workflow used to run `npm run build` and
+      # `electron-builder` directly, which never triggers an npm "pre<script>" hook at
+      # all. app/package.json's `predist` (ensure-electron-binary.mjs, then
+      # fetch-dependencies.mjs, then check-scraper-bundle.mjs) was correctly written
+      # and correctly wired to `npm run dist` -- and never once ran in CI. Every
+      # release shipped an installer whose electron-builder.yml *claimed* to bundle a
+      # JRE, MinGit and the Scraper bot, but had fetched none of them: the exact same
+      # "wired at one end, consumed at neither" shape as the world-downloader.jar
+      # defect fixed earlier, one layer up, in the very release pipeline that fixed
+      # it. Proof: app-v1.0.91 and app-v1.0.93's Setup.exe were 164,772,864 and
+      # 164,862,464 bytes -- ~90 KB apart, when a bundled JRE + MinGit add roughly
+      # 88 MB.
+      #
+      # The fix calls the actual named npm script rather than hand-copying its
+      # contents into this workflow, specifically so this cannot silently drift out
+      # of sync again: whatever `predist` is defined as in package.json is what runs
+      # here, so a future fourth step added there is picked up with no workflow edit
+      # required. `npm run dist` (the ordinary local packaging command, and what
+      # scripts/windows-build.ps1 calls) would trigger this hook automatically too;
+      # it is invoked explicitly here instead of switching to `npm run dist` so the
+      # build and packaging phases stay separate CI steps with their own pass/fail
+      # signal, and so the packaging-only env vars below (GH_TOKEN, CSC_*) stay
+      # scoped to only the electron-builder invocation that actually needs them
+      # cleared, not to the whole build+package command.
+      # ------------------------------------------------------------------------------------------
+      - name: Run predist (electron binary, bundled runtime deps, scraper bundle guard)
         working-directory: app
-        run: npm run ensure-electron
+        run: npm run predist
 
       - name: Build the application
         working-directory: app
@@ -187,6 +237,86 @@ jobs:
           WIN_CSC_LINK: ''
           WIN_CSC_KEY_PASSWORD: ''
         run: npx electron-builder --win squirrel --config electron-builder.yml --publish never
+
+      # ------------------------------------------------------------------------------------------
+      # The whole lesson, made into a check: a green `electron-builder` exit code proves a
+      # `from` path was CONSIDERED, never that anything was actually copied. electron-builder's
+      # own `copyFiles()` (app-builder-lib/out/fileMatcher.js) does `statOrNull(matcher.from)`
+      # and, on a missing directory, logs `log.warn("file source doesn't exist")` and returns --
+      # it does NOT throw and does NOT fail the build. That is the exact mechanism that let this
+      # ship before: app/electron-builder.yml's `extraResources` entries for `runtime` and
+      # `scraper` would silently no-op if their source directories were ever empty or missing
+      # again, and packaging would still exit 0. This step opens the actual packaged app
+      # electron-builder just wrote and proves the real files are inside it, by exact path, before
+      # anything here is collected, checked for signatures, or published.
+      # ------------------------------------------------------------------------------------------
+      - name: Confirm the packaged bundle actually carries its dependencies
+        run: |
+          set -euo pipefail
+          # electron-builder's `--win squirrel` target builds the plain unpacked app into
+          # release/win-unpacked/ as an intermediate step before wrapping it into the Squirrel
+          # package (proven out already: the "Collect the release artifacts" step below has to
+          # explicitly exclude app/release/win-unpacked/<product>.exe, a 211 MB file, from its
+          # artifact sweep). extraResources land directly under win-unpacked/resources/ -- NOT
+          # inside app.asar, since they are extraResources rather than `files` -- so this is
+          # exactly where the packaged output actually is.
+          unpacked="app/release/win-unpacked"
+          if [ ! -d "${unpacked}" ]; then
+            echo "::error title=No unpacked app::${unpacked} does not exist. electron-builder --win squirrel should have produced it as an intermediate output before wrapping the Squirrel package; something upstream did not run as expected."
+            exit 1
+          fi
+
+          # path|human label, one per extraResources entry electron-builder.yml declares, plus
+          # the scraper's own dependency this step also verifies actually got copied (not just
+          # that scrape.js exists, but that node_modules travelled with it).
+          required=(
+            "resources/engine/world-downloader.jar|the Java engine (extraResources: ../target/world-downloader.jar)"
+            "resources/runtime/jre/bin/java.exe|the bundled JRE (extraResources: resources/runtime; fetch-dependencies.mjs)"
+            "resources/runtime/git/cmd/git.exe|MinGit (extraResources: resources/runtime; fetch-dependencies.mjs)"
+            "resources/scraper/scrape.js|the Scraper bot's entry point (extraResources: ../scraper)"
+            "resources/scraper/node_modules/mineflayer/package.json|the Scraper bot's own node_modules (npm install in scraper/)"
+          )
+
+          missing=0
+          for entry in "${required[@]}"; do
+            path="${entry%%|*}"
+            label="${entry#*|}"
+            full="${unpacked}/${path}"
+            if [ -f "${full}" ]; then
+              bytes=$(stat -c %s "${full}")
+              echo "present: ${full} (${label}, ${bytes} bytes)"
+            else
+              echo "::error title=Bundled dependency missing from packaged app::${full} does not exist -- ${label}. electron-builder's extraResources silently no-ops on a missing 'from' directory instead of failing the build; this is exactly that failure, caught here before anything is published."
+              missing=$((missing + 1))
+            fi
+          done
+
+          if [ "${missing}" -gt 0 ]; then
+            noun=$([ "${missing}" -eq 1 ] && echo 'dependency' || echo 'dependencies')
+            echo "::error title=Packaged app is missing ${missing} bundled ${noun}::Refusing to publish an installer that resolves bundled tools it does not actually carry."
+            exit 1
+          fi
+
+          # The cheapest signal that the bundle actually landed, as a second independent proof
+          # beside the file-existence checks above: the setup executable's own size. Two prior
+          # unbundled releases (app-v1.0.91, app-v1.0.93) shipped Setup.exe at 164,772,864 and
+          # 164,862,464 bytes -- about 90 KB apart -- when the bundled JRE (48,993,215 bytes
+          # compressed) and MinGit (38,792,847 bytes compressed) together add roughly 88 MB.
+          # 200 MiB is comfortably above every known unbundled build and comfortably below the
+          # ~250 MB a genuinely bundled one should reach, so it tolerates normal nupkg
+          # recompression variance without tolerating "nothing was actually bundled".
+          setup_exe=$(find app/release/squirrel-windows -maxdepth 1 -type f -name '*Setup*.exe' ! -name '*ExecutionStub*' 2>/dev/null | head -n1)
+          if [ -z "${setup_exe}" ]; then
+            echo "::error title=No setup executable to size-check::No *Setup*.exe was found under app/release/squirrel-windows."
+            exit 1
+          fi
+          setup_bytes=$(stat -c %s "${setup_exe}")
+          min_bundled_bytes=$((200 * 1024 * 1024))
+          if [ "${setup_bytes}" -lt "${min_bundled_bytes}" ]; then
+            echo "::error title=Setup.exe looks unbundled::${setup_exe} is only ${setup_bytes} bytes (< ${min_bundled_bytes}, the 200 MiB floor). Unbundled prior releases were ~164.8 MB; a genuinely bundled installer should be roughly 88 MB larger. The file-existence checks above may have passed on stale or unrelated files -- refusing to publish an installer this small."
+            exit 1
+          fi
+          echo "Setup executable size check passed: ${setup_exe} is ${setup_bytes} bytes (>= ${min_bundled_bytes} bytes, the 200 MiB floor)."
 
       - name: Collect the release artifacts
         id: collect
