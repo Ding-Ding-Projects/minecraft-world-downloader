@@ -3,6 +3,7 @@ import { promises as fs } from 'node:fs';
 import { isAbsolute, join, relative, sep } from 'node:path';
 import type { BrowserWindow } from 'electron';
 import type {
+  BundledToolResolution,
   WorldVaultCommit,
   WorldVaultCommitKind,
   WorldVaultCommitQuery,
@@ -12,6 +13,7 @@ import type {
   WorldVaultPublishPreflight,
   WorldVaultStatus
 } from '../../shared/api';
+import { resolveTool } from '../services/bundled';
 
 /**
  * The version-controlled vault for a downloaded world.
@@ -353,8 +355,52 @@ function exec(
   });
 }
 
+/**
+ * Bundled first, then PATH — resolved once per process and reused for every
+ * git/gh invocation this module makes (a positive OR negative result is
+ * cached forever, exactly like the `gitAvailableCache` boolean this
+ * replaces), so the background runner polling every couple of seconds is not
+ * also paying for a fresh PATH search on every tick. Never hands back a
+ * browser link: a miss here means every caller reports the same honest
+ * "not available, here is exactly why" instead.
+ */
+let gitResolutionCache: BundledToolResolution | null | undefined;
+async function resolveGit(): Promise<BundledToolResolution | null> {
+  if (gitResolutionCache === undefined) gitResolutionCache = await resolveTool('git');
+  return gitResolutionCache;
+}
+
+let ghResolutionCache: BundledToolResolution | null | undefined;
+async function resolveGh(): Promise<BundledToolResolution | null> {
+  if (ghResolutionCache === undefined) ghResolutionCache = await resolveTool('gh');
+  return ghResolutionCache;
+}
+
+const GIT_UNAVAILABLE_MESSAGE =
+  'git is not available: no copy is bundled with this build and none was found on PATH.';
+const GH_UNAVAILABLE_MESSAGE =
+  'The GitHub CLI ("gh") is not available: no copy is bundled with this build and none was found on PATH.';
+
+/** Every direct `git` invocation in this module goes through here, never the bare string `'git'`. */
+async function execGit(args: string[], options: { cwd?: string; timeoutMs?: number } = {}): Promise<ExecResult> {
+  const resolution = await resolveGit();
+  if (!resolution) {
+    return { ok: false, code: null, stdout: '', stderr: '', spawnError: GIT_UNAVAILABLE_MESSAGE };
+  }
+  return exec(resolution.path, args, options);
+}
+
+/** Every direct `gh` invocation in this module goes through here, never the bare string `'gh'`. */
+async function execGh(args: string[], options: { cwd?: string; timeoutMs?: number } = {}): Promise<ExecResult> {
+  const resolution = await resolveGh();
+  if (!resolution) {
+    return { ok: false, code: null, stdout: '', stderr: '', spawnError: GH_UNAVAILABLE_MESSAGE };
+  }
+  return exec(resolution.path, args, options);
+}
+
 async function git(cwd: string, args: string[], timeoutMs?: number): Promise<string> {
-  const result = await exec('git', args, { cwd, timeoutMs });
+  const result = await execGit(args, { cwd, timeoutMs });
   if (!result.ok) {
     const reason = result.spawnError ?? (result.stderr.trim() || result.stdout.trim() || `exit code ${result.code}`);
     throw new Error(`git ${args.join(' ')} failed: ${reason}`);
@@ -366,18 +412,18 @@ let gitAvailableCache: boolean | null = null;
 
 async function gitAvailable(): Promise<boolean> {
   if (gitAvailableCache !== null) return gitAvailableCache;
-  const result = await exec('git', ['--version'], { timeoutMs: 10_000 });
+  const result = await execGit(['--version'], { timeoutMs: 10_000 });
   gitAvailableCache = result.ok;
   return gitAvailableCache;
 }
 
 async function ghAvailable(): Promise<boolean> {
-  const result = await exec('gh', ['--version'], { timeoutMs: 10_000 });
+  const result = await execGh(['--version'], { timeoutMs: 10_000 });
   return result.ok;
 }
 
 async function ghAuthState(): Promise<{ authenticated: boolean; accountLogin: string | null }> {
-  const result = await exec('gh', ['auth', 'status'], { timeoutMs: 15_000 });
+  const result = await execGh(['auth', 'status'], { timeoutMs: 15_000 });
   const combined = `${result.stdout}\n${result.stderr}`;
   const match = combined.match(/Logged in to [^\s]+ as ([^\s(]+)/);
   return { authenticated: result.ok, accountLogin: result.ok && match ? match[1] : null };
@@ -451,7 +497,7 @@ async function parseCommit(worldPath: string, hash: string): Promise<WorldVaultC
   const [fullHash, shortHash, timestampIso, subject, ...bodyParts] = header.split(UNIT_SEP);
   const body = bodyParts.join(UNIT_SEP);
 
-  const stat = await exec('git', ['show', '--stat=4096', '--format=', hash], { cwd: worldPath, timeoutMs: 30_000 });
+  const stat = await execGit(['show', '--stat=4096', '--format=', hash], { cwd: worldPath, timeoutMs: 30_000 });
   let filesChanged = 0;
   let bytesChanged = 0;
   if (stat.ok) {
@@ -511,7 +557,7 @@ export async function status(worldPath: string): Promise<WorldVaultStatus> {
   };
 
   if (!(await gitAvailable())) {
-    base.degradedReason = 'git was not found on PATH. Install Git for Windows to create or use a vault.';
+    base.degradedReason = `${GIT_UNAVAILABLE_MESSAGE} A vault cannot be created or used until it is.`;
     return base;
   }
   if (!(await repoInitialized(world))) {
@@ -556,7 +602,7 @@ export async function status(worldPath: string): Promise<WorldVaultStatus> {
 export async function create(worldPath: string): Promise<WorldVaultStatus> {
   const world = normalizeWorldPath(worldPath);
   if (!(await gitAvailable())) {
-    throw new Error('git was not found on PATH. Install Git for Windows, then try again.');
+    throw new Error(GIT_UNAVAILABLE_MESSAGE);
   }
   return withLock(world, async () => {
     await fs.mkdir(world, { recursive: true });
@@ -578,7 +624,7 @@ export async function create(worldPath: string): Promise<WorldVaultStatus> {
         'snapshot'
       );
     } else {
-      const hasCommit = (await exec('git', ['rev-parse', '--verify', 'HEAD'], { cwd: world, timeoutMs: 10_000 })).ok;
+      const hasCommit = (await execGit(['rev-parse', '--verify', 'HEAD'], { cwd: world, timeoutMs: 10_000 })).ok;
       if (!hasCommit) {
         await commitStaged(world, 'Created the vault (the world folder was empty)', 'snapshot', true);
       }
@@ -906,7 +952,7 @@ export async function push(worldPath: string): Promise<{ output: string }> {
   return withLock(world, async () => {
     const branch = (await git(world, ['branch', '--show-current'])).trim();
     if (!branch) throw new Error('The vault has no commits yet, so there is nothing to push.');
-    const result = await exec('git', ['push', '-u', 'origin', branch], { cwd: world, timeoutMs: 180_000 });
+    const result = await execGit(['push', '-u', 'origin', branch], { cwd: world, timeoutMs: 180_000 });
     if (!result.ok) {
       const reason = result.spawnError ?? (result.stderr.trim() || result.stdout.trim() || `exit code ${result.code}`);
       throw new Error(`git push failed: ${reason}`);
@@ -926,7 +972,7 @@ export async function createGithubRepo(
     throw new Error('The repository name may only contain letters, digits, dots, hyphens and underscores.');
   }
   if (!(await repoInitialized(world))) throw new Error(`"${world}" has no vault yet.`);
-  if (!(await ghAvailable())) throw new Error('The GitHub CLI ("gh") was not found on PATH.');
+  if (!(await ghAvailable())) throw new Error(GH_UNAVAILABLE_MESSAGE);
   const auth = await ghAuthState();
   if (!auth.authenticated) {
     throw new Error('The GitHub CLI is not signed in. Run "gh auth login" and try again.');
@@ -934,8 +980,7 @@ export async function createGithubRepo(
   const visibilityFlag = options.visibility === 'public' ? '--public' : '--private';
 
   return withLock(world, async () => {
-    const result = await exec(
-      'gh',
+    const result = await execGh(
       ['repo', 'create', name, visibilityFlag, '--source=.', '--remote=origin', '--push'],
       { cwd: world, timeoutMs: 180_000 }
     );
@@ -997,14 +1042,14 @@ export async function exportCommitTree(
     // leftover worktree at the same path from an earlier, interrupted export
     // would refuse just as hard — so a clean directory is prepared first
     // rather than trusting whatever the caller left behind.
-    const priorWorktrees = await exec('git', ['worktree', 'list', '--porcelain'], { cwd: world, timeoutMs: 15_000 });
+    const priorWorktrees = await execGit(['worktree', 'list', '--porcelain'], { cwd: world, timeoutMs: 15_000 });
     if (priorWorktrees.ok && priorWorktrees.stdout.includes(destination)) {
-      await exec('git', ['worktree', 'remove', '--force', destination], { cwd: world, timeoutMs: 30_000 });
+      await execGit(['worktree', 'remove', '--force', destination], { cwd: world, timeoutMs: 30_000 });
     }
     await fs.rm(destination, { recursive: true, force: true });
     await fs.mkdir(destination, { recursive: true });
 
-    const result = await exec('git', ['worktree', 'add', '--detach', '--force', destination, resolved], {
+    const result = await execGit(['worktree', 'add', '--detach', '--force', destination, resolved], {
       cwd: world,
       timeoutMs: 60_000
     });
@@ -1032,7 +1077,7 @@ export async function prune(worldPath: string, beforeHash: string): Promise<Worl
 
   return withLock(world, async () => {
     const resolvedTarget = (await git(world, ['rev-parse', '--verify', `${target}^{commit}`])).trim();
-    const isAncestorResult = await exec('git', ['merge-base', '--is-ancestor', resolvedTarget, 'HEAD'], {
+    const isAncestorResult = await execGit(['merge-base', '--is-ancestor', resolvedTarget, 'HEAD'], {
       cwd: world,
       timeoutMs: 30_000
     });
@@ -1065,26 +1110,26 @@ export async function prune(worldPath: string, beforeHash: string): Promise<Worl
 
     const targetInfo = await parseCommit(world, resolvedTarget);
     const newRoot = (
-      await exec('git', ['commit-tree', `${resolvedTarget}^{tree}`, '-m', `Squashed vault history before ${targetInfo.shortHash}: ${targetInfo.subject}`, '-m', 'Vault-Kind: prune'], {
+      await execGit(['commit-tree', `${resolvedTarget}^{tree}`, '-m', `Squashed vault history before ${targetInfo.shortHash}: ${targetInfo.subject}`, '-m', 'Vault-Kind: prune'], {
         cwd: world,
         timeoutMs: 30_000
       })
     ).stdout.trim();
     if (!newRoot) throw new Error('Could not build the squashed root commit.');
 
-    const rebaseResult = await exec('git', ['rebase', '--onto', newRoot, resolvedTarget, branch], {
+    const rebaseResult = await execGit(['rebase', '--onto', newRoot, resolvedTarget, branch], {
       cwd: world,
       timeoutMs: 180_000
     });
     if (!rebaseResult.ok) {
       // Leave nothing half-rewritten: abort and surface the real reason.
-      await exec('git', ['rebase', '--abort'], { cwd: world, timeoutMs: 30_000 });
+      await execGit(['rebase', '--abort'], { cwd: world, timeoutMs: 30_000 });
       const reason = rebaseResult.spawnError ?? (rebaseResult.stderr.trim() || rebaseResult.stdout.trim());
       throw new Error(`Pruning failed and was rolled back: ${reason}`);
     }
 
-    await exec('git', ['reflog', 'expire', '--expire=now', '--all'], { cwd: world, timeoutMs: 60_000 });
-    await exec('git', ['gc', '--prune=now'], { cwd: world, timeoutMs: 180_000 });
+    await execGit(['reflog', 'expire', '--expire=now', '--all'], { cwd: world, timeoutMs: 60_000 });
+    await execGit(['gc', '--prune=now'], { cwd: world, timeoutMs: 180_000 });
 
     const totalAfter = Number((await git(world, ['rev-list', '--count', 'HEAD'])).trim() || '0');
     const afterGitDirBytes = await dirSizeBytes(join(world, '.git'));

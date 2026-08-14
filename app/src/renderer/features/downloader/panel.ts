@@ -189,9 +189,16 @@ function mountRuntimeCard(ctx: TabContext, state: FeatureState): { root: HTMLEle
     const java = state.javaProbe;
     let javaLine: string;
     switch (java.state) {
-      case 'present':
-        javaLine = ctx.t('downloader.runtime.java.present', 'Java is available: {version}', { values: { version: java.versionLine } });
+      case 'present': {
+        const originLabel =
+          java.origin === 'bundled'
+            ? ctx.t('downloader.runtime.java.origin.bundled', 'the runtime bundled with this installation')
+            : ctx.t('downloader.runtime.java.origin.path', "this machine's own Java, found on PATH");
+        javaLine = ctx.t('downloader.runtime.java.present', 'Java is available: {version} ({origin})', {
+          values: { version: java.versionLine, origin: originLabel }
+        });
         break;
+      }
       case 'checking':
         javaLine = ctx.t('downloader.runtime.java.checking', 'Checking for a Java runtime…');
         break;
@@ -220,6 +227,21 @@ function mountRuntimeCard(ctx: TabContext, state: FeatureState): { root: HTMLEle
           })
         })
       );
+      const jarOriginKey =
+        jar.origin === 'bundled'
+          ? 'downloader.runtime.jar.origin.bundled'
+          : jar.origin === 'setting'
+            ? 'downloader.runtime.jar.origin.setting'
+            : 'downloader.runtime.jar.origin.applicationData';
+      const jarOriginFallback =
+        jar.origin === 'bundled'
+          ? 'Bundled with this installation.'
+          : jar.origin === 'setting'
+            ? 'From the configured jar path.'
+            : 'Found in the application’s data directory.';
+      body.append(
+        el('p', { className: 'md-typescale-body-small downloader-stat__label', text: ctx.t(jarOriginKey, jarOriginFallback) })
+      );
     } else {
       body.append(el('p', { className: 'md-typescale-body-large', text: ctx.t('downloader.runtime.jar.missing', 'No world-downloader.jar was found.') }));
       if (jar.searched.length > 0) {
@@ -230,6 +252,26 @@ function mountRuntimeCard(ctx: TabContext, state: FeatureState): { root: HTMLEle
           })
         );
       }
+    }
+
+    // Neither of these should normally be reachable: the Java runtime and the
+    // engine jar both ship with (or are found automatically by) this
+    // installation, and `probeJava`/`probeJar` above always try that route
+    // first. These stay only as a genuine last resort for the rare case
+    // where a build genuinely has neither the bundled copy nor anything on
+    // PATH — never as the first thing offered.
+    const needsJavaFallback = java.state !== 'present';
+    const needsJarFallback = !jar.found;
+    if (needsJavaFallback || needsJarFallback) {
+      body.append(
+        el('p', {
+          className: 'md-typescale-body-small downloader-status--warn',
+          text: ctx.t(
+            'downloader.runtime.fallbackNote',
+            'This should not normally be needed: the pieces above ship inside this installation. The links below are a last resort for the rare case where one genuinely is not there.'
+          )
+        })
+      );
     }
 
     const actions = el('div', { className: 'downloader-row' });
@@ -244,7 +286,7 @@ function mountRuntimeCard(ctx: TabContext, state: FeatureState): { root: HTMLEle
         }
       })
     );
-    if (java.state !== 'present') {
+    if (needsJavaFallback) {
       actions.append(
         ctx.components.button({
           label: 'downloader.action.getJava',
@@ -254,7 +296,7 @@ function mountRuntimeCard(ctx: TabContext, state: FeatureState): { root: HTMLEle
         })
       );
     }
-    if (!jar.found) {
+    if (needsJarFallback) {
       actions.append(
         ctx.components.button({
           label: 'downloader.action.getJar',

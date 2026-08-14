@@ -3,6 +3,7 @@ import { promises as fs } from 'node:fs';
 import { isAbsolute, resolve as resolvePath } from 'node:path';
 import type {
   AppInfo,
+  BundledTool,
   DirectoryEntry,
   FileStat,
   OpenDialogOptions,
@@ -12,7 +13,8 @@ import type {
   WindowState
 } from '../shared/api';
 import { INVOKE_CHANNELS, SYNC_INFO_CHANNEL, isInvokeChannel, type InvokeChannel } from '../shared/channels';
-import { PACKAGE_NAME, PRODUCT_NAME, historyDir, logsDir, settingsFilePath, userDataRoot } from './paths';
+import { PACKAGE_NAME, PRODUCT_NAME, historyDir, logsDir, resourcesRoot, settingsFilePath, userDataRoot } from './paths';
+import * as bundledService from './services/bundled';
 import * as editorService from './services/editor';
 import * as historyService from './services/history';
 import * as netService from './services/net';
@@ -126,6 +128,12 @@ export function describeWindow(window: BrowserWindow): WindowState {
 
 const MAX_TEXT_READ = 32 * 1024 * 1024;
 
+const BUNDLED_TOOLS: readonly BundledTool[] = ['java', 'git', 'gh', 'engineJar'];
+
+function isBundledTool(value: unknown): value is BundledTool {
+  return typeof value === 'string' && (BUNDLED_TOOLS as readonly string[]).includes(value);
+}
+
 function normalizePath(input: unknown): string {
   const value = String(input ?? '');
   if (!value) throw new Error('No path was given.');
@@ -146,6 +154,7 @@ export function buildAppInfo(startedAt: number, isDevelopment: boolean): AppInfo
     userDataDir: userDataRoot(),
     historyDir: historyDir(),
     logsDir: logsDir(),
+    resourcesPath: resourcesRoot(),
     platform: process.platform,
     arch: process.arch,
     versions: {
@@ -374,6 +383,14 @@ export function registerAllHandlers(context: { startedAt: number; isDevelopment:
   registerHandler('editor:open', (_event, target, options) =>
     editorService.open(String(target), (options ?? {}) as { editorId?: string; asFolder?: boolean })
   );
+
+  /* ---- bundled tools ---- */
+  registerHandler('bundled:resolve-tool', (_event, tool) => {
+    if (!isBundledTool(tool)) {
+      throw new Error(`"${String(tool)}" is not a known bundled tool.`);
+    }
+    return bundledService.resolveTool(tool);
+  });
 
   /* ---- processes ---- */
   registerHandler('process:spawn', (_event, options) =>

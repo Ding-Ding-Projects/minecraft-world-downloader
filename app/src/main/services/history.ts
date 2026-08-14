@@ -2,8 +2,9 @@ import { execFile } from 'node:child_process';
 import { promises as fs } from 'node:fs';
 import { join } from 'node:path';
 import { promisify } from 'node:util';
-import type { HistoryEntry, HistoryQuery, HistoryStatus } from '../../shared/api';
+import type { BundledToolResolution, HistoryEntry, HistoryQuery, HistoryStatus } from '../../shared/api';
 import { historyDir } from '../paths';
+import { resolveTool } from './bundled';
 
 const run = promisify(execFile);
 
@@ -18,21 +19,39 @@ const run = promisify(execFile);
  * an earlier state and pruning old entries are both recorded as NEW commits, so
  * an undo can be undone.
  *
- * When `git` is not installed the same append-only journal file is used without
- * commits, and `status()` reports the degraded backend honestly rather than
- * pretending a commit happened.
+ * `git` itself is resolved bundled-first, then PATH (see `./bundled`), the
+ * exact same order every other feature in this app uses — there is no
+ * manual-install instruction anywhere in this file. Only when neither a
+ * bundled copy nor a PATH copy can be found does this module fall back to
+ * the same append-only journal file used without commits, and `status()`
+ * reports the degraded backend honestly rather than pretending a commit
+ * happened.
  */
 
 const JOURNAL = 'journal.jsonl';
 const README = 'README.md';
+
+const GIT_UNAVAILABLE_REASON =
+  'git is not available: no copy is bundled with this build and none was found on PATH';
 
 let backend: 'git' | 'journal' | null = null;
 let degradedReason: string | undefined;
 let sequence = 0;
 let initializing: Promise<void> | null = null;
 
+/** Resolved once per process — a positive or negative result is cached for
+ *  the life of the process, exactly like `backend` itself once `initialize()`
+ *  has run. */
+let gitResolutionCache: BundledToolResolution | null | undefined;
+async function resolveGit(): Promise<BundledToolResolution | null> {
+  if (gitResolutionCache === undefined) gitResolutionCache = await resolveTool('git');
+  return gitResolutionCache;
+}
+
 async function git(args: string[]): Promise<string> {
-  const { stdout } = await run('git', args, { cwd: historyDir(), windowsHide: true });
+  const resolution = await resolveGit();
+  if (!resolution) throw new Error(GIT_UNAVAILABLE_REASON);
+  const { stdout } = await run(resolution.path, args, { cwd: historyDir(), windowsHide: true });
   return stdout.trim();
 }
 
@@ -51,12 +70,18 @@ async function initialize(): Promise<void> {
     }
     sequence = (await readLines()).length;
 
+    const resolution = await resolveGit();
+    if (!resolution) {
+      backend = 'journal';
+      degradedReason = `${GIT_UNAVAILABLE_REASON}, so entries are appended to the journal file without commits.`;
+      return;
+    }
     try {
-      await run('git', ['--version'], { windowsHide: true });
+      await run(resolution.path, ['--version'], { windowsHide: true });
     } catch {
       backend = 'journal';
       degradedReason =
-        'git was not found on PATH, so entries are appended to the journal file without commits.';
+        'The resolved copy of git could not be run, so entries are appended to the journal file without commits.';
       return;
     }
 

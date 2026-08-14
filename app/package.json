@@ -12,9 +12,11 @@
   },
   "scripts": {
     "ensure-electron": "node scripts/ensure-electron-binary.mjs",
+    "fetch-dependencies": "node scripts/fetch-dependencies.mjs",
     "predev": "node scripts/ensure-electron-binary.mjs",
     "prestart": "node scripts/ensure-electron-binary.mjs",
-    "predist": "node scripts/ensure-electron-binary.mjs",
+    "predist": "node scripts/ensure-electron-binary.mjs && node scripts/fetch-dependencies.mjs",
+    "predist:dir": "node scripts/ensure-electron-binary.mjs && node scripts/fetch-dependencies.mjs",
     "dev": "electron-vite dev",
     "build": "electron-vite build",
     "start": "electron-vite preview",

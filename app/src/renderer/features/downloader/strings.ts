@@ -164,8 +164,24 @@ export const DOWNLOADER_STRINGS: Catalogue = {
     ['檢查緊有冇 Java 執行環境⋯', '檢查緊有冇 Java 執行環境⋯', '搵緊 Java⋯']
   ),
   'downloader.runtime.java.present': t3(
-    ['Java is available: {version}', 'Java is available: {version}', 'Java is here: {version}'],
-    ['搵到 Java：{version}', '搵到 Java：{version}', 'Java 喺度：{version}']
+    ['Java is available: {version} ({origin})', 'Java is available: {version} ({origin})', 'Java is here: {version} ({origin})'],
+    ['搵到 Java：{version}（{origin}）', '搵到 Java：{version}（{origin}）', 'Java 喺度：{version}（{origin}）']
+  ),
+  'downloader.runtime.java.origin.bundled': t3(
+    [
+      'the runtime bundled with this installation',
+      'the runtime bundled with this installation',
+      'the Java that shipped right inside this app'
+    ],
+    ['隨呢個安裝內置嘅執行環境', '隨呢個安裝內置嘅執行環境', '同呢個 app 一齊帶埋嚟嘅 Java']
+  ),
+  'downloader.runtime.java.origin.path': t3(
+    [
+      "this machine's own Java, found on PATH",
+      "this machine's own Java, found on PATH",
+      'whatever Java was already lying around on this machine'
+    ],
+    ['呢部機自己嘅 Java，喺 PATH 度搵到', '呢部機自己嘅 Java，喺 PATH 度搵到', '呢部機本身就有嘅 Java']
   ),
   'downloader.runtime.java.missing': t3(
     [
@@ -211,6 +227,34 @@ export const DOWNLOADER_STRINGS: Catalogue = {
     ['Looked in: {paths}', 'Looked in: {paths}', 'Places it looked: {paths}'],
     ['搵過：{paths}', '搵過：{paths}', '去過呢啲位搵：{paths}']
   ),
+  'downloader.runtime.jar.origin.bundled': t3(
+    ['Bundled with this installation.', 'Bundled with this installation.', 'It shipped right inside this installation.'],
+    ['隨呢個安裝內置。', '隨呢個安裝內置。', '一齊喺呢個安裝入面帶埋嚟。']
+  ),
+  'downloader.runtime.jar.origin.setting': t3(
+    ['From the configured jar path.', 'From the configured jar path.', 'From wherever you pointed it at.'],
+    ['嚟自設定咗嘅 jar 路徑。', '嚟自設定咗嘅 jar 路徑。', '你自己指過去嗰度。']
+  ),
+  'downloader.runtime.jar.origin.applicationData': t3(
+    [
+      'Found in the application’s data directory.',
+      'Found in the application’s data directory.',
+      'Turned up in the app’s own data folder.'
+    ],
+    ['喺應用程式資料夾搵到。', '喺應用程式資料夾搵到。', '喺個 app 自己嗰個資料夾搵到。']
+  ),
+  'downloader.runtime.fallbackNote': t3(
+    [
+      'This should not normally be needed: the pieces above ship inside this installation. The links below are a last resort for the rare case where one genuinely is not there.',
+      'This should not normally be needed: the pieces above ship inside this installation. The links below are a last resort for the rare case where one genuinely is not there.',
+      'This app is meant to carry its own copies already — the links below only show up when something has gone properly missing.'
+    ],
+    [
+      '正常嚟講唔使用呢啲：上面嗰啲嘢隨呢個安裝內置。下面啲連結淨係喺真係搵唔到嘅罕見情況先會用到。',
+      '正常嚟講唔使用呢啲：上面嗰啲嘢隨呢個安裝內置。下面啲連結淨係喺真係搵唔到嘅罕見情況先會用到。',
+      '呢個 app 理應自己帶埋嘢喎——下面啲連結淨係真係唔見咗先會出現。'
+    ]
+  ),
 
   /* ---------------- actions ---------------- */
   'downloader.action.start': t3(
@@ -230,12 +274,12 @@ export const DOWNLOADER_STRINGS: Catalogue = {
     ['揀下載器 jar', '揀下載器 jar', '指個 jar 畀佢']
   ),
   'downloader.action.getJar': t3(
-    ['Open the releases page', 'Open the releases page', 'Open the releases page in your browser'],
-    ['開啟發佈頁', '開啟發佈頁', '喺瀏覽器打開發佈頁']
+    ['Open the releases page (last resort)', 'Open the releases page (last resort)', 'Fine — open the releases page yourself'],
+    ['開啟發佈頁（最後手段）', '開啟發佈頁（最後手段）', '好啦好啦，自己去開發佈頁']
   ),
   'downloader.action.getJava': t3(
-    ['Open the Java download page', 'Open the Java download page', 'Open the Java download page in your browser'],
-    ['開啟 Java 下載頁', '開啟 Java 下載頁', '喺瀏覽器打開 Java 下載頁']
+    ['Open the Java download page (last resort)', 'Open the Java download page (last resort)', 'Fine — open the Java download page yourself'],
+    ['開啟 Java 下載頁（最後手段）', '開啟 Java 下載頁（最後手段）', '好啦好啦，自己去開 Java 下載頁']
   ),
   'downloader.action.copyCommand': t3(
     ['Copy the command line', 'Copy the command line', 'Copy the command line'],

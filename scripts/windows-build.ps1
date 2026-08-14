@@ -51,7 +51,18 @@ param(
     [ValidateSet('app', 'installer')]
     [string]$Mode,
 
-    [switch]$Silent
+    [switch]$Silent,
+
+    # Installer mode only. Also fetches and bundles the GitHub CLI (gh.exe)
+    # alongside the JRE and MinGit that are always fetched. Off by default:
+    # gh only serves the World Vault's optional "publish to a new GitHub
+    # repository" action, and bundling it in every installer would add
+    # roughly another 14 MB (compressed) for a path most users never touch.
+    # When it is not bundled the application falls back to gh on PATH exactly
+    # as it does for the JRE and MinGit, and reports honestly (never a
+    # browser link) when neither is present -- see
+    # app/src/main/services/bundled.ts and app/scripts/dependency-manifest.json.
+    [switch]$WithGh
 )
 
 Set-StrictMode -Version Latest
@@ -126,7 +137,7 @@ $MinimumJarBytes = 1MB
 
 $script:Phases = @()
 $script:PhaseIndex = 0
-$script:PhaseTotal = if ($Mode -eq 'installer') { 11 } else { 8 }
+$script:PhaseTotal = if ($Mode -eq 'installer') { 12 } else { 8 }
 $script:NodeExe = $null
 $script:NpmCmd = $null
 $script:JavaHome = $null
@@ -1221,6 +1232,80 @@ function Confirm-JavaEngine {
 }
 
 # --------------------------------------------------------------------------- #
+# Bundled runtime dependencies (JRE, MinGit, and optionally the GitHub CLI)
+#
+# The application looks for these INSIDE its own installation before ever
+# falling back to PATH (app/src/main/services/bundled.ts), so that a machine
+# with nothing installed can still download a world and use the World Vault
+# feature without being handed a browser link. This is the build-time half of
+# that contract: it puts the tools where the application looks for them.
+#
+# Runs only in 'installer' mode, right before packaging, so
+# app/electron-builder.yml's second extraResources entry
+# (resources/runtime -> runtime) has something real to bundle when
+# electron-builder runs inside Build-Installer below. 'app' mode never
+# packages anything, so it has no need to fetch these -- PATH fallback is
+# fine for running the application straight out of the checkout.
+# --------------------------------------------------------------------------- #
+
+function Resolve-BundledRuntimeDependencies {
+    $phase = Start-Phase 'Fetch bundled runtime dependencies (JRE, MinGit)'
+
+    Write-Info 'Populating app/resources/runtime with the build-time tools the packaged'
+    Write-Info 'application looks for before ever falling back to PATH: a trimmed Java'
+    Write-Info 'runtime and MinGit. Each is downloaded once, verified against the pinned'
+    Write-Info 'SHA-256 in app/scripts/dependency-manifest.json, and cached for later warm'
+    Write-Info 'runs -- a repeat run re-verifies and skips rather than re-downloading.'
+    if ($WithGh) {
+        Write-Info 'Also fetching the GitHub CLI (-WithGh was passed).'
+    } else {
+        Write-Info 'The GitHub CLI is left off by default (it only serves the World Vault''s'
+        Write-Info 'optional "publish to GitHub" action) -- pass -WithGh to include it.'
+    }
+    Write-Line ''
+
+    $fetchScript = Join-Path $AppDir 'scripts\fetch-dependencies.mjs'
+    if (-not (Test-Path -LiteralPath $fetchScript)) {
+        Stop-WithFailure -Dependency 'bundled runtime dependency fetcher' `
+            -Constraint 'app/scripts/fetch-dependencies.mjs must exist' `
+            -Source $fetchScript `
+            -Problem 'the script that downloads and verifies the bundled JRE and MinGit is missing from this checkout'
+    }
+
+    $fetchArgs = @('scripts/fetch-dependencies.mjs')
+    if ($WithGh) { $fetchArgs += '--with-gh' }
+
+    Write-Step ('node scripts/fetch-dependencies.mjs' + $(if ($WithGh) { ' --with-gh' } else { '' }) + '  (in app/)')
+    $code = Invoke-Stream -File $script:NodeExe -Arguments $fetchArgs -WorkingDirectory $AppDir
+    if ($code -ne 0) {
+        Stop-WithFailure -Dependency 'bundled runtime dependencies (JRE, MinGit)' `
+            -Constraint 'node scripts/fetch-dependencies.mjs must exit 0' `
+            -Source 'app/scripts/dependency-manifest.json (pinned versions and SHA-256 digests)' `
+            -Problem ("fetch-dependencies.mjs exited {0}; its output is immediately above this message" -f $code)
+    }
+
+    $checks = @(
+        [pscustomobject]@{ Name = 'JRE (java.exe)'; Path = (Join-Path $AppDir 'resources\runtime\jre\bin\java.exe') },
+        [pscustomobject]@{ Name = 'MinGit (git.exe)'; Path = (Join-Path $AppDir 'resources\runtime\git\cmd\git.exe') }
+    )
+    if ($WithGh) {
+        $checks += [pscustomobject]@{ Name = 'GitHub CLI (gh.exe)'; Path = (Join-Path $AppDir 'resources\runtime\gh\bin\gh.exe') }
+    }
+    foreach ($check in $checks) {
+        if (Test-Path -LiteralPath $check.Path) {
+            Write-Found ("{0} at {1}" -f $check.Name, $check.Path)
+        } else {
+            Stop-WithFailure -Dependency $check.Name `
+                -Constraint "$($check.Path) must exist after fetch-dependencies.mjs succeeds" `
+                -Source (Join-Path $AppDir 'resources\runtime') `
+                -Problem 'fetch-dependencies.mjs exited 0 but the expected executable is not where the fixed path contract says it will be'
+        }
+    }
+
+    Complete-Phase $phase
+}
+
+# --------------------------------------------------------------------------- #
 # Installer packaging
 # --------------------------------------------------------------------------- #
 
@@ -1231,6 +1316,10 @@ function Build-Installer {
     Write-Info '  = electron-vite build && electron-builder --win squirrel --config electron-builder.yml'
     Write-Info 'This is the same command the release workflow runs, on the same version, so a'
     Write-Info 'locally built installer and a published one are the same artifact.'
+    Write-Info '"npm run dist" also re-runs fetch-dependencies.mjs itself via its own predist'
+    Write-Info 'hook (app/package.json) -- an instant no-op here since the phase above just'
+    Write-Info 'fetched and verified everything, but it means a bare "npm run dist" run on its'
+    Write-Info 'own self-heals exactly the same way this script does.'
     Write-Line ''
     Write-Line '  CODE SIGNING IS OUT OF SCOPE. The installer this produces is UNSIGNED.' 'Yellow'
     Write-Line '  Windows will show an unknown-publisher / SmartScreen warning when it runs.' 'Yellow'
@@ -1442,6 +1531,7 @@ if ($Mode -eq 'installer') {
     Resolve-MavenToolchain
     Build-JavaEngine
     Confirm-JavaEngine
+    Resolve-BundledRuntimeDependencies
     Build-Installer
     Confirm-Installer
 } else {

@@ -1,7 +1,8 @@
 import { spawn, type ChildProcessWithoutNullStreams } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
 import type { BrowserWindow } from 'electron';
-import type { ProcessEvent, ProcessSummary, SpawnHandle, SpawnOptions } from '../../shared/api';
+import type { BundledTool, ProcessEvent, ProcessSummary, SpawnHandle, SpawnOptions } from '../../shared/api';
+import { bundledToolPath } from './bundled';
 
 /**
  * Bounded child-process supervision.
@@ -85,19 +86,49 @@ function normalizeCommand(command: string): string {
   return base.toLowerCase();
 }
 
+/**
+ * Tools this application can bundle inside its own installation (see
+ * `./bundled.ts`) and that also need to be spawned as a long-running,
+ * streamed process from here, rather than run as one short-lived command
+ * from the main process directly. `engineJar` is never a spawn command — it
+ * is passed as a `-jar` argument to `java` — so it is deliberately absent.
+ */
+const BUNDLED_SPAWNABLE_TOOLS: readonly BundledTool[] = ['java', 'git', 'gh'];
+
+/**
+ * True only when `command` is byte-for-byte the exact path `./bundled.ts`
+ * would itself resolve, right now, for one of the tools above.
+ *
+ * This is the one and only door the filesystem-path refusal below leaves
+ * open, and it is deliberately narrow: the renderer supplies the string, but
+ * it cannot manufacture a value that passes this check by typing one in —
+ * this re-resolves the bundled tool itself, from the main process, and only
+ * an exact match to what is genuinely sitting inside this installation right
+ * now is accepted. A path that used to be valid (a build that shipped a
+ * runtime and was later reinstalled without one) stops matching the moment
+ * the file is gone, since `bundledToolPath` always re-stats a miss.
+ */
+function isKnownBundledExecutable(command: string): boolean {
+  return BUNDLED_SPAWNABLE_TOOLS.some((tool) => bundledToolPath(tool) === command);
+}
+
 export function spawnProcess(options: SpawnOptions): SpawnHandle {
   const command = String(options.command ?? '').trim();
   if (!command) throw new Error('No command was given.');
-  if (command.includes('/') || command.includes('\\')) {
+  const looksLikeAPath = command.includes('/') || command.includes('\\');
+  const isBundledExecutable = looksLikeAPath && isKnownBundledExecutable(command);
+  if (looksLikeAPath && !isBundledExecutable) {
     throw new Error(
       `Refusing to start "${command}": pass a bare command name resolved on PATH, not a filesystem path.`
     );
   }
-  const normalized = normalizeCommand(command);
-  if (!ALLOWED_COMMANDS.has(normalized)) {
-    throw new Error(
-      `Refusing to start "${command}". Allowed commands are: ${allowedCommands().join(', ')}.`
-    );
+  if (!isBundledExecutable) {
+    const normalized = normalizeCommand(command);
+    if (!ALLOWED_COMMANDS.has(normalized)) {
+      throw new Error(
+        `Refusing to start "${command}". Allowed commands are: ${allowedCommands().join(', ')}.`
+      );
+    }
   }
   const args = Array.isArray(options.args) ? options.args.map((value) => String(value)) : [];
   const maxOutputBytes =

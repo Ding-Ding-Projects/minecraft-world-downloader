@@ -70,6 +70,28 @@ export function vocabularyCacheDir(): string {
   return ensure(join(cacheDir(), 'vocabulary'));
 }
 
+/**
+ * Root of the bundled-tools resources directory.
+ *
+ * Inside a packaged build this IS `process.resourcesPath` — the directory
+ * `extraResources` in `electron-builder.yml` copies the Java engine jar (and,
+ * where a release build includes them, a trimmed Java runtime, MinGit and
+ * the GitHub CLI) into.
+ *
+ * There is no packaged resources directory in development, so this resolves
+ * to `app/resources` in the repository checkout instead — computed from
+ * `__dirname` rather than `process.cwd()`, since electron-vite bundles every
+ * main-process source file into the single `out/main/index.js`, so
+ * `__dirname` there is always `<repo>/app/out/main` regardless of where the
+ * process was launched from. Two levels up is `app/`. The directory is
+ * created on first use so a `npm run dev` session finds bundled tools the
+ * exact same way an installed build does, once they are dropped in place.
+ */
+export function resourcesRoot(): string {
+  if (app.isPackaged) return process.resourcesPath;
+  return ensure(join(__dirname, '..', '..', 'resources'));
+}
+
 /** Applies the pinned data directory. Call before `app.whenReady()`. */
 export function applyStablePaths(): void {
   const root = userDataRoot();

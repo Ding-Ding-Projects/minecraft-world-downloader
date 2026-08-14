@@ -61,6 +61,32 @@ asarUnpack: []
 extraResources:
   - from: ../target/world-downloader.jar
     to: engine/world-downloader.jar
+  # Build-time-fetched runtime tools: a trimmed Java runtime (JRE) and MinGit,
+  # and optionally the GitHub CLI. Without these the application still runs --
+  # it falls back to PATH exactly as it does for the two above -- but bundling
+  # them is what lets a machine with NOTHING installed still download a world
+  # and use the World Vault feature, with no browser link ever shown for a
+  # dependency the application itself needs.
+  #
+  # `scripts/fetch-dependencies.mjs` downloads, verifies each archive against
+  # the pinned SHA-256 in `scripts/dependency-manifest.json`, and unpacks them
+  # into `resources/runtime/**` BEFORE this file is ever read by
+  # electron-builder -- wired as `predist` / `predist:dir` in package.json (so
+  # a bare `npm run dist` self-heals) and as its own explicit, reported phase
+  # in the repository's `scripts/windows-build.ps1`.
+  #
+  # Packaged location -- the fixed path contract `src/main/services/bundled.ts`
+  # resolves against:
+  #   resources/runtime/jre/bin/java.exe
+  #   resources/runtime/git/cmd/git.exe
+  #   resources/runtime/gh/bin/gh.exe   (only present when fetched with --with-gh)
+  #
+  # electron-builder fails loudly on a missing `from` directory rather than
+  # silently skipping it, so a build that reaches this step without having
+  # run fetch-dependencies.mjs first stops right here -- run
+  # `node scripts/fetch-dependencies.mjs` in `app/` to populate it.
+  - from: resources/runtime
+    to: runtime
 
 electronLanguages:
   - en-US

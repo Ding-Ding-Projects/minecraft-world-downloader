@@ -1,6 +1,8 @@
 import { contextBridge, ipcRenderer } from 'electron';
 import type {
   AppInfo,
+  BundledTool,
+  BundledToolResolution,
   DirectoryEntry,
   EditorCandidate,
   FileStat,
@@ -116,6 +118,10 @@ const api: StudioApi = {
     detect: () => invoke<EditorCandidate[]>('editor:detect'),
     open: (target: string, options?: { editorId?: string; asFolder?: boolean }) =>
       invoke<void>('editor:open', target, options ?? {})
+  },
+
+  bundled: {
+    resolve: (tool: BundledTool) => invoke<BundledToolResolution | null>('bundled:resolve-tool', tool)
   },
 
   process: {

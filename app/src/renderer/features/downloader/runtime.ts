@@ -48,10 +48,19 @@ export function safeFolderName(value: string): string {
 
 export type JavaState = 'unknown' | 'checking' | 'present' | 'missing' | 'failed';
 
+/** Where the Java that answered actually came from. */
+export type JavaOrigin = 'bundled' | 'path';
+
 export interface JavaProbe {
   state: JavaState;
-  /** The command that was probed: `java` or `javaw`. */
+  /**
+   * The exact thing that was probed, and that a session will be started
+   * with: either a bare launcher name resolved on PATH (`java`/`javaw`) or
+   * the absolute path of the runtime bundled inside this installation.
+   */
   command: string;
+  /** Where `command` came from — this app's own bundled runtime, or the machine's own on PATH. */
+  origin: JavaOrigin;
   /** The first line the runtime printed, verbatim. Empty until it answers. */
   versionLine: string;
   /** Everything it printed, kept for the honest failure explanation. */
@@ -62,17 +71,44 @@ export interface JavaProbe {
 }
 
 export function unknownJava(command: string): JavaProbe {
-  return { state: 'unknown', command, versionLine: '', output: '', error: null, checkedAt: null };
+  return { state: 'unknown', command, origin: 'path', versionLine: '', output: '', error: null, checkedAt: null };
 }
 
 /**
- * Runs `<command> -version` and reads what comes back.
+ * Resolves which Java actually gets run, then runs `<that> -version` and
+ * reads what comes back.
+ *
+ * The runtime bundled inside this installation (`electron-builder.yml`'s
+ * `runtime/jre`, in a release build that carries one) is tried first, through
+ * the same `bundled` channel `probeJar` below uses for the engine jar —
+ * whenever the configured launcher is still the plain `java` default. Only
+ * when this build carries no bundled runtime, or a person has deliberately
+ * picked something else (`javaw`, to hide the console — there is no bundled
+ * `javaw`), does this fall back to resolving the bare command on PATH,
+ * exactly as before. Either way the reported `origin` says plainly which one
+ * answered, because a person debugging a version mismatch needs to know
+ * which java actually ran — and `command` is the exact thing a session will
+ * be started with, so the two can never quietly disagree.
  *
  * Java prints its version banner on stderr, which is not a failure; the exit
  * code is what decides. A missing runtime surfaces as a spawn `error` event
  * rather than a rejected promise, so both routes are handled.
  */
-export async function probeJava(ctx: AppContext, command: string): Promise<JavaProbe> {
+export async function probeJava(ctx: AppContext, configuredCommand: string): Promise<JavaProbe> {
+  const trimmed = configuredCommand.trim();
+  const wantsPlainJava = trimmed === '' || trimmed === 'java';
+
+  if (wantsPlainJava) {
+    const bundled = await ctx.studio.bundled.resolve('java');
+    if (bundled.ok && bundled.value && bundled.value.origin === 'bundled') {
+      return runJavaVersionProbe(ctx, bundled.value.path, 'bundled');
+    }
+  }
+
+  return runJavaVersionProbe(ctx, trimmed === '' ? 'java' : trimmed, 'path');
+}
+
+async function runJavaVersionProbe(ctx: AppContext, command: string, origin: JavaOrigin): Promise<JavaProbe> {
   const started = await ctx.studio.process.spawn({
     command,
     args: ['-version'],
@@ -83,6 +119,7 @@ export async function probeJava(ctx: AppContext, command: string): Promise<JavaP
     return {
       state: 'missing',
       command,
+      origin,
       versionLine: '',
       output: '',
       error: started.error,
@@ -112,6 +149,7 @@ export async function probeJava(ctx: AppContext, command: string): Promise<JavaP
         finish({
           state: 'missing',
           command,
+          origin,
           versionLine: '',
           output,
           error: event.message,
@@ -125,6 +163,7 @@ export async function probeJava(ctx: AppContext, command: string): Promise<JavaP
           finish({
             state: 'present',
             command,
+            origin,
             versionLine: firstLine,
             output,
             error: null,
@@ -134,6 +173,7 @@ export async function probeJava(ctx: AppContext, command: string): Promise<JavaP
           finish({
             state: 'failed',
             command,
+            origin,
             versionLine: firstLine,
             output,
             error: `"${command} -version" exited with code ${String(event.code)}.`,
@@ -148,6 +188,7 @@ export async function probeJava(ctx: AppContext, command: string): Promise<JavaP
       finish({
         state: 'failed',
         command,
+        origin,
         versionLine: '',
         output,
         error: `"${command} -version" did not answer within 15 seconds.`,
@@ -157,10 +198,22 @@ export async function probeJava(ctx: AppContext, command: string): Promise<JavaP
   });
 }
 
-/** Where a person gets a Java runtime. Opened in their browser, never fetched. */
+/**
+ * Where a person gets a Java runtime, for the rare case where this build
+ * genuinely has neither its own bundled runtime nor one already on the
+ * machine's PATH. NOT the normal route: a release build ships its own
+ * trimmed runtime under `<resources>/runtime/jre`, and `probeJava` above
+ * always tries that first. Opened in their browser, never fetched.
+ */
 export const JAVA_DOWNLOAD_URL = 'https://adoptium.net/temurin/releases/';
 
-/** Where the jar is published. Opened in their browser, never fetched. */
+/**
+ * Where the jar is published, for the rare case where this installation's
+ * own copy has somehow gone missing. NOT the normal route:
+ * `electron-builder.yml` always ships the jar at
+ * `<resources>/engine/world-downloader.jar`, and `probeJar` below always
+ * finds it before ever reaching this. Opened in their browser, never fetched.
+ */
 export const JAR_DOWNLOAD_URL =
   'https://github.com/cafepromenade/minecraft-world-downloader/releases/latest';
 
@@ -174,15 +227,20 @@ export interface JarProbe {
   sizeBytes: number;
   modifiedAt: string | null;
   /** Where the path came from, so the surface can say it plainly. */
-  origin: 'setting' | 'application-data' | 'none';
+  origin: 'setting' | 'bundled' | 'application-data' | 'none';
   /** Every place that was looked in, in order, for the honest empty state. */
   searched: string[];
 }
 
 /**
- * Resolves the jar: the configured path first, then the places an installed
- * build keeps it. A guess is never reported as found — every candidate is
- * stat-ed before it is offered.
+ * Resolves the jar: the configured path first, then the engine jar this
+ * installation always ships at `<resources>/engine/world-downloader.jar`
+ * (`electron-builder.yml`'s `extraResources`, reached through the `bundled`
+ * channel — see `src/main/services/bundled.ts`), then the places an older,
+ * unbundled install kept one. A guess is never reported as found — every
+ * candidate is stat-ed before it is offered, including the bundled one: the
+ * `bundled` channel only ever names where a tool *would* be, this still
+ * confirms the file is really there.
  */
 export async function probeJar(ctx: AppContext, configured: string): Promise<JarProbe> {
   const separator = separatorFor(ctx.studio.info.platform);
@@ -191,6 +249,12 @@ export async function probeJar(ctx: AppContext, configured: string): Promise<Jar
 
   const trimmed = configured.trim();
   if (trimmed !== '') candidates.push({ path: trimmed, origin: 'setting' });
+
+  const bundled = await ctx.studio.bundled.resolve('engineJar');
+  if (bundled.ok && bundled.value) {
+    candidates.push({ path: bundled.value.path, origin: 'bundled' });
+  }
+
   candidates.push({ path: joinPath(separator, dataDir, 'world-downloader.jar'), origin: 'application-data' });
   candidates.push({
     path: joinPath(separator, dataDir, 'downloader', 'world-downloader.jar'),

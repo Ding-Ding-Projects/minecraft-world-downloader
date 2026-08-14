@@ -49,6 +49,8 @@ export const INVOKE_CHANNELS = [
   'editor:detect',
   'editor:open',
 
+  'bundled:resolve-tool',
+
   'process:spawn',
   'process:write',
   'process:kill',

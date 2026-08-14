@@ -4,3 +4,12 @@ release/
 dist/
 *.tsbuildinfo
 .vite/
+
+# Build-time-fetched runtime tools (JRE, MinGit, gh) that
+# scripts/fetch-dependencies.mjs downloads, verifies and unpacks here before
+# packaging. Never committed: they are large binaries pinned and verified by
+# scripts/dependency-manifest.json, not source, and are re-fetched on any
+# machine that runs `npm run dist` (or scripts/fetch-dependencies.mjs
+# directly). This also covers the dev-mode fallback location
+# `src/main/paths.ts`'s `resourcesRoot()` creates on first use.
+resources/

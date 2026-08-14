@@ -12,9 +12,19 @@ import type { EditorCandidate } from '../../shared/api';
  * file. Opening a folder opens it as a workspace root, so the file tree is
  * usable rather than a single file with no context.
  *
- * When no editor is found we say so plainly and let the caller offer the
- * download, rather than silently launching some other editor the user did not
- * ask for.
+ * An external editor is NOT a dependency of this application — every feature
+ * here works fully without one, and this module never treats "nothing found"
+ * as a failed prerequisite. `detect()` below checks every location the
+ * stable, Insiders and portable-style distributions of these editors
+ * realistically install to (PATH, per-user and machine Program Files, the
+ * 32-bit Program Files fallback, and the Scoop package manager's shim
+ * layout) before concluding none is present. When it genuinely finds
+ * nothing, `open()` says so plainly and points at the one route that
+ * actually covers an install this scan cannot guess the location of — a
+ * portable copy extracted somewhere arbitrary — which is the "Add editor"
+ * browse control in External editor settings (see
+ * `renderer/features/external-editor`), never a bare instruction to go
+ * download something the user may already have.
  *
  * On Windows, the command VS Code (and VS Code Insiders, and VSCodium) puts on
  * PATH is a `.cmd` batch-file wrapper, not the real GUI executable — it exists
@@ -54,10 +64,20 @@ const WINDOWS_CANDIDATES: Candidate[] = [
     id: 'vscode',
     name: 'Visual Studio Code',
     supportsFolder: true,
+    // PATH first (`code.cmd`/`code`) — this alone already covers a portable
+    // copy the user added to their own PATH, which is the one thing that
+    // makes a portable install findable at all without asking where it is.
     commands: ['code.cmd', 'code'],
     paths: [
       '~/AppData/Local/Programs/Microsoft VS Code/bin/code.cmd',
-      'C:/Program Files/Microsoft VS Code/bin/code.cmd'
+      'C:/Program Files/Microsoft VS Code/bin/code.cmd',
+      // The 32-bit build some older or hand-picked installs still use.
+      'C:/Program Files (x86)/Microsoft VS Code/bin/code.cmd',
+      // The Scoop package manager's install layout. Scoop normally also puts
+      // a shim on PATH (already covered by `commands` above), so this is
+      // defence in depth for a PATH that has not been refreshed since Scoop
+      // installed it.
+      '~/scoop/apps/vscode/current/bin/code.cmd'
     ],
     guiExecutable: 'Code.exe'
   },
@@ -68,7 +88,9 @@ const WINDOWS_CANDIDATES: Candidate[] = [
     commands: ['code-insiders.cmd', 'code-insiders'],
     paths: [
       '~/AppData/Local/Programs/Microsoft VS Code Insiders/bin/code-insiders.cmd',
-      'C:/Program Files/Microsoft VS Code Insiders/bin/code-insiders.cmd'
+      'C:/Program Files/Microsoft VS Code Insiders/bin/code-insiders.cmd',
+      'C:/Program Files (x86)/Microsoft VS Code Insiders/bin/code-insiders.cmd',
+      '~/scoop/apps/vscode-insiders/current/bin/code-insiders.cmd'
     ],
     guiExecutable: 'Code - Insiders.exe'
   },
@@ -77,7 +99,12 @@ const WINDOWS_CANDIDATES: Candidate[] = [
     name: 'VSCodium',
     supportsFolder: true,
     commands: ['codium.cmd', 'codium'],
-    paths: ['~/AppData/Local/Programs/VSCodium/bin/codium.cmd', 'C:/Program Files/VSCodium/bin/codium.cmd'],
+    paths: [
+      '~/AppData/Local/Programs/VSCodium/bin/codium.cmd',
+      'C:/Program Files/VSCodium/bin/codium.cmd',
+      'C:/Program Files (x86)/VSCodium/bin/codium.cmd',
+      '~/scoop/apps/vscodium/current/bin/codium.cmd'
+    ],
     guiExecutable: 'VSCodium.exe'
   },
   {
@@ -268,8 +295,19 @@ export async function open(
   const candidates = await detect();
   const available = candidates.filter((candidate) => candidate.available);
   if (available.length === 0) {
+    // This is not a failed prerequisite: nothing in the application requires
+    // an external editor, and every feature that offers a handoff works
+    // exactly as well without one — the handoff is simply skipped. The scan
+    // above already checked every common install location for VS Code
+    // (stable, Insiders, and the Scoop/32-bit variants), VSCodium, Notepad++
+    // and Notepad, so a genuine miss here usually means the editor is a
+    // portable copy sitting somewhere this scan cannot guess — which "Add
+    // editor" in External editor settings covers directly, by browsing to it
+    // once, without downloading anything new.
     throw new Error(
-      'No external editor was found on this machine. Visual Studio Code is the preferred one; install it and try again.'
+      'No editor was found on this machine, and none is required — this application is fully functional without one. ' +
+        'If an editor is already installed somewhere this automatic check does not cover, such as a portable copy, ' +
+        'add it from External editor settings. Visual Studio Code is only the suggested default, not something this needs.'
     );
   }
   const chosen = options.editorId

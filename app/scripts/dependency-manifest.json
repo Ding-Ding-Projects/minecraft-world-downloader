@@ -1,0 +1,63 @@
+{
+  "$comment": [
+    "Hand-verified pins for the build-time tools World Downloader Studio bundles",
+    "inside its own Windows installer, read by scripts/fetch-dependencies.mjs.",
+    "",
+    "Every 'url' below was downloaded and its bytes hashed independently (sha256sum,",
+    "not just trusting a published checksum file) before this file was committed:",
+    "  - jre:    verified against the official *.zip.sha256.txt published beside it",
+    "  - gh:     verified against the official gh_<version>_checksums.txt",
+    "  - git:    git-for-windows publishes no separate checksum artifact for MinGit;",
+    "            this 'sha256' is the digest of a copy downloaded directly from the",
+    "            official github.com/git-for-windows/git release over HTTPS, so it",
+    "            still pins and verifies an exact known-good file even though there",
+    "            was no third-party checksum to cross-check it against.",
+    "",
+    "Bumping a version means: download the new archive, compute its real SHA-256,",
+    "and update BOTH 'sha256' and 'sizeBytes' here together. fetch-dependencies.mjs",
+    "refuses to extract anything whose SHA-256 does not match this file -- an",
+    "unverified binary never reaches the installer, full stop."
+  ],
+  "tools": {
+    "jre": {
+      "name": "Eclipse Temurin 21 JRE (Windows x64)",
+      "release": "jdk-21.0.12+8",
+      "url": "https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.12%2B8/OpenJDK21U-jre_x64_windows_hotspot_21.0.12_8.zip",
+      "checksumSource": "https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.12%2B8/OpenJDK21U-jre_x64_windows_hotspot_21.0.12_8.zip.sha256.txt",
+      "sha256": "b8aa18fef5edb69bee8618f99677d66d0873d22cb40d974c15ac9ffcdecf73ba",
+      "sizeBytes": 48993215,
+      "archiveTopLevelDir": "jdk-21.0.12+8-jre",
+      "targetDir": "runtime/jre",
+      "markerFile": "bin/java.exe",
+      "bundledByDefault": true,
+      "purpose": "Runs the bundled Java engine (world-downloader.jar) so downloading a world never needs a Java install on the user's machine."
+    },
+    "git": {
+      "name": "MinGit (portable minimal Git for Windows)",
+      "release": "v2.55.0.windows.4",
+      "url": "https://github.com/git-for-windows/git/releases/download/v2.55.0.windows.4/MinGit-2.55.0.4-64-bit.zip",
+      "checksumSource": null,
+      "sha256": "4e03f94c2ffbf70be337e005cee02661c732dbfc81031a078bda9299b9a7d644",
+      "sizeBytes": 38792847,
+      "archiveTopLevelDir": null,
+      "targetDir": "runtime/git",
+      "markerFile": "cmd/git.exe",
+      "bundledByDefault": true,
+      "purpose": "Powers the World Vault feature (per-world local history, push/publish) so a user never needs a separate Git install."
+    },
+    "gh": {
+      "name": "GitHub CLI",
+      "release": "v2.97.0",
+      "url": "https://github.com/cli/cli/releases/download/v2.97.0/gh_2.97.0_windows_amd64.zip",
+      "checksumSource": "https://github.com/cli/cli/releases/download/v2.97.0/gh_2.97.0_checksums.txt",
+      "sha256": "35d7fe05c4dd1411ffda1e73dfc7c6f44b75c936ca51fa6595c657fdc0350cec",
+      "sizeBytes": 14938517,
+      "archiveTopLevelDir": null,
+      "targetDir": "runtime/gh",
+      "markerFile": "bin/gh.exe",
+      "bundledByDefault": false,
+      "purpose": "Only used by the World Vault's optional 'publish to a new GitHub repository' action.",
+      "bundledByDefaultReason": "Bundling gh by default would add another ~14 MB (compressed) / ~40 MB (extracted) to EVERY installer for a path most users never touch, on top of the JRE and MinGit already added for the core download and vault-history features every user does touch. It is fetched on demand instead: pass --with-gh to scripts/fetch-dependencies.mjs (or -WithGh to scripts/windows-build.ps1, or /with-gh to build-installer.bat) to include it in a specific build. When it is not bundled, the application falls back to gh on PATH exactly as it does for every other bundled tool, and reports honestly (never a browser link) when neither is present -- see app/src/main/services/bundled.ts."
+    }
+  }
+}

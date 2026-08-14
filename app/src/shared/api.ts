@@ -64,6 +64,18 @@ export interface AppInfo {
   historyDir: string;
   /** Absolute path of the app's log directory. */
   logsDir: string;
+  /**
+   * Absolute path of the packaged resources root — `process.resourcesPath`
+   * inside an installed build — or the repository's `app/resources`
+   * directory when running in development (created on first use so a dev
+   * run behaves like an installed one).
+   *
+   * Bundled tools (the Java engine jar, and an optionally-bundled Java
+   * runtime, Git and GitHub CLI) resolve underneath this directory before
+   * ever falling back to PATH; see `bundled` below and
+   * `src/main/services/bundled.ts`.
+   */
+  resourcesPath: string;
   platform: PlatformName;
   arch: string;
   versions: {
@@ -417,6 +429,29 @@ export interface EditorCandidate {
 }
 
 /* ------------------------------------------------------------------ */
+/* Bundled tools                                                       */
+/* ------------------------------------------------------------------ */
+
+/**
+ * A dependency the application can find already sitting inside its own
+ * installation, before ever handing the user a link to fetch it themselves.
+ *
+ * `engineJar` is the Java engine `electron-builder.yml` always ships under
+ * `<resources>/engine/world-downloader.jar`. `java`, `git` and `gh` are
+ * trimmed runtimes a release build can additionally bundle under
+ * `<resources>/runtime/<name>/...`; a build that omits one simply falls back
+ * to PATH, exactly as `resolve` below does.
+ */
+export type BundledTool = 'java' | 'git' | 'gh' | 'engineJar';
+
+export interface BundledToolResolution {
+  /** Absolute path to the resolved executable or file. */
+  path: string;
+  /** Whether the path came from inside the application or from PATH. */
+  origin: 'bundled' | 'path';
+}
+
+/* ------------------------------------------------------------------ */
 /* Dim sum surprise                                                    */
 /* ------------------------------------------------------------------ */
 
@@ -535,6 +570,15 @@ export interface StudioApi {
     detect(): Promise<Result<EditorCandidate[]>>;
     /** Opens a file. `folder` opens the containing directory as a workspace. */
     open(target: string, options?: { editorId?: string; asFolder?: boolean }): Promise<Result<void>>;
+  };
+
+  bundled: {
+    /**
+     * Resolves a dependency's path: bundled inside the application first,
+     * PATH second, `null` when neither has it. Read-only — this only reports
+     * where a tool would be found, it never spawns or executes anything.
+     */
+    resolve(tool: BundledTool): Promise<Result<BundledToolResolution | null>>;
   };
 
   process: {

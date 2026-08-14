@@ -177,7 +177,12 @@ export class FeatureState {
   }
 
   commandLine(): string {
-    const javaCommand = this.ctx.settings.get<string>(JAVA_COMMAND_SETTING_ID, DEFAULT_JAVA_COMMAND);
+    // The exact thing `refreshJava` just proved answers `-version` — bundled
+    // absolute path or bare PATH command, whichever it actually resolved to
+    // — so the copyable line never shows something different from what
+    // `start` below is about to run.
+    const javaCommand =
+      this.javaProbe.command || this.ctx.settings.get<string>(JAVA_COMMAND_SETTING_ID, DEFAULT_JAVA_COMMAND);
     const jarPath =
       this.jarProbe.found && this.jarProbe.path !== ''
         ? this.jarProbe.path
@@ -199,11 +204,16 @@ export class FeatureState {
       return { kind: 'needsJar', message: '' };
     }
 
-    const javaCommand = this.ctx.settings.get<string>(JAVA_COMMAND_SETTING_ID, DEFAULT_JAVA_COMMAND);
     const workingDirectory = this.ctx.settings.get<string>(WORKING_DIRECTORY_SETTING_ID, '');
 
+    // `this.javaProbe.command` is exactly what `refreshJava` just spawned
+    // successfully to reach `state === 'present'` above — the bundled
+    // runtime's own path when this build carries one, the configured
+    // command on PATH otherwise. Re-reading the raw setting here would throw
+    // that resolution away and go back to spawning a bare `java`/`javaw`
+    // that may not exist on this machine at all.
     const outcome = await this.session.start({
-      javaCommand,
+      javaCommand: this.javaProbe.command,
       jarPath: this.jarProbe.path,
       args: plan.args,
       workingDirectory,
