@@ -33,13 +33,23 @@
   margin: 0;
 }
 
+/*
+ * Each dt/dd pair is a headline fact (commit count, last commit) with a
+ * supporting-evidence line beneath it — the same primary-fact-plus-evidence
+ * pairing the design uses throughout (a bold or default-weight line on top,
+ * a smaller on-surface-variant line under it). Neither element carries a
+ * typescale class from the panel, so the sizing is set here.
+ */
 .worldvault-status__facts dt {
   font: inherit;
+  font-weight: 500;
 }
 
 .worldvault-status__facts dd {
   margin: 0 0 var(--md-space-2);
   color: var(--md-sys-color-on-surface-variant);
+  font-size: calc(var(--md-sys-typescale-body-small-size) * var(--md-sys-typescale-factor));
+  line-height: calc(var(--md-sys-typescale-body-small-line) * var(--md-sys-typescale-factor));
 }
 
 .worldvault-status__activity {

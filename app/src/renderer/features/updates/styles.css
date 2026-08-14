@@ -48,7 +48,13 @@
   gap: var(--md-space-3);
   padding: var(--md-space-5);
   border-radius: var(--md-sys-shape-corner-large);
-  background: var(--md-sys-color-surface-container);
+  /*
+   * A standalone top-level card on the plain surface uses
+   * surface-container-low throughout the design (the Runtime card, the
+   * Activity card, every "Other" area card) — surface-container itself is
+   * reserved for a card's own header strip or a segmented-control track.
+   */
+  background: var(--md-sys-color-surface-container-low);
 }
 
 .updates-status h2 {

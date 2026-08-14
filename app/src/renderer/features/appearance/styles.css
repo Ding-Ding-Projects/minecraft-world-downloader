@@ -246,9 +246,23 @@
   min-width: 0;
 }
 
+/*
+ * A checked card is a checked card, not a merely-outlined one: the same filled
+ * secondary-container tone that marks a selected settings tab and a selected
+ * font-list row elsewhere in this app. The secondary line inside dims by
+ * opacity rather than swapping to a role that would not exist for every tone,
+ * the same technique the design itself uses for supporting text on a tinted
+ * surface.
+ */
 .appearance-preset[aria-selected='true'] {
-  border-color: var(--md-sys-color-primary);
-  background: var(--md-sys-color-surface-container-high);
+  border-color: var(--md-sys-color-secondary);
+  background: var(--md-sys-color-secondary-container);
+  color: var(--md-sys-color-on-secondary-container);
+}
+
+.appearance-preset[aria-selected='true'] .appearance-preset__detail p {
+  color: inherit;
+  opacity: 0.82;
 }
 
 .appearance-preset__head {
@@ -300,8 +314,18 @@
   min-width: 0;
 }
 
+/* Matches the checked-preset treatment above: a filled tonal card, not just a
+   redrawn border, and the same app-wide secondary-container selected tone
+   used for a checked settings tab and a checked font-list row. */
 .appearance-element[aria-selected='true'] {
-  border-color: var(--md-sys-color-primary);
+  border-color: var(--md-sys-color-secondary);
+  background: var(--md-sys-color-secondary-container);
+  color: var(--md-sys-color-on-secondary-container);
+}
+
+.appearance-element[aria-selected='true'] .appearance-element__selector {
+  color: inherit;
+  opacity: 0.82;
 }
 
 .appearance-element__head {

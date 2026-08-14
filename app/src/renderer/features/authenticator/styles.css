@@ -15,19 +15,19 @@
 .authenticator-banners {
   display: flex;
   flex-direction: column;
-  gap: var(--md-sys-spacing-2, 8px);
-  margin-block: var(--md-sys-spacing-2, 8px);
+  gap: var(--md-space-2, 8px);
+  margin-block: var(--md-space-2, 8px);
 }
 
 .authenticator-banner {
-  border-radius: var(--md-sys-shape-medium, 12px);
-  padding: var(--md-sys-spacing-4, 16px);
+  border-radius: var(--md-sys-shape-corner-medium, 12px);
+  padding: var(--md-space-4, 16px);
   border: 1px solid var(--md-sys-color-outline-variant);
   background: var(--md-sys-color-surface-container);
   color: var(--md-sys-color-on-surface);
   display: flex;
   flex-direction: column;
-  gap: var(--md-sys-spacing-2, 8px);
+  gap: var(--md-space-2, 8px);
   align-items: flex-start;
 }
 
@@ -54,32 +54,32 @@
 .authenticator-toolbar {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--md-sys-spacing-2, 8px);
+  gap: var(--md-space-2, 8px);
   align-items: flex-end;
-  margin-block: var(--md-sys-spacing-2, 8px);
+  margin-block: var(--md-space-2, 8px);
 }
 
 .authenticator-bulk {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--md-sys-spacing-1, 4px);
+  gap: var(--md-space-1, 4px);
   align-items: center;
-  padding: var(--md-sys-spacing-2, 8px);
-  border-radius: var(--md-sys-shape-medium, 12px);
+  padding: var(--md-space-2, 8px);
+  border-radius: var(--md-sys-shape-corner-medium, 12px);
   background: var(--md-sys-color-surface-container-low);
 }
 
 .authenticator-list {
   display: flex;
   flex-direction: column;
-  gap: var(--md-sys-spacing-3, 12px);
+  gap: var(--md-space-3, 12px);
 }
 
 .authenticator-group__header {
   display: flex;
   align-items: center;
-  gap: var(--md-sys-spacing-2, 8px);
-  padding-block: var(--md-sys-spacing-1, 4px);
+  gap: var(--md-space-2, 8px);
+  padding-block: var(--md-space-1, 4px);
 }
 
 .authenticator-group__swatch {
@@ -95,9 +95,9 @@
   color: inherit;
   font: inherit;
   cursor: pointer;
-  padding: var(--md-sys-spacing-2, 8px);
+  padding: var(--md-space-2, 8px);
   min-block-size: 44px;
-  border-radius: var(--md-sys-shape-small, 8px);
+  border-radius: var(--md-sys-shape-corner-small, 8px);
 }
 
 .authenticator-group__toggle:focus-visible {
@@ -110,10 +110,10 @@
 .authenticator-row {
   display: grid;
   grid-template-columns: auto minmax(12ch, 2fr) minmax(14ch, 1fr) minmax(10ch, auto) auto;
-  gap: var(--md-sys-spacing-3, 12px);
+  gap: var(--md-space-3, 12px);
   align-items: center;
-  padding: var(--md-sys-spacing-3, 12px);
-  border-radius: var(--md-sys-shape-medium, 12px);
+  padding: var(--md-space-3, 12px);
+  border-radius: var(--md-sys-shape-corner-medium, 12px);
 }
 
 .authenticator-row:focus-visible {
@@ -129,7 +129,7 @@
 .authenticator-row__identity {
   display: flex;
   align-items: center;
-  gap: var(--md-sys-spacing-2, 8px);
+  gap: var(--md-space-2, 8px);
   min-inline-size: 0;
 }
 
@@ -161,14 +161,15 @@
 }
 
 .authenticator-code {
+  font-family: var(--md-sys-typeface-mono);
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.12em;
   background: none;
   border: none;
   color: inherit;
   cursor: pointer;
-  padding: var(--md-sys-spacing-1, 4px) var(--md-sys-spacing-2, 8px);
-  border-radius: var(--md-sys-shape-small, 8px);
+  padding: var(--md-space-1, 4px) var(--md-space-2, 8px);
+  border-radius: var(--md-sys-shape-corner-small, 8px);
   text-align: start;
   min-block-size: 44px;
   user-select: text;
@@ -236,7 +237,7 @@
 .authenticator-register {
   display: flex;
   flex-direction: column;
-  gap: var(--md-sys-spacing-3, 12px);
+  gap: var(--md-space-3, 12px);
   min-inline-size: min(48rem, 92vw);
 }
 
@@ -246,7 +247,7 @@
 .authenticator-register__confirm {
   display: flex;
   flex-direction: column;
-  gap: var(--md-sys-spacing-2, 8px);
+  gap: var(--md-space-2, 8px);
 }
 
 .authenticator-register__status {
@@ -261,8 +262,8 @@
 
 .authenticator-register__drop {
   border: 2px dashed var(--md-sys-color-outline);
-  border-radius: var(--md-sys-shape-medium, 12px);
-  padding: var(--md-sys-spacing-6, 24px);
+  border-radius: var(--md-sys-shape-corner-medium, 12px);
+  padding: var(--md-space-6, 24px);
   text-align: center;
   cursor: pointer;
   min-block-size: 96px;
@@ -281,13 +282,13 @@
 .authenticator-register__camera {
   display: flex;
   flex-direction: column;
-  gap: var(--md-sys-spacing-2, 8px);
+  gap: var(--md-space-2, 8px);
 }
 
 .authenticator-register__video {
   inline-size: 100%;
   max-inline-size: 480px;
-  border-radius: var(--md-sys-shape-medium, 12px);
+  border-radius: var(--md-sys-shape-corner-medium, 12px);
   background: #000000;
 }
 
@@ -296,7 +297,7 @@
 .authenticator-pairing {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--md-sys-spacing-4, 16px);
+  gap: var(--md-space-4, 16px);
   align-items: flex-start;
 }
 
@@ -304,8 +305,8 @@
   /* Always a real white card behind the code, in both themes. A quiet zone
      drawn on a dark surface is not a quiet zone. */
   background: #ffffff;
-  padding: var(--md-sys-spacing-2, 8px);
-  border-radius: var(--md-sys-shape-small, 8px);
+  padding: var(--md-space-2, 8px);
+  border-radius: var(--md-sys-shape-corner-small, 8px);
   border: 1px solid var(--md-sys-color-outline-variant);
   flex: 0 0 auto;
   max-inline-size: 100%;
@@ -321,7 +322,7 @@
 .authenticator-pairing__facts {
   display: flex;
   flex-direction: column;
-  gap: var(--md-sys-spacing-2, 8px);
+  gap: var(--md-space-2, 8px);
   min-inline-size: min(28rem, 100%);
   flex: 1 1 20rem;
 }
@@ -332,20 +333,20 @@
 }
 
 .authenticator-pairing__secret {
-  font-family: var(--md-sys-typescale-code-font, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-family: var(--md-sys-typeface-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
   letter-spacing: 0.08em;
   overflow-wrap: anywhere;
   user-select: all;
   margin: 0;
-  padding: var(--md-sys-spacing-2, 8px);
-  border-radius: var(--md-sys-shape-small, 8px);
+  padding: var(--md-space-2, 8px);
+  border-radius: var(--md-sys-shape-corner-small, 8px);
   background: var(--md-sys-color-surface-container-high);
 }
 
 .authenticator-pairing__actions {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--md-sys-spacing-2, 8px);
+  gap: var(--md-space-2, 8px);
 }
 
 /* ---------------- verification ---------------- */
@@ -353,14 +354,14 @@
 .authenticator-checks {
   display: flex;
   flex-direction: column;
-  gap: var(--md-sys-spacing-2, 8px);
-  margin-block-start: var(--md-sys-spacing-3, 12px);
+  gap: var(--md-space-2, 8px);
+  margin-block-start: var(--md-space-3, 12px);
 }
 
 .authenticator-check__head {
   display: flex;
   align-items: center;
-  gap: var(--md-sys-spacing-2, 8px);
+  gap: var(--md-space-2, 8px);
   flex-wrap: wrap;
 }
 
@@ -384,21 +385,21 @@
 .authenticator-clock__actions {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--md-sys-spacing-2, 8px);
+  gap: var(--md-space-2, 8px);
   align-items: center;
-  margin-block: var(--md-sys-spacing-2, 8px);
+  margin-block: var(--md-space-2, 8px);
 }
 
 .authenticator-footer {
-  margin-block-start: var(--md-sys-spacing-6, 24px);
-  padding-block-start: var(--md-sys-spacing-3, 12px);
+  margin-block-start: var(--md-space-6, 24px);
+  padding-block-start: var(--md-space-3, 12px);
   border-block-start: 1px solid var(--md-sys-color-outline-variant);
   color: var(--md-sys-color-on-surface-variant);
 }
 
 .authenticator-footer p,
 .authenticator-footer h2 {
-  margin: 0 0 var(--md-sys-spacing-1, 4px);
+  margin: 0 0 var(--md-space-1, 4px);
   max-inline-size: 80ch;
 }
 

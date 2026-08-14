@@ -103,6 +103,10 @@
 .converter-pdf-section__file {
   color: var(--md-sys-color-on-surface-variant);
   overflow-wrap: anywhere;
+  /* Holds a real filesystem path once one is chosen, same as the design's
+     folder-path rows in Profiles; the empty-state sentence inherits it too,
+     which reads fine and keeps the element's styling from flipping underneath it. */
+  font-family: var(--md-sys-typeface-mono);
 }
 
 .converter-pdf-section__actions {
@@ -138,12 +142,27 @@
   word-break: break-word;
 }
 
+/*
+ * A short pass/fail verdict is the design's status chip (its "REACHABLE" and
+ * "READY" pills) rather than colour carried by text alone.
+ */
+.converter-pdf-checks__summary {
+  display: inline-flex;
+  align-items: center;
+  padding-inline: var(--md-space-3);
+  padding-block: var(--md-space-1);
+  border-radius: var(--md-sys-shape-corner-full);
+  font-weight: 700;
+}
+
 .converter-pdf-checks__summary.is-ok {
-  color: var(--md-sys-color-success);
+  background: var(--md-sys-color-success-container);
+  color: var(--md-sys-color-on-success-container);
 }
 
 .converter-pdf-checks__summary.is-failed {
-  color: var(--md-sys-color-error);
+  background: var(--md-sys-color-error-container);
+  color: var(--md-sys-color-on-error-container);
 }
 
 .converter-pdf-checks__list {
@@ -161,12 +180,18 @@
   color: var(--md-sys-color-on-surface-variant);
 }
 
-.converter-pdf-error {
-  color: var(--md-sys-color-error);
-}
-
+/*
+ * An operation outcome reported in a full sentence is a filled container
+ * block in the design (see the changelog's own `.changelog__warning`), never
+ * a sentence carried by colour alone.
+ */
+.converter-pdf-error,
 .converter-pdf-encrypted {
-  color: var(--md-sys-color-error);
+  margin: 0;
+  padding: var(--md-space-3);
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: var(--md-sys-color-error-container);
+  color: var(--md-sys-color-on-error-container);
 }
 
 .converter-pdf-merge-list {
@@ -190,4 +215,5 @@
 .converter-pdf-merge-list__row span {
   flex: 1 1 auto;
   overflow-wrap: anywhere;
+  font-family: var(--md-sys-typeface-mono);
 }

@@ -152,9 +152,18 @@
   color: var(--md-sys-color-on-surface-variant);
 }
 
+/*
+ * Pointer, centre, zoom and player are the only rows built through
+ * `readoutRow()`, and every one of them is a coordinate or a numeric reading
+ * — the same category of fact the design sets in the monospace stack with
+ * tabular figures (its coordinate badge and its map-corner "x, y, zoom"
+ * readout both do). Plain prose stays on the label beside it.
+ */
 .map-readout__value {
   overflow-wrap: anywhere;
   text-align: end;
+  font-family: var(--md-sys-typeface-mono);
+  font-variant-numeric: tabular-nums;
 }
 
 .map-actions {
@@ -245,6 +254,15 @@
   gap: 2px;
   color: var(--md-sys-color-on-surface-variant);
   overflow-wrap: anywhere;
+}
+
+/* The "x, y, z" line — the coordinate reading itself, same monospace
+   treatment as every other coordinate in the app. The "in <dimension>,
+   which is not the dimension on screen" line that can follow it is prose
+   and is left in the body typeface. */
+.map-marker__location > .md-typescale-body-medium {
+  font-family: var(--md-sys-typeface-mono);
+  font-variant-numeric: tabular-nums;
 }
 
 .map-marker__elsewhere {

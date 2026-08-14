@@ -326,6 +326,11 @@
 .history-row__meta,
 .history-row__preview {
   color: var(--md-sys-color-on-surface-variant);
+  /* The timestamp/source/id line and the payload preview are both raw values —
+     the same kind of evidence text the design sets in the monospace stack for
+     timestamps, hashes and other technical facts. The full payload overlay
+     below already renders this way; the inline preview is the same content. */
+  font-family: var(--md-sys-typeface-mono);
 }
 
 .history-row__label {

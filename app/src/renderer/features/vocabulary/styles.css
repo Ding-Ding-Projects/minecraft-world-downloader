@@ -104,7 +104,8 @@
 
 .vocab__banner--warning {
   border-inline-start-color: var(--md-sys-color-tertiary);
-  background: var(--md-sys-color-surface-container-highest);
+  background: var(--md-sys-color-tertiary-container);
+  color: var(--md-sys-color-on-tertiary-container);
 }
 
 /* ---------------- the replacement table ---------------- */

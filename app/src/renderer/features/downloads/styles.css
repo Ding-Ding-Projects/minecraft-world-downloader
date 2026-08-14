@@ -143,9 +143,15 @@
   overflow-wrap: anywhere;
 }
 
+/*
+ * A host and a destination path are addresses in the design's sense — the
+ * same category as a server address or a save folder, both of which the
+ * design sets in the monospace stack rather than the body typeface.
+ */
 .downloads-row__host,
 .downloads-row__path {
   color: var(--md-sys-color-on-surface-variant);
+  font-family: var(--md-sys-typeface-mono);
   overflow-wrap: anywhere;
 }
 

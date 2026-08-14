@@ -125,9 +125,21 @@
 /* Index rows                                                          */
 /* ------------------------------------------------------------------ */
 
-.docs-browser__category {
+/*
+ * A category header groups several list rows the way the design's small
+ * uppercase group labels do (its "BY LAST RUN" caption and the per-group
+ * headings on the Other screen) rather than a heading that competes with the
+ * article title on the other side of the splitter. `h2` on the selector
+ * gives this enough specificity to win over the `md-typescale-title-small`
+ * class the markup also carries, regardless of stylesheet order.
+ */
+h2.docs-browser__category {
   margin: var(--md-space-4) 0 var(--md-space-2);
-  color: var(--md-sys-color-primary);
+  color: var(--md-sys-color-on-surface-variant);
+  font-size: var(--md-sys-typescale-label-small-size);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
 }
 
 .docs-browser__category:first-child {

@@ -6,6 +6,12 @@
  * the surface follows the seed colour, the contrast level and the density scale
  * exactly as the rest of the application does.
  *
+ * Composition follows the rest of the app: standalone content sits in rounded
+ * filled cards on the plain surface (surface-container-low, large corners),
+ * and a row's severity is read from a coloured leading icon mark, never from a
+ * coloured edge stripe — the design never uses an accent border to carry
+ * state, only coloured icon containers and pill chips do that.
+ *
  * Wide content scrolls inside its own container. The page itself never scrolls
  * sideways, at any width or display scale.
  */
@@ -13,7 +19,7 @@
 .notification-centre {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: var(--md-space-4);
   inline-size: 100%;
   max-inline-size: 100%;
   min-inline-size: 0;
@@ -21,7 +27,7 @@
 
 .notification-centre-status {
   margin: 0;
-  padding: 8px 12px;
+  padding: var(--md-space-2) var(--md-space-3);
   border-radius: var(--md-sys-shape-corner-small);
   background: var(--md-sys-color-surface-container-low);
   color: var(--md-sys-color-on-surface-variant);
@@ -38,25 +44,25 @@
 
 .notification-centre-collapsible {
   border: 1px solid var(--md-sys-color-outline-variant);
-  border-radius: var(--md-sys-shape-corner-medium);
-  background: var(--md-sys-color-surface-container-lowest);
-  padding: 8px 12px;
+  border-radius: var(--md-sys-shape-corner-large);
+  background: var(--md-sys-color-surface-container-low);
+  padding: var(--md-space-2) var(--md-space-3);
 }
 
 .notification-centre-collapsible__header {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 8px 16px;
+  gap: var(--md-space-2) var(--md-space-4);
   min-block-size: 44px;
 }
 
 .notification-centre-collapsible__toggle {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--md-space-2);
   min-block-size: 44px;
-  padding: 4px 8px;
+  padding: var(--md-space-1) var(--md-space-2);
   border: none;
   border-radius: var(--md-sys-shape-corner-small);
   background: transparent;
@@ -91,14 +97,14 @@
   color: var(--md-sys-color-on-warning-container);
   background: var(--md-sys-color-warning-container);
   border-radius: var(--md-sys-shape-corner-full);
-  padding: 4px 12px;
+  padding: var(--md-space-1) var(--md-space-3);
 }
 
 .notification-centre-collapsible__body {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding-block: 8px;
+  gap: var(--md-space-3);
+  padding-block: var(--md-space-2);
 }
 
 /* ---------------------------------------------------------------- */
@@ -108,7 +114,7 @@
 .notification-centre-filter-group {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--md-space-2);
   min-inline-size: 0;
 }
 
@@ -120,7 +126,7 @@
 .notification-centre-chips {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: var(--md-space-2);
   min-inline-size: 0;
 }
 
@@ -131,13 +137,13 @@
 .notification-centre-stats {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: var(--md-space-4);
 }
 
 .notification-centre-stats__grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
-  gap: 4px 16px;
+  gap: var(--md-space-1) var(--md-space-4);
   margin: 0;
 }
 
@@ -146,18 +152,18 @@
 }
 
 .notification-centre-stats__grid dd {
-  margin: 0 0 8px;
+  margin: 0 0 var(--md-space-2);
   overflow-wrap: anywhere;
 }
 
 .notification-centre-stats__bars {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--md-space-2);
 }
 
 .notification-centre-stats__bars h4 {
-  margin: 8px 0 0;
+  margin: var(--md-space-2) 0 0;
   color: var(--md-sys-color-on-surface-variant);
 }
 
@@ -165,7 +171,7 @@
   display: grid;
   grid-template-columns: minmax(120px, 1fr) 2fr;
   align-items: center;
-  gap: 12px;
+  gap: var(--md-space-3);
 }
 
 .notification-centre-stats__track {
@@ -200,8 +206,8 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 8px;
-  padding: 8px;
+  gap: var(--md-space-2);
+  padding: var(--md-space-2);
   border-radius: var(--md-sys-shape-corner-medium);
   background: var(--md-sys-color-surface-container-low);
   min-inline-size: 0;
@@ -227,7 +233,7 @@
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--md-space-1);
   max-block-size: 240px;
   overflow-y: auto;
 }
@@ -246,20 +252,24 @@
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--md-space-2);
   min-inline-size: 0;
 }
 
+/*
+ * Each row is its own standalone filled card on the plain surface — the same
+ * composition the design uses for the "Other" destination's area cards and
+ * for the Profiles picker list, not a bordered table row.
+ */
 .notification-centre-row {
   display: grid;
   grid-template-columns: auto auto minmax(0, 1fr) auto;
   align-items: start;
-  gap: 12px;
-  padding: 12px;
+  gap: var(--md-space-3);
+  padding: var(--md-space-4);
   border: 1px solid var(--md-sys-color-outline-variant);
-  border-inline-start: 4px solid var(--md-sys-color-outline);
-  border-radius: var(--md-sys-shape-corner-medium);
-  background: var(--md-sys-color-surface-container-lowest);
+  border-radius: var(--md-sys-shape-corner-large);
+  background: var(--md-sys-color-surface-container-low);
   min-inline-size: 0;
 }
 
@@ -273,23 +283,6 @@
   color: var(--md-sys-color-on-secondary-container);
 }
 
-.notification-centre-row--error {
-  border-inline-start-color: var(--md-sys-color-error);
-}
-
-.notification-centre-row--warning {
-  border-inline-start-color: var(--md-sys-color-warning);
-}
-
-.notification-centre-row--success {
-  border-inline-start-color: var(--md-sys-color-success);
-}
-
-.notification-centre-row--info,
-.notification-centre-row--progress {
-  border-inline-start-color: var(--md-sys-color-primary);
-}
-
 .notification-centre-row__select {
   min-block-size: 44px;
   min-inline-size: 44px;
@@ -298,17 +291,51 @@
   justify-content: center;
 }
 
+/*
+ * The leading severity mark. The design never carries state on a coloured
+ * edge or border — it carries state on a coloured, rounded icon container
+ * (the Runtime cards' Java/jar/version icons, the history row's action icon,
+ * the Worldlens "not installed" status circle) or on a pill chip. This is
+ * that same icon-container idiom, mapped onto the four notification
+ * severities plus the neutral "progress" state.
+ */
 .notification-centre-row__mark {
   display: inline-flex;
   align-items: center;
-  min-block-size: 24px;
+  justify-content: center;
+  inline-size: 32px;
+  block-size: 32px;
+  flex: none;
+  border-radius: var(--md-sys-shape-corner-full);
+  background: var(--md-sys-color-surface-container-high);
   color: var(--md-sys-color-on-surface-variant);
+}
+
+.notification-centre-row--error .notification-centre-row__mark {
+  background: var(--md-sys-color-error-container);
+  color: var(--md-sys-color-on-error-container);
+}
+
+.notification-centre-row--warning .notification-centre-row__mark {
+  background: var(--md-sys-color-warning-container);
+  color: var(--md-sys-color-on-warning-container);
+}
+
+.notification-centre-row--success .notification-centre-row__mark {
+  background: var(--md-sys-color-success-container);
+  color: var(--md-sys-color-on-success-container);
+}
+
+.notification-centre-row--info .notification-centre-row__mark,
+.notification-centre-row--progress .notification-centre-row__mark {
+  background: var(--md-sys-color-primary-container);
+  color: var(--md-sys-color-on-primary-container);
 }
 
 .notification-centre-row__text {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--md-space-1);
   min-inline-size: 0;
 }
 
@@ -334,13 +361,13 @@
   flex-wrap: wrap;
   align-items: center;
   justify-content: flex-end;
-  gap: 4px;
+  gap: var(--md-space-1);
   min-inline-size: 0;
 }
 
 .notification-centre-empty-host {
   list-style: none;
-  padding: 24px 0;
+  padding: var(--md-space-6) 0;
 }
 
 /* ---------------------------------------------------------------- */
@@ -351,12 +378,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
+  gap: var(--md-space-3);
   flex-wrap: wrap;
 }
 
 .notification-centre-export__losses ul {
-  margin: 4px 0 0;
+  margin: var(--md-space-1) 0 0;
   padding-inline-start: 20px;
 }
 
@@ -367,7 +394,7 @@
 .notification-centre-export__actions {
   display: flex;
   justify-content: flex-end;
-  gap: 8px;
+  gap: var(--md-space-2);
   flex-wrap: wrap;
 }
 

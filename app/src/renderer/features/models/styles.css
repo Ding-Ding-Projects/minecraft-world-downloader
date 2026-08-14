@@ -40,13 +40,15 @@
   background: var(--md-sys-color-surface-container-low);
 }
 
+/*
+ * The design never carries a problem state in blanket body-text colour — see
+ * the "Worldlens is not installed" row, whose heading and explanation both
+ * stay neutral while only the leading icon badge turns error-toned. It marks
+ * the card and lets the copy stay legible. The accented outline here is the
+ * nearest a CSS-only pass gets to that badge without a new element.
+ */
 .models-section--bad {
   border-color: var(--md-sys-color-error);
-}
-
-.models-section--bad .md-typescale-body-medium,
-.models-section--bad .md-typescale-title-medium {
-  color: var(--md-sys-color-error);
 }
 
 .models-scroll {
@@ -257,6 +259,9 @@
   padding: var(--md-space-2);
   border: 1px solid var(--md-sys-color-outline-variant);
   border-radius: var(--md-sys-shape-corner-medium);
+  /* Filled, matching the design's grouped-controls rows (and this codebase's
+     own .converter-pdf-section__group) rather than an outline on bare surface. */
+  background: var(--md-sys-color-surface-container);
 }
 
 .models-harness-row > * {

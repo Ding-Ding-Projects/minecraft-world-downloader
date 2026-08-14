@@ -16,7 +16,9 @@
   flex-direction: column;
   gap: var(--md-space-3);
   padding: var(--md-space-4);
-  border-radius: var(--md-sys-shape-corner-medium);
+  /* Each area (Ambience, Blocks, Book, Creative, Entities, Resource pack,
+     Survival) is a section-level card — the design's dominant 20px radius. */
+  border-radius: var(--md-sys-shape-corner-large-increased);
   background: var(--md-sys-color-surface-container-low);
 }
 
@@ -25,7 +27,9 @@
   flex-direction: column;
   gap: var(--md-space-2);
   padding: var(--md-space-4);
-  border-radius: var(--md-sys-shape-corner-large);
+  /* Matches the design's dominant card radius rather than the one notch
+     smaller "large" used for compact stat tiles. */
+  border-radius: var(--md-sys-shape-corner-large-increased);
   background: var(--md-sys-color-secondary-container);
   color: var(--md-sys-color-on-secondary-container);
 }
@@ -98,6 +102,10 @@
   margin: 0;
   padding-left: var(--md-space-5);
   color: var(--md-sys-color-on-surface-variant);
+  /* Each entry is a raw block-state key:value pair (e.g. "facing: north") —
+     a protocol fact, so it takes the monospace stack like every other
+     address/hash/flag value in the design. */
+  font-family: var(--md-sys-typeface-mono);
 }
 
 .mineflayer-world-chip-row {

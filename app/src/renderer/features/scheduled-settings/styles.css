@@ -187,6 +187,9 @@
   padding: var(--md-space-3);
   border-radius: var(--md-sys-shape-corner-large);
   border: 1px solid var(--md-sys-color-outline-variant);
+  /* Filled, matching this file's own .schedule-assignment and the design's
+     rounded filled cards, rather than an outline sitting on bare dialog surface. */
+  background: var(--md-sys-color-surface-container);
   min-width: 0;
 }
 

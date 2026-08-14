@@ -19,8 +19,17 @@
   justify-content: flex-end;
 }
 
+/*
+ * The in-progress task line under a render's progress bar and the
+ * unreadable-region caveat under the compare table are both the design's
+ * "evidence" idiom — a smaller, muted line under the thing it describes
+ * (e.g. the hero panel's "Writing r.-1.2.mca" under its progress bar).
+ * Neither carries a typescale class from the panel, so the sizing lives here.
+ */
 .worldvaultrenders-progress-text {
   color: var(--md-sys-color-on-surface-variant);
+  font-size: calc(var(--md-sys-typescale-body-small-size) * var(--md-sys-typescale-factor));
+  line-height: calc(var(--md-sys-typescale-body-small-line) * var(--md-sys-typescale-factor));
 }
 
 .worldvaultrenders-bulk-row,
@@ -54,6 +63,8 @@
 
 .worldvaultrenders-compare-warning {
   color: var(--md-sys-color-error);
+  font-size: calc(var(--md-sys-typescale-body-small-size) * var(--md-sys-typescale-factor));
+  line-height: calc(var(--md-sys-typescale-body-small-line) * var(--md-sys-typescale-factor));
 }
 
 @media (max-width: 640px) {

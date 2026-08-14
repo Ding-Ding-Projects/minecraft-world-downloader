@@ -103,13 +103,25 @@
   flex-wrap: wrap;
 }
 
+/*
+ * The design's list rows carry a bold primary label with a smaller muted
+ * evidence line stacked underneath it (e.g. "Copied -18 42 → -18 60" over
+ * "13:51 · commit 7b2ee10"). The checkbox, badge, detail and meta here are
+ * four DOM siblings rather than a single label+meta wrapper, so the closest
+ * conforming shape reachable from CSS alone is: bold the detail so it reads
+ * as the primary line, and give the meta a 100% flex-basis so it always
+ * wraps onto its own line below the first rather than being squeezed to the
+ * right of the detail text on the same line.
+ */
 .wve-log-row__detail {
-  flex: 1;
+  flex: 1 1 auto;
   min-width: 0;
   overflow-wrap: anywhere;
+  font-weight: 600;
 }
 
 .wve-log-row__meta {
+  flex: 1 0 100%;
   color: var(--md-sys-color-on-surface-variant);
   white-space: nowrap;
 }

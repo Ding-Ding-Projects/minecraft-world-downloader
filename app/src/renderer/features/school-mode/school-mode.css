@@ -59,7 +59,7 @@
 /* A path is quoted text: it must never be re-wrapped into something the user
    would retype incorrectly, so it scrolls inside its own box instead. */
 .school-mode__path {
-  font-family: ui-monospace, 'Cascadia Mono', 'Segoe UI Mono', Consolas, monospace;
+  font-family: var(--md-sys-typeface-mono, ui-monospace, 'Cascadia Mono', 'Segoe UI Mono', Consolas, monospace);
   max-width: 100%;
   overflow-x: auto;
   padding: var(--md-space-1) 0;
@@ -122,7 +122,7 @@
   padding: var(--md-space-2);
   border-radius: var(--md-sys-shape-corner-small);
   background: var(--md-sys-color-surface-container-highest);
-  font-family: ui-monospace, 'Cascadia Mono', 'Segoe UI Mono', Consolas, monospace;
+  font-family: var(--md-sys-typeface-mono, ui-monospace, 'Cascadia Mono', 'Segoe UI Mono', Consolas, monospace);
   letter-spacing: 0.12em;
   overflow-wrap: anywhere;
 }

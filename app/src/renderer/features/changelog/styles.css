@@ -232,9 +232,20 @@
   color: var(--md-sys-color-on-surface-variant);
 }
 
-.changelog__group {
+/*
+ * Grouped-by-category mode's sub-heading ("Added · 4") is the design's small
+ * uppercase group label, not a heading that competes with the release
+ * version above it. `h3` on the selector outranks the `md-typescale-title-
+ * small` class the markup also carries, so this wins regardless of
+ * stylesheet order.
+ */
+h3.changelog__group {
   margin: var(--md-space-4) 0 var(--md-space-1);
-  color: var(--md-sys-color-primary);
+  color: var(--md-sys-color-on-surface-variant);
+  font-size: var(--md-sys-typescale-label-small-size);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
 }
 
 .changelog__entries {

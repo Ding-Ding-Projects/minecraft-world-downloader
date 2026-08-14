@@ -161,7 +161,10 @@
 
 .mineflayer-host-log {
   border: 1px solid var(--md-sys-color-outline-variant);
-  border-radius: var(--md-sys-shape-corner-medium);
+  /* The design's own log/list containers (Activity, Servers, Vault commits)
+     consistently use the large-increased 20px corner, not the tighter 12px
+     used for nested rows — this is a section-level card, not a nested box. */
+  border-radius: var(--md-sys-shape-corner-large-increased);
   padding: var(--md-space-3);
 }
 

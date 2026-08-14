@@ -318,16 +318,27 @@
   display: none;
 }
 
+/*
+ * A small circular utility button, styled the way every icon-only affordance
+ * in the design is: plain and transparent until hovered, never outlined. An
+ * outlined ring on a 44px circle reads as its own control competing with the
+ * filled/outlined pill buttons that carry real primary and secondary actions.
+ */
 .settings-row__explain {
   flex: 0 0 auto;
   inline-size: 44px;
   block-size: 44px;
   border-radius: var(--md-sys-shape-corner-full);
-  border: 1px solid var(--md-sys-color-outline);
+  border: none;
   background: transparent;
   color: var(--md-sys-color-on-surface-variant);
   font: inherit;
   cursor: pointer;
+  transition: background-color var(--md-sys-motion-duration-short2) var(--md-sys-motion-easing-standard);
+}
+
+.settings-row__explain:hover {
+  background: var(--md-sys-color-surface-container-high);
 }
 
 .settings-row__explain:focus-visible,
@@ -417,7 +428,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .settings-tabs__tab {
+  .settings-tabs__tab,
+  .settings-row__explain {
     transition: none;
   }
 }

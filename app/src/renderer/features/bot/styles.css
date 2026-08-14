@@ -25,7 +25,10 @@
   gap: var(--md-space-5);
   padding: var(--md-space-4);
   border: 1px solid var(--md-sys-color-outline-variant);
-  border-radius: var(--md-sys-shape-corner-large);
+  /* This is the bot runner's own "grid sweep" configuration card — matches
+     the design's dominant section-card radius rather than the one notch
+     smaller "large" used for compact tiles. */
+  border-radius: var(--md-sys-shape-corner-large-increased);
   background: var(--md-sys-color-surface-container-low);
 }
 
@@ -205,7 +208,9 @@
   flex-direction: column;
   gap: var(--md-space-2);
   padding: var(--md-space-4);
-  border-radius: var(--md-sys-shape-corner-medium);
+  /* A prominent standalone pairing/sign-in card — the design's dominant
+     card radius, not the tighter nested-note size. */
+  border-radius: var(--md-sys-shape-corner-large-increased);
   background: var(--md-sys-color-tertiary-container);
   color: var(--md-sys-color-on-tertiary-container);
 }
@@ -253,7 +258,9 @@
   overflow-x: auto;
   padding: var(--md-space-3);
   border: 1px solid var(--md-sys-color-outline-variant);
-  border-radius: var(--md-sys-shape-corner-medium);
+  /* Matches the design's own "Bot output" log card exactly: bordered,
+     surface-container-lowest, large-increased 20px radius. */
+  border-radius: var(--md-sys-shape-corner-large-increased);
   background: var(--md-sys-color-surface-container-lowest);
   font-family: var(--md-sys-typeface-mono);
 }
@@ -319,6 +326,9 @@
 
 .bot-messages__time {
   white-space: nowrap;
+  /* A captured-message timestamp is a log-timestamp fact, so it takes the
+     monospace stack like every other timestamp in the design. */
+  font-family: var(--md-sys-typeface-mono);
 }
 
 .bot-messages__count {
@@ -357,7 +367,10 @@
   flex-wrap: wrap;
   align-items: center;
   gap: var(--md-space-2);
-  padding-block: var(--md-space-2);
+  /* The design's own divided list rows (Servers, Folders, Commits) use
+     roughly 13px of block padding, not the tighter 8px log-line density —
+     this is an entity row, not a terminal line. */
+  padding-block: var(--md-space-3);
   border-block-end: 1px solid var(--md-sys-color-outline-variant);
 }
 

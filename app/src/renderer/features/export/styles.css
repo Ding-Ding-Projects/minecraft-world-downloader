@@ -229,7 +229,7 @@
   border-radius: var(--md-sys-shape-corner-small);
   background: var(--md-sys-color-surface-container-highest);
   color: var(--md-sys-color-on-surface);
-  font-family: ui-monospace, 'Cascadia Mono', 'Consolas', monospace;
+  font-family: var(--md-sys-typeface-mono, ui-monospace, 'Cascadia Mono', 'Consolas', monospace);
   font-size: 0.8125rem;
   line-height: 1.5;
   overflow-x: auto;
