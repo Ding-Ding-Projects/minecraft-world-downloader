@@ -215,6 +215,13 @@ In rough order of what would most change someone's confidence in this project:
    the old chrome.
 4. **Give the shell tests.** It shipped with none by explicit instruction, and its riskiest seam is
    the one that already failed once: a control that mounts something into a container nobody can see.
+5. **Guard the rest of `src/main/paths.ts`.** `resourcesRoot()` was hardened in `ebda6fd` after an
+   unguarded `app.isPackaged` threw and took 27 tests with it. `userDataRoot()` and everything built
+   on it — `settingsFilePath`, `windowStateFilePath`, `vaultFilePath`, `historyDir`, `logsDir`,
+   `cacheDir`, `vocabularyCacheDir` — plus `applyStablePaths()` all make the same unguarded
+   assumption. They are not broken today only because every test that reaches them mocks `electron`
+   first. Outside Electron, or before `app` is ready, they fail identically. This is latent, not
+   urgent, and it is exactly the kind of thing that stops being latent at the worst moment.
 5. Retire each legacy surface only once the unified app has verified parity with it, per
    `ROADMAP.md` Milestone 5.
 
