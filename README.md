@@ -553,6 +553,52 @@ and the same phases. `SILENT=1` in the environment has the same effect as `/s` o
   extraction leaves nothing the next run cannot recover from.
 </details>
 
+### Downloading dependencies without building
+
+`build.bat` and `build.sh` obtain everything they need automatically, so most people never need to
+run anything else. **`download-dependencies.bat`** at the repository root is the narrower piece of
+that: it *only* fetches and verifies the build toolchain — a JDK, Apache Maven and a Node.js
+runtime — plus every dependency the root `pom.xml` declares, without building or running anything.
+Use it to pre-warm a machine, in a CI cache-priming step, or to audit exactly what a build would put
+on disk before ever running `build.bat`.
+
+```
+download-dependencies.bat      download everything, then pause
+download-dependencies.bat /s   silent: no prompt, no pause, non-zero exit on first failure
+```
+
+`./download-dependencies.sh` is the POSIX equivalent, with the same flags. `SILENT=1` in the
+environment has the same effect as `/s` or `-s`.
+
+<details>
+  <summary>What it does, and how it differs from build.bat</summary>
+
+  1. **Node.js runtime, JDK and Apache Maven** — each a pinned, exact version verified against a
+     SHA-256 or SHA-512 digest recorded in [`scripts/dependency-manifest.json`](scripts/dependency-manifest.json),
+     which is committed beside the scripts so a human can audit exactly what a build places on their
+     machine without running anything. A version already on the machine that satisfies the floor is
+     reused and reported as `[present]`; otherwise the pinned build is downloaded, verified and
+     extracted into the same per-user toolchain directory `build.bat` uses
+     (`%LOCALAPPDATA%\world-downloader-studio\toolchain` / `~/.cache/world-downloader-studio/toolchain`),
+     so the two scripts never install two different versions of the same thing.
+  2. **Every Maven dependency `pom.xml` declares** — `mvn dependency:go-offline` pulls the full
+     dependency and plugin tree (including the `jitpack.io`-hosted `jo-nbt` library) into the local
+     `~/.m2` repository.
+  3. **app/'s own bundled runtime dependencies** — delegated to `app/scripts/fetch-dependencies.mjs`
+     once Node.js is available. That script is a separate concern: it obtains the runtime binaries
+     that get bundled *inside* the packaged installer for end users (a Java runtime, a portable Git,
+     the GitHub CLI), not the toolchain used to build the project.
+
+  What it deliberately does **not** do: install `app/`'s own npm packages (`app/node_modules`) or
+  build anything. Those remain `build.bat`'s job, so the two scripts never race installing into the
+  same directory.
+
+  Every binary is pinned and checksum-verified before extraction, every archive and every extracted
+  toolchain lives entirely outside the repository (nothing here is ever committed, and nothing here
+  uses Git LFS in any form), and a warm run re-verifies what is already on disk and skips rather than
+  re-downloading. Administrator rights are never required.
+</details>
+
 <details>
   <summary>Code signing, and what the installer build will not do</summary>
 

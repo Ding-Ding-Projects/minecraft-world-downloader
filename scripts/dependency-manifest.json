@@ -1,0 +1,121 @@
+{
+  "schemaVersion": 1,
+  "generated": "2026-08-13",
+  "notes": [
+    "Pinned, checksum-verified build-time dependency versions for download-dependencies.bat",
+    "(Windows) and download-dependencies.sh (POSIX) at the repository root.",
+    "This is the toolchain used to BUILD the project: a JDK and Maven for the root pom.xml",
+    "engine, and a Node.js runtime so app/'s own dependency and build tooling can run.",
+    "It is a separate concern from app/scripts/fetch-dependencies.mjs, which obtains the",
+    "runtime binaries (Java runtime, portable Git, GitHub CLI) that get BUNDLED INSIDE the",
+    "packaged installer for end users -- that manifest, if any, is owned by app/.",
+    "Every entry below was resolved from its ecosystem's canonical upstream and its digest",
+    "was verified against the publisher's own checksum file before being recorded here, so",
+    "a human can audit exactly what a build places on their machine without running anything.",
+    "Bumping a pinned version means re-resolving its real digest from the same upstream and",
+    "replacing the whole entry -- never hand-edit a digest without re-verifying it."
+  ],
+  "toolchainRoot": {
+    "windows": "%LOCALAPPDATA%\\world-downloader-studio\\toolchain",
+    "posix": "${XDG_CACHE_HOME:-$HOME/.cache}/world-downloader-studio/toolchain",
+    "comment": "User-scoped only. Never machine-wide, never requires elevation. Shared with build.bat/build.sh's own toolchain directory so the two never install the same thing twice."
+  },
+  "dependencies": {
+    "node": {
+      "displayName": "Node.js runtime",
+      "purpose": "runs app/'s build tooling (electron-vite, electron-builder, vitest) and app/scripts/fetch-dependencies.mjs",
+      "pinnedVersion": "22.20.0",
+      "minimumVersion": "20.19.0",
+      "upstream": "https://nodejs.org/dist",
+      "checksumSource": "https://nodejs.org/dist/v22.20.0/SHASUMS256.txt",
+      "artifacts": {
+        "win-x64": {
+          "archiveName": "node-v22.20.0-win-x64.zip",
+          "url": "https://nodejs.org/dist/v22.20.0/node-v22.20.0-win-x64.zip",
+          "algorithm": "sha256",
+          "digest": "bb819d6eb8f5bfda294bbc83a7e4ec6539da67c4233d54b0d655b9248b15e29d",
+          "binaryRelativePath": "node.exe"
+        },
+        "linux-x64": {
+          "archiveName": "node-v22.20.0-linux-x64.tar.gz",
+          "url": "https://nodejs.org/dist/v22.20.0/node-v22.20.0-linux-x64.tar.gz",
+          "algorithm": "sha256",
+          "digest": "eeaccb0378b79406f2208e8b37a62479c70595e20be6b659125eb77dd1ab2a29",
+          "binaryRelativePath": "bin/node"
+        },
+        "darwin-x64": {
+          "archiveName": "node-v22.20.0-darwin-x64.tar.gz",
+          "url": "https://nodejs.org/dist/v22.20.0/node-v22.20.0-darwin-x64.tar.gz",
+          "algorithm": "sha256",
+          "digest": "00df9c5df3e4ec6848c26b70fb47bf96492f342f4bed6b17f12d99b3a45eeecc",
+          "binaryRelativePath": "bin/node"
+        },
+        "darwin-arm64": {
+          "archiveName": "node-v22.20.0-darwin-arm64.tar.gz",
+          "url": "https://nodejs.org/dist/v22.20.0/node-v22.20.0-darwin-arm64.tar.gz",
+          "algorithm": "sha256",
+          "digest": "cc04a76a09f79290194c0646f48fec40354d88969bec467789a5d55dd097f949",
+          "binaryRelativePath": "bin/node"
+        }
+      }
+    },
+    "jdk": {
+      "displayName": "Eclipse Temurin JDK 21",
+      "purpose": "compiles and packages the root Maven project (pom.xml declares java.version 21)",
+      "pinnedVersion": "21.0.12+8",
+      "minimumVersion": "21.0.0",
+      "wingetId": "EclipseAdoptium.Temurin.21.JDK",
+      "upstream": "https://github.com/adoptium/temurin21-binaries/releases",
+      "checksumSource": "https://api.adoptium.net/v3/assets/latest/21/hotspot?vendor=eclipse (package.checksum field, cross-verified against each asset's own .sha256.txt)",
+      "artifacts": {
+        "win-x64": {
+          "archiveName": "OpenJDK21U-jdk_x64_windows_hotspot_21.0.12_8.zip",
+          "url": "https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.12%2B8/OpenJDK21U-jdk_x64_windows_hotspot_21.0.12_8.zip",
+          "algorithm": "sha256",
+          "digest": "9ba963ee2371874a74185d18bc7bb2ab9407df7683300855ed7606e0662321d0",
+          "binaryRelativePath": "bin/java.exe",
+          "extractedDirectoryPrefix": "jdk-21.0.12+8"
+        },
+        "linux-x64": {
+          "archiveName": "OpenJDK21U-jdk_x64_linux_hotspot_21.0.12_8.tar.gz",
+          "url": "https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.12%2B8/OpenJDK21U-jdk_x64_linux_hotspot_21.0.12_8.tar.gz",
+          "algorithm": "sha256",
+          "digest": "e4446ff06a276155697597cc0f1b15da004ff083f4964a35271ecee567177370",
+          "binaryRelativePath": "bin/java",
+          "extractedDirectoryPrefix": "jdk-21.0.12+8"
+        },
+        "darwin-x64": {
+          "archiveName": "OpenJDK21U-jdk_x64_mac_hotspot_21.0.12_8.tar.gz",
+          "url": "https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.12%2B8/OpenJDK21U-jdk_x64_mac_hotspot_21.0.12_8.tar.gz",
+          "algorithm": "sha256",
+          "digest": "6b85c260eea574a995eacd0b3ee23c8042aa93b23a08e6478edafca0a0333d7f",
+          "binaryRelativePath": "Contents/Home/bin/java",
+          "extractedDirectoryPrefix": "jdk-21.0.12+8"
+        },
+        "darwin-arm64": {
+          "archiveName": "OpenJDK21U-jdk_aarch64_mac_hotspot_21.0.12_8.tar.gz",
+          "url": "https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.12%2B8/OpenJDK21U-jdk_aarch64_mac_hotspot_21.0.12_8.tar.gz",
+          "algorithm": "sha256",
+          "digest": "021d629349ebc12a409faa517b837ec80ceee8f58a5ac85c788ecad07ca6881c",
+          "binaryRelativePath": "Contents/Home/bin/java",
+          "extractedDirectoryPrefix": "jdk-21.0.12+8"
+        }
+      }
+    },
+    "maven": {
+      "displayName": "Apache Maven",
+      "purpose": "runs mvn package / mvn dependency:go-offline against the root pom.xml",
+      "pinnedVersion": "3.9.9",
+      "upstream": "https://archive.apache.org/dist/maven/maven-3",
+      "checksumSource": "https://archive.apache.org/dist/maven/maven-3/3.9.9/binaries/apache-maven-3.9.9-bin.zip.sha512",
+      "artifact": {
+        "archiveName": "apache-maven-3.9.9-bin.zip",
+        "url": "https://archive.apache.org/dist/maven/maven-3/3.9.9/binaries/apache-maven-3.9.9-bin.zip",
+        "algorithm": "sha512",
+        "digest": "8beac8d11ef208f1e2a8df0682b9448a9a363d2ad13ca74af43705549e72e74c9378823bf689287801cbbfc2f6ea9596201d19ccacfdfb682ee8a2ff4c4418ba",
+        "binaryRelativePath": "bin/mvn"
+      },
+      "comment": "Maven's own distribution zip is platform-independent (a shell/batch launcher plus JARs), so one artifact covers every OS."
+    }
+  }
+}
