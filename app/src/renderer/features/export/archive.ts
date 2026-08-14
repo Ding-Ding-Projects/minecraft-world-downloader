@@ -404,7 +404,37 @@ export interface ArchiverProbe {
   reason: string;
 }
 
+/**
+ * The archiver binaries this feature will ever try to run.
+ *
+ * These three names must also appear, verbatim, in `ALLOWED_COMMANDS` in
+ * `main/services/processes.ts` — that allowlist is what actually decides
+ * whether a spawn is permitted, and this list existing without a matching
+ * entry there is exactly how the archive feature shipped completely inert:
+ * every probe was refused before an archiver binary was ever reached.
+ */
 export const ARCHIVER_CANDIDATES = ['7z', '7za', '7zz'];
+
+/**
+ * True only when `candidate` is one of the exact, known archiver binaries
+ * above, after the same case- and extension-insensitive normalization the
+ * main-process allowlist applies (`7Z.EXE`, ` 7z `, `7ZA` all match).
+ *
+ * The "preferred archiver" setting is a string read back from disk, not a
+ * command this feature decided to run. Without this check, `probeArchiver`
+ * would try whatever that setting held — including the bare name of a command
+ * this application legitimately allows for an unrelated feature, such as
+ * `npm` or `git` — by spawning it with archiver-shaped probe arguments before
+ * anything about archiving had actually happened. Restricting the configured
+ * value to this fixed set costs no real capability: the main-process
+ * allowlist would refuse any other bare name anyway (see the comment beside
+ * `ALLOWED_COMMANDS`). This just means an unrelated allowed command is never
+ * even attempted on the strength of a settings field.
+ */
+export function isKnownArchiverCommand(candidate: string): boolean {
+  const normalized = candidate.trim().replace(/\.(exe|cmd|bat)$/i, '').toLowerCase();
+  return ARCHIVER_CANDIDATES.includes(normalized);
+}
 
 /**
  * Asks the privileged bridge for an archiver and reports exactly what came back.
@@ -413,9 +443,11 @@ export const ARCHIVER_CANDIDATES = ['7z', '7za', '7zz'];
  * and unambiguous "are you there" that touches no file.
  */
 export async function probeArchiver(studio: StudioApi, preferred: string): Promise<ArchiverProbe> {
-  const candidates = [preferred.trim(), ...ARCHIVER_CANDIDATES].filter(
-    (candidate, index, all) => candidate.length > 0 && all.indexOf(candidate) === index
-  );
+  const trimmedPreferred = preferred.trim();
+  const candidates = [
+    ...(trimmedPreferred.length > 0 && isKnownArchiverCommand(trimmedPreferred) ? [trimmedPreferred] : []),
+    ...ARCHIVER_CANDIDATES
+  ].filter((candidate, index, all) => candidate.length > 0 && all.indexOf(candidate) === index);
   const tried: string[] = [];
   let reason = 'No archiver command was tried.';
 

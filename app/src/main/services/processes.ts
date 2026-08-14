@@ -61,7 +61,18 @@ const ALLOWED_COMMANDS = new Set([
   'python3',
   'py',
   'mvn',
-  'gradle'
+  'gradle',
+  // The archive export feature (`renderer/features/export/archive.ts`) needs
+  // exactly these three 7-Zip binary names to create an archive at all. This is
+  // adding specific, known archiver binaries the feature actually uses, not
+  // opening the allowlist to whatever a user types into a settings field:
+  // `archive.ts`'s own `probeArchiver` only ever attempts a user-configured
+  // archiver command when it is one of these exact three names (see
+  // `isKnownArchiverCommand` there); every other configured value is never
+  // even tried, on either side of this boundary.
+  '7z',
+  '7za',
+  '7zz'
 ]);
 
 export function allowedCommands(): string[] {
