@@ -1,0 +1,9 @@
+/* Layout only — the mounted history panel (features/history/panel.ts) draws
+   every colour from the design tokens already, so nothing here needs its own
+   light/dark definitions. */
+
+.wds-screen-history {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}

@@ -1,0 +1,305 @@
+/*
+ * The Services screen (design lines 392-439): install/uninstall, start/stop/
+ * restart, startup type, log-on account, recovery policy, process and the
+ * three real start-with-Windows mechanisms.
+ *
+ * Every colour, shape, spacing and motion value below is a `var(--md-sys-*)` /
+ * `var(--md-space-*)` reference into the tokens Lane I owns
+ * (`app/src/renderer/styles/tokens.css`). Nothing here redefines a token, so
+ * both themes ship for free.
+ */
+
+.svc-screen {
+  height: 100%;
+}
+
+.svc-grid {
+  display: grid;
+  grid-template-columns: 340px minmax(0, 1fr);
+  gap: var(--md-space-5);
+  align-items: start;
+  max-width: 1240px;
+}
+
+@media (max-width: 860px) {
+  .svc-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Left: search, capability note, list, install                       */
+/* ------------------------------------------------------------------ */
+
+.svc-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-3);
+  min-width: 0;
+}
+
+.svc-list__searchhost {
+  min-width: 0;
+}
+
+.svc-list__capability {
+  margin: 0;
+  padding: var(--md-space-3) var(--md-space-4);
+  border-radius: var(--md-sys-shape-corner-large);
+  background: var(--md-sys-color-warning-container);
+  color: var(--md-sys-color-on-warning-container);
+}
+
+.svc-list__rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-2);
+}
+
+.svc-list__empty {
+  margin: 0;
+  padding: var(--md-space-4);
+  border-radius: var(--md-sys-shape-corner-large);
+  background: var(--md-sys-color-surface-container-low);
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.svc-row {
+  display: flex;
+  align-items: center;
+  gap: var(--md-space-3);
+  width: 100%;
+  padding: 13px;
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-corner-large-increased);
+  background: var(--md-sys-color-surface-container-low);
+  color: inherit;
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+  transition:
+    background var(--md-sys-motion-duration-short3) var(--md-sys-motion-easing-standard),
+    border-color var(--md-sys-motion-duration-short3) var(--md-sys-motion-easing-standard);
+}
+
+.svc-row:hover,
+.svc-row:focus-visible {
+  background: var(--md-sys-color-surface-container);
+}
+
+.svc-row--selected {
+  background: var(--md-sys-color-secondary-container);
+  border-color: var(--md-sys-color-secondary-container);
+  color: var(--md-sys-color-on-secondary-container);
+}
+
+.svc-row__text {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.svc-row__name {
+  font-size: 14.5px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.svc-row__meta {
+  font-size: 11.5px;
+  color: var(--md-sys-color-on-surface-variant);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.svc-row--selected .svc-row__meta {
+  color: var(--md-sys-color-on-secondary-container);
+}
+
+.svc-list__note {
+  margin: 0 2px;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+/* ------------------------------------------------------------------ */
+/* Right: detail cards                                                 */
+/* ------------------------------------------------------------------ */
+
+.svc-detail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-4);
+  min-width: 0;
+}
+
+.svc-card {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-corner-large);
+  background: var(--md-sys-color-surface-container-low);
+  overflow: hidden;
+}
+
+.svc-card__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--md-space-2);
+  padding: var(--md-space-3) var(--md-space-4);
+  background: var(--md-sys-color-surface-container);
+  border-bottom: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.svc-card__headhint {
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.svc-detail__header {
+  padding: var(--md-space-4);
+  gap: var(--md-space-3);
+}
+
+.svc-detail__headertop {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--md-space-3);
+}
+
+.svc-detail__subline {
+  margin: 0;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.svc-detail__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-space-2);
+}
+
+/* ------------------------------------------------------------------ */
+/* Info rows (Startup type / Log on as / Recovery / Process / Last)    */
+/* ------------------------------------------------------------------ */
+
+.svc-inforow {
+  display: flex;
+  align-items: center;
+  gap: var(--md-space-4);
+  padding: var(--md-space-3) var(--md-space-4);
+  border-bottom: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.svc-card > .svc-inforow:last-child {
+  border-bottom: 0;
+}
+
+.svc-inforow__label {
+  flex: 1 1 auto;
+}
+
+.svc-inforow__value {
+  font-family: var(--md-sys-typeface-mono);
+}
+
+.svc-inforow--picker {
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--md-space-1);
+}
+
+.svc-inforow--picker .md-select {
+  width: 100%;
+}
+
+.svc-inforow__desc {
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+/* ------------------------------------------------------------------ */
+/* Start-with-Windows mechanism picker                                 */
+/* ------------------------------------------------------------------ */
+
+.svc-startupkind {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.svc-startupkind__row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--md-space-4);
+  padding: var(--md-space-3) var(--md-space-4);
+  border-bottom: 1px solid var(--md-sys-color-outline-variant);
+  cursor: pointer;
+}
+
+.svc-startupkind__row:last-of-type {
+  border-bottom: 0;
+}
+
+.svc-startupkind__row:hover {
+  background: var(--md-sys-color-surface-container);
+}
+
+.svc-startupkind__row--selected {
+  background: color-mix(in srgb, var(--md-sys-color-primary) 8%, transparent);
+}
+
+.svc-startupkind__row input[type='radio'] {
+  margin-top: 3px;
+  width: 20px;
+  height: 20px;
+  flex: none;
+  accent-color: var(--md-sys-color-primary);
+}
+
+.svc-startupkind__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.svc-startupkind__desc {
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.svc-attachrow {
+  padding: var(--md-space-4);
+}
+
+.svc-attachrow .md-typescale-body-large {
+  white-space: normal;
+}
+
+/* ------------------------------------------------------------------ */
+/* Install form (dialog body)                                          */
+/* ------------------------------------------------------------------ */
+
+.svc-installform {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-4);
+  min-width: min(420px, 80vw);
+}
+
+.svc-installform__notice {
+  margin: 0;
+  padding: var(--md-space-3) var(--md-space-4);
+  border-radius: var(--md-sys-shape-corner-large);
+  background: var(--md-sys-color-warning-container);
+  color: var(--md-sys-color-on-warning-container);
+}
+
+.svc-installform__field {
+  width: 100%;
+}

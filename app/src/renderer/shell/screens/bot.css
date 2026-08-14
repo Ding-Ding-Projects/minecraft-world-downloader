@@ -1,0 +1,70 @@
+/* Layout only — colours come from the design tokens the rest of the app
+   already draws from (var(--md-sys-color-*)), so nothing here needs its own
+   light/dark definitions. */
+
+.wds-screen-bot {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.wds-screen-bot__section {
+  min-width: 0;
+}
+
+.wds-botstats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.wds-botstat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.wds-botstat__label {
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.wds-botstat__value {
+  font-variant-numeric: tabular-nums;
+}
+
+.wds-botstat__desc {
+  color: var(--md-sys-color-on-surface-variant);
+  overflow-wrap: anywhere;
+}
+
+.wds-botlog {
+  min-width: 0;
+}
+
+.wds-botlog__list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 320px;
+  overflow: auto;
+  font-family: 'Cascadia Mono', Consolas, ui-monospace, monospace;
+}
+
+.wds-botlog__row {
+  display: flex;
+  gap: 12px;
+  align-items: baseline;
+  padding: 2px 0;
+}
+
+.wds-botlog__time {
+  color: var(--md-sys-color-on-surface-variant);
+  flex: none;
+  font-variant-numeric: tabular-nums;
+}
+
+.wds-botlog__text {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}

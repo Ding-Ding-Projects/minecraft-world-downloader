@@ -197,7 +197,7 @@ export default defineFeature({
       run: () => {
         const anchor =
           document.querySelector<HTMLElement>('[data-locks-manager]') ??
-          document.querySelector<HTMLElement>('.md-content') ??
+          document.querySelector<HTMLElement>('.wds-content') ??
           document.body;
         openLockPickerFromContext(anchor);
       }

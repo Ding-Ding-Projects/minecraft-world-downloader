@@ -471,7 +471,7 @@ export default defineFeature({
           const anchor =
             document.activeElement instanceof HTMLElement && document.activeElement !== document.body
               ? document.activeElement
-              : (document.querySelector<HTMLElement>('.md-titlebar') ?? document.body);
+              : (document.querySelector<HTMLElement>('.wds-titlebar') ?? document.body);
           openSupportDesk(ctx, { anchor });
         }
       }

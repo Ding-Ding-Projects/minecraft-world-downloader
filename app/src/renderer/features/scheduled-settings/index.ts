@@ -184,7 +184,7 @@ export default defineFeature({
             }
             const anchor =
               (document.getElementById('schedule-rules') as HTMLElement | null) ??
-              (document.querySelector('.md-content') as HTMLElement | null) ??
+              (document.querySelector('.wds-content') as HTMLElement | null) ??
               document.body;
             const confirmed = await ctx.confirm.request({
               action: ctx.t('schedule.confirm.deleteAll', 'Delete every schedule rule'),

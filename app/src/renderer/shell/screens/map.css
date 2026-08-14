@@ -1,0 +1,14 @@
+/* Layout only — every colour comes from the design tokens the mounted
+   feature panels (features/map, features/world-vault-edit) already draw
+   from, so nothing here needs its own light/dark definitions. */
+
+.wds-screen-map {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.wds-screen-map__section {
+  min-width: 0;
+}

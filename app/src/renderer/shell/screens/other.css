@@ -1,0 +1,132 @@
+/*
+ * The "Other" directory and its detail frame.
+ *
+ * Every colour, shape, spacing and motion value below is a `var(--md-sys-*)` /
+ * `var(--md-space-*)` reference into the tokens `app/src/renderer/styles/tokens.css`
+ * owns. Nothing here redefines a token, so both themes ship for free exactly
+ * as `core/theme.ts` already generates them.
+ */
+
+.wds-other {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-5);
+  max-width: 1100px;
+}
+
+.wds-other__summary {
+  margin: 0;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.wds-other__groups {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-2);
+}
+
+.wds-other__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: var(--md-space-3);
+}
+
+.wds-other__card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--md-space-2);
+  min-height: 44px;
+  padding: var(--md-space-4);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-corner-large-increased);
+  background: var(--md-sys-color-surface-container-low);
+  color: inherit;
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+  transition: background var(--md-sys-motion-duration-short3) var(--md-sys-motion-easing-standard);
+}
+
+.wds-other__card:hover,
+.wds-other__card:focus-visible {
+  background: var(--md-sys-color-surface-container);
+}
+
+.wds-other__cardhead {
+  display: flex;
+  align-items: center;
+  gap: var(--md-space-2);
+  width: 100%;
+  color: var(--md-sys-color-primary);
+}
+
+.wds-other__cardtitle {
+  flex: 1 1 auto;
+  min-width: 0;
+  color: var(--md-sys-color-on-surface);
+}
+
+.wds-other__carddesc {
+  margin: 0;
+  color: var(--md-sys-color-on-surface-variant);
+  text-wrap: pretty;
+}
+
+/* ------------------------------------------------------------------ */
+/* Detail frame                                                        */
+/* ------------------------------------------------------------------ */
+
+.wds-other-detail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-4);
+  max-width: 960px;
+}
+
+.wds-other-detail__crumbs {
+  display: flex;
+  align-items: center;
+  gap: var(--md-space-3);
+  flex-wrap: wrap;
+}
+
+.wds-other-detail__chip {
+  height: 26px;
+  padding: 0 var(--md-space-3);
+  border-radius: var(--md-sys-shape-corner-full);
+  background: var(--md-sys-color-tertiary-container);
+  color: var(--md-sys-color-on-tertiary-container);
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+  flex: none;
+}
+
+.wds-other-detail__desc {
+  flex: 1 1 300px;
+  min-width: 0;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.wds-other-detail__frame {
+  min-height: 0;
+}
+
+.wds-other-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-3);
+  padding: var(--md-space-5);
+  max-width: 70ch;
+}
+
+/* ------------------------------------------------------------------ */
+/* Narrow-width safety                                                 */
+/* ------------------------------------------------------------------ */
+
+@media (max-width: 480px) {
+  .wds-other__grid {
+    grid-template-columns: 1fr;
+  }
+}

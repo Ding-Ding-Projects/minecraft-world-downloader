@@ -1,0 +1,411 @@
+/*
+ * Profiles screen (design lines 250-320): a searchable, sortable list of
+ * saved download profiles beside the selected profile's detail — its
+ * servers, its save folders, and the launch options it changes.
+ *
+ * Every colour, shape, spacing and motion value below is a `var(--md-sys-*)`
+ * / `var(--md-space-*)` reference into the tokens `app/src/renderer/styles/`
+ * owns, exactly as `shell/shell.css` already does. Nothing here redefines a
+ * token, so both themes render for free.
+ */
+
+.wds-profiles {
+  display: grid;
+  grid-template-columns: 320px minmax(0, 1fr);
+  gap: var(--md-space-5);
+  align-items: start;
+}
+
+@media (max-width: 860px) {
+  .wds-profiles {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* List pane                                                           */
+/* ------------------------------------------------------------------ */
+
+.wds-profiles__listpane {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-3);
+  min-width: 0;
+}
+
+.wds-profiles__searchrow .md-search {
+  width: 100%;
+}
+
+.wds-profiles__metarow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--md-space-2);
+  padding: 2px var(--md-space-2);
+}
+
+.wds-profiles__count {
+  flex: 1 1 auto;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: var(--md-sys-color-on-surface-variant);
+  text-transform: uppercase;
+}
+
+.wds-profiles__sort {
+  flex: none;
+  min-width: 168px;
+}
+
+.wds-profiles__listbody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-2);
+}
+
+.wds-profiles__nomatch {
+  margin: 0;
+  padding: var(--md-space-4);
+  border-radius: var(--md-sys-shape-corner-large);
+  background: var(--md-sys-color-surface-container);
+  font-size: 13px;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.wds-profiles__row {
+  display: flex;
+  align-items: center;
+  gap: var(--md-space-3);
+  width: 100%;
+  padding: 13px;
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-corner-large-increased);
+  background: var(--md-sys-color-surface-container-low);
+  color: inherit;
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+  transition: background var(--md-sys-motion-duration-short3) var(--md-sys-motion-easing-standard);
+}
+
+.wds-profiles__row:hover {
+  background: var(--md-sys-color-surface-container-high);
+}
+
+.wds-profiles__row:focus-visible {
+  outline: 2px solid var(--md-sys-color-primary);
+  outline-offset: 2px;
+}
+
+.wds-profiles__row--selected {
+  border-color: var(--md-sys-color-secondary-container);
+  background: var(--md-sys-color-secondary-container);
+  color: var(--md-sys-color-on-secondary-container);
+}
+
+.wds-profiles__avatar {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  flex: none;
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: var(--md-sys-color-primary-container);
+  color: var(--md-sys-color-on-primary-container);
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.wds-profiles__rowtext {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.wds-profiles__rowname {
+  font-size: 15px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wds-profiles__rowmeta {
+  font-size: 11.5px;
+  color: var(--md-sys-color-on-surface-variant);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wds-profiles__row--selected .wds-profiles__rowmeta {
+  color: inherit;
+}
+
+.wds-profiles__rowwhen {
+  flex: none;
+  font-size: 11px;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.wds-profiles__row--selected .wds-profiles__rowwhen {
+  color: inherit;
+}
+
+.wds-profiles__listactions {
+  display: flex;
+  gap: var(--md-space-2);
+}
+
+.wds-profiles__listactions .md-btn {
+  flex: 1 1 auto;
+}
+
+/* ------------------------------------------------------------------ */
+/* Detail pane                                                         */
+/* ------------------------------------------------------------------ */
+
+.wds-profiles__detailpane {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-4);
+  min-width: 0;
+}
+
+.wds-profiles__headercard {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--md-space-4);
+  padding: var(--md-space-5);
+  border-radius: 24px;
+  background: var(--md-sys-color-surface-container-low);
+  border: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.wds-profiles__headeravatar {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  flex: none;
+  border-radius: var(--md-sys-shape-corner-large);
+  background: var(--md-sys-color-primary-container);
+  color: var(--md-sys-color-on-primary-container);
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.wds-profiles__headertext {
+  flex: 1 1 220px;
+  min-width: 0;
+}
+
+.wds-profiles__headername {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wds-profiles__headermeta {
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.wds-profiles__headeractions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-space-2);
+}
+
+/* ------------------------------------------------------------------ */
+/* Servers / folders / options cards                                   */
+/* ------------------------------------------------------------------ */
+
+.wds-profiles__card {
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-corner-large-increased);
+  background: var(--md-sys-color-surface-container-low);
+  overflow: hidden;
+}
+
+.wds-profiles__cardhead {
+  display: flex;
+  align-items: center;
+  gap: var(--md-space-3);
+  padding: var(--md-space-4) var(--md-space-5);
+  background: var(--md-sys-color-surface-container);
+  border-bottom: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.wds-profiles__cardtitle {
+  flex: 1 1 auto;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.wds-profiles__cardhint {
+  font-size: 12px;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.wds-profiles__cardempty {
+  margin: 0;
+  padding: var(--md-space-4) var(--md-space-5);
+  font-size: 13px;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.wds-profiles__entryrow {
+  display: flex;
+  align-items: center;
+  gap: var(--md-space-4);
+  padding: 13px var(--md-space-5);
+  border-bottom: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.wds-profiles__entryrow:last-of-type {
+  border-bottom: 0;
+}
+
+.wds-profiles__dot {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  flex: none;
+  border-radius: var(--md-sys-shape-corner-full);
+  border: 2px solid var(--md-sys-color-outline);
+  background: transparent;
+}
+
+.wds-profiles__dot--active {
+  border-color: var(--md-sys-color-primary);
+  background: var(--md-sys-color-primary);
+}
+
+.wds-profiles__entrytext {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.wds-profiles__entryhost {
+  font-size: 14px;
+  font-weight: 600;
+  font-family: var(--md-sys-typeface-mono);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wds-profiles__entrypath {
+  font-size: 13.5px;
+  font-weight: 600;
+  font-family: var(--md-sys-typeface-mono);
+  overflow-wrap: anywhere;
+}
+
+.wds-profiles__entrynote {
+  font-size: 11.5px;
+  color: var(--md-sys-color-on-surface-variant);
+  min-height: 1em;
+}
+
+.wds-profiles__chip {
+  flex: none;
+  height: 22px;
+  padding: 0 10px;
+  border-radius: var(--md-sys-shape-corner-full);
+  background: var(--md-sys-color-surface-container-highest);
+  color: var(--md-sys-color-on-surface-variant);
+  font-size: 10px;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+  white-space: nowrap;
+}
+
+.wds-profiles__chip--active {
+  background: var(--md-sys-color-primary-container);
+  color: var(--md-sys-color-on-primary-container);
+}
+
+.wds-profiles__pingcell {
+  flex: 0 0 68px;
+  text-align: right;
+  font-size: 12px;
+  color: var(--md-sys-color-on-surface-variant);
+  font-variant-numeric: tabular-nums;
+}
+
+.wds-profiles__cardactions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-space-2);
+  padding: var(--md-space-4) var(--md-space-5);
+}
+
+/* ------------------------------------------------------------------ */
+/* Launch options card                                                 */
+/* ------------------------------------------------------------------ */
+
+.wds-profiles__flags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-space-2);
+  padding: var(--md-space-4) var(--md-space-5);
+}
+
+.wds-profiles__flagchip {
+  height: 30px;
+  padding: 0 var(--md-space-3);
+  border-radius: var(--md-sys-shape-corner-full);
+  background: var(--md-sys-color-surface-container-high);
+  color: var(--md-sys-color-on-surface-variant);
+  font-family: var(--md-sys-typeface-mono);
+  font-size: 12px;
+  display: grid;
+  place-items: center;
+}
+
+.wds-profiles__stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: var(--md-space-3);
+  padding: 0 var(--md-space-5) var(--md-space-5);
+}
+
+.wds-profiles__stat {
+  padding: var(--md-space-3) var(--md-space-4);
+  border-radius: var(--md-sys-shape-corner-large);
+  background: var(--md-sys-color-surface-container);
+}
+
+.wds-profiles__statvalue {
+  font-size: 22px;
+  line-height: 28px;
+  font-variant-numeric: tabular-nums;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wds-profiles__statlabel {
+  font-size: 11.5px;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+/* ------------------------------------------------------------------ */
+/* Form dialogs (New profile / rename / add server / add folder)       */
+/* ------------------------------------------------------------------ */
+
+.wds-profiles__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-4);
+  min-width: 320px;
+}

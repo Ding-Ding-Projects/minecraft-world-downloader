@@ -184,9 +184,16 @@ pre {
 /* Application shell                                                   */
 /* ================================================================== */
 
+/*
+ * `.md-app` is the outermost frame (`#app` itself): the M3 shell — which owns
+ * its own internal title-bar row, see `shell/shell.css`'s `.wds-shell` — plus
+ * this application's persistent status bar underneath it. There is no
+ * dedicated title-bar row here any more; `mountShell` builds that row inside
+ * its own child.
+ */
 .md-app {
   display: grid;
-  grid-template-rows: var(--md-comp-title-bar-height) 1fr var(--md-comp-status-bar-height);
+  grid-template-rows: 1fr var(--md-comp-status-bar-height);
   height: 100vh;
   width: 100vw;
   overflow: hidden;
@@ -1312,7 +1319,15 @@ textarea.md-field__input {
   background: var(--md-sys-color-surface-container-high);
   color: var(--md-sys-color-on-surface);
   border: 1px solid var(--md-sys-color-outline-variant);
-  border-radius: var(--md-sys-shape-corner-medium);
+  /* Every popover built on this shared surface (the context menu, the regex
+     builder, the appearance editor, the date picker) is one of the design's
+     "dialog-adjacent panels" — exactly what `--md-sys-shape-corner-large-
+     increased` documents itself as being for (see tokens.css), sized between
+     the design's own context-menu radius (16px) and its regex/appearance
+     popover radius (24px). `.md-tooltip` below already overrides this back
+     down to `extra-small` for its own much smaller surface, so this change
+     does not round tooltips. */
+  border-radius: var(--md-sys-shape-corner-large-increased);
   box-shadow: var(--md-sys-elevation-3);
   overflow: hidden;
 }
@@ -1458,7 +1473,15 @@ textarea.md-field__input {
   pointer-events: auto;
   background: var(--md-sys-color-inverse-surface);
   color: var(--md-sys-color-inverse-on-surface);
-  border-radius: var(--md-sys-shape-corner-extra-small);
+  /* The design's toast (line 949) is a 16px-rounded pill, not the 4px
+     "extra-small" this used to carry — matched here without touching the
+     dismiss/action colour, which the design sets to `--md-sys-color-primary`
+     on top of `inverse-surface`; in dark mode both of those resolve to LIGHT
+     colours (primary #62DE89 on inverse-surface #DCE5DD), so copying that
+     literally would fail contrast. `color: inherit` below (the existing,
+     already-correct choice) keeps the action legible against its own
+     background in both themes instead. */
+  border-radius: var(--md-sys-shape-corner-large);
   box-shadow: var(--md-sys-elevation-3);
   padding: var(--md-space-3) var(--md-space-4);
   display: flex;
@@ -1873,6 +1896,11 @@ textarea.md-field__input {
 
 .md-confirm {
   min-inline-size: min(520px, 92vw);
+  /* The design's "Stop the download" gate (line 1033) is the single largest
+     radius on the whole screen, 28px, matching the form dialog rather than
+     the smaller popover family above — a destructive-action gate is
+     deliberately the most visually weighty surface in the app. */
+  border-radius: var(--md-sys-shape-corner-extra-large);
 }
 
 .md-confirm__facts {
@@ -2470,6 +2498,10 @@ textarea.md-field__input {
 
 .md-menu-surface {
   max-inline-size: min(420px, 92vw);
+  /* The design's context menu (line 993) and select dropdown are the smaller,
+     denser member of the popover family — its own 16px radius rather than
+     the `.md-overlay` base's 20px "dialog-adjacent" default above. */
+  border-radius: var(--md-sys-shape-corner-large);
 }
 
 .md-colorpicker-surface {
@@ -2486,4 +2518,654 @@ textarea.md-field__input {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* ================================================================== */
+/* World Downloader Studio shell — motion                             */
+/*                                                                      */
+/* The two keyframes from the approved Claude Design prototype          */
+/* ("World Downloader Studio - M3", lines 53-54 of its token block).    */
+/* ================================================================== */
+
+@keyframes wds-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.35;
+  }
+}
+
+@keyframes wds-sweep {
+  0% {
+    transform: translateX(-100%);
+  }
+
+  100% {
+    transform: translateX(320%);
+  }
+}
+
+/* A small breathing dot used for "live" status lines (the hero screen
+   subtitle, the sign-in "waiting for approval" row). Duration is a custom
+   property so a screen that needs the prototype's faster 1.6s sign-in pulse
+   can set `--md-pulse-duration: 1.6s` on the element instead of a second
+   class; it defaults to the hero's 2s pace. */
+.md-pulse-dot {
+  inline-size: 8px;
+  block-size: 8px;
+  border-radius: var(--md-sys-shape-corner-full);
+  background: var(--md-sys-color-primary);
+  flex: 0 0 auto;
+  animation: wds-pulse var(--md-pulse-duration, 2s) ease-in-out infinite;
+}
+
+/* A themed alternative to `.md-progress-linear--indeterminate` for a bar that
+   lives inside a tinted container (e.g. a primary-container hero card), using
+   the prototype's own sweep timing and easing instead of the neutral one. */
+.md-progress-linear--sweep .md-progress-linear__bar {
+  inline-size: 34%;
+  animation: wds-sweep 2.4s var(--md-sys-motion-easing-emphasized) infinite;
+}
+
+/* ================================================================== */
+/* World Downloader Studio shell — title bar chrome                   */
+/* ================================================================== */
+
+.md-titlebar__logo {
+  display: inline-grid;
+  place-items: center;
+  inline-size: 24px;
+  block-size: 24px;
+  border-radius: var(--md-sys-shape-corner-small);
+  background: var(--md-sys-color-primary-container);
+  color: var(--md-sys-color-on-primary-container);
+  flex: 0 0 auto;
+}
+
+/* The "Search or run a command  Ctrl+Shift+F" pill in the title bar that
+   opens the command palette. It is a button, not a text field — the real
+   filterable input lives inside the palette overlay itself. */
+.md-titlebar__palette-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--md-space-2);
+  block-size: 30px;
+  padding-inline: var(--md-space-2) var(--md-space-4);
+  border: 0;
+  border-radius: var(--md-sys-shape-corner-full);
+  background: var(--md-sys-color-surface-container-high);
+  color: var(--md-sys-color-on-surface-variant);
+  font: inherit;
+  font-size: calc(var(--md-sys-typescale-label-medium-size) * var(--md-sys-typescale-factor));
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  transition: background var(--md-sys-motion-duration-short2) var(--md-sys-motion-easing-standard);
+}
+
+.md-titlebar__palette-btn:hover {
+  background: var(--md-sys-color-surface-container-highest);
+}
+
+.md-titlebar__palette-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.md-titlebar__palette-kbd {
+  font-family: var(--md-sys-typeface-mono);
+  opacity: 0.7;
+  flex: 0 0 auto;
+}
+
+/* Decorates a count badge onto the corner of any `.md-icon-btn` (the title
+   bar's notification bell). Give the icon button `position: relative` — this
+   rule only positions the badge itself. */
+.md-icon-btn__badge {
+  position: absolute;
+  inset-block-start: 5px;
+  inset-inline-end: 5px;
+  min-inline-size: 14px;
+  block-size: 14px;
+  padding-inline: 3px;
+  border-radius: var(--md-sys-shape-corner-full);
+  background: var(--md-sys-color-error);
+  color: var(--md-sys-color-on-error);
+  font-size: 9px;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+
+/* ================================================================== */
+/* World Downloader Studio shell — primary destination rail           */
+/*                                                                      */
+/* The 92px vertical column of destination buttons (Downloader,          */
+/* Profiles, Hosts, Services, Other, ... Settings) plus the "Capture"    */
+/* start/stop FAB at its top. Distinct from `.md-navrail` above, which   */
+/* is a vertical-docked variant of the SECONDARY browser-style tab strip */
+/* used inside an individual destination (e.g. the "Other" feature list).*/
+/* ================================================================== */
+
+.md-rail {
+  flex: 0 0 var(--md-comp-rail-width);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--md-space-1);
+  padding: var(--md-space-3) var(--md-space-2);
+  background: var(--md-sys-color-surface-container-low);
+  border-inline-end: 1px solid var(--md-sys-color-outline-variant);
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.md-rail__fab {
+  appearance: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  inline-size: 64px;
+  block-size: 56px;
+  margin-block-end: var(--md-space-3);
+  border: 0;
+  border-radius: var(--md-sys-shape-corner-large-increased);
+  background: var(--md-sys-color-primary-container);
+  color: var(--md-sys-color-on-primary-container);
+  cursor: pointer;
+  box-shadow: var(--md-sys-elevation-2);
+  transition: border-radius var(--md-sys-motion-duration-medium1) var(--md-sys-motion-easing-emphasized);
+}
+
+.md-rail__fab:hover,
+.md-rail__fab:focus-visible {
+  border-radius: var(--md-sys-shape-corner-extra-large);
+}
+
+/* The FAB while a capture/download is actively running: it becomes a
+   "Stop" affordance, so it takes the error family instead of primary. */
+.md-rail__fab[aria-pressed='true'] {
+  background: var(--md-sys-color-error-container);
+  color: var(--md-sys-color-on-error-container);
+}
+
+.md-rail__fab-label {
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.md-rail__item {
+  appearance: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--md-space-1);
+  inline-size: 76px;
+  padding-block: var(--md-space-1) 0;
+  border: 0;
+  background: transparent;
+  color: var(--md-sys-color-on-surface-variant);
+  font: inherit;
+  cursor: pointer;
+}
+
+.md-rail__item[aria-current='true'],
+.md-rail__item[aria-current='page'] {
+  color: var(--md-sys-color-on-surface);
+}
+
+.md-rail__pill {
+  display: grid;
+  place-items: center;
+  inline-size: 56px;
+  block-size: 32px;
+  border-radius: var(--md-sys-shape-corner-full);
+  background: transparent;
+  color: inherit;
+  transition: background var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-emphasized);
+}
+
+.md-rail__item[aria-current='true'] .md-rail__pill,
+.md-rail__item[aria-current='page'] .md-rail__pill {
+  background: var(--md-sys-color-secondary-container);
+  color: var(--md-sys-color-on-secondary-container);
+}
+
+.md-rail__label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  text-align: center;
+}
+
+.md-rail__spacer {
+  flex: 1 1 auto;
+}
+
+/* ================================================================== */
+/* World Downloader Studio shell — screen hero (per-destination header) */
+/* ================================================================== */
+
+.md-hero {
+  display: flex;
+  align-items: center;
+  gap: var(--md-space-3);
+  padding-inline: var(--md-space-5) var(--md-space-6);
+  block-size: 68px;
+  flex: none;
+  border-bottom: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.md-hero__text {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.md-hero__title {
+  font-size: calc(var(--md-sys-typescale-title-large-size) * var(--md-sys-typescale-factor));
+  line-height: calc(var(--md-sys-typescale-title-large-line) * var(--md-sys-typescale-factor));
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.md-hero__subtitle {
+  display: flex;
+  align-items: center;
+  gap: var(--md-space-2);
+  font-size: calc(var(--md-sys-typescale-body-small-size) * var(--md-sys-typescale-factor));
+  color: var(--md-sys-color-on-surface-variant);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.md-hero__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--md-space-2);
+  flex: 0 0 auto;
+}
+
+/* The profile switcher pill in the hero row. */
+.md-hero__profile {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--md-space-3);
+  block-size: 44px;
+  padding-inline: var(--md-space-3) var(--md-space-1);
+  border: 0;
+  border-radius: var(--md-sys-shape-corner-full);
+  background: var(--md-sys-color-surface-container-high);
+  color: var(--md-sys-color-on-surface);
+  font: inherit;
+  cursor: pointer;
+  transition: background var(--md-sys-motion-duration-short2) var(--md-sys-motion-easing-standard);
+}
+
+.md-hero__profile:hover {
+  background: var(--md-sys-color-surface-container-highest);
+}
+
+.md-hero__profile-avatar {
+  display: grid;
+  place-items: center;
+  inline-size: 32px;
+  block-size: 32px;
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: var(--md-sys-color-primary-container);
+  color: var(--md-sys-color-on-primary-container);
+  font-size: 13px;
+  font-weight: 700;
+  flex: 0 0 auto;
+}
+
+.md-hero__profile-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.2;
+  min-width: 0;
+}
+
+.md-hero__profile-name {
+  font-size: 13px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-inline-size: 22ch;
+}
+
+.md-hero__profile-where {
+  font-size: 10.5px;
+  color: var(--md-sys-color-on-surface-variant);
+  font-family: var(--md-sys-typeface-mono);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-inline-size: 22ch;
+}
+
+/* The outlined "Sign in" button that sits beside the profile switcher. */
+.md-hero__signin {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--md-space-2);
+  block-size: 40px;
+  padding-inline: var(--md-space-4);
+  border: 1px solid var(--md-sys-color-outline);
+  border-radius: var(--md-sys-shape-corner-full);
+  background: transparent;
+  color: var(--md-sys-color-on-surface);
+  font: inherit;
+  font-size: calc(var(--md-sys-typescale-body-medium-size) * var(--md-sys-typescale-factor));
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.md-hero__signin:hover {
+  background: color-mix(in srgb, var(--md-sys-color-primary) 8%, transparent);
+}
+
+/* ================================================================== */
+/* World Downloader Studio shell — segmented pill tabs                */
+/*                                                                      */
+/* The rounded pill-container tab switcher used inside a destination     */
+/* (e.g. the Downloader screen's Overview / Launch options / Activity    */
+/* log switcher). Distinct from `.md-tabbar`/`.md-tab`, which is the     */
+/* browser-style secondary tab strip with an underline-free selected      */
+/* background but no surrounding pill container.                        */
+/* ================================================================== */
+
+.md-pilltabs {
+  display: flex;
+  gap: var(--md-space-1);
+  padding: var(--md-space-1);
+  border-radius: var(--md-sys-shape-corner-full);
+  background: var(--md-sys-color-surface-container);
+  width: fit-content;
+  max-inline-size: 100%;
+  overflow-x: auto;
+}
+
+.md-pilltabs__item {
+  appearance: none;
+  block-size: 40px;
+  padding-inline: var(--md-space-5);
+  border: 0;
+  border-radius: var(--md-sys-shape-corner-full);
+  background: transparent;
+  color: var(--md-sys-color-on-surface-variant);
+  font: inherit;
+  font-size: calc(var(--md-sys-typescale-body-medium-size) * var(--md-sys-typescale-factor));
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-emphasized);
+}
+
+.md-pilltabs__item[aria-selected='true'] {
+  background: var(--md-sys-color-primary);
+  color: var(--md-sys-color-on-primary);
+}
+
+/* ================================================================== */
+/* World Downloader Studio shell — card rows, section cards, tags     */
+/*                                                                      */
+/* The recurring "selectable row with an avatar" pattern used across      */
+/* Profiles, Hosts, Services and Other (a bordered, rounded row rather    */
+/* than the flatter `.md-list-item`), plus the grouped header+rows+footer */
+/* card used for things like a profile's servers/save-folders lists.      */
+/* ================================================================== */
+
+.md-list-item--card {
+  display: flex;
+  align-items: center;
+  gap: var(--md-space-3);
+  width: 100%;
+  margin-block-end: var(--md-space-2);
+  padding: var(--md-space-3);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-corner-large-increased);
+  background: var(--md-sys-color-surface-container-low);
+  color: inherit;
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+
+.md-list-item--card:hover {
+  background: var(--md-sys-color-surface-container);
+}
+
+.md-list-item--card[aria-selected='true'] {
+  border-color: var(--md-sys-color-primary);
+  background: var(--md-sys-color-primary-container);
+  color: var(--md-sys-color-on-primary-container);
+}
+
+/* A round or squircle initial/icon badge, used at the head of a card row
+   (44px) or a larger detail-panel header (52px, the `--lg` modifier). The
+   design's own measurements (14px / 18px corner radii) fall between this
+   file's named shape-scale steps; the nearest token is used in each case
+   rather than a one-off literal radius. */
+.md-avatar {
+  display: grid;
+  place-items: center;
+  inline-size: 44px;
+  block-size: 44px;
+  border-radius: var(--md-sys-shape-corner-large);
+  font-size: 17px;
+  font-weight: 700;
+  flex: 0 0 auto;
+  background: var(--md-sys-color-primary-container);
+  color: var(--md-sys-color-on-primary-container);
+}
+
+.md-avatar--lg {
+  inline-size: 52px;
+  block-size: 52px;
+  border-radius: var(--md-sys-shape-corner-large-increased);
+  font-size: 20px;
+}
+
+/* A small round-tipped status ring (e.g. a server's connection state),
+   distinct from `.md-badge` (a filled count/label pill) and `.md-progress-circular`
+   (a spinner). Colour the ring and its fill with `border-color`/`background`
+   inline via the per-row data the feature already carries. */
+.md-status-ring {
+  display: inline-grid;
+  place-items: center;
+  inline-size: 18px;
+  block-size: 18px;
+  border-radius: var(--md-sys-shape-corner-full);
+  border: 2px solid var(--md-sys-color-outline-variant);
+  background: transparent;
+  flex: 0 0 auto;
+}
+
+/* The small, dense role/status pill (e.g. "Default", "Primary", "Backup")
+   used throughout card rows and section-card rows — shorter and denser than
+   `.md-chip`, which is a taller bordered filter control. */
+.md-tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  block-size: 22px;
+  padding-inline: var(--md-space-2);
+  border-radius: var(--md-sys-shape-corner-full);
+  background: var(--md-sys-color-surface-container-high);
+  color: var(--md-sys-color-on-surface-variant);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+  flex: 0 0 auto;
+}
+
+.md-tag--primary {
+  background: var(--md-sys-color-primary-container);
+  color: var(--md-sys-color-on-primary-container);
+}
+
+.md-tag--secondary {
+  background: var(--md-sys-color-secondary-container);
+  color: var(--md-sys-color-on-secondary-container);
+}
+
+.md-tag--tertiary {
+  background: var(--md-sys-color-tertiary-container);
+  color: var(--md-sys-color-on-tertiary-container);
+}
+
+.md-tag--error {
+  background: var(--md-sys-color-error-container);
+  color: var(--md-sys-color-on-error-container);
+}
+
+.md-tag--success {
+  background: var(--md-sys-color-success-container);
+  color: var(--md-sys-color-on-success-container);
+}
+
+.md-tag--warning {
+  background: var(--md-sys-color-warning-container);
+  color: var(--md-sys-color-on-warning-container);
+}
+
+/* A monospace flag/value pill, e.g. a launch-option flag or a coordinate —
+   same shape as `.md-tag` but sized for code rather than a short label. */
+.md-code-pill {
+  display: inline-grid;
+  place-items: center;
+  block-size: 30px;
+  padding-inline: var(--md-space-3);
+  border-radius: var(--md-sys-shape-corner-full);
+  background: var(--md-sys-color-surface-container-high);
+  color: var(--md-sys-color-on-surface-variant);
+  font-family: var(--md-sys-typeface-mono);
+  font-size: calc(var(--md-sys-typescale-label-medium-size) * var(--md-sys-typescale-factor));
+}
+
+/* The grouped "header + rows + footer" card used for a profile's servers,
+   its save folders, a host's detected capabilities, and similar lists that
+   are scoped to one entity rather than being their own destination. */
+.md-section-card {
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-corner-large-increased);
+  background: var(--md-sys-color-surface-container-low);
+  overflow: hidden;
+}
+
+.md-section-card__header {
+  display: flex;
+  align-items: center;
+  gap: var(--md-space-2);
+  padding: var(--md-space-3) var(--md-space-4);
+  background: var(--md-sys-color-surface-container);
+  border-bottom: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.md-section-card__title {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.md-section-card__hint {
+  font-size: 12px;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.md-section-card__row {
+  display: flex;
+  align-items: center;
+  gap: var(--md-space-4);
+  padding: var(--md-space-3) var(--md-space-4);
+  border-bottom: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.md-section-card__row:last-child {
+  border-bottom: 0;
+}
+
+.md-section-card__footer {
+  display: flex;
+  gap: var(--md-space-2);
+  padding: var(--md-space-4);
+}
+
+/* A large rounded detail-panel header — an avatar, a title/meta pair and a
+   row of actions (the profile/host/service detail header). */
+.md-detail-hero {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--md-space-4);
+  padding: var(--md-space-5);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-corner-extra-large);
+  background: var(--md-sys-color-surface-container-low);
+}
+
+.md-detail-hero__text {
+  flex: 1 1 220px;
+  min-width: 0;
+}
+
+.md-detail-hero__title {
+  font-size: calc(var(--md-sys-typescale-title-large-size) * var(--md-sys-typescale-factor));
+  line-height: calc(var(--md-sys-typescale-title-large-line) * var(--md-sys-typescale-factor));
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.md-detail-hero__meta {
+  font-size: 12.5px;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.md-detail-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-space-2);
+}
+
+/* A small value+label tile used for at-a-glance stats (a profile's saved
+   containers, a download's bytes-on-disk, and similar single numbers). */
+.md-stat-tile {
+  padding: var(--md-space-3) var(--md-space-4);
+  border-radius: var(--md-sys-shape-corner-large);
+  background: var(--md-sys-color-surface-container);
+}
+
+.md-stat-tile__value {
+  font-size: calc(var(--md-sys-typescale-title-large-size) * var(--md-sys-typescale-factor));
+  line-height: calc(var(--md-sys-typescale-title-large-line) * var(--md-sys-typescale-factor));
+  font-variant-numeric: tabular-nums;
+}
+
+.md-stat-tile__label {
+  font-size: 11.5px;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.md-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: var(--md-space-3);
 }

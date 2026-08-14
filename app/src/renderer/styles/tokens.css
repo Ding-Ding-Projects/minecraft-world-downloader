@@ -1,15 +1,36 @@
 /*
- * Material Design 3 design tokens.
+ * Material Design 3 design tokens — World Downloader Studio.
  *
  * EVERY colour token is defined once, here, on a bare `:root`. The dark blocks
  * below only REDEFINE that same set. A token whose only definition sits inside a
  * media query has no value at all when the query does not match, which produces
  * an interface with no colours and no error to explain it.
  *
- * The values below are the light baseline. `core/theme.ts` overwrites the colour
- * roles at runtime from the user's seed colour, in both schemes, so this file is
- * what paints the first frame and what a token falls back to if generation ever
- * fails.
+ * `:root` below carries the COMPLETE LIGHT palette (the house default — the
+ * opposite of the design prototype's own default, which ships dark-first).
+ * `@media (prefers-color-scheme: dark)` guarded as `:root:not([data-theme="light"])`
+ * redefines the same tokens to the dark values, and `:root[data-theme="dark"]`
+ * redefines them again so an explicit toggle wins in both directions.
+ *
+ * The colour values in both palettes below are the exact hex values from the
+ * approved Claude Design prototype ("World Downloader Studio - M3"), generated
+ * from the repo's #0F7A3D seed — they are the product's identity and must not
+ * be re-derived or approximated. `core/theme.ts` overwrites these colour roles
+ * at runtime from the user's own seed/appearance choice, in both schemes, so
+ * this file is what paints the very first frame and what a token falls back to
+ * if generation ever fails.
+ *
+ * A handful of roles the design prototype does not define (background,
+ * surface-dim, surface-bright, inverse-primary, surface-tint, shadow, scrim,
+ * and the app's own success/warning semantic aliases) are derived below using
+ * standard M3 conventions, documented at each group. `--md-sys-color-success`
+ * follows the primary (green) family and `--md-sys-color-warning` follows the
+ * tertiary (teal) family — this matches the design prototype's OWN activity-log
+ * severity mapping (error -> error, warning -> tertiary, notice -> primary,
+ * info -> on-surface; see the prototype's `ink` maps) and the fallback chains
+ * already shipped in this codebase, e.g.
+ * `features/bot/styles.css` (`var(--md-sys-color-success, var(--md-sys-color-primary))`,
+ * `var(--md-sys-color-warning, var(--md-sys-color-tertiary))`).
  *
  * Sizes are CSS pixels. Nothing here is in points.
  */
@@ -18,61 +39,66 @@
   color-scheme: light dark;
 
   /* ---------------------------------------------------------------- */
-  /* Colour roles — light baseline                                     */
+  /* Colour roles — light baseline (design prototype [data-theme='light'])  */
   /* ---------------------------------------------------------------- */
-  --md-sys-color-primary: #4a5bbe;
-  --md-sys-color-on-primary: #ffffff;
-  --md-sys-color-primary-container: #dee0ff;
-  --md-sys-color-on-primary-container: #00105c;
-  --md-sys-color-inverse-primary: #bcc2ff;
+  --md-sys-color-primary: #006d34;
+  --md-sys-color-on-primary: #feffff;
+  --md-sys-color-primary-container: #80fba3;
+  --md-sys-color-on-primary-container: #002108;
+  --md-sys-color-inverse-primary: #62de89;
 
-  --md-sys-color-secondary: #5b5d72;
-  --md-sys-color-on-secondary: #ffffff;
-  --md-sys-color-secondary-container: #e0e0f9;
-  --md-sys-color-on-secondary-container: #181a2c;
+  --md-sys-color-secondary: #46664d;
+  --md-sys-color-on-secondary: #feffff;
+  --md-sys-color-secondary-container: #c7ebce;
+  --md-sys-color-on-secondary-container: #03210b;
 
-  --md-sys-color-tertiary: #77536d;
-  --md-sys-color-on-tertiary: #ffffff;
-  --md-sys-color-tertiary-container: #ffd7f1;
-  --md-sys-color-on-tertiary-container: #2d1228;
+  --md-sys-color-tertiary: #006973;
+  --md-sys-color-on-tertiary: #feffff;
+  --md-sys-color-tertiary-container: #96f1fd;
+  --md-sys-color-on-tertiary-container: #001f23;
 
-  --md-sys-color-error: #ba1a1a;
+  --md-sys-color-error: #bf002a;
   --md-sys-color-on-error: #ffffff;
   --md-sys-color-error-container: #ffdad6;
-  --md-sys-color-on-error-container: #410002;
+  --md-sys-color-on-error-container: #410000;
 
-  --md-sys-color-background: #fbf8ff;
-  --md-sys-color-on-background: #1b1b21;
-  --md-sys-color-surface: #fbf8ff;
-  --md-sys-color-on-surface: #1b1b21;
-  --md-sys-color-surface-variant: #e3e1ec;
-  --md-sys-color-on-surface-variant: #46464f;
-  --md-sys-color-surface-dim: #dbd9e0;
-  --md-sys-color-surface-bright: #fbf8ff;
-  --md-sys-color-surface-container-lowest: #ffffff;
-  --md-sys-color-surface-container-low: #f5f2fa;
-  --md-sys-color-surface-container: #efedf4;
-  --md-sys-color-surface-container-high: #eae7ef;
-  --md-sys-color-surface-container-highest: #e4e1e9;
-  --md-sys-color-inverse-surface: #303036;
-  --md-sys-color-inverse-on-surface: #f2eff7;
+  --md-sys-color-background: #f3fcf4;
+  --md-sys-color-on-background: #171d18;
+  --md-sys-color-surface: #f3fcf4;
+  --md-sys-color-on-surface: #171d18;
+  --md-sys-color-surface-variant: #d5e7d8;
+  --md-sys-color-on-surface-variant: #3c4a3e;
+  /* Derived: not part of the design prototype's own token block. surface-dim
+     sits a few tones below surface-container-highest; surface-bright equals
+     surface at the light end of the ramp, matching M3's baseline tonal roles. */
+  --md-sys-color-surface-dim: #ced7cf;
+  --md-sys-color-surface-bright: #f3fcf4;
+  --md-sys-color-surface-container-lowest: #feffff;
+  --md-sys-color-surface-container-low: #edf6ee;
+  --md-sys-color-surface-container: #e7f0e9;
+  --md-sys-color-surface-container-high: #e2eae3;
+  --md-sys-color-surface-container-highest: #dce5dd;
+  --md-sys-color-inverse-surface: #2b322c;
+  --md-sys-color-inverse-on-surface: #eaf3eb;
 
-  --md-sys-color-outline: #777680;
-  --md-sys-color-outline-variant: #c7c5d0;
+  --md-sys-color-outline: #6b7b6e;
+  --md-sys-color-outline-variant: #bacbbd;
   --md-sys-color-shadow: #000000;
   --md-sys-color-scrim: #000000;
-  --md-sys-color-surface-tint: #4a5bbe;
+  --md-sys-color-surface-tint: #006d34;
 
   /* Semantic aliases used by notifications and status chips. They are colour
-     roles, not new colours, so they follow the generated scheme automatically. */
-  --md-sys-color-success: #1f6d3a;
-  --md-sys-color-on-success: #ffffff;
-  --md-sys-color-success-container: #a8f5bf;
-  --md-sys-color-on-success-container: #002110;
-  --md-sys-color-warning: #7a5900;
-  --md-sys-color-on-warning: #ffffff;
-  --md-sys-color-warning-container: #ffdf9a;
-  --md-sys-color-on-warning-container: #261a00;
+     roles, not new colours, so they follow the generated scheme automatically.
+     success follows the primary (green) family; warning follows the tertiary
+     (teal) family — see the file header for why. */
+  --md-sys-color-success: #006d34;
+  --md-sys-color-on-success: #feffff;
+  --md-sys-color-success-container: #80fba3;
+  --md-sys-color-on-success-container: #002108;
+  --md-sys-color-warning: #006973;
+  --md-sys-color-on-warning: #feffff;
+  --md-sys-color-warning-container: #96f1fd;
+  --md-sys-color-on-warning-container: #001f23;
 
   /* ---------------------------------------------------------------- */
   /* Typography                                                        */
@@ -126,6 +152,12 @@
   --md-sys-shape-corner-small: 8px;
   --md-sys-shape-corner-medium: 12px;
   --md-sys-shape-corner-large: 16px;
+  /* M3 Expressive's "large-increased" step — the 20px radius the design
+     prototype uses throughout for its rail pills, its hero/detail cards and
+     its dialog-adjacent panels, sitting between large (16px) and
+     extra-large (28px). Screens should reach for this token instead of
+     hard-coding 20px. */
+  --md-sys-shape-corner-large-increased: 20px;
   --md-sys-shape-corner-extra-large: 28px;
   --md-sys-shape-corner-full: 9999px;
 
@@ -190,6 +222,12 @@
   --md-comp-touch-target: 44px;
   --md-comp-title-bar-height: 40px;
   --md-comp-tab-strip-width: 208px;
+  /* The width of the primary destination navigation rail (title bar +
+     navigation rail + per-destination screens), matching the design
+     prototype's `flex: 0 0 92px` rail. Distinct from the tab-strip width
+     above, which belongs to the browser-style secondary tab strip used
+     inside individual destinations (e.g. the "Other" feature list). */
+  --md-comp-rail-width: 92px;
   /* The persistent bottom status bar — one of the clearest signals that a
      window is an application rather than a page. Deliberately thinner than
      the title bar: it carries a few short live facts, not controls. */
@@ -208,60 +246,61 @@
 /* -------------------------------------------------------------------- */
 /* Dark scheme: the system default, only when the user has not chosen.    */
 /* Every token below already exists on `:root` above.                     */
+/* Values match the design prototype's `:root, [data-theme='dark']` block. */
 /* -------------------------------------------------------------------- */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
-    --md-sys-color-primary: #bcc2ff;
-    --md-sys-color-on-primary: #142285;
-    --md-sys-color-primary-container: #303f9f;
-    --md-sys-color-on-primary-container: #dee0ff;
-    --md-sys-color-inverse-primary: #4a5bbe;
+    --md-sys-color-primary: #62de89;
+    --md-sys-color-on-primary: #003918;
+    --md-sys-color-primary-container: #005226;
+    --md-sys-color-on-primary-container: #80fba3;
+    --md-sys-color-inverse-primary: #006d34;
 
-    --md-sys-color-secondary: #c4c5dd;
-    --md-sys-color-on-secondary: #2d2f42;
-    --md-sys-color-secondary-container: #434559;
-    --md-sys-color-on-secondary-container: #e0e0f9;
+    --md-sys-color-secondary: #accfb3;
+    --md-sys-color-on-secondary: #183621;
+    --md-sys-color-secondary-container: #2f4d36;
+    --md-sys-color-on-secondary-container: #c7ebce;
 
-    --md-sys-color-tertiary: #e6bad6;
-    --md-sys-color-on-tertiary: #44273d;
-    --md-sys-color-tertiary-container: #5d3d54;
-    --md-sys-color-on-tertiary-container: #ffd7f1;
+    --md-sys-color-tertiary: #79d4e0;
+    --md-sys-color-on-tertiary: #00363c;
+    --md-sys-color-tertiary-container: #004f57;
+    --md-sys-color-on-tertiary-container: #96f1fd;
 
-    --md-sys-color-error: #ffb4ab;
-    --md-sys-color-on-error: #690005;
-    --md-sys-color-error-container: #93000a;
+    --md-sys-color-error: #ffb3ad;
+    --md-sys-color-on-error: #680012;
+    --md-sys-color-error-container: #92001e;
     --md-sys-color-on-error-container: #ffdad6;
 
-    --md-sys-color-background: #131318;
-    --md-sys-color-on-background: #e4e1e9;
-    --md-sys-color-surface: #131318;
-    --md-sys-color-on-surface: #e4e1e9;
-    --md-sys-color-surface-variant: #46464f;
-    --md-sys-color-on-surface-variant: #c7c5d0;
-    --md-sys-color-surface-dim: #131318;
-    --md-sys-color-surface-bright: #39383f;
-    --md-sys-color-surface-container-lowest: #0e0e13;
-    --md-sys-color-surface-container-low: #1b1b21;
-    --md-sys-color-surface-container: #1f1f25;
-    --md-sys-color-surface-container-high: #2a2930;
-    --md-sys-color-surface-container-highest: #35343b;
-    --md-sys-color-inverse-surface: #e4e1e9;
-    --md-sys-color-inverse-on-surface: #303036;
+    --md-sys-color-background: #0d150f;
+    --md-sys-color-on-background: #dce5dd;
+    --md-sys-color-surface: #0d150f;
+    --md-sys-color-on-surface: #dce5dd;
+    --md-sys-color-surface-variant: #3c4a3e;
+    --md-sys-color-on-surface-variant: #bacbbd;
+    --md-sys-color-surface-dim: #0d150f;
+    --md-sys-color-surface-bright: #3a403b;
+    --md-sys-color-surface-container-lowest: #061008;
+    --md-sys-color-surface-container-low: #171d18;
+    --md-sys-color-surface-container: #1b211c;
+    --md-sys-color-surface-container-high: #252c26;
+    --md-sys-color-surface-container-highest: #303631;
+    --md-sys-color-inverse-surface: #dce5dd;
+    --md-sys-color-inverse-on-surface: #2b322c;
 
-    --md-sys-color-outline: #918f9a;
-    --md-sys-color-outline-variant: #46464f;
+    --md-sys-color-outline: #849587;
+    --md-sys-color-outline-variant: #3c4a3e;
     --md-sys-color-shadow: #000000;
     --md-sys-color-scrim: #000000;
-    --md-sys-color-surface-tint: #bcc2ff;
+    --md-sys-color-surface-tint: #62de89;
 
-    --md-sys-color-success: #8cd8a4;
-    --md-sys-color-on-success: #00391d;
-    --md-sys-color-success-container: #00522c;
-    --md-sys-color-on-success-container: #a8f5bf;
-    --md-sys-color-warning: #f2c04b;
-    --md-sys-color-on-warning: #402d00;
-    --md-sys-color-warning-container: #5c4200;
-    --md-sys-color-on-warning-container: #ffdf9a;
+    --md-sys-color-success: #62de89;
+    --md-sys-color-on-success: #003918;
+    --md-sys-color-success-container: #005226;
+    --md-sys-color-on-success-container: #80fba3;
+    --md-sys-color-warning: #79d4e0;
+    --md-sys-color-on-warning: #00363c;
+    --md-sys-color-warning-container: #004f57;
+    --md-sys-color-on-warning-container: #96f1fd;
   }
 }
 
@@ -269,55 +308,55 @@
 /* Dark scheme: chosen explicitly. Wins in both directions.              */
 /* -------------------------------------------------------------------- */
 :root[data-theme='dark'] {
-  --md-sys-color-primary: #bcc2ff;
-  --md-sys-color-on-primary: #142285;
-  --md-sys-color-primary-container: #303f9f;
-  --md-sys-color-on-primary-container: #dee0ff;
-  --md-sys-color-inverse-primary: #4a5bbe;
+  --md-sys-color-primary: #62de89;
+  --md-sys-color-on-primary: #003918;
+  --md-sys-color-primary-container: #005226;
+  --md-sys-color-on-primary-container: #80fba3;
+  --md-sys-color-inverse-primary: #006d34;
 
-  --md-sys-color-secondary: #c4c5dd;
-  --md-sys-color-on-secondary: #2d2f42;
-  --md-sys-color-secondary-container: #434559;
-  --md-sys-color-on-secondary-container: #e0e0f9;
+  --md-sys-color-secondary: #accfb3;
+  --md-sys-color-on-secondary: #183621;
+  --md-sys-color-secondary-container: #2f4d36;
+  --md-sys-color-on-secondary-container: #c7ebce;
 
-  --md-sys-color-tertiary: #e6bad6;
-  --md-sys-color-on-tertiary: #44273d;
-  --md-sys-color-tertiary-container: #5d3d54;
-  --md-sys-color-on-tertiary-container: #ffd7f1;
+  --md-sys-color-tertiary: #79d4e0;
+  --md-sys-color-on-tertiary: #00363c;
+  --md-sys-color-tertiary-container: #004f57;
+  --md-sys-color-on-tertiary-container: #96f1fd;
 
-  --md-sys-color-error: #ffb4ab;
-  --md-sys-color-on-error: #690005;
-  --md-sys-color-error-container: #93000a;
+  --md-sys-color-error: #ffb3ad;
+  --md-sys-color-on-error: #680012;
+  --md-sys-color-error-container: #92001e;
   --md-sys-color-on-error-container: #ffdad6;
 
-  --md-sys-color-background: #131318;
-  --md-sys-color-on-background: #e4e1e9;
-  --md-sys-color-surface: #131318;
-  --md-sys-color-on-surface: #e4e1e9;
-  --md-sys-color-surface-variant: #46464f;
-  --md-sys-color-on-surface-variant: #c7c5d0;
-  --md-sys-color-surface-dim: #131318;
-  --md-sys-color-surface-bright: #39383f;
-  --md-sys-color-surface-container-lowest: #0e0e13;
-  --md-sys-color-surface-container-low: #1b1b21;
-  --md-sys-color-surface-container: #1f1f25;
-  --md-sys-color-surface-container-high: #2a2930;
-  --md-sys-color-surface-container-highest: #35343b;
-  --md-sys-color-inverse-surface: #e4e1e9;
-  --md-sys-color-inverse-on-surface: #303036;
+  --md-sys-color-background: #0d150f;
+  --md-sys-color-on-background: #dce5dd;
+  --md-sys-color-surface: #0d150f;
+  --md-sys-color-on-surface: #dce5dd;
+  --md-sys-color-surface-variant: #3c4a3e;
+  --md-sys-color-on-surface-variant: #bacbbd;
+  --md-sys-color-surface-dim: #0d150f;
+  --md-sys-color-surface-bright: #3a403b;
+  --md-sys-color-surface-container-lowest: #061008;
+  --md-sys-color-surface-container-low: #171d18;
+  --md-sys-color-surface-container: #1b211c;
+  --md-sys-color-surface-container-high: #252c26;
+  --md-sys-color-surface-container-highest: #303631;
+  --md-sys-color-inverse-surface: #dce5dd;
+  --md-sys-color-inverse-on-surface: #2b322c;
 
-  --md-sys-color-outline: #918f9a;
-  --md-sys-color-outline-variant: #46464f;
+  --md-sys-color-outline: #849587;
+  --md-sys-color-outline-variant: #3c4a3e;
   --md-sys-color-shadow: #000000;
   --md-sys-color-scrim: #000000;
-  --md-sys-color-surface-tint: #bcc2ff;
+  --md-sys-color-surface-tint: #62de89;
 
-  --md-sys-color-success: #8cd8a4;
-  --md-sys-color-on-success: #00391d;
-  --md-sys-color-success-container: #00522c;
-  --md-sys-color-on-success-container: #a8f5bf;
-  --md-sys-color-warning: #f2c04b;
-  --md-sys-color-on-warning: #402d00;
-  --md-sys-color-warning-container: #5c4200;
-  --md-sys-color-on-warning-container: #ffdf9a;
+  --md-sys-color-success: #62de89;
+  --md-sys-color-on-success: #003918;
+  --md-sys-color-success-container: #005226;
+  --md-sys-color-on-success-container: #80fba3;
+  --md-sys-color-warning: #79d4e0;
+  --md-sys-color-on-warning: #00363c;
+  --md-sys-color-warning-container: #004f57;
+  --md-sys-color-on-warning-container: #96f1fd;
 }

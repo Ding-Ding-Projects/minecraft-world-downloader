@@ -1,0 +1,464 @@
+/*
+ * The Downloader screen (design lines 105-249).
+ *
+ * Every colour, radius, spacing and motion value below is a `var(--md-sys-*)`
+ * / `var(--md-space-*)` token from `app/src/renderer/styles/tokens.css`, so
+ * both themes ship for free and a seed/density/contrast change reaches this
+ * screen without editing it. Nothing here redefines a token — see that
+ * file's own header for why a colour with its only definition inside a media
+ * block is a bug, not a style choice.
+ */
+
+.wds-dl-overview {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-4);
+  min-inline-size: 0;
+}
+
+.wds-dl-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  gap: var(--md-space-4);
+  align-items: start;
+}
+
+.wds-dl-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--md-space-2);
+}
+
+.wds-dl-muted {
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.wds-dl-error {
+  color: var(--md-sys-color-error);
+}
+
+/* ------------------------------------------------------------------ */
+/* Pill tab bar (design lines 108-112)                                 */
+/* ------------------------------------------------------------------ */
+
+.wds-dl-pilltabs {
+  display: inline-flex;
+  padding: var(--md-space-1);
+  margin-bottom: var(--md-space-5);
+  border-radius: var(--md-sys-shape-corner-full);
+  background: var(--md-sys-color-surface-container);
+  max-inline-size: 100%;
+  overflow-x: auto;
+}
+
+.wds-dl-pilltabs .md-tabbar {
+  border-bottom: 0;
+  padding-bottom: 0;
+  margin-bottom: 0;
+  gap: var(--md-space-1);
+}
+
+.wds-dl-pilltabs .md-tab {
+  min-height: 40px;
+  padding-inline: var(--md-space-5);
+  font-weight: 600;
+}
+
+.wds-dl-pilltabs .md-tab[aria-selected='true'] {
+  background: var(--md-sys-color-primary);
+  color: var(--md-sys-color-on-primary);
+}
+
+/* ------------------------------------------------------------------ */
+/* Hero card (design lines 117-137)                                    */
+/* ------------------------------------------------------------------ */
+
+.wds-dl-hero {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-space-6);
+  padding: var(--md-space-6);
+  border-radius: var(--md-sys-shape-corner-extra-large);
+  background: var(--md-sys-color-primary-container);
+  color: var(--md-sys-color-on-primary-container);
+}
+
+.wds-dl-hero__main {
+  flex: 1 1 320px;
+  min-inline-size: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-2);
+}
+
+.wds-dl-hero__chip {
+  display: inline-flex;
+  align-self: flex-start;
+  align-items: center;
+  height: 28px;
+  padding-inline: var(--md-space-3);
+  border-radius: var(--md-sys-shape-corner-full);
+  background: color-mix(in srgb, var(--md-sys-color-on-primary-container) 12%, transparent);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.wds-dl-hero__chip--running {
+  animation: wds-pulse 2s ease-in-out infinite;
+}
+
+.wds-dl-hero__figure {
+  display: flex;
+  align-items: baseline;
+  gap: var(--md-space-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.wds-dl-hero__number {
+  font-size: 45px;
+  line-height: 52px;
+  font-weight: 400;
+}
+
+.wds-dl-hero__unit {
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.wds-dl-hero__unknown {
+  font-size: 22px;
+  font-weight: 500;
+  opacity: 0.86;
+}
+
+.wds-dl-hero__count-action {
+  display: flex;
+  align-items: center;
+  gap: var(--md-space-3);
+  flex-wrap: wrap;
+}
+
+.wds-dl-hero__count-action .md-progress-linear {
+  inline-size: 160px;
+}
+
+.wds-dl-hero__line {
+  margin: 0;
+  opacity: 0.86;
+}
+
+.wds-dl-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-space-2);
+  margin-top: var(--md-space-2);
+}
+
+.wds-dl-hero__stats {
+  flex: 0 0 220px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-2);
+  min-inline-size: 200px;
+}
+
+.wds-dl-hero__stat {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--md-space-2);
+}
+
+.wds-dl-hero__statlabel {
+  opacity: 0.8;
+}
+
+.wds-dl-hero__statvalue {
+  font-variant-numeric: tabular-nums;
+}
+
+.wds-dl-hero__sweep {
+  margin-top: var(--md-space-1);
+}
+
+/* ------------------------------------------------------------------ */
+/* Runtime / activity / overview-map cards (design lines 139-174)      */
+/* ------------------------------------------------------------------ */
+
+.wds-dl-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-3);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-corner-large);
+  background: var(--md-sys-color-surface-container-low);
+  padding: var(--md-space-4);
+  min-inline-size: 0;
+}
+
+.wds-dl-card__header {
+  display: flex;
+  align-items: center;
+  gap: var(--md-space-2);
+  margin-inline: calc(-1 * var(--md-space-4));
+  margin-top: calc(-1 * var(--md-space-4));
+  padding: var(--md-space-3) var(--md-space-4);
+  border-bottom: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.wds-dl-card__title {
+  flex: 1 1 auto;
+}
+
+.wds-dl-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-2);
+}
+
+.wds-dl-activity__body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-family: var(--md-sys-typeface-mono);
+  font-size: 12px;
+  line-height: 1.7;
+  background: var(--md-sys-color-surface-container-lowest);
+  border-radius: var(--md-sys-shape-corner-medium);
+  padding: var(--md-space-3) var(--md-space-4);
+  max-block-size: 280px;
+  overflow: auto;
+}
+
+.wds-dl-logline {
+  display: flex;
+  gap: var(--md-space-2);
+}
+
+.wds-dl-logline__time {
+  color: var(--md-sys-color-on-surface-variant);
+  flex: none;
+}
+
+.wds-dl-logline__text {
+  min-inline-size: 0;
+  overflow-wrap: anywhere;
+}
+
+.wds-dl-logline--error .wds-dl-logline__text {
+  color: var(--md-sys-color-error);
+}
+
+.wds-dl-logline--warning .wds-dl-logline__text {
+  color: var(--md-sys-color-tertiary);
+}
+
+.wds-dl-logline--notice .wds-dl-logline__text {
+  color: var(--md-sys-color-primary);
+}
+
+.wds-dl-logline--info .wds-dl-logline__text {
+  color: var(--md-sys-color-on-surface);
+}
+
+/* ------------------------------------------------------------------ */
+/* Launch options (design lines 178-215)                               */
+/* ------------------------------------------------------------------ */
+
+.wds-dl-options {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-4);
+  max-inline-size: 960px;
+}
+
+.wds-dl-options__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--md-space-3);
+}
+
+.wds-dl-options__toolbar .md-search {
+  flex: 1 1 320px;
+}
+
+.wds-dl-options__groups {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-4);
+}
+
+.wds-dl-options__group {
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-corner-large);
+  background: var(--md-sys-color-surface-container-low);
+  overflow: hidden;
+}
+
+.wds-dl-options__groupheader {
+  display: flex;
+  align-items: center;
+  gap: var(--md-space-2);
+  padding: var(--md-space-3) var(--md-space-4);
+  background: var(--md-sys-color-surface-container);
+  border-bottom: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.wds-dl-options__groupheader b {
+  flex: 1 1 auto;
+}
+
+.wds-dl-options__grouprows {
+  display: flex;
+  flex-direction: column;
+}
+
+.wds-dl-option {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-2);
+  padding: var(--md-space-3) var(--md-space-4);
+  border-bottom: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.wds-dl-option:last-child {
+  border-bottom: none;
+}
+
+.wds-dl-option--invalid {
+  outline: 1px solid var(--md-sys-color-error);
+  outline-offset: -1px;
+}
+
+.wds-dl-option__header {
+  display: flex;
+  align-items: center;
+  gap: var(--md-space-2);
+}
+
+.wds-dl-option__header > b {
+  flex: 1 1 auto;
+}
+
+.wds-dl-option__flag {
+  font-family: var(--md-sys-typeface-mono);
+  color: var(--md-sys-color-on-surface-variant);
+  margin: 0;
+}
+
+.wds-dl-option__explain {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-1);
+  padding: var(--md-space-2) var(--md-space-3);
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: var(--md-sys-color-surface-container-high);
+}
+
+.wds-dl-option__explain p {
+  margin: 0;
+}
+
+.wds-dl-badge {
+  display: inline-flex;
+  align-items: center;
+  height: 20px;
+  padding-inline: var(--md-space-2);
+  border-radius: var(--md-sys-shape-corner-full);
+  background: var(--md-sys-color-tertiary-container);
+  color: var(--md-sys-color-on-tertiary-container);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.wds-dl-options__command {
+  flex-direction: column;
+}
+
+.wds-dl-commandline {
+  margin: 0;
+  font-family: var(--md-sys-typeface-mono);
+  font-size: 12px;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  word-break: break-all;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+/* ------------------------------------------------------------------ */
+/* Activity log (design lines 216-249)                                 */
+/* ------------------------------------------------------------------ */
+
+.wds-dl-log {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-3);
+  min-inline-size: 0;
+}
+
+.wds-dl-log .md-search {
+  flex: 1 1 220px;
+}
+
+.wds-dl-log .md-list {
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-corner-large);
+  background: var(--md-sys-color-surface-container-lowest);
+  max-block-size: 55vh;
+  overflow: auto;
+}
+
+.wds-dl-logrow--error {
+  border-inline-start: 3px solid var(--md-sys-color-error);
+}
+
+.wds-dl-logrow--warning {
+  border-inline-start: 3px solid var(--md-sys-color-tertiary);
+}
+
+.wds-dl-logrow--notice {
+  border-inline-start: 3px solid var(--md-sys-color-primary);
+}
+
+.wds-dl-logrow--info {
+  border-inline-start: 3px solid transparent;
+}
+
+/* ------------------------------------------------------------------ */
+/* Narrow widths                                                       */
+/* ------------------------------------------------------------------ */
+
+@media (max-width: 900px) {
+  .wds-dl-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .wds-dl-hero {
+    flex-direction: column;
+  }
+
+  .wds-dl-hero__stats {
+    flex-basis: auto;
+  }
+}
+
+@media (max-width: 640px) {
+  .wds-dl-hero__number {
+    font-size: 32px;
+    line-height: 38px;
+  }
+
+  .wds-dl-option__header {
+    flex-wrap: wrap;
+  }
+
+  .wds-dl-card__header {
+    flex-wrap: wrap;
+  }
+}

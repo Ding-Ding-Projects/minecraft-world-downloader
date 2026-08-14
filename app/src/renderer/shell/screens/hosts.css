@@ -1,0 +1,198 @@
+/*
+ * Hosts screen (design lines 321-391): saved SSH machines down the left,
+ * connection + detection evidence + deployment plan + remote session log for
+ * the selected one on the right.
+ *
+ * Every colour, radius and spacing value below is one of the shared
+ * `--md-sys-*` / `--md-space-*` tokens (`app/src/renderer/styles/tokens.css`),
+ * or reuses one of the shared `.md-list-item--card` / `.md-avatar` /
+ * `.md-tag` / `.md-section-card` / `.md-detail-hero` building blocks already
+ * defined in `app/src/renderer/styles/material.css` for exactly this screen
+ * family (Profiles, Hosts, Services, Other). Nothing here redefines a shared
+ * token or a shared class, so both themes keep working for free and this
+ * file only adds the layout and the handful of things genuinely specific to
+ * Hosts. Every class below is prefixed `wds-hosts-` so it cannot collide
+ * with another screen's own stylesheet.
+ */
+
+.wds-hosts {
+  display: grid;
+  grid-template-columns: 300px minmax(0, 1fr);
+  gap: var(--md-space-5);
+  align-items: start;
+}
+
+@media (max-width: 860px) {
+  .wds-hosts {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.wds-hosts__sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-3);
+  min-width: 0;
+}
+
+.wds-hosts__detail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-4);
+  min-width: 0;
+}
+
+.wds-hosts__list {
+  display: flex;
+  flex-direction: column;
+}
+
+.wds-hosts-mono {
+  font-family: var(--md-sys-typeface-mono);
+}
+
+.wds-hosts-row__text {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.wds-hosts-row__text > .md-list-item__supporting {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.wds-hosts-row__value {
+  text-align: end;
+  max-width: 60%;
+  overflow-wrap: break-word;
+}
+
+.wds-hosts-hero__top {
+  display: flex;
+  align-items: center;
+  gap: var(--md-space-4);
+  flex-wrap: wrap;
+}
+
+.wds-hosts-hero__textcol {
+  min-width: 0;
+}
+
+.wds-hosts-hero__namerow {
+  display: flex;
+  align-items: center;
+  gap: var(--md-space-3);
+  flex-wrap: wrap;
+}
+
+.wds-hosts-run__body {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--md-space-3);
+  padding: var(--md-space-4);
+}
+
+.wds-hosts-run__verdict {
+  margin: 0;
+  padding: 0 var(--md-space-4) var(--md-space-3);
+  color: var(--md-sys-color-on-surface-variant);
+  max-width: 70ch;
+}
+
+.wds-hosts-evidence {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: var(--md-space-2);
+  padding: 0 var(--md-space-4) var(--md-space-4);
+}
+
+.wds-hosts-evidence__row {
+  display: flex;
+  align-items: center;
+  gap: var(--md-space-3);
+  padding: var(--md-space-3);
+  border-radius: var(--md-sys-shape-corner-large);
+  background: var(--md-sys-color-surface-container);
+}
+
+.wds-hosts-evidence__glyph {
+  display: grid;
+  place-items: center;
+  inline-size: 28px;
+  block-size: 28px;
+  flex: 0 0 auto;
+  border-radius: var(--md-sys-shape-corner-full);
+  font-size: 14px;
+  font-weight: 700;
+  background: var(--md-sys-color-surface-container-highest);
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.wds-hosts-evidence__glyph--ok {
+  background: var(--md-sys-color-primary-container);
+  color: var(--md-sys-color-on-primary-container);
+}
+
+.wds-hosts-evidence__glyph--fail {
+  background: var(--md-sys-color-error-container);
+  color: var(--md-sys-color-on-error-container);
+}
+
+.wds-hosts-evidence__text {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.wds-hosts-grid2 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--md-space-4);
+}
+
+.wds-hosts-log {
+  font-family: var(--md-sys-typeface-mono);
+  font-size: calc(var(--md-sys-typescale-body-small-size) * var(--md-sys-typescale-factor));
+  line-height: 1.85;
+  padding: var(--md-space-4);
+  background: var(--md-sys-color-surface-container-lowest);
+  overflow-x: auto;
+}
+
+.wds-hosts-log__line {
+  display: flex;
+  gap: var(--md-space-3);
+}
+
+.wds-hosts-log__time {
+  color: var(--md-sys-color-on-surface-variant);
+  flex: none;
+}
+
+.wds-hosts-log__msg {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.wds-hosts-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-space-3);
+  min-inline-size: min(28rem, 88vw);
+}
+
+.wds-hosts-form__lede {
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+@media (max-width: 480px) {
+  .wds-hosts-form {
+    min-inline-size: 0;
+  }
+}
