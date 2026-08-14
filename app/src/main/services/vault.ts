@@ -83,8 +83,20 @@ export async function setSecret(account: string, secret: string): Promise<void> 
     );
   }
   const document = await load();
-  document.entries[account] = safeStorage.encryptString(secret).toString('base64');
-  await persist(document);
+  // Build the change on a copy rather than on the cached document itself.
+  // `load()` hands back the live cache object, so mutating it here would apply
+  // the change in memory before the write that is supposed to make it real —
+  // and a failed write would then leave this process serving a credential that
+  // is not on disk. It would read back correctly for the rest of the session
+  // and be gone at the next launch, which is the worst shape a storage failure
+  // can take. persist() commits the new document to the cache only after the
+  // atomic rename succeeds, so passing it a copy is what makes that commit
+  // point mean something.
+  const next: VaultDocument = {
+    ...document,
+    entries: { ...document.entries, [account]: safeStorage.encryptString(secret).toString('base64') }
+  };
+  await persist(next);
 }
 
 export async function getSecret(account: string): Promise<string | null> {
@@ -108,8 +120,13 @@ export async function deleteSecret(account: string): Promise<void> {
   assertAccount(account);
   const document = await load();
   if (account in document.entries) {
-    delete document.entries[account];
-    await persist(document);
+    // Same copy-then-persist rule as setSecret, and the consequence of getting
+    // it wrong is worse here: mutating the cache first would report a deletion
+    // that never reached disk, so the credential the user asked to remove is
+    // still there and returns at the next launch.
+    const entries = { ...document.entries };
+    delete entries[account];
+    await persist({ ...document, entries });
   }
 }
 
