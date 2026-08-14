@@ -307,13 +307,20 @@ if (gotLock) {
       throw new Error(`These IPC channels are on the allow-list but have no handler: ${missing.join(', ')}`);
     }
 
-    nativeTheme.on('updated', () => {
-      if (mainWindow && !mainWindow.isDestroyed()) {
-        mainWindow.webContents.send('app:theme-source-changed', {
-          shouldUseDarkColors: nativeTheme.shouldUseDarkColors
-        });
-      }
-    });
+    // No `nativeTheme.on('updated', ...)` broadcast here: it would have
+    // nothing to reach. Electron keeps a renderer's own
+    // `prefers-color-scheme` media query in lockstep with `nativeTheme`, and
+    // `src/renderer/core/theme.ts` (`initTheme()`) already subscribes to that
+    // query directly -- `window.matchMedia('(prefers-color-scheme: dark)')
+    // .addEventListener('change', ...)` -- and re-applies the theme whenever
+    // the OS scheme changes while the user's mode setting is 'system'. A
+    // main-process IPC event for the same fact was wired up, allow-listed in
+    // `shared/channels.ts`/`shared/api.ts`, and sent on every OS theme
+    // change, but no renderer feature ever subscribed to it: `theme-source-changed`
+    // had no listener anywhere in `src/renderer`. Removing the dead send here
+    // rather than leaving it in place, since a channel firing into nothing
+    // implies a behaviour ("main tells the renderer when the theme changes")
+    // the app does not actually rely on for this.
 
     mainWindow = await createWindow();
 
