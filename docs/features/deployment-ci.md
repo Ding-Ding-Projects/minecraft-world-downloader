@@ -73,9 +73,15 @@ the jar Maven just built, one directory above `app/`) into the packaged applicat
 `resources/engine/world-downloader.jar`. This is meant to become the renderer's **default** jar
 location, with the user's own "Jar path" setting still winning when they set one explicitly — see
 [Open items](#open-items) for the exact renderer/main change this still requires. Maven must run
-before electron-builder packages the application; if the jar is not at `target/world-downloader.jar`
-when `extraResources` is evaluated, electron-builder fails packaging loudly rather than shipping an
-application with no engine.
+before electron-builder packages the application. **This is not enforced by electron-builder
+itself**: `copyFiles()` in `app-builder-lib/out/fileMatcher.js` does a plain `statOrNull` on each
+`extraResources` entry's `from` path and, on a missing directory, logs `log.warn("file source
+doesn't exist")` and returns — it does not throw and does not fail the build. A missing jar (or a
+missing bundled runtime, or a missing scraper `node_modules`, see below) packages "successfully"
+with the resource silently absent. What actually catches this is
+`.github/workflows/release.yml`'s "Confirm the packaged bundle actually carries its dependencies"
+step, which opens the real packaged output after `electron-builder` exits and asserts each expected
+file is really there, by exact path, before anything is published.
 
 Code signing is **permanently out of scope** for this project. `electron-builder.yml` pins
 `forceCodeSigning: false` and `signExecutable: false`; the packaging step in `release.yml` clears
@@ -295,6 +301,20 @@ existing application and jar.
 - **The legacy Docker image, NSIS installer, and the five superseded workflows are inert.** They
   remain in the tree (see `AGENTS.md`) but are not wired into `release.yml` or any other active
   workflow. Do not describe them as part of the current release contract.
+- **electron-builder silently drops a `node_modules` directory sitting at the ROOT of an
+  `extraResources` entry's `from`, regardless of any `filter:` on that entry.**
+  `app-builder-lib/out/util/filter.js`'s `createFilter()` hardcodes `if (relative === "node_modules")
+  return false` — a deliberate guard against `extraResources: {from: '.', to: '.'}` accidentally
+  copying a project's own root `node_modules`, but it fires for *any* `from` whose immediate child is
+  named `node_modules`, including a standalone project like `scraper/`. This shipped once
+  (app-v1.0.96): `scraper/`'s own `npm ci` had already installed its dependencies before packaging
+  ran, and the "Confirm the packaged bundle actually carries its dependencies" step still failed on
+  `resources/scraper/node_modules/mineflayer/package.json` — it was a filtering bug, not an ordering
+  one. `app/electron-builder.yml` works around it with a second, deliberately separate
+  `extraResources` entry rooted directly at `../scraper/node_modules` (`walk()` in
+  `builder-util/out/fs.js` never runs the filter against its own starting directory, only against
+  that directory's children, so making `node_modules` itself the root sidesteps the check). Do not
+  merge that back into the single `../scraper -> scraper` entry.
 
 ## Open items
 

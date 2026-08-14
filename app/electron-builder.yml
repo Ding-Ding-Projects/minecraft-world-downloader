@@ -120,6 +120,27 @@ extraResources:
   # at all" half is `.github/workflows/release.yml`'s post-packaging
   # "Confirm the packaged bundle actually carries its dependencies" step.
   #
+  # A THIRD, separate way this can silently ship empty: electron-builder's own
+  # copy filter (app-builder-lib/out/util/filter.js, createFilter()) hardcodes
+  # `if (relative === "node_modules") return false` -- it drops any directory
+  # named exactly `node_modules` sitting at the ROOT of whatever `from` it is
+  # copying, unconditionally, before any `filter:`/pattern on the entry is even
+  # consulted. That is deliberate for the common case of `extraResources: {from:
+  # '.', to: '.'}` accidentally slurping a project's own node_modules -- but it
+  # does not know this `from` is a standalone project rather than the app root,
+  # so it drops `scraper/node_modules` here too. This shipped once already
+  # (app-v1.0.96, workflow run 31769007954): the "Install the scraper bot's own
+  # dependencies" step installed 96 packages, check-scraper-bundle.mjs confirmed
+  # them present at 04:12:27 -- BEFORE packaging ran at 04:12:40-04:15:21 -- and
+  # "Confirm the packaged bundle actually carries its dependencies" still failed
+  # on resources/scraper/node_modules/mineflayer/package.json. It was never an
+  # ordering problem; node_modules existed the whole time and electron-builder
+  # simply never copied it. The `node_modules -> scraper/node_modules` entry
+  # below is the workaround: `walk()` (builder-util/out/fs.js) never runs the
+  # filter against its OWN root, only against that root's children, so making
+  # node_modules itself the `from` sidesteps the hardcoded check. Do not "clean
+  # this up" into one entry -- that reintroduces exactly this failure.
+  #
   # Packaged location: resources/scraper/scrape.js, matching the fixed path
   # contract `src/main/services/bundled.ts`'s `scraperScript` bundled tool
   # resolves against, and the directory `renderer/features/bot/runner.ts`'s
@@ -127,6 +148,18 @@ extraResources:
   # profile nor the feature-wide setting names a scraper directory.
   - from: ../scraper
     to: scraper
+  # Deliberately separate from the entry above -- see the comment there. This
+  # is scraper/'s own `npm ci` output: mineflayer, mineflayer-pathfinder,
+  # prismarine-auth and their transitive dependencies. It is dominated by
+  # minecraft-data (mineflayer's per-Minecraft-version protocol/block/item
+  # data), which alone measured ~371 MB uncompressed locally -- there are no
+  # devDependencies declared in scraper/package.json for `npm ci --omit=dev` to
+  # trim, so this size is inherent to the bot actually working, not surplus to
+  # prune. It rides on top of an installer that was already past 250 MB with
+  # the bundled JRE and MinGit; the 200 MiB floor in release.yml's packaged-size
+  # check is a minimum, not a maximum, so this does not need raising it.
+  - from: ../scraper/node_modules
+    to: scraper/node_modules
 
 electronLanguages:
   - en-US
