@@ -18,6 +18,10 @@ during migration and whose prior verification evidence is still accurate for tho
 
 ### A.1 What changed
 
+> **Reading order for whoever picks this up:** A.6 first (what is actually true right now), then A.7
+> (what to do about it). A.1–A.5 describe the shape of the effort and change slowly; A.6 changes
+> every session and is the section that has been wrong before.
+
 The repository is being restructured from five separate surfaces (a Java Maven proxy, a Flask web
 console, a WPF C# desktop manager, a Node chat-scraper, and a Python BlueMap pipeline, each with its
 own build, its own UI conventions, and its own release path) into:
@@ -38,9 +42,9 @@ that inventory is the authoritative checklist.
 
 | Path | Live? | Role |
 | --- | --- | --- |
-| `app/` | **Yes — active, early stage** | The unified Electron application. `package.json`, `electron-vite.config.ts`, and `electron-builder.yml` (Squirrel.Windows target configured) exist. `app/src/renderer/core/` has three files. `app/src/renderer/features/` exists as an empty directory — no feature module has been built yet. |
-| `design-system/` | **Yes — active, early stage** | Material Design 3 tokens, foundations, component references, and pattern references, organized under `app/`, `components/`, `foundations/`, `patterns/`, and `site/` subdirectories. Not yet wired into `app/`'s renderer as the live theme source. |
-| `site/` | **No — does not exist yet** | Planned documentation website. |
+| `app/` | **Yes — the product** | The unified Electron application, shipping. 40 feature modules under `app/src/renderer/features/`, auto-discovered by `import.meta.glob`; the navigation-rail shell and its nine destinations under `app/src/renderer/shell/`; 24 test files. Packaged with Squirrel.Windows and published per push. |
+| `design-system/` | Yes — wired in | Material Design 3 tokens generated from the `#0F7A3D` seed. Live: `app/src/renderer/styles/tokens.css` carries the palette and shape scale, and the whole renderer resolves through it — 1,795 token references across the feature stylesheets, with zero undefined references. |
+| `site/` | **Yes — exists** | The documentation website, published through `.github/workflows/pages.yml`. |
 | `src/`, `pom.xml` | Yes — legacy, still live | The original Java proxy. Bundled as the downloader core the unified app will drive. See Part B. |
 | `web/` | Yes — legacy, still live | The original Flask web console. See Part B. |
 | `desktop/`, `desktop.tests/` | Yes — legacy, still live | The original WPF C# desktop manager and its tests. This is what `app/` supersedes. See Part B. |
@@ -48,12 +52,50 @@ that inventory is the authoritative checklist.
 | `bluemap/` | Yes — legacy, still live | The original BlueMap rendering pipeline. See Part B. |
 | `installer/installer.nsi` | Yes — legacy | NSIS installer for the legacy WPF manager. Superseded for the unified app by Squirrel.Windows packaging (`app/electron-builder.yml`). |
 | `docs/wiki/`, `docs/features/`, `docs/testing/`, `docs/images/` | Yes | User and feature documentation. `docs/features/` is the canonical per-feature doc set both `AGENTS.md` and `FEATURE_INVENTORY.md` require. |
-| `.github/workflows/` | Yes — six workflows, not yet consolidated | `build.yml`, `desktop-release.yml`, `docker-base.yml`, `docker-image.yml`, `maven-publish.yml`, `release.yml`. None has been retired or merged into the planned single release workflow yet. |
+| `.github/workflows/` | Yes — consolidated to two | `release.yml` (builds the Maven jar, packages the desktop application with Squirrel.Windows, and publishes one release per push) and `pages.yml` (the documentation site). The original six have been retired. Neither runs tests or lint: that is a standing decision, and nothing in a workflow gates a release. |
 | `FEATURE_INVENTORY.md`, `ROADMAP.md`, `HANDOFF.md`, `AGENTS.md` | Yes | The four project-tracking documents referenced throughout this handoff. |
 
 No legacy surface has been removed. The migration's own stated rule (see `ROADMAP.md` Milestone 5) is
 that a legacy surface is retired only once the unified app has verified parity with it — the repository
 does not pass through a state where a capability exists in neither surface.
+
+### A.2b How the interface is put together
+
+This is the least obvious part of the codebase and the easiest to break by accident, so it is worth
+the paragraph.
+
+The application used to open onto a strip of forty browser-style tabs, in which the downloader was
+one tab among thirty-nine other things. It now opens onto a **navigation rail**, because the
+downloader is the product. Everything else lives under a single **Other** destination.
+
+```
+main.ts  →  mountShell()                    app/src/renderer/shell/index.ts
+              ├── titlebar.ts               display name, palette, bell, window controls
+              ├── rail.ts                   the nine destinations
+              ├── drawer.ts                 every destination AND every registered tab
+              ├── header.ts                 screen title, live subtitle, profile chip
+              └── screens/*.ts              discovered by import.meta.glob, like features
+```
+
+**The registry is still the single source of truth for features.** A feature module contributes
+`TabDefinition`s exactly as before; `screens/other.ts` enumerates `ctx.registry.tabs()` and mounts
+the selected one's own real `mount(host, ctx)` inside its detail frame. Nothing about writing a
+feature changed, and no feature was rewritten to fit the shell.
+
+Three consequences worth knowing before you edit any of this:
+
+- **The drawer's "all features" list is load-bearing.** With the tab strip gone, that list plus the
+  Other directory are the *only* routes to most features. In the first draft it, the notification
+  bell and the account chip all mounted into a container that is no longer visible — real mount,
+  real side effects, nothing on screen. If you add a control that opens a feature, route it through
+  `openRegisteredTab()` in `shell/drawer.ts`, never `ctx.tabs.open()`.
+- **`ctx.tabs` still exists and is still mounted**, hidden, because several call sites depend on it
+  and `TabsImpl.open()` is a silent no-op when unmounted. Treat a direct `ctx.tabs.open()` from new
+  code as a bug.
+- **Three screens are deliberately tiny.** `map.ts`, `history.ts` and `settings.ts` mount the real
+  feature panels rather than growing a second thinner copy of a date picker or a chunk editor that
+  would quietly start disagreeing with the first about what a restore does. Small is the design
+  there, not an unfinished screen.
 
 ### A.3 How to build and run
 
@@ -118,39 +160,58 @@ per-task discretion:
 
 ### A.6 What is verified, and what is not
 
-Be precise about this distinction — it's the one most likely to be misread by whoever picks this up
-next.
+**Last updated: 2026-08-14, at commit `5c4a8df`.** Be precise about this distinction — it is the one
+most likely to be misread by whoever picks this up next, and this section has been wrong before: it
+previously claimed no release of `app/` had ever been published, long after ninety-three had.
 
-**Verified (legacy surfaces only):** the legacy Java proxy, web console, WPF desktop manager, scraper,
-and BlueMap pipeline have real prior verification evidence, recorded in Part B of this document. That
-evidence is about those surfaces as they exist today, unmodified by this unification effort so far.
+**Verified:**
 
-**Not verified (unified app):**
+- **A published, downloadable release exists.** `app-v1.0.93` is non-draft, targets `5c4a8df`
+  exactly, and every asset answers a real ranged request (HTTP 206): the Squirrel setup executable
+  (164.9 MB), `world-downloader.jar` (14.1 MB), `RELEASES`, and the full `.nupkg`. The Java engine
+  jar ships beside the app rather than only as a separate download.
+- **The application compiles and packages.** `npm run typecheck` and `npm run build` both exit 0
+  (482 modules). The release workflow is green for this commit.
+- **`build.bat`, `build-installer.bat` and `download-dependencies.bat` all exist at the repository
+  root**, and the dependency fetcher pins every binary it installs to an exact version and a
+  recorded SHA-256 in `scripts/dependency-manifest.json`.
+- **The world vault is proven against the real `git` binary**, not around it — `tests/integration/
+  world-vault-git.test.ts` drives real repositories through real subprocesses.
 
-- No release of `app/` has ever been published. There is no installer, signed or unsigned, that a user
-  could download today.
-- No `npm install` / `npm run build` / `npm run dist` cycle for `app/` has been run and confirmed to
-  succeed as part of producing this handoff. The scripts exist in `app/package.json`; whether they
-  currently succeed on a clean checkout has not been confirmed here.
-- No feature in `FEATURE_INVENTORY.md` has a passing test suite, a localization pass, an accessibility
-  pass, or a real built-artifact capture yet — every row in that inventory is currently marked ⬜.
-- `build.bat` and `build-installer.bat` do not exist, so the touchless-build path this project requires
-  has never been exercised end-to-end.
-- The single consolidated release workflow does not exist, so no release-workflow evidence (timing,
-  line count, dim-sum asset) has ever been produced for the unified app.
+**Not verified, stated exactly:**
 
-Anyone continuing this work should run `cd app && npm install && npm run typecheck && npm run build`
-as the first concrete verification step, before assuming any of the above is in a working state, and
-should update this section with the real result once that's done.
+- **The new interface has never been looked at.** The navigation-rail shell (`app/src/renderer/
+  shell/`, nine destinations, ~9,300 lines) was written, typechecked and built, but no screenshot
+  was taken and nobody has seen a pixel of it running. *Implemented and compiled is not verified*,
+  and the screenshot matrix for it is the single largest outstanding item in this document.
+- **The bundled runtimes are not actually in the released installer.** `predist` fetches a Java
+  runtime and a portable Git into `app/resources/runtime/`, but `.github/workflows/release.yml`
+  never runs `npm run dist` — it calls `npm run build` and then `npx electron-builder` directly,
+  so `predist` never fires. Proof: `app-v1.0.91`'s setup was 164,772,864 bytes and `app-v1.0.93`'s
+  is 164,862,464 bytes, about 90 KB apart, when a JRE plus MinGit is roughly 88 MB. The resolution
+  code is correct; the pipeline never feeds it. A fix is in flight.
+- **`FEATURE_INVENTORY.md` has not been re-checked against the shell.** Rows describing where a
+  feature lives in the interface may now name the retired tab strip rather than a destination.
+- No accessibility pass, localization pass, or built-artifact capture has been run against the
+  shell.
 
 ### A.7 What remains
 
-Everything in `ROADMAP.md` Milestones 1 through 5: wiring the design system into the app's live theme,
-building out the ~90-row feature contract for both the app and the site (category 13, "the product
-itself," is where the legacy surfaces' actual functionality gets rebuilt natively — it is the
-functional core of the migration, not a finishing touch), standing up `site/` from nothing, adding
-`build.bat`/`build-installer.bat`, consolidating the six workflows into one, and only then retiring each
-legacy surface once the unified app has verified parity with it.
+In rough order of what would most change someone's confidence in this project:
+
+1. **Look at it.** Capture the nine destinations, both themes, the narrow layout and the empty and
+   failed states from the real built artifact. Everything below is cheaper to judge once this exists.
+2. **Make the installer carry what the app resolves.** Wire the acquisition step into the release
+   workflow and assert against the *packaged output* that `resources/runtime/jre`,
+   `resources/runtime/git` and `resources/scraper` are present. A green packaging log proves a file
+   was copied, never that anything is inside the result — that mistake has now been made twice in
+   this repository, at two different layers.
+3. **Re-check `FEATURE_INVENTORY.md` against the shell**, row by row, and correct any that describe
+   the old chrome.
+4. **Give the shell tests.** It shipped with none by explicit instruction, and its riskiest seam is
+   the one that already failed once: a control that mounts something into a container nobody can see.
+5. Retire each legacy surface only once the unified app has verified parity with it, per
+   `ROADMAP.md` Milestone 5.
 
 ---
 
