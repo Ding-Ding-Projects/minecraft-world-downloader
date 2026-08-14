@@ -184,16 +184,26 @@ previously claimed no release of `app/` had ever been published, long after nine
   shell/`, nine destinations, ~9,300 lines) was written, typechecked and built, but no screenshot
   was taken and nobody has seen a pixel of it running. *Implemented and compiled is not verified*,
   and the screenshot matrix for it is the single largest outstanding item in this document.
-- **The bundled runtimes reached no released installer up to and including `app-v1.0.93`.** `predist`
-  fetches a Java runtime and a portable Git, but the release workflow ran `npm run build` and
-  `electron-builder` directly, and an npm pre-script only fires for the script it is named after —
-  so `predist` never ran in CI. Proof: `app-v1.0.91`'s setup was 164,772,864 bytes and
-  `app-v1.0.93`'s is 164,862,464, about 90 KB apart, when a JRE plus MinGit is roughly 88 MB.
-  **Fixed in `ebda6fd`**, which also asserts against the *packaged output* that all five expected
-  paths exist before publishing — `extraResources` silently no-ops when its `from` directory is
-  absent, which is exactly how an installer carrying nothing passed a green packaging log.
-  **Still to confirm: that the first release after `ebda6fd` is roughly 88 MB larger.** Until that
-  number is read off a real artifact, this is a fix that has not yet been observed working.
+- ~~The bundled runtimes reached no released installer.~~ **Resolved and observed working in
+  `app-v1.0.98`.** It took three fixes at three layers, each found by the check added for the last:
+  the app could not see the bundle (`resourcesPath` was not on the bridge), CI never ran the step
+  that fetches it (`predist` only fires for the script it is named after), and the packer silently
+  dropped the scraper's dependency tree (`app-builder-lib`'s `createFilter()` returns false for any
+  entry's top-level `node_modules`, before any user filter is consulted).
+
+  **The measurement, which is the only thing that actually proves it:**
+
+  | | Setup executable |
+  | --- | --- |
+  | `app-v1.0.94` — unbundled | 164,862,464 bytes |
+  | `app-v1.0.98` — bundled | **279,053,312 bytes** |
+  | growth | **+108.9 MiB** |
+
+  `app-v1.0.98` is non-draft, targets `5a05554` exactly, and every asset answers a ranged request.
+  The installer now carries the Java engine, a Temurin JRE, MinGit, the scraper and its 6,584-file
+  dependency tree. **Roughly 371 MB of the uncompressed scraper payload is `minecraft-data`** —
+  per-version protocol tables the bot genuinely needs, with no `devDependencies` to prune. If that
+  trade is ever revisited, that package is the thing to split out, not the bundling as a whole.
 - **`FEATURE_INVENTORY.md` has not been re-checked against the shell.** Rows describing where a
   feature lives in the interface may now name the retired tab strip rather than a destination.
 - No accessibility pass, localization pass, or built-artifact capture has been run against the
@@ -205,12 +215,12 @@ In rough order of what would most change someone's confidence in this project:
 
 1. **Look at it.** Capture the nine destinations, both themes, the narrow layout and the empty and
    failed states from the real built artifact. Everything below is cheaper to judge once this exists.
-2. **Confirm the installer now carries what the app resolves.** `ebda6fd` wired the acquisition step
-   in and added the packaged-output assertion; what has *not* happened is anyone reading the size of
-   a release built after it. Roughly 88 MB larger is the cheapest possible proof. A green packaging
-   log proves a file was copied, never that anything is inside the result — that mistake has now
-   been made twice in this repository, at two different layers, so do not accept a third green log
-   as evidence.
+2. ~~Confirm the installer carries what the app resolves.~~ **Done — `app-v1.0.98`, +108.9 MiB,
+   measured.** What remains is one step further out: nobody has *installed* it and watched the app
+   resolve a bundled tool and report `bundled` as its origin. The size proves the bytes are in the
+   package; it does not prove the running application finds them. That is one install away and
+   worth doing, because this exact gap — shipped correctly, resolved never — is what started the
+   whole chain.
 3. **Re-check `FEATURE_INVENTORY.md` against the shell**, row by row, and correct any that describe
    the old chrome.
 4. **Give the shell tests.** It shipped with none by explicit instruction, and its riskiest seam is
