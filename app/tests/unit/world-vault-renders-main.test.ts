@@ -11,7 +11,7 @@ import { mkdtemp, mkdir, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { REGION_HEADER_BYTES } from '../../src/renderer/features/world-vault-renders/anvil';
+import { REGION_HEADER_BYTES } from '../../src/shared/anvil';
 import { diffWorldDirectories, directoryExists, readRegionHeaderFromDisk } from '../../src/main/features/world-vault-renders';
 
 function headerBuffer(entries: Array<{ index: number; sectorOffset: number; sectorCount: number; timestamp: number }>): Buffer {

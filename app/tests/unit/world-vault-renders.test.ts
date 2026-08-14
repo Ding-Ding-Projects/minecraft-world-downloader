@@ -37,7 +37,7 @@ import {
   diffRegionHeaders,
   parseRegionHeader,
   regionFileCoords
-} from '../../src/renderer/features/world-vault-renders/anvil';
+} from '../../src/shared/anvil';
 import { newRenderRecord, type RenderRecord } from '../../src/renderer/features/world-vault-renders/types';
 import { RenderQueue, type QueueEvents } from '../../src/renderer/features/world-vault-renders/queue';
 import type { VaultCommit } from '../../src/renderer/features/world-vault-renders/vaultLink';

@@ -27,7 +27,7 @@
  */
 
 import type { Result, StudioApi } from '../../../shared/api';
-import { DIMENSION_REGION_PATHS } from './anvil';
+import { DIMENSION_REGION_PATHS } from '../../../shared/anvil';
 
 function joinPath(base: string, ...segments: string[]): string {
   const sep = base.includes('\\') && !base.startsWith('/') ? '\\' : '/';

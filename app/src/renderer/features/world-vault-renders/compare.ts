@@ -16,7 +16,7 @@
  */
 
 import type { StudioApi } from '../../../shared/api';
-import { DIMENSION_REGION_PATHS, diffRegionHeaders, regionFileCoords } from './anvil';
+import { DIMENSION_REGION_PATHS, diffRegionHeaders, regionFileCoords } from '../../../shared/anvil';
 import { isErrorLine, parseListeningLine, stripLogPrefix } from './logParsing';
 import { pickServePort, serveArguments, writeServePort } from './renderConfig';
 import { rendererLauncher } from './probe';

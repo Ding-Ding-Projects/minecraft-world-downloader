@@ -15,7 +15,7 @@
  */
 
 import type { StudioApi } from '../../../shared/api';
-import { REGION_HEADER_BYTES, parseRegionHeader, type RegionHeader } from './anvil';
+import { REGION_HEADER_BYTES, parseRegionHeader, type RegionHeader } from '../../../shared/anvil';
 
 /**
  * A generous ceiling on a single region file. Vanilla region files are

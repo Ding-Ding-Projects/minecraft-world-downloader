@@ -53,7 +53,7 @@ import {
   parseRegionHeader,
   regionFileCoords,
   type RegionHeader
-} from '../../renderer/features/world-vault-renders/anvil';
+} from '../../shared/anvil';
 
 export type MainResult<T> = { ok: true; value: T } | { ok: false; error: string };
 
