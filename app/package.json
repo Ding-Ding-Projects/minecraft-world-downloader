@@ -13,10 +13,11 @@
   "scripts": {
     "ensure-electron": "node scripts/ensure-electron-binary.mjs",
     "fetch-dependencies": "node scripts/fetch-dependencies.mjs",
+    "check-scraper-bundle": "node scripts/check-scraper-bundle.mjs",
     "predev": "node scripts/ensure-electron-binary.mjs",
     "prestart": "node scripts/ensure-electron-binary.mjs",
-    "predist": "node scripts/ensure-electron-binary.mjs && node scripts/fetch-dependencies.mjs",
-    "predist:dir": "node scripts/ensure-electron-binary.mjs && node scripts/fetch-dependencies.mjs",
+    "predist": "node scripts/ensure-electron-binary.mjs && node scripts/fetch-dependencies.mjs && node scripts/check-scraper-bundle.mjs",
+    "predist:dir": "node scripts/ensure-electron-binary.mjs && node scripts/fetch-dependencies.mjs && node scripts/check-scraper-bundle.mjs",
     "dev": "electron-vite dev",
     "build": "electron-vite build",
     "start": "electron-vite preview",

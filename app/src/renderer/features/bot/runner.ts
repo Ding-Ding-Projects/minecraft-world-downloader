@@ -6,6 +6,16 @@
  * push channel delivers that process's genuine output, and the state reported to
  * the surface is the state the process is actually in. A run that could not
  * start says why, in the words the operating system used.
+ *
+ * "node" here is never a bare hope that a system Node happens to be on PATH.
+ * `start()` resolves it through `ctx.studio.bundled.resolve('node')` first,
+ * which this installation's own embedded Electron runtime always answers —
+ * see `main/services/node-runtime.ts` — and only falls back to a system
+ * `node` when that is somehow unusable. Likewise the scraper directory itself
+ * falls back to the copy of `scraper/` this installation bundles
+ * (`electron-builder.yml`'s `extraResources`) when neither this profile nor
+ * the feature-wide setting names one, so a machine that has configured
+ * nothing still has a real place to run from.
  */
 
 import type { AppContext } from '../../core/registry';
@@ -67,6 +77,17 @@ export interface StartOutcome {
   reason: string;
 }
 
+/**
+ * The containing directory of an absolute path, stripping its final segment.
+ * Used only to turn the bundled `<resources>/scraper/scrape.js` file path
+ * `directoryFor` resolves through `bundled.resolve('scraperScript')` back
+ * into the directory the scraper process needs as its `cwd`.
+ */
+function parentDirectory(path: string): string {
+  const cut = Math.max(path.lastIndexOf('/'), path.lastIndexOf('\\'));
+  return cut > 0 ? path.slice(0, cut) : path;
+}
+
 type Listener = () => void;
 
 /**
@@ -125,11 +146,25 @@ export class BotRunner {
   /* Locating the scraper                                             */
   /* ================================================================ */
 
-  /** The directory this profile would run from, before any check. */
-  directoryFor(profile: BotProfile): string {
+  /**
+   * The directory this profile would run from, before any check: the
+   * profile's own setting first, then the feature-wide setting, then the
+   * copy of the scraper project this installation bundles at
+   * `<resources>/scraper` (`electron-builder.yml`'s `extraResources`,
+   * populated by `scripts/fetch-dependencies.mjs`'s sibling packaging step
+   * before the build even runs). Either explicit setting still wins the
+   * moment one is set; the bundled copy is only ever the last resort for a
+   * machine that has configured nothing.
+   */
+  async directoryFor(profile: BotProfile): Promise<string> {
     const own = profile.scraperDirectory.trim();
     if (own.length > 0) return own;
-    return this.ctx.settings.get<string>(SCRAPER_DIR_ID, '').trim();
+    const configured = this.ctx.settings.get<string>(SCRAPER_DIR_ID, '').trim();
+    if (configured.length > 0) return configured;
+
+    const bundled = await this.ctx.studio.bundled.resolve('scraperScript');
+    if (bundled.ok && bundled.value) return parentDirectory(bundled.value.path);
+    return '';
   }
 
   /**
@@ -137,14 +172,18 @@ export class BotRunner {
    *
    * A directory that merely exists is not enough: the whole run depends on that
    * one file, and reporting "started" for a spawn that will immediately fail
-   * with a module-not-found error helps nobody.
+   * with a module-not-found error helps nobody. Also carries the resolved
+   * directory back, so `start()` never has to resolve it a second time.
    */
-  async locateScript(profile: BotProfile): Promise<{ ok: boolean; path: string; reason: string }> {
-    const directory = this.directoryFor(profile);
+  async locateScript(
+    profile: BotProfile
+  ): Promise<{ ok: boolean; path: string; directory: string; reason: string }> {
+    const directory = await this.directoryFor(profile);
     if (directory.length === 0) {
       return {
         ok: false,
         path: '',
+        directory: '',
         reason:
           'No scraper directory is set. Choose the folder that contains scrape.js, either on this profile or in the feature settings.'
       };
@@ -154,16 +193,17 @@ export class BotRunner {
     const scriptPath = `${trimmed}${separator}scrape.js`;
     const stat = await this.ctx.studio.fs.stat(scriptPath);
     if (!stat.ok) {
-      return { ok: false, path: scriptPath, reason: `The scraper script could not be read: ${stat.error}` };
+      return { ok: false, path: scriptPath, directory: trimmed, reason: `The scraper script could not be read: ${stat.error}` };
     }
     if (!stat.value.exists || !stat.value.isFile) {
       return {
         ok: false,
         path: scriptPath,
+        directory: trimmed,
         reason: `There is no scrape.js in ${trimmed}. Point the setting at the scraper folder of the world downloader checkout.`
       };
     }
-    return { ok: true, path: scriptPath, reason: '' };
+    return { ok: true, path: scriptPath, directory: trimmed, reason: '' };
   }
 
   /* ================================================================ */
@@ -222,23 +262,34 @@ export class BotRunner {
     const written = await this.ctx.studio.fs.writeText(configPath, `${JSON.stringify(config, null, 2)}\n`);
     if (!written.ok) return this.fail(`The configuration file could not be written: ${written.error}`);
 
+    const node = await this.ctx.studio.bundled.resolve('node');
+    if (!node.ok || !node.value) {
+      await this.discardConfig(configPath);
+      const detail = node.ok
+        ? "neither this installation's own runtime nor a system node on PATH answered"
+        : node.error;
+      return this.fail(`No Node runtime could be found to run the scraper: ${detail}.`);
+    }
+
     this.state = { ...this.state, phase: 'starting', configPath };
     this.append('runner', `Configuration written to ${configPath}`);
-    this.append('runner', `Running node ${located.path} --config ${configPath}`);
+    this.append(
+      'runner',
+      `Running ${node.value.origin === 'bundled' ? "this installation's own Node runtime" : node.value.path} ${located.path} --config ${configPath}`
+    );
     this.emit();
 
     const spawned = await this.ctx.studio.process.spawn({
-      command: 'node',
+      command: node.value.path,
       args: [located.path, '--config', configPath],
-      cwd: this.directoryFor(profile),
+      cwd: located.directory,
+      env: node.value.env,
       maxOutputBytes: 8 * 1024 * 1024
     });
 
     if (!spawned.ok) {
       await this.discardConfig(configPath);
-      return this.fail(
-        `The scraper could not be started: ${spawned.error}. Node must be installed and on the system path for this to work.`
-      );
+      return this.fail(`The scraper could not be started: ${spawned.error}.`);
     }
 
     this.state = {
@@ -432,8 +483,17 @@ export class BotRunner {
     if (this.state.processId) return;
     const listed = await this.ctx.studio.process.list();
     if (!listed.ok) return;
+    // A run started before this session may have been spawned either as the
+    // bare `node` PATH fallback or as this installation's own embedded
+    // runtime (whose `command` is the Electron binary's own absolute path,
+    // never the literal string "node") -- both are recognised here.
+    const node = await this.ctx.studio.bundled.resolve('node');
+    const embeddedCommand = node.ok && node.value ? node.value.path : '';
     const running = listed.value.find(
-      (summary) => summary.running && summary.command === 'node' && summary.args.some((arg) => arg.endsWith('scrape.js'))
+      (summary) =>
+        summary.running &&
+        (summary.command === 'node' || (embeddedCommand.length > 0 && summary.command === embeddedCommand)) &&
+        summary.args.some((arg) => arg.endsWith('scrape.js'))
     );
     if (!running) return;
     this.compiled = compileRules(this.store.listRules());

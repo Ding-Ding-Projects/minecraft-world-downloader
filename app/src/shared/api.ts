@@ -441,14 +441,35 @@ export interface EditorCandidate {
  * trimmed runtimes a release build can additionally bundle under
  * `<resources>/runtime/<name>/...`; a build that omits one simply falls back
  * to PATH, exactly as `resolve` below does.
+ *
+ * `node` is different from the four above: there is no file to look for,
+ * because Electron already embeds a complete Node runtime inside its own
+ * executable. Resolving it hands back `process.execPath` (origin `bundled`)
+ * together with the one environment variable — `ELECTRON_RUN_AS_NODE` — that
+ * turns that same executable into plain `node` for the spawned child only.
+ * Only when that is somehow unusable does it fall back to a system `node` on
+ * PATH, exactly like the other tools.
+ *
+ * `scraperScript` is the bundled copy of the standalone `scraper/scrape.js`
+ * project (`electron-builder.yml`'s `extraResources`, packaged alongside the
+ * engine jar) at `<resources>/scraper/scrape.js` — a plain file lookup like
+ * `engineJar`, with no PATH fallback, since a missing bundled copy has no
+ * meaningful "on PATH" equivalent.
  */
-export type BundledTool = 'java' | 'git' | 'gh' | 'engineJar';
+export type BundledTool = 'java' | 'git' | 'gh' | 'engineJar' | 'node' | 'scraperScript';
 
 export interface BundledToolResolution {
   /** Absolute path to the resolved executable or file. */
   path: string;
   /** Whether the path came from inside the application or from PATH. */
   origin: 'bundled' | 'path';
+  /**
+   * Extra environment variables the child process needs, merged over
+   * `process.env` by `process.spawn`. Empty for every tool except `node`
+   * resolved to the embedded Electron runtime, which needs
+   * `ELECTRON_RUN_AS_NODE=1` set to behave as a plain interpreter.
+   */
+  env?: Record<string, string>;
 }
 
 /* ------------------------------------------------------------------ */

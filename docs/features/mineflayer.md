@@ -83,29 +83,36 @@ wrong, because every path tried — right down to the nested error a failed
 `require` produced — is recorded and, on failure, shown verbatim under **Every
 path the runtime searched** on the *Bots* tab.
 
-**Known packaging gap.** This is honestly the one part of this feature that a
-development checkout gets for free and a packaged installer does not yet.
-`vendor/mineflayer` sits at the repository root, outside every path this
-feature owns, and:
+**Packaging, and the gap that used to be here.** `mineflayer` is also declared
+as a genuine production dependency of `app/package.json` (not only vendored at
+the repository root), so `npm install` resolves its full real dependency tree
+— `minecraft-data`, `minecraft-protocol`, `vec3`, every `prismarine-*` package,
+and so on — into `app/node_modules/mineflayer`, and
+`app/electron-builder.yml`'s `files:` entry for `node_modules/**/*` ships that
+whole tree inside every packaged installer. That gives `resolveLibrary`'s walk
+in `bot-host.js` a real `app/node_modules/mineflayer` to find (already one of
+its search-list cases) without needing `vendor/mineflayer` at all —
+`vendor/mineflayer` stays in the repository purely as the reference source
+these files were written against, per the module doc comment above, and
+carries no packaging requirement of its own. The **Every path the runtime
+searched** detail on the *Bots* tab is still the honest source of truth for
+whether a given packaged build's search actually succeeded.
 
-1. It has no `node_modules` of its own — the library's real dependencies
-   (`minecraft-data`, `minecraft-protocol`, `vec3`, every `prismarine-*`
-   package, and so on) need installing there, or hoisting into `app/`'s own
-   `node_modules`, before `require('mineflayer')` can actually resolve them.
-2. Electron Builder's packaging configuration (`app/electron-builder.yml`) has
-   no `extraResources` entry copying `vendor/mineflayer` into an installed
-   build, and this feature's owned paths do not include that file.
-3. The renderer has no reliable way to learn the repository root's absolute
-   path from `ctx.studio.info` alone — `AppInfo` exposes the application data
-   directory, not the source or resources tree, so `runtime.ts`'s relative
-   guesses are exactly that: guesses, good enough for a development checkout
-   where the child process's working directory sits one level below the
-   repository root, not a substitute for a real resolved path.
+What *was* missing until recently was simpler and easy to miss for exactly
+that reason: `node` itself. `runtime.ts` now resolves its interpreter through
+`ctx.studio.bundled.resolve('node')`, which this installation's own embedded
+Electron runtime answers first — see `main/services/node-runtime.ts` — falling
+back to a system `node` on PATH only when that is somehow unusable. A packaged
+installer therefore runs this feature's host process on a machine that has
+never had Node.js installed at all, exactly like every other bundled
+dependency in this application.
 
-None of this is silent: a build where the library cannot be found still starts
-the host process, which stays alive, reports the fault, and answers every
-command with a clear `LIBRARY_NOT_FOUND` error rather than crashing or
-pretending to be connected.
+None of this is silent: a build where the library genuinely cannot be found
+still starts the host process, which stays alive, reports the fault, and
+answers every command with a clear `LIBRARY_NOT_FOUND` error rather than
+crashing or pretending to be connected — and a build where no Node interpreter
+of any kind could be resolved reports that just as plainly, on the *Bots* tab,
+rather than ever handing back a browser link.
 
 ---
 

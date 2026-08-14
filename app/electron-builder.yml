@@ -87,6 +87,33 @@ extraResources:
   # `node scripts/fetch-dependencies.mjs` in `app/` to populate it.
   - from: resources/runtime
     to: runtime
+  # The standalone Scraper bot project (`../scraper`, one directory above
+  # this file -- its own package.json, its own node_modules, scrape.js) so
+  # the *Scraper bot* tab works on a machine that has never had Node.js
+  # installed. The application spawns this with a Node interpreter it
+  # resolves itself -- this installation's own embedded Electron runtime
+  # first, falling back to a system `node` on PATH only when that is somehow
+  # unusable (`src/main/services/node-runtime.ts`) -- so the only thing that
+  # actually needs to be IN the installer is the project's own files and its
+  # own installed dependencies.
+  #
+  # electron-builder fails loudly on a missing `from` directory exactly as
+  # it does for `runtime` above, but that alone is not enough here: it would
+  # still happily copy a `scraper/` whose own `npm install` was never run,
+  # producing an installer whose bot starts and immediately fails with
+  # "Cannot find module 'mineflayer'". `scripts/check-scraper-bundle.mjs`
+  # (wired as part of `predist` / `predist:dir` in package.json, run BEFORE
+  # this file is ever read) is what actually catches that: it fails the
+  # build loudly, naming the exact missing package, rather than letting a
+  # non-functional bot ship silently.
+  #
+  # Packaged location: resources/scraper/scrape.js, matching the fixed path
+  # contract `src/main/services/bundled.ts`'s `scraperScript` bundled tool
+  # resolves against, and the directory `renderer/features/bot/runner.ts`'s
+  # `directoryFor` falls back to (via that same channel) when neither a
+  # profile nor the feature-wide setting names a scraper directory.
+  - from: ../scraper
+    to: scraper
 
 electronLanguages:
   - en-US

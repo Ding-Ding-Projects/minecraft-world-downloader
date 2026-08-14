@@ -14,10 +14,14 @@
     is committed beside this script so a human can audit exactly what a build
     puts on their machine without running anything.
 
-    This script never touches app/ itself. Once a usable Node.js runtime is
-    resolved, it delegates the separate concern of app/'s own BUNDLED runtime
-    dependencies (a Java runtime, a portable Git, the GitHub CLI -- the ones
-    that ship INSIDE the packaged installer for end users) to
+    Once a usable Node.js runtime is resolved, this script also runs
+    `npm install` inside scraper/ -- the standalone Scraper bot project one
+    directory above app/, which the packaged installer now bundles alongside
+    the application (app/electron-builder.yml's extraResources) so the
+    Scraper bot tab works without a system Node install. It otherwise never
+    touches app/ itself: it delegates the separate concern of app/'s own
+    BUNDLED runtime dependencies (a Java runtime, a portable Git, the GitHub
+    CLI -- the ones that ship INSIDE the packaged installer for end users) to
     app/scripts/fetch-dependencies.mjs, if and when that file exists. Installing
     app/'s own npm package dependencies (app/node_modules) is build.bat's job,
     not this script's -- see the README section on the two dependency fetchers.
@@ -72,7 +76,7 @@ $AppFetchScript = Join-Path $RepoRoot 'app\scripts\fetch-dependencies.mjs'
 
 $script:Phases = @()
 $script:PhaseIndex = 0
-$script:PhaseTotal = 5
+$script:PhaseTotal = 6
 $script:StartedAt = Get-Date
 $script:NodeExe = $null
 $script:JavaHome = $null
@@ -783,6 +787,61 @@ function Resolve-MavenProjectDependencies {
 }
 
 # --------------------------------------------------------------------------- #
+# scraper/'s own Node dependencies (scraper/node_modules)
+#
+# scraper/ is a separate standalone Node project one directory above app/ --
+# its own package.json, its own node_modules -- that the packaged installer
+# now bundles (app/electron-builder.yml's extraResources) so the *Scraper
+# bot* tab works on a machine that has never had Node.js installed at all.
+# Resolving its dependencies here, once a usable Node.js is on hand, is what
+# actually makes that packaging step have something real to copy: without
+# this, electron-builder would still happily package a scraper/ whose own
+# `npm install` was never run, and app/scripts/check-scraper-bundle.mjs (run
+# just before packaging) would then fail the build loudly rather than let
+# that ship. Installing app/'s OWN npm dependencies (app/node_modules) stays
+# build.bat's job, exactly as the module doc above says.
+# --------------------------------------------------------------------------- #
+
+function Resolve-ScraperDependencies {
+    $phase = Start-Phase "scraper/'s Node dependencies (npm install)"
+    $scraperDir = Join-Path $RepoRoot 'scraper'
+    $scraperPackageJson = Join-Path $scraperDir 'package.json'
+    if (-not (Test-Path -LiteralPath $scraperPackageJson)) {
+        Write-Info 'scraper/package.json does not exist in this checkout yet. Nothing to install.'
+        Complete-Phase $phase 'skipped'
+        return
+    }
+
+    # Every Node.js Windows distribution -- the official installer, winget's
+    # package and the pinned portable zip this script itself falls back to --
+    # ships npm.cmd in the same directory as node.exe, so that is tried first.
+    # A PATH lookup is the fallback for the one case that assumption does not
+    # cover: an existing Node install this script found by name alone.
+    $npmCmd = Join-Path (Split-Path -Parent $script:NodeExe) 'npm.cmd'
+    if (-not (Test-Path -LiteralPath $npmCmd)) {
+        $found = Get-Command npm.cmd -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
+        if ($found) { $npmCmd = $found.Source }
+    }
+    if (-not (Test-Path -LiteralPath $npmCmd)) {
+        Stop-WithFailure -Dependency "scraper/'s Node dependencies" `
+            -Constraint 'npm (ships alongside node.exe in every Node.js Windows distribution)' `
+            -Source (Split-Path -Parent $script:NodeExe) `
+            -Problem "no npm.cmd was found next to $script:NodeExe or on PATH"
+    }
+
+    Write-Step "npm install  (in scraper/, using $npmCmd)"
+    $code = Invoke-Stream -File $npmCmd -Arguments @('install') -WorkingDirectory $scraperDir
+    if ($code -ne 0) {
+        Stop-WithFailure -Dependency "scraper/'s Node dependencies" `
+            -Constraint 'as declared by scraper/package.json' `
+            -Source 'the npm registry' `
+            -Problem ("npm install exited {0} in scraper/; its output is immediately above this message" -f $code)
+    }
+    Write-Added 'scraper/node_modules (mineflayer, mineflayer-pathfinder, prismarine-auth)'
+    Complete-Phase $phase
+}
+
+# --------------------------------------------------------------------------- #
 # Delegate to app/'s own bundled-runtime fetcher, if it exists yet
 # --------------------------------------------------------------------------- #
 
@@ -831,6 +890,7 @@ Resolve-NodeToolchain -Manifest $manifest
 Resolve-JdkToolchain -Manifest $manifest
 Resolve-MavenToolchain -Manifest $manifest
 Resolve-MavenProjectDependencies
+Resolve-ScraperDependencies
 Invoke-AppFetchDependencies
 
 Write-Line ''

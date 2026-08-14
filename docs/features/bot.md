@@ -62,24 +62,32 @@ a profile as its own bot inside one process, so a second concurrent process woul
 the visited-chunk cache file. Starting a run:
 
 1. Validates the profile again (defence in depth against a stale UI state).
-2. Locates `scrape.js` — either the profile's own scraper-folder override or the feature's
-   `bot.scraperDirectory` setting — and confirms the file genuinely exists before spawning anything,
-   rather than reporting "started" for a spawn that will immediately fail with a module-not-found
-   error.
+2. Locates `scrape.js` (`directoryFor`/`locateScript` in `runner.ts`) — the profile's own
+   scraper-folder override first, then the feature's `bot.scraperDirectory` setting, then the copy of
+   the `scraper/` project this installation bundles at `<resources>/scraper` (`electron-builder.yml`'s
+   `extraResources`, resolved through `ctx.studio.bundled.resolve('scraperScript')`) — and confirms the
+   file genuinely exists before spawning anything, rather than reporting "started" for a spawn that
+   will immediately fail with a module-not-found error. Either explicit setting still wins the moment
+   one is set; the bundled copy is only ever the last resort for a machine that has configured nothing.
 3. Writes a generated configuration file into the application's own data directory
    (`<userData>/bot-runs/<profileId>.config.json`), including the AuthMe password read from the
    credential vault if automatic login is on.
-4. Spawns `node <scrape.js path> --config <file>` through `studio.process.spawn` — `node` is on the
-   privileged bridge's command allow-list — with the scraper's own folder as the working directory.
+4. Resolves a Node interpreter through `ctx.studio.bundled.resolve('node')` — this installation's own
+   embedded Electron runtime first (`main/services/node-runtime.ts`, `process.execPath` spawned with
+   `ELECTRON_RUN_AS_NODE=1`), a system `node` on PATH only as a fallback — and spawns
+   `<that> <scrape.js path> --config <file>` through `studio.process.spawn` with the scraper's own
+   folder as the working directory. `node` also stays on the privileged bridge's bare command
+   allow-list, so a manually-configured system `node` keeps working exactly as before.
 5. Streams every `stdout`/`stderr` chunk from the `process:event` push channel, splits it into whole
    lines, classifies each line's severity (`capture.ts`'s `severityOf`), appends it to the run log, and
    — when `bot.captureFromRun` is on — runs it through the compiled capture rules.
 6. On exit, records the outcome in local history and **overwrites** the generated configuration file
    with `{}` so the password it may have carried does not sit on disk between runs.
 
-If the tab is closed mid-run and reopened, `adopt()` looks for an already-running `node …scrape.js`
-process through `studio.process.list()` and reattaches to it, replaying its retained stdout, rather
-than losing track of a run that is still going.
+If the tab is closed mid-run and reopened, `adopt()` looks for an already-running scraper process
+through `studio.process.list()` — matching either the bare `node` command or this installation's own
+resolved embedded-runtime command — and reattaches to it, replaying its retained stdout, rather than
+losing track of a run that is still going.
 
 A Microsoft account's first sign-in prints a `MSA_CODE {...}` line; the runner parses it and the panel
 shows a dedicated device-code panel with a one-click link to the sign-in page. After that one-time
@@ -108,7 +116,7 @@ All settings live in the **Scraper bot** settings section (`bot.settings`, order
 
 | Setting | Id | Default | What it does |
 | --- | --- | --- | --- |
-| Default scraper folder | `bot.scraperDirectory` | *(empty)* | Fallback folder containing `scrape.js` for any profile that does not name its own. |
+| Default scraper folder | `bot.scraperDirectory` | *(empty)* | Fallback folder containing `scrape.js` for any profile that does not name its own. Leaving this empty too falls back to the copy of `scraper/` this installation bundles. |
 | Captured message limit | `bot.messageLimit` | 5000 | Oldest captured messages are dropped first once a run or import would exceed it. |
 | Run log limit | `bot.logLimit` | 2000 | Oldest run-log lines are dropped first past this ceiling. |
 | Follow the newest run log line by default | `bot.followLog` | on | Starting position of the run log's own follow switch. |
@@ -120,12 +128,15 @@ Every profile can additionally override the scraper folder for itself alone.
 
 ## Failure modes
 
-- **No scraper folder set, or `scrape.js` missing from it** — the run refuses to start and names the
-  exact problem (`locateScript` in `runner.ts`) instead of spawning a process that would immediately
-  fail with an opaque module error.
-- **Node is not installed / not on the system path** — `studio.process.spawn` reports the failure and
-  the run controls surface it as "The scraper could not be started", naming Node explicitly as the
-  requirement.
+- **No scraper folder set (and no bundled copy in this build either), or `scrape.js` missing from the
+  resolved folder** — the run refuses to start and names the exact problem (`locateScript` in
+  `runner.ts`) instead of spawning a process that would immediately fail with an opaque module error.
+- **No Node runtime could be resolved at all** — this installation's own embedded Electron runtime
+  means this practically never happens in a normal packaged build; it is reported honestly as "No Node
+  runtime could be found to run the scraper" if it ever does, rather than ever handing back a browser
+  link. A real spawn failure once a runtime *was* resolved (a permissions problem, a corrupted
+  installation) is reported by `studio.process.spawn` and surfaced as "The scraper could not be
+  started", verbatim.
 - **Automatic login is on with no password stored** — caught by `validateProfile` before a run is
   attempted, and again defensively by the runner if the credential vault read fails or the secret has
   since been removed.

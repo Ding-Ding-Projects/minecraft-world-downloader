@@ -3,11 +3,15 @@
  *
  * The bot library is Node-only, so it never runs in this process. This file
  * writes `bot-host.js` (imported as a raw string — it is never executed here)
- * into the application's own data directory, launches it with `node` through
- * the privileged, allow-listed `ctx.studio.process` bridge, and speaks the
- * newline-delimited JSON protocol described in `protocol.ts` over its stdin
- * and stdout. There is no other route from this renderer to the bot: no
- * `require`, no eval channel, and no method the host was not built to accept.
+ * into the application's own data directory, launches it through the
+ * privileged, allow-listed `ctx.studio.process` bridge with a Node interpreter
+ * resolved via `ctx.studio.bundled.resolve('node')` — this installation's own
+ * embedded Electron runtime first, a system `node` on PATH only as a
+ * fallback, and never a bare hope that one happens to be installed — and
+ * speaks the newline-delimited JSON protocol described in `protocol.ts` over
+ * its stdin and stdout. There is no other route from this renderer to the
+ * bot: no `require`, no eval channel, and no method the host was not built to
+ * accept.
  *
  * One `BotRuntimeClient` owns exactly one host process for the whole
  * application. The host itself supports up to eight simultaneous bot sessions
@@ -203,9 +207,24 @@ export class BotRuntimeClient {
       `--profiles=${profilesDir}`
     ];
 
+    // "node" is never a bare hope that a system Node happens to be on PATH:
+    // this installation's own embedded Electron runtime resolves first (see
+    // `main/services/node-runtime.ts`), and only falls back to a system
+    // `node` when that is somehow unusable -- so this host process starts on
+    // a machine that has never had Node.js installed.
+    const node = await this.ctx.studio.bundled.resolve('node');
+    if (!node.ok || !node.value) {
+      const fault = node.ok
+        ? "No Node runtime could be found: neither this installation's own runtime nor a system node on PATH answered."
+        : node.error;
+      this.setInfo({ status: 'unavailable', fault, hostPath });
+      throw new Error(fault);
+    }
+
     const spawned = await this.ctx.studio.process.spawn({
-      command: 'node',
+      command: node.value.path,
       args,
+      env: node.value.env,
       maxOutputBytes: 16 * 1024 * 1024
     });
     if (!spawned.ok) {

@@ -128,7 +128,7 @@ export function describeWindow(window: BrowserWindow): WindowState {
 
 const MAX_TEXT_READ = 32 * 1024 * 1024;
 
-const BUNDLED_TOOLS: readonly BundledTool[] = ['java', 'git', 'gh', 'engineJar'];
+const BUNDLED_TOOLS: readonly BundledTool[] = ['java', 'git', 'gh', 'engineJar', 'node', 'scraperScript'];
 
 function isBundledTool(value: unknown): value is BundledTool {
   return typeof value === 'string' && (BUNDLED_TOOLS as readonly string[]).includes(value);

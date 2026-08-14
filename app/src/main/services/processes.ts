@@ -91,9 +91,18 @@ function normalizeCommand(command: string): string {
  * `./bundled.ts`) and that also need to be spawned as a long-running,
  * streamed process from here, rather than run as one short-lived command
  * from the main process directly. `engineJar` is never a spawn command — it
- * is passed as a `-jar` argument to `java` — so it is deliberately absent.
+ * is passed as a `-jar` argument to `java` — so it is deliberately absent;
+ * `scraperScript` likewise is only ever passed as an argument to `node`, not
+ * spawned itself.
+ *
+ * `node` was added alongside the embedded-runtime work: `bundledToolPath`
+ * resolves it to `process.execPath` (the running Electron binary) rather
+ * than a file under `resourcesRoot()`, but the check below re-resolves
+ * through that exact same function either way, so the narrow-door guarantee
+ * ("only a value the main process itself just recomputed can pass") holds
+ * identically for it.
  */
-const BUNDLED_SPAWNABLE_TOOLS: readonly BundledTool[] = ['java', 'git', 'gh'];
+const BUNDLED_SPAWNABLE_TOOLS: readonly BundledTool[] = ['java', 'git', 'gh', 'node'];
 
 /**
  * True only when `command` is byte-for-byte the exact path `./bundled.ts`
@@ -106,7 +115,12 @@ const BUNDLED_SPAWNABLE_TOOLS: readonly BundledTool[] = ['java', 'git', 'gh'];
  * an exact match to what is genuinely sitting inside this installation right
  * now is accepted. A path that used to be valid (a build that shipped a
  * runtime and was later reinstalled without one) stops matching the moment
- * the file is gone, since `bundledToolPath` always re-stats a miss.
+ * the file is gone, since `bundledToolPath` always re-stats a miss for a
+ * file-backed tool. `node` is the one entry with nothing to stat —
+ * `bundledToolPath('node')` always hands back the running process's own
+ * `process.execPath` — so for it this check reduces to "is this genuinely
+ * the Electron binary that is right now running the main process", which is
+ * exactly as narrow a door as a matched file path is for the others.
  */
 function isKnownBundledExecutable(command: string): boolean {
   return BUNDLED_SPAWNABLE_TOOLS.some((tool) => bundledToolPath(tool) === command);
