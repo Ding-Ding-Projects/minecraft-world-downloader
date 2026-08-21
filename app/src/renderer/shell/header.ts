@@ -11,9 +11,15 @@ import { currentProfileSummary, goOrNotify, shell } from './index';
  * The subtitle is live in two independent senses: it re-renders whenever the
  * active screen changes, AND a mounted screen can push a running status into
  * it at any time through `shell.setSubtitle(id, text)` (e.g. "3 profiles on
- * this machine") — that call re-emits `shell`'s own `onChange` for a matching
- * active id, so the `refresh()` below (already subscribed) picks it up
- * without this file needing any bespoke plumbing of its own.
+ * this machine").
+ *
+ * Those are two SEPARATE subscriptions below, and the second one is why. This
+ * file originally had no subtitle subscription at all: `setSubtitle` re-emitted
+ * the navigation channel, so `refresh()` picked a subtitle change up for free.
+ * That shortcut also remounted the screen, so any screen setting its own
+ * subtitle while mounting looped forever and the window never painted. The
+ * plumbing this docstring once boasted of avoiding is what the header owes for
+ * navigation and subtitle changes being genuinely different events.
  */
 
 export function mountHeader(ctx: AppContext): HTMLElement {
@@ -108,6 +114,7 @@ export function mountHeader(ctx: AppContext): HTMLElement {
 
   refresh();
   shell.onChange(refresh);
+  shell.onSubtitleChange(refresh);
   ctx.settings.onChange(() => refreshProfileChip());
   ctx.i18n.onChange(refresh);
 

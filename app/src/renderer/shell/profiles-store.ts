@@ -1,5 +1,5 @@
-import type { AppContext } from '../../core/types';
-import { OPTION_IDS, asNumber, asString, defaultValues, optionById, type ProfileValues } from '../../features/downloader/options';
+import type { AppContext } from '../core/types';
+import { OPTION_IDS, asNumber, asString, defaultValues, optionById, type ProfileValues } from '../features/downloader/options';
 import {
   LAST_PROFILE_SETTING_ID,
   changedOptionIds,
@@ -8,8 +8,8 @@ import {
   readProfiles,
   writeProfiles,
   type DownloadProfile
-} from '../../features/downloader/profiles';
-import { CURRENT_VALUES_SETTING_ID } from '../../features/downloader/state';
+} from '../features/downloader/profiles';
+import { CURRENT_VALUES_SETTING_ID } from '../features/downloader/state';
 
 /**
  * Profile state other screens need: the title bar's brand text, the header's

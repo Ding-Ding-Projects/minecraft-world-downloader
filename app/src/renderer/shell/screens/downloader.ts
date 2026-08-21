@@ -426,7 +426,19 @@ function buildOverviewPanel(deps: OverviewDeps): { root: HTMLElement; refresh():
     const line = !java
       ? ctx.t('downloader.runtime.java.unknown', 'The Java runtime has not been checked yet.')
       : java.state === 'present'
-        ? ctx.t('downloader.runtime.java.present', 'Java is available: {version}', { values: { version: java.versionLine } })
+        ? // Both placeholders, because the registered string for this key carries
+          // both. Passing only `version` left a literal "{origin}" on screen: the
+          // inline fallback here is what a reader of this line sees, but the
+          // catalogue entry is what actually renders, and the two had drifted.
+          ctx.t('downloader.runtime.java.present', 'Java is available: {version} ({origin})', {
+            values: {
+              version: java.versionLine,
+              origin:
+                java.origin === 'bundled'
+                  ? ctx.t('downloader.runtime.java.origin.bundled', 'the runtime bundled with this installation')
+                  : ctx.t('downloader.runtime.java.origin.path', "this machine's own Java, found on PATH")
+            }
+          })
         : java.state === 'missing'
           ? ctx.t('downloader.runtime.java.missing', 'No Java runtime named "{command}" could be started on this machine.', { values: { command: java.command } })
           : ctx.t('downloader.runtime.java.failed', 'The Java runtime answered, but the check did not succeed: {reason}', { values: { reason: java.error ?? '' } });

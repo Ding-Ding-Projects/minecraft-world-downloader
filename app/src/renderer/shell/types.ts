@@ -35,6 +35,11 @@ export interface ShellApi {
   params(): Record<string, string>;
   current(): string;
   onChange(listener: (id: string) => void): () => void;
+  /**
+   * Subscribes to live subtitle changes. Separate from `onChange` on purpose:
+   * a subtitle is header text and must never remount a screen.
+   */
+  onSubtitleChange(listener: (id: string) => void): () => void;
   /** Live subtitle, e.g. "3 profiles on this machine". Overrides the screen's declared subtitle for the header while it stays current. */
   setSubtitle(id: string, text: string): void;
 }

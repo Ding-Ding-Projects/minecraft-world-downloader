@@ -13,6 +13,21 @@ import {
 import { attachWorldVaultBroadcast, stopAllRunners } from './features/world-vault';
 import { PRODUCT_NAME, applyStablePaths, windowStateFilePath } from './paths';
 import { attachProcessBroadcast, killAll } from './services/processes';
+import { handleSquirrelEvent } from './squirrel';
+
+/**
+ * Squirrel runs the freshly installed executable with a lifecycle argument and
+ * waits for it to do that event's housekeeping and exit. This is asked first --
+ * before the single-instance lock, before any path is pinned, before a window
+ * exists -- because all of that costs time Squirrel is counting, and none of it
+ * applies to a housekeeping run.
+ *
+ * `handleSquirrelEvent()` owns the quit for the events it answers, and quits
+ * only once `Update.exe` has actually finished. Quitting here as well would end
+ * the process while the shortcut was still being created, which is precisely
+ * the failure this handling exists to remove.
+ */
+const IS_SQUIRREL_RUN = handleSquirrelEvent();
 
 const STARTED_AT = Date.now();
 const IS_DEVELOPMENT = !app.isPackaged && process.env.ELECTRON_RENDERER_URL !== undefined;
@@ -23,7 +38,9 @@ if (!gotLock) {
   app.quit();
 }
 
-applyStablePaths();
+if (!IS_SQUIRREL_RUN) {
+  applyStablePaths();
+}
 
 let mainWindow: BrowserWindow | null = null;
 setMainWindowAccessor(() => mainWindow);
@@ -295,7 +312,7 @@ app.on('web-contents-created', (_event, contents) => {
   contents.on('will-attach-webview', (event) => event.preventDefault());
 });
 
-if (gotLock) {
+if (gotLock && !IS_SQUIRREL_RUN) {
   void app.whenReady().then(async () => {
     hardenSession();
     registerAllHandlers({ startedAt: STARTED_AT, isDevelopment: IS_DEVELOPMENT });

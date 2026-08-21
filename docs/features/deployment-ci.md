@@ -285,6 +285,20 @@ existing application and jar.
   at `resources/engine/world-downloader.jar` inside the packaged application, but the renderer code
   that resolves which jar to run (`app/src/renderer/features/downloader/runtime.ts`'s `probeJar`)
   does not yet know to look there. See [Open items](#open-items).
+- **Squirrel runs the installed application to make its own shortcuts, and it will not make them
+  for you.** After extracting the package, Squirrel launches the freshly installed executable with
+  a lifecycle argument (`--squirrel-install`, `--squirrel-updated`, `--squirrel-uninstall`,
+  `--squirrel-obsolete`) and waits roughly fifteen seconds for it to do that event’s housekeeping
+  and exit. Creating the Start Menu and Desktop shortcuts is part of that housekeeping and is the
+  APPLICATION’s job: Squirrel only supplies `Update.exe`, one directory above the versioned
+  application folder. An application that ignores those arguments installs and, from the user’s
+  side, does nothing — setup runs, the executable opens its full user interface instead of making
+  a shortcut, the timeout expires, the process is killed, and the install finishes with no Start
+  Menu entry, no Desktop icon and no window that stayed open. Nothing fails and nothing is logged.
+  This application shipped in exactly that state; `app/src/main/squirrel.ts` now answers those
+  events and is the first thing `app/src/main/index.ts` does. `--squirrel-firstrun` is
+  deliberately NOT one of them: it means the user opened the app through the new shortcut, so it
+  must start normally.
 - **`-DskipTests` is deliberate, not a gap.** See [Checks that run](#checks-that-run-and-checks-that-do-not).
 - **Squirrel.Windows only, x64 only.** No NSIS, no MSI, no ARM64 build. `signAndEditExecutable:
   false` was tried before `signExecutable: false` and rejected: it skips both code signing *and*

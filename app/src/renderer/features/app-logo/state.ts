@@ -241,7 +241,9 @@ const MARK_CLASS = 'app-logo-mark';
 const BRAND_ACTIVE_CLASS = 'app-logo-brand-active';
 
 function brandElement(): HTMLElement | null {
-  return document.querySelector<HTMLElement>('.md-titlebar__brand');
+  // The shell's own title bar first, with the pre-shell chrome's class kept as
+  // a fallback so an older surface still resolves.
+  return document.querySelector<HTMLElement>('.wds-titlebar__brand, .md-titlebar__brand');
 }
 
 /**
@@ -293,18 +295,45 @@ export function applyToChrome(settings: SettingsStore): { applied: boolean; reas
  * a defect nobody would connect back to this feature. The observer is cheap:
  * it only reacts when the brand's own children change and our holder is gone.
  */
-export function watchChrome(settings: SettingsStore): () => void {
-  const brand = brandElement();
-  if (!brand) return () => undefined;
+export function watchChrome(settings: SettingsStore, onApplied?: (result: { applied: boolean; reason: string }) => void): () => void {
+  let brandObserver: MutationObserver | null = null;
+  let waitObserver: MutationObserver | null = null;
 
-  const observer = new MutationObserver(() => {
-    const wanted = settings.get<boolean>(SHOW_IN_TITLE_BAR_ID, true);
-    const present = brand.querySelector(`.${MARK_CLASS}`) !== null;
-    if (wanted && !present) applyToChrome(settings);
-    if (!wanted && present) applyToChrome(settings);
-  });
-  observer.observe(brand, { childList: true });
-  return () => observer.disconnect();
+  const watchBrand = (brand: HTMLElement): void => {
+    brandObserver = new MutationObserver(() => {
+      const wanted = settings.get<boolean>(SHOW_IN_TITLE_BAR_ID, true);
+      const present = brand.querySelector(`.${MARK_CLASS}`) !== null;
+      if (wanted !== present) applyToChrome(settings);
+    });
+    brandObserver.observe(brand, { childList: true });
+  };
+
+  const existing = brandElement();
+  if (existing) {
+    watchBrand(existing);
+  } else {
+    // The title bar does not exist yet, and that is the ordinary case rather
+    // than an error: features are initialized before the shell mounts its
+    // chrome, so at this point there is genuinely nothing to put a mark into.
+    // Giving up here -- which is what this did originally -- meant the feature
+    // was inert for the whole session and every launch reported that the title
+    // bar could not be found. Waiting for the brand to appear applies the mark
+    // as soon as there is somewhere to apply it to.
+    waitObserver = new MutationObserver(() => {
+      const brand = brandElement();
+      if (!brand) return;
+      waitObserver?.disconnect();
+      waitObserver = null;
+      onApplied?.(applyToChrome(settings));
+      watchBrand(brand);
+    });
+    waitObserver.observe(document.body, { childList: true, subtree: true });
+  }
+
+  return () => {
+    brandObserver?.disconnect();
+    waitObserver?.disconnect();
+  };
 }
 
 /* ------------------------------------------------------------------ */

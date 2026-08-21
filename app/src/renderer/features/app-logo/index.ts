@@ -261,13 +261,21 @@ export default defineFeature({
     ctx.settings.declareDefault(CROP_ID, FULL_CROP);
     ctx.settings.declareDefault(CUSTOM_RECORD_ID, null);
 
-    const result = applyToChrome(ctx.settings);
-    if (!result.applied && ctx.settings.get<boolean>(SHOW_IN_TITLE_BAR_ID, true)) {
-      // Reported rather than swallowed: a mark that silently did not appear is
-      // indistinguishable from a mark the user never chose.
-      ctx.notify.warn(ctx.t('appLogo.notify.title', 'Application logo'), result.reason);
-    }
-    watchChrome(ctx.settings);
+    // Reported rather than swallowed: a mark that silently did not appear is
+    // indistinguishable from a mark the user never chose.
+    const report = (result: { applied: boolean; reason: string }): void => {
+      if (!result.applied && ctx.settings.get<boolean>(SHOW_IN_TITLE_BAR_ID, true)) {
+        ctx.notify.warn(ctx.t('appLogo.notify.title', 'Application logo'), result.reason);
+      }
+    };
+
+    // Features initialize BEFORE the shell mounts its title bar, so applying
+    // the mark here would always find no chrome and always warn. `watchChrome`
+    // applies immediately when the brand already exists and otherwise as soon
+    // as it appears, reporting whichever actually happened -- so the warning
+    // now means "the mark could not be placed" rather than "the shell has not
+    // been built yet", which is the only version of it a user can act on.
+    watchChrome(ctx.settings, report);
 
     ctx.settings.onChange((change) => {
       if (

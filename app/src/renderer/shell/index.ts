@@ -10,6 +10,7 @@ import { mountHeader } from './header';
 import { mountRail } from './rail';
 import { mountTitlebar } from './titlebar';
 import type { ScreenDefinition, ShellApi } from './types';
+import { SHELL_STRINGS } from './strings';
 
 /**
  * The shell: the title bar + navigation rail + per-destination screens chrome
@@ -29,6 +30,11 @@ const ACTIVE_SCREEN_SETTING_ID = 'shell.activeScreen';
 class ShellImpl implements ShellApi {
   private readonly screensById = new Map<string, ScreenDefinition>();
   private readonly listeners = new Set<(id: string) => void>();
+  /**
+   * Subtitle changes get their OWN channel, deliberately separate from
+   * `listeners` above. See `setSubtitle`.
+   */
+  private readonly subtitleListeners = new Set<(id: string) => void>();
   private readonly subtitleOverrides = new Map<string, string>();
   private activeId = '';
   private activeParams: Record<string, string> = {};
@@ -82,9 +88,34 @@ class ShellImpl implements ShellApi {
     return () => this.listeners.delete(listener);
   }
 
+  onSubtitleChange(listener: (id: string) => void): () => void {
+    this.subtitleListeners.add(listener);
+    return () => this.subtitleListeners.delete(listener);
+  }
+
+  /**
+   * Pushes a live subtitle for one screen.
+   *
+   * This notifies the SUBTITLE channel only, never the navigation channel.
+   * Re-emitting `onChange` here -- which is what this did originally, to save
+   * the header any plumbing of its own -- meant a screen that set its own
+   * subtitle while mounting re-entered the shell's `renderActiveScreen`, which
+   * mounts the screen again, which sets the subtitle again. That is an
+   * unbounded synchronous loop: the renderer pegged a core, never painted, and
+   * the window stayed blank with no error anywhere, because the re-entrancy was
+   * a navigation event rather than a thrown exception. The downloader screen
+   * (the default destination) did exactly this, so the application never
+   * reached first paint at all.
+   *
+   * A subtitle is header text. It has no business remounting a screen, and
+   * keeping the two channels apart is what makes that structurally impossible
+   * rather than a rule every future screen has to remember.
+   */
   setSubtitle(id: string, text: string): void {
+    const previous = this.subtitleOverrides.get(id);
+    if (previous === text) return;
     this.subtitleOverrides.set(id, text);
-    if (id === this.activeId) this.emit();
+    if (id === this.activeId) this.emitSubtitle();
   }
 
   /**
@@ -103,6 +134,16 @@ class ShellImpl implements ShellApi {
         listener(this.activeId);
       } catch (error) {
         console.error('A shell navigation listener threw:', error);
+      }
+    }
+  }
+
+  private emitSubtitle(): void {
+    for (const listener of [...this.subtitleListeners]) {
+      try {
+        listener(this.activeId);
+      } catch (error) {
+        console.error('A shell subtitle listener threw:', error);
       }
     }
   }
@@ -233,6 +274,11 @@ function registerHotkeys(railed: ScreenDefinition[]): void {
  * once from the boot sequence in place of the previous tab-strip chrome.
  */
 export function mountShell(root: HTMLElement, ctx: AppContext): void {
+  // The shell's own strings. Features get theirs registered during feature
+  // discovery; the shell is mounted directly and has no such hook, so it
+  // registers here -- before any screen mounts and asks for one.
+  ctx.i18n.register(SHELL_STRINGS);
+
   discoverScreens(ctx);
 
   root.textContent = '';
@@ -253,7 +299,18 @@ export function mountShell(root: HTMLElement, ctx: AppContext): void {
   root.append(titlebar, body);
 
   let disposeCurrent: (() => void) | undefined;
+  // Mounting a screen must never re-enter mounting. A screen that navigates or
+  // otherwise re-emits during its own `mount` would otherwise loop forever,
+  // synchronously, with no exception to surface it -- the exact defect that
+  // kept this application on a blank window. `setSubtitle` no longer does that,
+  // and this makes the whole class of it impossible rather than trusting every
+  // future screen to avoid it.
+  let mounting = false;
   const renderActiveScreen = (id: string): void => {
+    if (mounting) {
+      console.warn(`Ignored a navigation to "${id}" raised while a screen was still mounting.`);
+      return;
+    }
     if (typeof disposeCurrent === 'function') disposeCurrent();
     content.textContent = '';
     const screen = shell.screen(id);
@@ -267,7 +324,12 @@ export function mountShell(root: HTMLElement, ctx: AppContext): void {
       disposeCurrent = undefined;
       return;
     }
-    disposeCurrent = screen.mount(content, ctx) ?? undefined;
+    mounting = true;
+    try {
+      disposeCurrent = screen.mount(content, ctx) ?? undefined;
+    } finally {
+      mounting = false;
+    }
     ctx.settings.set(ACTIVE_SCREEN_SETTING_ID, id);
   };
 

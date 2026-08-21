@@ -233,7 +233,16 @@ export function mountTitlebar(ctx: AppContext, drawer: DrawerHandle): HTMLElemen
     if (result.ok) applyWindowState(result.value);
   });
 
-  header.append(hamburger, brandIcon, brandText, spacer, searchPill, actions, controls);
+  // The brand icon and name live in one named container so the app-logo
+  // feature has something to find and prepend its mark into. Without it that
+  // feature is inert: its selector was written against the previous chrome's
+  // `.md-titlebar__brand`, which no element has rendered since this shell
+  // replaced the tab strip, so every launch reported that the title bar could
+  // not be found.
+  const brand = el('div', { className: 'wds-titlebar__brand' });
+  brand.append(brandIcon, brandText);
+
+  header.append(hamburger, brand, spacer, searchPill, actions, controls);
 
   ctx.settings.onChange((change) => {
     if (change.id === APP_DISPLAY_NAME_ID || change.id === PROFILES_SETTING_ID || change.id === LAST_PROFILE_SETTING_ID) {
