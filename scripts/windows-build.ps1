@@ -137,7 +137,7 @@ $MinimumJarBytes = 1MB
 
 $script:Phases = @()
 $script:PhaseIndex = 0
-$script:PhaseTotal = if ($Mode -eq 'installer') { 12 } else { 8 }
+$script:PhaseTotal = if ($Mode -eq 'installer') { 13 } else { 8 }
 $script:NodeExe = $null
 $script:NpmCmd = $null
 $script:JavaHome = $null
@@ -1248,6 +1248,73 @@ function Confirm-JavaEngine {
 # fine for running the application straight out of the checkout.
 # --------------------------------------------------------------------------- #
 
+# --------------------------------------------------------------------------- #
+# The Scraper bot project's own dependencies.
+#
+# scraper/ is a standalone Node project one directory above app/, packaged
+# whole into the installer (electron-builder.yml copies ../scraper -> scraper
+# and ../scraper/node_modules -> scraper/node_modules) so the Scraper bot tab
+# works on a machine that has never had Node installed. Its dependencies are
+# NOT app/node_modules and are not installed by the phase that fills that:
+# they are a separate npm project with its own manifest.
+#
+# Without this phase the installer build reaches packaging and dies at
+# app/scripts/check-scraper-bundle.mjs, naming the exact missing packages --
+# which is the guard behaving correctly, and a one-click script that cannot
+# reach an installer from a bare checkout behaving incorrectly. The release
+# workflow has always installed these in its own step; only the local path
+# was missing it, so this failed on a fresh machine while CI stayed green.
+# --------------------------------------------------------------------------- #
+
+function Install-ScraperDependencies {
+    $phase = Start-Phase 'Scraper bot dependencies'
+
+    $scraperDir = Join-Path $RepoRoot 'scraper'
+    if (-not (Test-Path -LiteralPath $scraperDir)) {
+        Stop-WithFailure -Dependency 'scraper/ (the Scraper bot project)' `
+            -Constraint 'the directory must exist in this checkout' `
+            -Source $scraperDir `
+            -Problem 'the standalone Scraper bot project is missing from this checkout'
+    }
+
+    # The packaging guard is the authority on "ready", so ask it rather than
+    # keeping a second list of package names here that could drift from it.
+    $guard = Join-Path $AppDir 'scripts\check-scraper-bundle.mjs'
+    if (Test-Path -LiteralPath $guard) {
+        $probe = Invoke-Stream -File $script:NodeExe -Arguments @('scripts/check-scraper-bundle.mjs') -WorkingDirectory $AppDir
+        if ($probe -eq 0) {
+            Write-Found 'scrape.js and every declared Scraper bot dependency are already installed'
+            Complete-Phase $phase 'skipped'
+            return
+        }
+    }
+
+    $lock = Join-Path $scraperDir 'package-lock.json'
+    $code = $null
+    if (Test-Path -LiteralPath $lock) {
+        Write-Step 'npm ci --no-audit --no-fund  (in scraper/)'
+        $code = Invoke-Stream -File $script:NpmCmd -Arguments @('ci', '--no-audit', '--no-fund') -WorkingDirectory $scraperDir
+        if ($code -ne 0) {
+            Write-Warn ("npm ci exited {0} in scraper/; falling back to npm install" -f $code)
+            $code = $null
+        }
+    }
+    if ($null -eq $code) {
+        Write-Step 'npm install --no-audit --no-fund  (in scraper/)'
+        $code = Invoke-Stream -File $script:NpmCmd -Arguments @('install', '--no-audit', '--no-fund') -WorkingDirectory $scraperDir
+    }
+    if ($code -ne 0) {
+        Stop-WithFailure -Dependency 'scraper/node_modules (Scraper bot dependencies)' `
+            -Constraint 'as declared by scraper/package.json' `
+            -Source 'the npm registry configured for this machine' `
+            -Problem ("npm exited {0}; its output is immediately above this message" -f $code) `
+            -Attempts @('npm ci --no-audit --no-fund', 'npm install --no-audit --no-fund')
+    }
+
+    Write-Added ('Scraper bot dependencies into ' + (Join-Path $scraperDir 'node_modules'))
+    Complete-Phase $phase
+}
+
 function Resolve-BundledRuntimeDependencies {
     $phase = Start-Phase 'Fetch bundled runtime dependencies (JRE, MinGit)'
 
@@ -1531,6 +1598,7 @@ if ($Mode -eq 'installer') {
     Resolve-MavenToolchain
     Build-JavaEngine
     Confirm-JavaEngine
+    Install-ScraperDependencies
     Resolve-BundledRuntimeDependencies
     Build-Installer
     Confirm-Installer

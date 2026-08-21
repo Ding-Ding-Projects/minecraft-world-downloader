@@ -299,6 +299,16 @@ existing application and jar.
   events and is the first thing `app/src/main/index.ts` does. `--squirrel-firstrun` is
   deliberately NOT one of them: it means the user opened the app through the new shortcut, so it
   must start normally.
+- **`scraper/` has its own dependencies, and they are not `app/node_modules`.** It is a separate
+  npm project one directory up, packaged whole into the installer, so `npm ci` in `app/` does
+  nothing for it. The release workflow has always installed them in its own step; the local
+  `build-installer.bat` did not, so a fresh checkout got all the way to packaging and died at
+  `check-scraper-bundle.mjs` naming the three missing packages. That was the guard working and
+  the one-click script not: a script whose whole promise is reaching an installer from a bare
+  checkout has to install every dependency it needs. `scripts/windows-build.ps1` now has a
+  `Scraper bot dependencies` phase (installer mode is 13 phases, not 12) that asks
+  `check-scraper-bundle.mjs` whether anything is missing rather than keeping a second copy of the
+  package list that could drift from it.
 - **`-DskipTests` is deliberate, not a gap.** See [Checks that run](#checks-that-run-and-checks-that-do-not).
 - **Squirrel.Windows only, x64 only.** No NSIS, no MSI, no ARM64 build. `signAndEditExecutable:
   false` was tried before `signExecutable: false` and rejected: it skips both code signing *and*
