@@ -12,6 +12,13 @@ where things stand; that file is what actually gets checked off.
 
 Status marks below follow the inventory's own legend: ✅ done, 🏗️ in progress, ⬜ not started.
 
+## Repository maintenance record
+
+- [x] Reconcile the primary checkout with `origin/main` after fetching all remote refs on 2026-09-18.
+- [x] Preserve and verify the external archive before removing the redundant linked checkout record.
+- [x] Confirm that `codex/catalog-install-proof-05-minecraft` was fully contained in `main` before removal.
+- [x] Record that no uncommitted files, Git stashes, unresolved index entries, or conflict markers were present.
+
 ## Where things stand right now
 
 | Area | Status | Evidence |

@@ -160,7 +160,7 @@ per-task discretion:
 
 ### A.6 What is verified, and what is not
 
-**Last updated: 2026-08-14, at commit `5c4a8df`.** Be precise about this distinction — it is the one
+**Last updated: 2026-09-18, at the reconciliation commit recorded below.** Be precise about this distinction — it is the one
 most likely to be misread by whoever picks this up next, and this section has been wrong before: it
 previously claimed no release of `app/` had ever been published, long after ninety-three had.
 
@@ -175,6 +175,29 @@ previously claimed no release of `app/` had ever been published, long after nine
 - **`build.bat`, `build-installer.bat` and `download-dependencies.bat` all exist at the repository
   root**, and the dependency fetcher pins every binary it installs to an exact version and a
   recorded SHA-256 in `scripts/dependency-manifest.json`.
+
+### A.8 Repository reconciliation and cleanup, 2026-09-18
+
+- The primary checkout at `C:\Users\cntow\Documents\GitHub\minecraft-world-downloader` was
+  clean on `main` at the start of this pass. `git fetch --all --prune` completed successfully, and
+  `origin/main` remained at `bfbbbb707b03088832db0391bb554d9bfed4b7f8`.
+- The only linked checkout discovered from this repository was
+  `C:\Users\cntow\.codex\worktrees\minecraft-world-downloader-catalog-install-proof-05`. Its
+  directory was already absent, its branch was `codex/catalog-install-proof-05-minecraft`, and its
+  tip `179d4ccbc6ffafb4f45e3225e90153fe2424d7e2` had no commits absent from `main`.
+- No uncommitted files, Git stashes, unresolved index entries, conflict markers, or unique linked
+  checkout changes were found. No conflict resolution was required.
+- Before removal, the complete Git administration directory and the Git-selected tracked and
+  nonignored source set were archived and verified at
+  `C:\Users\cntow\OneDrive\OakKayBackups\minecraft-world-downloader\zips\minecraft-world-downloader-20260918T172336Z.7z`.
+  The archive is 36,829,619 bytes and contains 1,851 files in 64 folders. The source set contained
+  1,731 tracked files and zero untracked nonignored files; ignored files were excluded by Git's
+  selection rules.
+- The redundant local branch and stale linked checkout metadata were removed only after proving the
+  linked tip was an ancestor of the fetched `origin/main`. The `app-v1.0.99` tag remains as the
+  historical reference for that commit.
+- This pass performed no release work and did not alter the blocked `fong-chret-gay-hay` family or
+  any other Oak Kay.
 - **The world vault is proven against the real `git` binary**, not around it — `tests/integration/
   world-vault-git.test.ts` drives real repositories through real subprocesses.
 
